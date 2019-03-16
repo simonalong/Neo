@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NeoDb {
 
     /**
+     * 数据库映射：一个系统可能有多个
+     */
+    private Map<String, List<String>> dbMap = new ConcurrentHashMap<>();
+    /**
      * 库映射：一个库可以有多个域
      */
     private static Map<String, List<NeoDb>> catalogMap = new ConcurrentHashMap<>();
