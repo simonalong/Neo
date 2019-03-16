@@ -32,7 +32,6 @@ public class Neo {
 
     Logger log = LoggerFactory.getLogger(Neo.class);
 
-    private Connection conn;
     private Map<String, NeoDb> dbMap = new ConcurrentHashMap<>();
     /**
      * 默认的名称转换
@@ -40,31 +39,46 @@ public class Neo {
     private String defaultDbName = "default";
 
     private static final String SELECT = "select";
-
+    private ConnectPool pool;
 
     private Neo(){}
 
     public static Neo connect(String url, String username, String password) throws SQLException {
         Neo neo = new Neo();
-        neo.conn = DriverManager.getConnection(url, username, password);
+        Properties properties = new Properties();
+        properties.setProperty("URL", url);
+        properties.setProperty("user", username);
+        properties.setProperty("password", password);
+        neo.pool = new ConnectPool(properties);
         return neo;
     }
 
-    public static Neo connect(String url) throws SQLException {
+    public static Neo connect(String url, String username, String password, Properties properties) throws SQLException {
         Neo neo = new Neo();
-        neo.conn = DriverManager.getConnection(url);
+        Properties baseProperties = new Properties();
+        baseProperties.setProperty("URL", url);
+        baseProperties.setProperty("user", username);
+        baseProperties.setProperty("password", password);
+        baseProperties.putAll(properties);
+        neo.pool = new ConnectPool(baseProperties);
         return neo;
     }
 
-    public static Neo connect(String url, Properties info) throws SQLException {
+    public static Neo connect(String propertiesClassPath) {
         Neo neo = new Neo();
-        neo.conn = DriverManager.getConnection(url, info);
+        neo.pool = new ConnectPool(propertiesClassPath);
         return neo;
     }
 
-    public static Neo connect(DataSource dataSource) throws SQLException {
+    public static Neo connect(Properties properties) {
         Neo neo = new Neo();
-        neo.conn = dataSource.getConnection();
+        neo.pool = new ConnectPool(properties);
+        return neo;
+    }
+
+    public static Neo connect(DataSource dataSource) {
+        Neo neo = new Neo();
+        neo.pool = new ConnectPool(dataSource);
         return neo;
     }
 
@@ -79,7 +93,7 @@ public class Neo {
      * @return 插入之后的返回值
      */
     public NeoMap insert(String tableName, NeoMap neoMap) {
-        if (null != conn && !NeoMap.isEmpty(neoMap)) {
+        if (!NeoMap.isEmpty(neoMap)) {
             executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
         }
         return neoMap;
@@ -97,7 +111,7 @@ public class Neo {
      * @return 插入之后的返回值
      */
     public Integer delete(String tableName, NeoMap searchMap) {
-        if (null != conn && !NeoMap.isEmpty(searchMap)) {
+        if (!NeoMap.isEmpty(searchMap)) {
             executeUpdate(NeoMap.of(), searchMap, generateDeleteSql(tableName, searchMap));
         }
         return 1;
@@ -274,7 +288,7 @@ public class Neo {
      * @return 指定的数据值
      */
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
-        if (null != conn && null != tClass && !NeoMap.isEmpty(searchMap)) {
+        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
             Iterator<Object> iterator = executeQuery(generateValueSqlPair(tableName, field, searchMap, tailSql)).values().iterator();
             return iterator.hasNext() ? asObject(tClass, iterator.next()) : null;
         }
@@ -318,14 +332,12 @@ public class Neo {
      * @return 查询到的数据实体，如果没有找到则返回null
      */
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        if (null != conn) {
-            List<NeoMap> resultList = executeQueryList(generateValuesSqlPair(sql, Arrays.asList(parameters)));
-            if (!resultList.isEmpty()) {
-                return resultList.stream().map(r -> {
-                    Iterator<Object> it = r.values().iterator();
-                    return it.hasNext() ? asObject(tClass, it.next()) : null;
-                }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-            }
+        List<NeoMap> resultList = executeQueryList(generateValuesSqlPair(sql, Arrays.asList(parameters)));
+        if (!resultList.isEmpty()) {
+            return resultList.stream().map(r -> {
+                Iterator<Object> it = r.values().iterator();
+                return it.hasNext() ? asObject(tClass, it.next()) : null;
+            }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -344,7 +356,7 @@ public class Neo {
      * @return 一列值
      */
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
-        if (null != conn && null != tClass && !NeoMap.isEmpty(searchMap)) {
+        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
             List<NeoMap> resultList = executeQueryList(generateValuesSqlPair(tableName, field, searchMap, tailSql));
             if(!resultList.isEmpty()){
                 return resultList.stream()
@@ -468,12 +480,10 @@ public class Neo {
      * @param parameters 参数
      * @return 一个结果Map
      */
-    public Integer exeCount(String sql, Object... parameters){
-        if (null != conn) {
-            Iterator<Object> iterator = executeQuery(generateValueSqlPair(sql, Arrays.asList(parameters))).values().iterator();
-            return iterator.hasNext() ? Integer.valueOf(asString(iterator.next())) : null;
-        }
-        return null;
+    public Integer exeCount(String sql, Object... parameters) {
+        Iterator<Object> iterator = executeQuery(generateValueSqlPair(sql, Arrays.asList(parameters))).values()
+            .iterator();
+        return iterator.hasNext() ? Integer.valueOf(asString(iterator.next())) : null;
     }
 
     public Integer count(String tableName) {
@@ -496,8 +506,8 @@ public class Neo {
      * @param sql 拼接后的sql
      */
     private void executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
-        if (null != conn) {
-            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+        try(Connection con = pool.getConnect()){
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
 
                 List<String> fieldList = new ArrayList<>(dataMap.keySet());
                 int i, dataSize = fieldList.size();
@@ -510,10 +520,11 @@ public class Neo {
                     statement.setObject(i + 1 + dataSize, searchMap.get(whereFieldList.get(i)));
                 }
                 statement.executeUpdate();
-                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -529,23 +540,25 @@ public class Neo {
         String sql = sqlPair.getKey();
         List<Object> parameters = sqlPair.getValue();
         NeoMap result = NeoMap.of();
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+        try(Connection con = pool.getConnect()){
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
 
-            for (int i = 0; i < parameters.size(); i++) {
-                statement.setObject(i + 1, parameters.get(i));
-            }
-
-            ResultSet rs = statement.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int col = metaData.getColumnCount();
-
-            if (rs.next()) {
-                for (int j = 1; j <= col; j++) {
-                    result.put(metaData.getColumnName(j), rs.getObject(j));
+                for (int i = 0; i < parameters.size(); i++) {
+                    statement.setObject(i + 1, parameters.get(i));
                 }
+
+                ResultSet rs = statement.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int col = metaData.getColumnCount();
+
+                if (rs.next()) {
+                    for (int j = 1; j <= col; j++) {
+                        result.put(metaData.getColumnName(j), rs.getObject(j));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            statement.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -564,25 +577,28 @@ public class Neo {
         String sql = sqlPair.getKey();
         List<Object> parameters = sqlPair.getValue();
         List<NeoMap> result = new ArrayList<>();
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+        try (Connection con = pool.getConnect()) {
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
 
-            for (int i = 0; i < parameters.size(); i++) {
-                statement.setObject(i + 1, parameters.get(i));
-            }
-
-            ResultSet rs = statement.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int col = metaData.getColumnCount();
-
-            while (rs.next()) {
-                NeoMap row = NeoMap.of();
-                for (int j = 1; j <= col; j++) {
-                    row.put(metaData.getColumnName(j), rs.getObject(j));
+                for (int i = 0; i < parameters.size(); i++) {
+                    statement.setObject(i + 1, parameters.get(i));
                 }
-                result.add(row);
+
+                ResultSet rs = statement.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int col = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    NeoMap row = NeoMap.of();
+                    for (int j = 1; j <= col; j++) {
+                        row.put(metaData.getColumnName(j), rs.getObject(j));
+                    }
+                    result.add(row);
+                }
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            statement.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
