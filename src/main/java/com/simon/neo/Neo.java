@@ -29,30 +29,29 @@ public class Neo {
 
     Logger log = LoggerFactory.getLogger(Neo.class);
 
-    private NeoDb dbInfo;
+    private DbManager dbManager;
     private ConnectPool pool;
     private static final String SELECT = "select";
 
     private Neo(){}
 
-    public static Neo connect(String url, String username, String password, String schema, String dbName) {
+    public static Neo connect(String url, String username, String password, Properties properties) {
         Neo neo = new Neo();
-        Properties properties = new Properties();
-        properties.setProperty("jdbcUrl", url);
-        properties.setProperty("dataSource.user", username);
-        properties.setProperty("dataSource.password", password);
-        neo.pool = new ConnectPool(properties);
+        Properties baseProper = new Properties();
+        baseProper.setProperty("jdbcUrl", url);
+        baseProper.setProperty("dataSource.user", username);
+        baseProper.setProperty("dataSource.password", password);
+        if(null != properties && !properties.isEmpty()) {
+            baseProper.putAll(properties);
+        }
+        neo.pool = new ConnectPool(baseProper);
 
-        neo.dbInfo = NeoDb.of(schema, dbName);
+
         return neo;
     }
 
     public static Neo connect(String url, String username, String password) {
-        return connect(url, username, password, null, null);
-    }
-
-    public static Neo connect(String url, String username, String password, String dbName) {
-        return connect(url, username, password, null, dbName);
+        return connect(url, username, password, null);
     }
 
     /**
@@ -77,13 +76,13 @@ public class Neo {
         return neo;
     }
 
-    public Neo initDb(String schema, String dbName){
-        this.dbInfo = NeoDb.of(schema, dbName);
+    public Neo initDb(String catalog, String schema){
+        this.dbManager = DbManager.getInstance().add(this, catalog, schema);
         return this;
     }
 
-    public Neo initDb(String dbName){
-        this.dbInfo = NeoDb.of(dbName);
+    public Neo initDb(String catalog){
+        this.dbManager = DbManager.getInstance().add(this, catalog, null);
         return this;
     }
 
@@ -95,7 +94,7 @@ public class Neo {
      */
     public NeoMap insert(String tableName, NeoMap neoMap) {
         Long id = executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
-        String incrementKey = dbInfo.getAutoIncrementName(tableName);
+        String incrementKey = dbManager.getAutoIncrementName(tableName);
         if (null != incrementKey) {
             neoMap.put(incrementKey, id);
             return one(tableName, neoMap);
@@ -176,12 +175,12 @@ public class Neo {
      * @param tailSql sql尾部后缀
      * @return 返回一个实体的Map影射
      */
-    public NeoMap one(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql) {
+    public NeoMap one(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
         return executeQuery(generateOneSqlPair(tableName, columns, searchMap, tailSql));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T one(String tableName, NeoColumn columns, T entity, String tailSql){
+    public <T> T one(String tableName, Columns columns, T entity, String tailSql){
         return one(tableName, columns, NeoMap.from(entity), tailSql).as((Class<T>) entity.getClass());
     }
 
@@ -193,11 +192,11 @@ public class Neo {
         return one(tableName, null, entity, tailSql);
     }
 
-    public NeoMap one(String tableName, NeoColumn columns, NeoMap searchMap){
+    public NeoMap one(String tableName, Columns columns, NeoMap searchMap){
         return one(tableName, columns, searchMap, null);
     }
 
-    public <T> T one(String tableName, NeoColumn columns, T entity){
+    public <T> T one(String tableName, Columns columns, T entity){
         return one(tableName, columns, entity, null);
     }
 
@@ -234,12 +233,12 @@ public class Neo {
      * @param tailSql 尾部sql
      * @return 返回一列数据
      */
-    public List<NeoMap> list(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql) {
+    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
         return executeQueryList(generateListSqlPair(tableName, columns, searchMap, tailSql));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> list(String tableName, NeoColumn columns, T entity, String tailSql){
+    public <T> List<T> list(String tableName, Columns columns, T entity, String tailSql){
         return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity), tailSql), (Class<T>) entity.getClass());
     }
 
@@ -251,11 +250,11 @@ public class Neo {
         return list(tableName, null, entity, tailSql);
     }
 
-    public List<NeoMap> list(String tableName, NeoColumn columns, NeoMap searchMap){
+    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap){
         return list(tableName, columns, searchMap, null);
     }
 
-    public <T> List<T> list(String tableName, NeoColumn columns, T entity){
+    public <T> List<T> list(String tableName, Columns columns, T entity){
         return list(tableName, columns, entity, null);
     }
 
@@ -410,7 +409,7 @@ public class Neo {
      * @param pageSize  分页大小
      * @return 分页对应的数据
      */
-    public List<NeoMap> page(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql, Integer startIndex,
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex,
         Integer pageSize) {
         return executeQueryList(generatePageSqlPair(tableName, columns, searchMap, tailSql, startIndex, pageSize));
     }
@@ -419,7 +418,7 @@ public class Neo {
         return page(tableName, null, searchMap, tailSql, startIndex, pageSize);
     }
 
-    public List<NeoMap> page(String tableName, NeoColumn columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
         return page(tableName, columns, searchMap, null, startIndex, pageSize);
     }
 
@@ -427,7 +426,7 @@ public class Neo {
         return page(tableName, null, searchMap, startIndex, pageSize);
     }
 
-    public List<NeoMap> page(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql, NeoPage page){
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
         return page(tableName, columns, searchMap, tailSql, page.startIndex(), page.pageSize());
     }
 
@@ -435,7 +434,7 @@ public class Neo {
         return page(tableName, null, searchMap, tailSql, page.startIndex(), page.pageSize());
     }
 
-    public List<NeoMap> page(String tableName, NeoColumn columns, NeoMap searchMap, NeoPage page){
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page){
         return page(tableName, columns, searchMap, null, page.startIndex(), page.pageSize());
     }
 
@@ -444,7 +443,7 @@ public class Neo {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> page(String tableName, NeoColumn columns, T entity, String tailSql, Integer startIndex,
+    public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, Integer startIndex,
         Integer pageSize) {
         return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity), tailSql, startIndex, pageSize),
             (Class<T>) entity.getClass());
@@ -454,7 +453,7 @@ public class Neo {
         return page(tableName, null, entity, tailSql, startIndex, pageSize);
     }
 
-    public <T> List<T> page(String tableName, NeoColumn columns, T entity, Integer startIndex, Integer pageSize){
+    public <T> List<T> page(String tableName, Columns columns, T entity, Integer startIndex, Integer pageSize){
         return page(tableName, columns, entity, null, startIndex, pageSize);
     }
 
@@ -462,7 +461,7 @@ public class Neo {
         return page(tableName, null, entity, startIndex, pageSize);
     }
 
-    public <T> List<T> page(String tableName, NeoColumn columns, T entity, String tailSql, NeoPage page){
+    public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, NeoPage page){
         return page(tableName, columns, entity, tailSql, page.startIndex(), page.pageSize());
     }
 
@@ -470,7 +469,7 @@ public class Neo {
         return page(tableName, null, entity, tailSql, page.startIndex(), page.pageSize());
     }
 
-    public <T> List<T> page(String tableName, NeoColumn columns, T entity, NeoPage page){
+    public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){
         return page(tableName, columns, entity, null, page.startIndex(), page.pageSize());
     }
 
@@ -659,7 +658,7 @@ public class Neo {
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<Object>> generateOneSqlPair(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql){
+    private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         return new Pair<>(generateOneSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
@@ -677,14 +676,14 @@ public class Neo {
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<Object>> generateListSqlPair(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql){
+    private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         return new Pair<>(generateListSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<Object>> generatePageSqlPair(String tableName, NeoColumn columns, NeoMap searchMap,
+    private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         String tailSql, Integer pageIndex, Integer pageSize) {
         return new Pair<>(generatePageSql(tableName, columns, searchMap, tailSql, pageIndex, pageSize), generateValueList(searchMap));
     }
@@ -736,9 +735,9 @@ public class Neo {
      * @param searchMap 查询参数
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
      */
-    private String generateOneSql(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql) {
+    private String generateOneSql(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
         StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!NeoColumn.isEmpty(columns)) {
+        if (!Columns.isEmpty(columns)) {
             sqlAppender.append(columns.buildFields());
         } else {
             sqlAppender.append("*");
@@ -759,9 +758,9 @@ public class Neo {
      * @param searchMap 查询参数
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
-    private String generateListSql(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql){
+    private String generateListSql(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!NeoColumn.isEmpty(columns)){
+        if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());
         }else{
             sqlAppender.append("*");
@@ -781,9 +780,9 @@ public class Neo {
      * @param searchMap 查询参数
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
-    private String generatePageSql(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
+    private String generatePageSql(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
         StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!NeoColumn.isEmpty(columns)){
+        if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());
         }else{
             sqlAppender.append("*");

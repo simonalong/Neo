@@ -12,41 +12,31 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NeoDb {
 
     /**
-     * 数据库映射：一个系统可能有多个
-     */
-    private Map<String, List<String>> dbMap = new ConcurrentHashMap<>();
-    /**
-     * 库映射：一个库可以有多个域
-     */
-    private static Map<String, List<NeoDb>> catalogMap = new ConcurrentHashMap<>();
-    /**
-     * 域映射：一个域里面会有多个表
-     */
-    private Map<String, List<NeoTable>> schemaMap = new ConcurrentHashMap<>();
-    /**
-     * 数据库，我们这里支持多库的读取，因此，这里可以在库定义上面再定义一层
-     */
-    private String dbName;
-    /**
-     * 库名字，我们这里设定为数据库的名字
+     * catalog 名字，目录，注意：在某些数据库中，这个就是库名
      */
     private String catalogName;
     /**
-     * 域名字，对应系统中业务划分的不同的划分区域名字，但是有些数据库不支持，比如mysql就不支持
+     * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：_default_
      */
-    private String schemaName;
+    private Map<String, List<NeoTable>> schemaToTableMap = new ConcurrentHashMap<>();
 
-    private NeoDb(String catalogName, String schemaName) {
+    private NeoDb(String catalogName, String schemaName, String tableName) {
         this.catalogName = (null == catalogName) ? "default" : catalogName;
-        this.schemaName = (null == schemaName) ? "default" : schemaName;
-        catalogMap.compute(catalogName, (k, v) -> {
-            if (null == v) {
-                return new ArrayList<>();
-            } else {
-                v.add(this);
-                return v;
-            }
+        schemaName = (null == schemaName) ? "default" : schemaName;
+        schemaToTableMap.compute(schemaName, (k,v)->{
+           if(null == v){
+               List<NeoTable> tableList = new ArrayList<>();
+               tableList.add(NeoTable.of(tableName));
+               return tableList;
+           }else{
+               v.add(NeoTable.of(tableName));
+               return v;
+           }
         });
+    }
+
+    private NeoDb(String catalogName) {
+        this.catalogName = (null == catalogName) ? "default" : catalogName;
     }
 
     public static NeoDb of(String schemaName, String dbName){
