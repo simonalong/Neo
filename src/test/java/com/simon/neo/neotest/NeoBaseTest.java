@@ -19,6 +19,5 @@ public class NeoBaseTest extends BaseTest {
 
     public Neo neo = Neo.connect(URL, USER, PASSWORD);
 
-    public NeoBaseTest() throws SQLException {
-    }
+    public NeoBaseTest() throws SQLException {}
 }

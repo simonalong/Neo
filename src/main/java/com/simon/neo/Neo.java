@@ -1,7 +1,6 @@
 package com.simon.neo;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,11 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,41 +29,39 @@ public class Neo {
 
     Logger log = LoggerFactory.getLogger(Neo.class);
 
-    private Map<String, NeoDb> dbMap = new ConcurrentHashMap<>();
-    /**
-     * 默认的名称转换
-     */
-    private String defaultDbName = "default";
-
-    private static final String SELECT = "select";
+    private NeoDb dbInfo;
     private ConnectPool pool;
+    private static final String SELECT = "select";
 
     private Neo(){}
 
-    public static Neo connect(String url, String username, String password) throws SQLException {
+    public static Neo connect(String url, String username, String password, String schema, String dbName) {
         Neo neo = new Neo();
         Properties properties = new Properties();
-        properties.setProperty("URL", url);
-        properties.setProperty("user", username);
-        properties.setProperty("password", password);
+        properties.setProperty("jdbcUrl", url);
+        properties.setProperty("dataSource.user", username);
+        properties.setProperty("dataSource.password", password);
         neo.pool = new ConnectPool(properties);
+
+        neo.dbInfo = NeoDb.of(schema, dbName);
         return neo;
     }
 
-    public static Neo connect(String url, String username, String password, Properties properties) throws SQLException {
-        Neo neo = new Neo();
-        Properties baseProperties = new Properties();
-        baseProperties.setProperty("URL", url);
-        baseProperties.setProperty("user", username);
-        baseProperties.setProperty("password", password);
-        baseProperties.putAll(properties);
-        neo.pool = new ConnectPool(baseProperties);
-        return neo;
+    public static Neo connect(String url, String username, String password) {
+        return connect(url, username, password, null, null);
     }
 
-    public static Neo connect(String propertiesClassPath) {
+    public static Neo connect(String url, String username, String password, String dbName) {
+        return connect(url, username, password, null, dbName);
+    }
+
+    /**
+     * 通过路径加载生成
+     * @param propertiesPath 可以为绝对文件路径，也可以为classpath路径
+     */
+    public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
-        neo.pool = new ConnectPool(propertiesClassPath);
+        neo.pool = new ConnectPool(propertiesPath);
         return neo;
     }
 
@@ -82,8 +77,14 @@ public class Neo {
         return neo;
     }
 
-    public NeoTable getTable(){
-        return new NeoTable();
+    public Neo initDb(String schema, String dbName){
+        this.dbInfo = NeoDb.of(schema, dbName);
+        return this;
+    }
+
+    public Neo initDb(String dbName){
+        this.dbInfo = NeoDb.of(dbName);
+        return this;
     }
 
     /**
@@ -93,10 +94,12 @@ public class Neo {
      * @return 插入之后的返回值
      */
     public NeoMap insert(String tableName, NeoMap neoMap) {
-        if (!NeoMap.isEmpty(neoMap)) {
-            executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
+        Long id = executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
+        String incrementKey = dbInfo.getAutoIncrementName(tableName);
+        if (null != incrementKey) {
+            neoMap.put(incrementKey, id);
         }
-        return neoMap;
+        return one(tableName, neoMap);
     }
 
     @SuppressWarnings("unchecked")
@@ -110,14 +113,14 @@ public class Neo {
      * @param searchMap where 后面的条件数据
      * @return 插入之后的返回值
      */
-    public Integer delete(String tableName, NeoMap searchMap) {
+    public Long delete(String tableName, NeoMap searchMap) {
         if (!NeoMap.isEmpty(searchMap)) {
-            executeUpdate(NeoMap.of(), searchMap, generateDeleteSql(tableName, searchMap));
+            return executeUpdate(NeoMap.of(), searchMap, generateDeleteSql(tableName, searchMap));
         }
-        return 1;
+        return 0L;
     }
 
-    public <T> Integer delete(String tableName, T entity) {
+    public Long delete(String tableName, Object entity) {
         return delete(tableName, NeoMap.from(entity));
     }
 
@@ -505,7 +508,7 @@ public class Neo {
      * @param searchMap where 后面搜索的数据
      * @param sql 拼接后的sql
      */
-    private void executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
+    private Long executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
         try(Connection con = pool.getConnect()){
             try (PreparedStatement statement = con.prepareStatement(sql)) {
 
@@ -520,12 +523,18 @@ public class Neo {
                     statement.setObject(i + 1 + dataSize, searchMap.get(whereFieldList.get(i)));
                 }
                 statement.executeUpdate();
+
+                ResultSet rs = statement.getGeneratedKeys();
+                if(rs.next()){
+                    return rs.getLong(0);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return 0L;
     }
 
     /**
@@ -595,7 +604,6 @@ public class Neo {
                     }
                     result.add(row);
                 }
-                statement.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

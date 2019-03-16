@@ -9,5 +9,7 @@ import java.util.List;
  */
 public class NeoTable {
 
+    private NeoDb db;
+
     private List<NeoColumn> columnList = new ArrayList();
 }

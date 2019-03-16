@@ -15,4 +15,14 @@ public class connectTest extends BaseTest{
 
         show(neo.insert("tina_test", NeoMap.of("group", "con1")));
     }
+
+    @Test
+    public void testDirectConnect(){
+        String url = "jdbc:mysql://118.31.38.50:3306/tina?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "like";
+        String password = "Like@123";
+        Neo neo = Neo.connect(url, user, password);
+
+        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+    }
 }
