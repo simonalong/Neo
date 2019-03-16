@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import java.util.Properties;
 import org.junit.Test;
 
 /**
@@ -9,7 +10,7 @@ import org.junit.Test;
 public class connectTest extends BaseTest{
 
     @Test
-    public void test1(){
+    public void testPropertiesFromPath(){
         Neo neo = Neo.connect("/config/db.properties");
 
         show(neo.insert("tina_test", NeoMap.of("group", "con1")));
