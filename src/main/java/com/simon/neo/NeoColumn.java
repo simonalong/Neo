@@ -10,32 +10,41 @@ import java.util.Set;
  */
 public class NeoColumn {
 
-    private Set<String> fieldSets = new LinkedHashSet<>();
-
-    private NeoColumn(){}
-
-    public static NeoColumn of(String... fields){
-        return new NeoColumn().addAll(fields);
-    }
-
-    public static boolean isEmpty(NeoColumn neoColumn){
-        return null == neoColumn || neoColumn.isEmpty();
-    }
-
     /**
-     * 返回select 后面选择的列对应的数据库的字段
-     * @return 比如：`xxx`, `kkk`
+     * 数据库中的列名
      */
-    public String buildFields(){
-        return "`" + String.join("`, `", fieldSets) + "`";
-    }
-
-    public NeoColumn addAll(String... fields){
-        this.fieldSets.addAll(Arrays.asList(fields));
-        return this;
-    }
-
-    public boolean isEmpty(){
-        return fieldSets.isEmpty();
-    }
+    private String columnName;
+    /**
+     * 列的别名
+     */
+    private String columnLabel;
+    /**
+     * 尺寸大小
+     */
+    private Integer size;
+    /**
+     * 列的转换的java的类型
+     */
+    private Class<?> javaClass;
+    /**
+     * 列的JDBC类型
+     * @see java.sql.JDBCType
+     */
+    private String columnJDBCType;
+    /**
+     * 列的数据库中定义的类型
+     */
+    private String columnTypeName;
+    /**
+     * 列是否是可以自增的
+     */
+    private Boolean isAutoIncrement;
+    /**
+     * 列是否是主键
+     */
+    private Boolean isPrimaryKey;
+    /**
+     * 列是否是外键
+     */
+    private Boolean isForeignKey;
 }

@@ -98,8 +98,9 @@ public class Neo {
         String incrementKey = dbInfo.getAutoIncrementName(tableName);
         if (null != incrementKey) {
             neoMap.put(incrementKey, id);
+            return one(tableName, neoMap);
         }
-        return one(tableName, neoMap);
+        return neoMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -735,15 +736,15 @@ public class Neo {
      * @param searchMap 查询参数
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
      */
-    private String generateOneSql(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql){
+    private String generateOneSql(String tableName, NeoColumn columns, NeoMap searchMap, String tailSql) {
         StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!NeoColumn.isEmpty(columns)){
+        if (!NeoColumn.isEmpty(columns)) {
             sqlAppender.append(columns.buildFields());
-        }else{
+        } else {
             sqlAppender.append("*");
         }
         sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap.keySet())).append(" ");
-        if(null != tailSql){
+        if (null != tailSql) {
             sqlAppender.append(" ").append(tailSql);
         }
         sqlAppender.append(selectOneTail());

@@ -20,11 +20,15 @@ public class NeoDb {
      */
     private Map<String, List<NeoTable>> schemaMap = new ConcurrentHashMap<>();
     /**
-     * 库名字，我们这里设定为数据库的名字，比如mysql, sqlLite, postGreSql
+     * 数据库，我们这里支持多库的读取，因此，这里可以在库定义上面再定义一层
+     */
+    private String dbName;
+    /**
+     * 库名字，我们这里设定为数据库的名字
      */
     private String catalogName;
     /**
-     * 域名字，对应系统中业务划分的不同的划分区域名字，一个区域里面包含多个表
+     * 域名字，对应系统中业务划分的不同的划分区域名字，但是有些数据库不支持，比如mysql就不支持
      */
     private String schemaName;
 
