@@ -16,7 +16,6 @@ import java.util.stream.Stream;
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
-// todo
 public class NeoMap implements Map<String, Object> {
 
     private Map<String, Object> dataMap;
@@ -27,6 +26,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public static NeoMap parseJson(String json) {
+        // todo
         return new NeoMap();
     }
 
@@ -127,6 +127,7 @@ public class NeoMap implements Map<String, Object> {
         return this;
     }
 
+    // todo
     enum NamingChg {
         DEFAULT();
     }

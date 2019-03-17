@@ -93,6 +93,7 @@ public class NeoDb {
     }
 
     public NeoTable getTable(String schemaName, String tableName){
+        schemaName = base(schemaName);
         if(schemaToTableMap.containsKey(schemaName)){
             return schemaToTableMap.get(schemaName).stream().filter(t -> t.getTableName().equals(tableName)).findFirst()
                 .orElse(null);
