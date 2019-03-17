@@ -71,11 +71,11 @@ public class NeoTable {
      * @param searchMap where 后面的条件数据
      * @return 插入之后的返回值
      */
-    public Long delete(NeoMap searchMap) {
+    public Integer delete(NeoMap searchMap) {
         return neo.delete(tableName, searchMap);
     }
 
-    public Long delete(Object entity) {
+    public Integer delete(Object entity) {
         return delete(NeoMap.from(entity));
     }
 

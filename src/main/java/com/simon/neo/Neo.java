@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -105,17 +107,17 @@ public class Neo {
     /**
      * 数据插入
      * @param tableName 表名
-     * @param neoMap 待插入的数据
+     * @param valueMap 待插入的数据
      * @return 插入之后的返回值
      */
-    public NeoMap insert(String tableName, NeoMap neoMap) {
-        Long id = executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
+    public NeoMap insert(String tableName, NeoMap valueMap) {
+        Long id = execute(() -> generateInsertSqlPair(tableName, valueMap), this::executeInsert);
         String incrementKey = db.getPrimaryAndAutoIncName(tableName);
         if (null != incrementKey) {
-            neoMap.put(incrementKey, id);
-            return one(tableName, neoMap);
+            valueMap.put(incrementKey, id);
+            return one(tableName, valueMap);
         }
-        return neoMap;
+        return valueMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -129,14 +131,15 @@ public class Neo {
      * @param searchMap where 后面的条件数据
      * @return 插入之后的返回值
      */
-    public Long delete(String tableName, NeoMap searchMap) {
+    public Integer delete(String tableName, NeoMap searchMap) {
         if (!NeoMap.isEmpty(searchMap)) {
-            return executeUpdate(NeoMap.of(), searchMap, generateDeleteSql(tableName, searchMap));
+            return execute(() -> generateDeleteSqlPair(tableName, searchMap), this::executeUpdate);
         }
-        return 0L;
+
+        return 0;
     }
 
-    public Long delete(String tableName, Object entity) {
+    public Integer delete(String tableName, Object entity) {
         return delete(tableName, NeoMap.from(entity));
     }
 
@@ -148,7 +151,7 @@ public class Neo {
      * @return 更新之后的返回值
      */
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        executeUpdate(dataMap, searchMap, generateUpdateSql(tableName, dataMap, searchMap));
+        execute(() -> generateUpdateSqlPair(tableName, dataMap, searchMap), this::executeUpdate);
         return one(tableName, NeoMap.of().append(searchMap).append(dataMap));
     }
 
@@ -172,8 +175,8 @@ public class Neo {
      * @return 一个结果Map
      */
     public NeoMap exeOne(String sql, Object... parameters){
-        if (startWithSelect(sql)){
-            return executeQuery(generateOneSqlPair(sql, Arrays.asList(parameters)));
+        if (startWithSelect(sql)) {
+            return execute(() -> generateOneSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
         }
         return NeoMap.of();
     }
@@ -191,7 +194,7 @@ public class Neo {
      * @return 返回一个实体的Map影射
      */
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        return executeQuery(generateOneSqlPair(tableName, columns, searchMap, tailSql));
+        return execute(() -> generateOneSqlPair(tableName, columns, searchMap, tailSql), this::executeOne);
     }
 
     @SuppressWarnings("unchecked")
@@ -229,9 +232,9 @@ public class Neo {
      * @param parameters 参数
      * @return 一个结果Map
      */
-    public List<NeoMap> exeList(String sql, Object... parameters){
-        if (startWithSelect(sql)){
-            return executeQueryList(generateListSqlPair(sql, Arrays.asList(parameters)));
+    public List<NeoMap> exeList(String sql, Object... parameters) {
+        if (startWithSelect(sql)) {
+            return execute(() -> generateListSqlPair(sql, Arrays.asList(parameters)), this::executeList);
         }
         return new ArrayList<>();
     }
@@ -249,7 +252,7 @@ public class Neo {
      * @return 返回一列数据
      */
     public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        return executeQueryList(generateListSqlPair(tableName, columns, searchMap, tailSql));
+        return execute(()->generateListSqlPair(tableName, columns, searchMap, tailSql), this::executeList);
     }
 
     @SuppressWarnings("unchecked")
@@ -288,8 +291,9 @@ public class Neo {
      * @return 一个结果Map
      */
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        Iterator<Object> iterator = executeQuery(generateValueSqlPair(sql, Arrays.asList(parameters))).values().iterator();
-        return iterator.hasNext() ? asObject(tClass, iterator.next()) : null;
+        Iterator<Object> it = execute(() -> generateValueSqlPair(sql, Arrays.asList(parameters)), this::executeOne)
+            .values().iterator();
+        return it.hasNext() ? asObject(tClass, it.next()) : null;
     }
 
     public String exeValue(String sql, Object... parameters){
@@ -305,10 +309,11 @@ public class Neo {
      * @param tailSql 尾部sql，比如：order by `xxx`
      * @return 指定的数据值
      */
-    public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
+    public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
-            Iterator<Object> iterator = executeQuery(generateValueSqlPair(tableName, field, searchMap, tailSql)).values().iterator();
-            return iterator.hasNext() ? asObject(tClass, iterator.next()) : null;
+            Iterator<Object> it = execute(() -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne)
+                .values().iterator();
+            return it.hasNext() ? asObject(tClass, it.next()) : null;
         }
         return null;
     }
@@ -350,8 +355,8 @@ public class Neo {
      * @return 查询到的数据实体，如果没有找到则返回null
      */
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        List<NeoMap> resultList = executeQueryList(generateValuesSqlPair(sql, Arrays.asList(parameters)));
-        if (!resultList.isEmpty()) {
+        List<NeoMap> resultList = execute(() -> generateValuesSqlPair(sql, Arrays.asList(parameters)), this::executeList);
+        if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
                 return it.hasNext() ? asObject(tClass, it.next()) : null;
@@ -374,15 +379,15 @@ public class Neo {
      * @return 一列值
      */
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
-        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
-            List<NeoMap> resultList = executeQueryList(generateValuesSqlPair(tableName, field, searchMap, tailSql));
-            if(!resultList.isEmpty()){
-                return resultList.stream()
-                    .map(r -> asObject(tClass, r.get(field)))
-                    .filter(Objects::nonNull).distinct()
-                    .collect(Collectors.toList());
-            }
+        List<NeoMap> resultList = execute(() -> generateValuesSqlPair(tableName, field, searchMap, tailSql), this::executeList);
+
+        if(null != resultList && !resultList.isEmpty()){
+            return resultList.stream()
+                .map(r -> asObject(tClass, r.get(field)))
+                .filter(Objects::nonNull).distinct()
+                .collect(Collectors.toList());
         }
+
         return null;
     }
 
@@ -426,7 +431,7 @@ public class Neo {
      */
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex,
         Integer pageSize) {
-        return executeQueryList(generatePageSqlPair(tableName, columns, searchMap, tailSql, startIndex, pageSize));
+        return execute(() -> generatePageSqlPair(tableName, columns, searchMap, tailSql, startIndex, pageSize), this::executeList);
     }
 
     public List<NeoMap> page(String tableName, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
@@ -499,13 +504,13 @@ public class Neo {
      * @return 一个结果Map
      */
     public Integer exeCount(String sql, Object... parameters) {
-        Iterator<Object> iterator = executeQuery(generateValueSqlPair(sql, Arrays.asList(parameters))).values()
-            .iterator();
-        return iterator.hasNext() ? Integer.valueOf(asString(iterator.next())) : null;
+        Iterator<Object> it = execute(() -> generateValueSqlPair(sql, Arrays.asList(parameters)), this::executeOne)
+            .values().iterator();
+        return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
-        Iterator<Object> it = executeQuery(generateCountSqlPair(tableName, searchMap)).values().iterator();
+        Iterator<Object> it = execute(() -> generateCountSqlPair(tableName, searchMap), this::executeOne).values().iterator();
         return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
     }
 
@@ -518,7 +523,7 @@ public class Neo {
     }
 
     public boolean execute(String sql, Object... parameters) {
-        return execute(generateExeSqlPair(sql, Arrays.asList(parameters)));
+        return execute(()->generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
     }
 
     private Set<String> getAllTables(){
@@ -598,150 +603,32 @@ public class Neo {
     }
 
     /**
-     * 执行更新的语句
-     * @param dataMap 实体数据
-     * @param searchMap where 后面搜索的数据
-     * @param sql 拼接后的sql
+     * sql执行器
+     * @param sqlSupplier sql和对应的参数的拼接生成器
+     * @param stateFun sql Statement执行回调函数
+     * @param <T> 返回值的类型
+     * @return 返回对应的要求的返回值
      */
-    // todo,更新和删除，返回值应该不是Long，这里要进行优化
-    private Long executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
+    private <T> T execute(Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun){
+        Pair<String, List<Object>> sqlPair = sqlSupplier.get();
+        String sql = sqlPair.getKey();
+        List<Object> parameters = sqlPair.getValue();
         try(Connection con = pool.getConnect()){
-            try (PreparedStatement statement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-                List<String> fieldList = new ArrayList<>(dataMap.keySet());
-                int i, dataSize = fieldList.size();
+            try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                int i, dataSize = parameters.size();
                 for (i = 0; i < dataSize; i++) {
-                    statement.setObject(i + 1, dataMap.get(fieldList.get(i)));
-                }
-
-                List<String> whereFieldList = new ArrayList<>(searchMap.keySet());
-                for (i = 0; i < whereFieldList.size(); i++) {
-                    statement.setObject(i + 1 + dataSize, searchMap.get(whereFieldList.get(i)));
-                }
-
-                List<Object> valueList = new ArrayList<>();
-                valueList.addAll(dataMap.values());
-                valueList.addAll(searchMap.values());
-                log.debug("parameter values is：" + valueList);
-                statement.executeUpdate();
-
-                // 返回主键
-                ResultSet rs = statement.getGeneratedKeys();
-                if(rs.next()){
-                    return rs.getLong(1);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0L;
-    }
-
-    /**
-     * 执行查询
-     * @param sqlPair 拼接后的sql和sql中对应的查询参数列表组成的一组
-     * @return 执行查询后查询的数据
-     */
-    private NeoMap executeQuery(Pair<String, List<Object>> sqlPair) {
-        if(null == sqlPair){
-            return NeoMap.of();
-        }
-        String sql = sqlPair.getKey();
-        List<Object> parameters = sqlPair.getValue();
-        NeoMap result = NeoMap.of();
-        try(Connection con = pool.getConnect()){
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-
-                for (int i = 0; i < parameters.size(); i++) {
-                    statement.setObject(i + 1, parameters.get(i));
-                }
-                log.debug("parameter values is：" + parameters);
-
-                ResultSet rs = statement.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int col = metaData.getColumnCount();
-
-                if (rs.next()) {
-                    for (int j = 1; j <= col; j++) {
-                        result.put(metaData.getColumnName(j), rs.getObject(j));
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
-     * 执行查询
-     * @param sqlPair 拼接后的sql和sql中对应的查询参数列表组成的一组
-     * @return 执行查询后查询的数据
-     */
-    private List<NeoMap> executeQueryList(Pair<String, List<Object>> sqlPair) {
-        if(null == sqlPair){
-            return new ArrayList<>();
-        }
-        String sql = sqlPair.getKey();
-        List<Object> parameters = sqlPair.getValue();
-        List<NeoMap> result = new ArrayList<>();
-        try (Connection con = pool.getConnect()) {
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-
-                for (int i = 0; i < parameters.size(); i++) {
-                    statement.setObject(i + 1, parameters.get(i));
+                    state.setObject(i + 1, parameters.get(i));
                 }
 
                 log.debug("parameter values is：" + parameters);
-                ResultSet rs = statement.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int col = metaData.getColumnCount();
-
-                while (rs.next()) {
-                    NeoMap row = NeoMap.of();
-                    for (int j = 1; j <= col; j++) {
-                        row.put(metaData.getColumnName(j), rs.getObject(j));
-                    }
-                    result.add(row);
-                }
+                return stateFun.apply(state);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return result;
-    }
-
-    /**
-     * 执行sql
-     * @param sqlPair 拼接后的sql和sql中对应的查询参数列表组成的一组
-     * @return true：成功，false：失败
-     */
-    private boolean execute(Pair<String, List<Object>> sqlPair){
-        String sql = sqlPair.getKey();
-        List<Object> parameters = sqlPair.getValue();
-        boolean result = false;
-        try (Connection con = pool.getConnect()) {
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-
-                for (int i = 0; i < parameters.size(); i++) {
-                    statement.setObject(i + 1, parameters.get(i));
-                }
-
-                log.debug("parameter values is：" + parameters);
-                result = statement.execute();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
+        return null;
     }
 
     private String generateInsertSql(String tableName, NeoMap neoMap){
@@ -776,6 +663,33 @@ public class Neo {
     }
 
     /**
+     * 生成插入的sql和参数
+     * key: insert xxx
+     * value: 对应的参数
+     */
+    private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap){
+        return new Pair<>(generateInsertSql(tableName, valueMap), new ArrayList<>(valueMap.values()));
+    }
+
+    /**
+     * 生成删除的sql和参数
+     * key: delete xxx
+     * value: 对应的参数
+     */
+    private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap){
+        return new Pair<>(generateDeleteSql(tableName, searchMap), new ArrayList<>(searchMap.values()));
+    }
+
+    /**
+     * 生成插入的sql和参数
+     * key: update xxx
+     * value: 对应的参数
+     */
+    private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap){
+        return new Pair<>(generateUpdateSql(tableName, dataMap, searchMap), NeoMap.values(dataMap, searchMap));
+    }
+
+    /**
      * 替换一层转换符：比如%s，生成查询一行数据的sql
      * key: select * from %s where a=? -> select * from xxx where a=?
      * value: 去除跟转换符匹配的数据，剩下的数据列表用于sql的?替换
@@ -787,7 +701,9 @@ public class Neo {
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询一条数据的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         return new Pair<>(generateOneSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
@@ -805,14 +721,18 @@ public class Neo {
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询列表的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         return new Pair<>(generateListSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询分页数据的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         String tailSql, Integer pageIndex, Integer pageSize) {
@@ -829,14 +749,18 @@ public class Neo {
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询总数的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap){
         return new Pair<>(generateCountSql(tableName, searchMap), generateValueList(searchMap));
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询总数的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
         return new Pair<>(generateValueSql(tableName, field, searchMap, tailSql), generateValueList(searchMap));
@@ -854,7 +778,9 @@ public class Neo {
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
+     * 生成查询值列表的sql和参数
+     * key: select xxx
+     * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
         return new Pair<>(generateValuesSql(tableName, field, searchMap, tailSql), generateValueList(searchMap));
@@ -1034,6 +960,78 @@ public class Neo {
         return stringBuilder
             .append(String.join(" and `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList())))
             .toString();
+    }
+
+
+    private Long executeInsert(PreparedStatement statement){
+        try {
+            statement.executeUpdate();
+            // 返回主键
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Integer executeUpdate(PreparedStatement statement){
+        try {
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private boolean execute(PreparedStatement statement){
+        try {
+            return statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private NeoMap executeOne(PreparedStatement statement){
+        NeoMap result = NeoMap.of();
+        try {
+            ResultSet rs = statement.executeQuery();
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            int col = metaData.getColumnCount();
+
+            if (rs.next()) {
+                for (int j = 1; j <= col; j++) {
+                    result.put(metaData.getColumnName(j), rs.getObject(j));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private List<NeoMap> executeList(PreparedStatement statement){
+        List<NeoMap> result = new ArrayList<>();
+        try {
+            ResultSet rs = statement.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int col = metaData.getColumnCount();
+
+            while (rs.next()) {
+                NeoMap row = NeoMap.of();
+                for (int j = 1; j <= col; j++) {
+                    row.put(metaData.getColumnName(j), rs.getObject(j));
+                }
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private <T> T asObject(Class<T> tClass, Object target) {

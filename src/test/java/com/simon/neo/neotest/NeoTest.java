@@ -1,11 +1,9 @@
 package com.simon.neo.neotest;
 
-import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**

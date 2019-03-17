@@ -30,6 +30,14 @@ public class NeoMap implements Map<String, Object> {
         return new NeoMap();
     }
 
+    public static List<Object> values(NeoMap... maps){
+        List<Object> valueList = new ArrayList<>();
+        if(null != maps && maps.length > 0){
+            Stream.of(maps).forEach(m->valueList.addAll(m.values()));
+        }
+        return valueList;
+    }
+
     /**
      * 设置全局名称转换字符
      */
