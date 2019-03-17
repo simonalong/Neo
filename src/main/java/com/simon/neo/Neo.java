@@ -149,8 +149,7 @@ public class Neo {
      */
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
         executeUpdate(dataMap, searchMap, generateUpdateSql(tableName, dataMap, searchMap));
-        dataMap.putAll(searchMap);
-        return one(tableName, dataMap);
+        return one(tableName, NeoMap.of().append(searchMap).append(dataMap));
     }
 
     @SuppressWarnings("unchecked")
@@ -162,8 +161,8 @@ public class Neo {
         return update(tableName, setEntity, NeoMap.from(searchEntity));
     }
 
-    public <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity) {
-        return update(tableName, setMap, NeoMap.from(searchEntity));
+    public NeoMap update(String tableName, NeoMap dataMap, Object searchEntity) {
+        return update(tableName, dataMap, NeoMap.from(searchEntity));
     }
 
     /**
@@ -619,7 +618,10 @@ public class Neo {
                     statement.setObject(i + 1 + dataSize, searchMap.get(whereFieldList.get(i)));
                 }
 
-                log.debug("parameter values is：" + fieldList + whereFieldList);
+                List<Object> valueList = new ArrayList<>();
+                valueList.addAll(dataMap.values());
+                valueList.addAll(searchMap.values());
+                log.debug("parameter values is：" + valueList);
                 statement.executeUpdate();
 
                 // 返回主键

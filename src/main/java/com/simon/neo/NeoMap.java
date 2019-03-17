@@ -86,6 +86,10 @@ public class NeoMap implements Map<String, Object> {
         return neoMaps.stream().map(m->m.as(tClass)).collect(Collectors.toList());
     }
 
+    public static boolean isEmpty(NeoMap neoMap){
+        return neoMap == null || neoMap.isEmpty();
+    }
+
     /**
      * NeoMap 转化为实体数据，其中key就是对应的属性
      *
@@ -118,17 +122,17 @@ public class NeoMap implements Map<String, Object> {
         return t;
     }
 
-    public static <T> List<T> toList(List<NeoMap> dataMapList){
-        // todo
-        return new ArrayList<>();
-    }
-
-    public static boolean isEmpty(NeoMap neoMap){
-        return neoMap == null || neoMap.isEmpty();
+    public NeoMap append(NeoMap neoMap){
+        this.putAll(neoMap.getDataMap());
+        return this;
     }
 
     enum NamingChg {
         DEFAULT();
+    }
+
+    public Map<String, Object> getDataMap(){
+        return dataMap;
     }
 
     @Override

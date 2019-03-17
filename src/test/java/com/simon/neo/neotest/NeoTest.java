@@ -54,7 +54,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testDelete1(){
-        show(neo.delete(TABLE_NAME, NeoMap.of("group", "ok", "name", "haode")));
+        show(neo.delete(TABLE_NAME, NeoMap.of("group", "ok")));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate1(){
-        show(neo.update(TABLE_NAME, NeoMap.of("group", "group1"), NeoMap.of("group", "ok2", "name", "name")));
+        show(neo.update(TABLE_NAME, NeoMap.of("group", "ok2"), NeoMap.of("group", "group2", "name", "name")));
     }
 
     @Test

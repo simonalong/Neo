@@ -103,6 +103,20 @@ public class NeoTable {
     }
 
     /**
+     * 查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map
+     */
+    public NeoMap exeOne(String sql, Object... parameters){
+        return neo.exeOne(sql, parameters);
+    }
+
+    public <T> T exeOne(Class<T> tClass, String sql, Object... parameters){
+        return exeOne(sql, parameters).as(tClass);
+    }
+
+    /**
      * 查询一行实体数据
      * @param columns 列名
      * @param searchMap 搜索条件
@@ -140,6 +154,21 @@ public class NeoTable {
 
     public <T> T one(T entity){
         return one(null, entity);
+    }
+
+
+    /**
+     * 查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map
+     */
+    public List<NeoMap> exeList(String sql, Object... parameters){
+        return neo.exeList(sql, parameters);
+    }
+
+    public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters){
+        return neo.exeList(tClass, sql, parameters);
     }
 
     /**
@@ -183,6 +212,20 @@ public class NeoTable {
     }
 
     /**
+     * 查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map
+     */
+    public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
+        return neo.exeValue(tClass, sql, parameters);
+    }
+
+    public String exeValue(String sql, Object... parameters){
+        return exeValue(String.class, sql, parameters);
+    }
+
+    /**
      * 查询某行某列的值
      * @param tClass 返回值的类型
      * @param field 某个属性的名字
@@ -220,6 +263,22 @@ public class NeoTable {
 
     public String value(String field, Object entity) {
         return value(field, entity, null);
+    }
+
+    /**
+     * 查询一行的数据
+     * @param tClass 数据实体的类
+     * @param sql 查询一行的sql
+     * @param parameters 查询的搜索参数
+     * @param <T> 数据实体的类型
+     * @return 查询到的数据实体，如果没有找到则返回null
+     */
+    public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
+        return neo.exeValues(tClass, sql, parameters);
+    }
+
+    public List<String> exeValues(String sql, Object... parameters){
+        return exeValues(String.class, sql, parameters);
     }
 
     /**
@@ -336,6 +395,16 @@ public class NeoTable {
 
     public <T> List<T> page(T entity, NeoPage page){
         return page(null, entity, page.startIndex(), page.pageSize());
+    }
+
+    /**
+     * 查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map
+     */
+    public Integer exeCount(String sql, Object... parameters) {
+        return neo.exeCount(sql, parameters);
     }
 
     public Integer count(NeoMap searchMap) {
