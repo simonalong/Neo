@@ -603,6 +603,7 @@ public class Neo {
      * @param searchMap where 后面搜索的数据
      * @param sql 拼接后的sql
      */
+    // todo,更新和删除，返回值应该不是Long，这里要进行优化
     private Long executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
         try(Connection con = pool.getConnect()){
             try (PreparedStatement statement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

@@ -86,7 +86,7 @@ public class NeoTable {
      * @return 更新之后的返回值
      */
     public NeoMap update(NeoMap dataMap, NeoMap searchMap) {
-        return neo.one(tableName, dataMap);
+        return neo.update(tableName, dataMap, searchMap);
     }
 
     @SuppressWarnings("unchecked")
@@ -155,7 +155,6 @@ public class NeoTable {
     public <T> T one(T entity){
         return one(null, entity);
     }
-
 
     /**
      * 查询一行的数据
