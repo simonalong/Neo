@@ -94,6 +94,15 @@ public class Neo {
     }
 
     /**
+     * 获取table的信息
+     * @param tableName 表名
+     * @return 表对应的实例
+     */
+    public NeoTable asTable(String tableName){
+        return db.getTable(tableName);
+    }
+
+    /**
      * 数据插入
      * @param tableName 表名
      * @param neoMap 待插入的数据
@@ -496,17 +505,21 @@ public class Neo {
         return iterator.hasNext() ? Integer.valueOf(asString(iterator.next())) : null;
     }
 
-    public Integer count(String tableName) {
-        return count(tableName, NeoMap.of());
+    public Integer count(String tableName, NeoMap searchMap) {
+        Iterator<Object> it = executeQuery(generateCountSqlPair(tableName, searchMap)).values().iterator();
+        return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
     }
 
     public Integer count(String tableName, Object entity) {
         return count(tableName, NeoMap.from(entity));
     }
 
-    public Integer count(String tableName, NeoMap searchMap) {
-        Iterator<Object> it = executeQuery(generateCountSqlPair(tableName, searchMap)).values().iterator();
-        return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+    public Integer count(String tableName) {
+        return count(tableName, NeoMap.of());
+    }
+
+    public boolean execute(String sql, Object... parameters) {
+        return execute(generateExeSqlPair(sql, Arrays.asList(parameters)));
     }
 
     private Set<String> getAllTables(){
@@ -572,7 +585,7 @@ public class Neo {
                                     .setIsAutoIncrement(metaData.isAutoIncrement(i))
                             );
                         }
-                        db.addColumn(tableName, columnList);
+                        db.addColumn(this, tableName, columnList);
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -701,6 +714,33 @@ public class Neo {
         return result;
     }
 
+    /**
+     * 执行sql
+     * @param sqlPair 拼接后的sql和sql中对应的查询参数列表组成的一组
+     * @return true：成功，false：失败
+     */
+    private boolean execute(Pair<String, List<Object>> sqlPair){
+        String sql = sqlPair.getKey();
+        List<Object> parameters = sqlPair.getValue();
+        boolean result = false;
+        try (Connection con = pool.getConnect()) {
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
+
+                for (int i = 0; i < parameters.size(); i++) {
+                    statement.setObject(i + 1, parameters.get(i));
+                }
+
+                log.debug("parameter values is：" + parameters);
+                result = statement.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     private String generateInsertSql(String tableName, NeoMap neoMap){
         String sql = "insert into "
             + tableName
@@ -815,6 +855,15 @@ public class Neo {
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
         return new Pair<>(generateValuesSql(tableName, field, searchMap, tailSql), generateValueList(searchMap));
+    }
+
+    /**
+     * 通过表名和查询参数生成查询一行数据的sql
+     */
+    private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters){
+        String sql = String.format(sqlOrigin, parameters.toArray());
+        log.debug(sql);
+        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
     }
 
     /**
@@ -951,6 +1000,7 @@ public class Neo {
      * @param parameters 输入的参数
      * @return 截取之后的参数数组，用于jdbc中的?填写的数据
      */
+    // todo 这里实现有点问题，首先转换符不是都放在最前面的，是有顺序的
     private List<Object> cutParameters(String sqlOrigin, List<Object> parameters){
         String regex = "(%s|%c|%b|%d|%x|%o|%f|%a|%e|%g|%h|%%|%n|%tx)";
         Matcher m = Pattern.compile(regex).matcher(sqlOrigin);

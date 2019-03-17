@@ -65,22 +65,22 @@ public class NeoDb {
         return getPrimaryAndAutoIncName(null, tableName);
     }
 
-    public void addColumn(String schema, String tableName, Set<NeoColumn> columnList){
+    public void addColumn(Neo neo, String schema, String tableName, Set<NeoColumn> columnList){
         schema = base(schema);
         schemaToTableMap.compute(schema, (k,v)->{
            if(null == v){
                Set<NeoTable> tableSet = new HashSet<>();
-               tableSet.add(new NeoTable(tableName, columnList));
+               tableSet.add(new NeoTable(neo, tableName, columnList));
                return tableSet;
            }else{
-               v.add(new NeoTable(tableName, columnList));
+               v.add(new NeoTable(neo, tableName, columnList));
                return v;
            }
         });
     }
 
-    public void addColumn(String tableName, Set<NeoColumn> columnList){
-        addColumn(null, tableName, columnList);
+    public void addColumn(Neo neo, String tableName, Set<NeoColumn> columnList){
+        addColumn(neo, null, tableName, columnList);
     }
 
     public void setPrimaryKey(String schema, String tableName, String columnName){
@@ -92,12 +92,16 @@ public class NeoDb {
         }
     }
 
-    private NeoTable getTable(String schemaName, String tableName){
+    public NeoTable getTable(String schemaName, String tableName){
         if(schemaToTableMap.containsKey(schemaName)){
             return schemaToTableMap.get(schemaName).stream().filter(t -> t.getTableName().equals(tableName)).findFirst()
                 .orElse(null);
         }
         return null;
+    }
+
+    public NeoTable getTable(String tableName){
+        return getTable(null, tableName);
     }
 
     private String base(String data){
