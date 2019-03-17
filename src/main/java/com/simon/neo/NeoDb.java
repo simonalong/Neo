@@ -1,8 +1,8 @@
 package com.simon.neo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -11,66 +11,95 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NeoDb {
 
+    private Neo neo;
     /**
-     * catalog 名字，目录，注意：在某些数据库中，这个就是库名
+     * 数据库映射：一个系统可能有多个数据源, 为某个数据源的名字mysql，仅用于多数据库的区分
+     */
+    private String rdbmsName;
+    /**
+     * catalog 名字，目录，注意：在某些数据库中，这个就是库名，这个跟NeoDb对象是一对一的
      */
     private String catalogName;
     /**
-     * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：_default_
+     * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：default
      */
-    private Map<String, List<NeoTable>> schemaToTableMap = new ConcurrentHashMap<>();
+    private Map<String, Set<NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
 
-    private NeoDb(String catalogName, String schemaName, String tableName) {
-        this.catalogName = (null == catalogName) ? "default" : catalogName;
-        schemaName = (null == schemaName) ? "default" : schemaName;
-        schemaToTableMap.compute(schemaName, (k,v)->{
+    private static final String DEFAULT = "default";
+
+    private NeoDb(Neo neo, String rdbmsName, String catalogName) {
+        this.neo = neo;
+        this.rdbmsName = base(rdbmsName);
+        this.catalogName = base(catalogName);
+    }
+
+    private NeoDb(String catalogName) {
+        this.catalogName = base(catalogName);
+    }
+
+    public static NeoDb of(Neo neo, String rdbmsName, String catalogName){
+        return new NeoDb(neo, rdbmsName, catalogName);
+    }
+
+    public static NeoDb of(Neo neo, String catalogName){
+        return NeoDb.of(neo, null, catalogName);
+    }
+
+    /**
+     * 如果数据表有自增的键，则返回该列
+     * @param schemaName 模式名
+     * @param tableName 库中的表名
+     * @return 自增的主键的列名，如果没有，则返回null
+     */
+
+    public String getPrimaryAndAutoIncName(String schemaName, String tableName){
+        schemaName = base(schemaName);
+        NeoTable neoTable = getTable(schemaName, tableName);
+        if (null != neoTable) {
+            return neoTable.getPrimaryKeyAutoIncName();
+        }
+        return null;
+    }
+
+    public String getPrimaryAndAutoIncName(String tableName){
+        return getPrimaryAndAutoIncName(null, tableName);
+    }
+
+    public void addColumn(String schema, String tableName, Set<NeoColumn> columnList){
+        schema = base(schema);
+        schemaToTableMap.compute(schema, (k,v)->{
            if(null == v){
-               List<NeoTable> tableList = new ArrayList<>();
-               tableList.add(NeoTable.of(tableName));
-               return tableList;
+               Set<NeoTable> tableSet = new HashSet<>();
+               tableSet.add(new NeoTable(tableName, columnList));
+               return tableSet;
            }else{
-               v.add(NeoTable.of(tableName));
+               v.add(new NeoTable(tableName, columnList));
                return v;
            }
         });
     }
 
-    private NeoDb(String catalogName) {
-        this.catalogName = (null == catalogName) ? "default" : catalogName;
+    public void addColumn(String tableName, Set<NeoColumn> columnList){
+        addColumn(null, tableName, columnList);
     }
 
-    public static NeoDb of(String schemaName, String dbName){
-        return new NeoDb(schemaName, dbName);
+    public void setPrimaryKey(String schema, String tableName, String columnName){
+        schema = base(schema);
+        if(schemaToTableMap.containsKey(schema)){
+            schemaToTableMap.get(schema).stream()
+                .filter(t -> t.getTableName().equals(tableName)).findFirst()
+                .ifPresent(t -> t.setPrimary(columnName));
+        }
     }
 
-    public static NeoDb of(String dbName){
-        return NeoDb.of(null, dbName);
-    }
-
-    /**
-     * 如果数据表有自增的键，则返回该列
-     * @param schema db的上一层，用于表示当前是什么库，比如mysql，仅仅是用于命名
-     * @param dbName 所属的库的名字
-     * @param tableName 库中的表名
-     * @return 自增的主键的列名，如果没有，则返回null
-     */
-    public String getAutoIncrementName(String schema, String dbName, String tableName){
+    private NeoTable getTable(String schemaName, String tableName){
+        if(schemaToTableMap.containsKey(schemaName)){
+            return schemaToTableMap.get(schemaName).stream().filter(t->t.getTableName().equals(tableName)).findFirst().get();
+        }
         return null;
     }
 
-    public String getAutoIncrementName(String dbName, String tableName){
-        return getAutoIncrementName(catalogName, dbName, tableName);
-    }
-
-    public String getAutoIncrementName(String tableName){
-        return getAutoIncrementName(catalogName, schemaName, tableName);
-    }
-
-    public String getSchemaName() {
-        return schemaName;
-    }
-
-    public void setSchemaName(String schemaName) {
-        this.schemaName = schemaName;
+    private String base(String data){
+        return (null == data) ? "default" : data;
     }
 }

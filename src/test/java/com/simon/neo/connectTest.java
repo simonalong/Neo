@@ -17,6 +17,20 @@ public class connectTest extends BaseTest{
     }
 
     @Test
+    public void testPropertiesFromPath2(){
+        Neo neo = Neo.connect("/config/db2.properties");
+
+        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+    }
+
+    @Test
+    public void testPropertiesFromPath3(){
+        Neo neo = Neo.connect("/config/db3.properties");
+
+        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+    }
+
+    @Test
     public void testDirectConnect(){
         String url = "jdbc:mysql://118.31.38.50:3306/tina?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
         String user = "like";

@@ -1,13 +1,17 @@
 package com.simon.neo;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +33,7 @@ public class Neo {
 
     Logger log = LoggerFactory.getLogger(Neo.class);
 
-    private DbManager dbManager;
+    private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
 
@@ -45,8 +49,7 @@ public class Neo {
             baseProper.putAll(properties);
         }
         neo.pool = new ConnectPool(baseProper);
-
-
+        neo.initDb();
         return neo;
     }
 
@@ -61,29 +64,33 @@ public class Neo {
     public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(propertiesPath);
+        neo.initDb();
         return neo;
     }
 
     public static Neo connect(Properties properties) {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(properties);
+        neo.initDb();
         return neo;
     }
 
     public static Neo connect(DataSource dataSource) {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(dataSource);
+        neo.initDb();
         return neo;
     }
 
-    public Neo initDb(String catalog, String schema){
-        this.dbManager = DbManager.getInstance().add(this, catalog, schema);
-        return this;
-    }
+    private void initDb(){
+        try(Connection con = pool.getConnect()) {
+            this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-    public Neo initDb(String catalog){
-        this.dbManager = DbManager.getInstance().add(this, catalog, null);
-        return this;
+        // 初始化所有表信息
+        getAllTables().forEach(this::initTable);
     }
 
     /**
@@ -94,7 +101,7 @@ public class Neo {
      */
     public NeoMap insert(String tableName, NeoMap neoMap) {
         Long id = executeUpdate(neoMap, NeoMap.of(), generateInsertSql(tableName, neoMap));
-        String incrementKey = dbManager.getAutoIncrementName(tableName);
+        String incrementKey = db.getPrimaryAndAutoIncName(tableName);
         if (null != incrementKey) {
             neoMap.put(incrementKey, id);
             return one(tableName, neoMap);
@@ -502,6 +509,82 @@ public class Neo {
         return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
     }
 
+    private Set<String> getAllTables(){
+        Set<String> tableSet = new HashSet<>();
+        try(Connection con = pool.getConnect()){
+            DatabaseMetaData dbMeta = con.getMetaData();
+            ResultSet rs = dbMeta.getTables(con.getCatalog(), null,null,new String[]{"TABLE"});
+            while (rs.next()) {
+                tableSet.add(rs.getString("TABLE_NAME"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tableSet;
+    }
+
+    private void initTable(String tableName){
+        // 初始化表中的列信息
+        initColumnMeta(tableName);
+        // 初始化表的主键、外键和索引
+        initTableMeta(tableName);
+    }
+
+    /**
+     * 主要是初始化表的一些信息：主键，外键，索引：这里先添加主键，其他的后面再说
+     */
+    private void initTableMeta(String tableName){
+        try(Connection con = pool.getConnect()){
+            DatabaseMetaData dbMeta = con.getMetaData();
+            ResultSet rs = dbMeta.getPrimaryKeys(con.getCatalog(), con.getSchema(), tableName);
+            if (rs.next()) {
+                db.setPrimaryKey(con.getSchema(), tableName, rs.getString("COLUMN_NAME"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 初始化表中的列信息
+     * @param tableName 表名
+     */
+    private void initColumnMeta(String tableName){
+        try(Connection con = pool.getConnect()){
+            String sql = "select * from "+ tableName +" limit 1";
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
+                ResultSet rs = statement.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                Set<NeoColumn> columnList = new HashSet<>();
+                try {
+                    if (rs.next()) {
+                        for (int i = 1; i <= columnCount; i++) {
+                            columnList.add(
+                                new NeoColumn()
+                                    .setColumnName(metaData.getColumnName(i))
+                                    .setColumnLabel(metaData.getColumnLabel(i))
+                                    .setSize(metaData.getColumnDisplaySize(i))
+                                    .setJavaClass(Class.forName(metaData.getColumnClassName(i)))
+                                    .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(i)))
+                                    .setColumnTypeName(metaData.getColumnTypeName(i))
+                                    .setIsAutoIncrement(metaData.isAutoIncrement(i))
+                            );
+                        }
+                        db.addColumn(tableName, columnList);
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 执行更新的语句
      * @param dataMap 实体数据
@@ -510,7 +593,7 @@ public class Neo {
      */
     private Long executeUpdate(NeoMap dataMap, NeoMap searchMap, String sql){
         try(Connection con = pool.getConnect()){
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
+            try (PreparedStatement statement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
                 List<String> fieldList = new ArrayList<>(dataMap.keySet());
                 int i, dataSize = fieldList.size();
@@ -522,11 +605,14 @@ public class Neo {
                 for (i = 0; i < whereFieldList.size(); i++) {
                     statement.setObject(i + 1 + dataSize, searchMap.get(whereFieldList.get(i)));
                 }
+
+                log.debug("parameter values is：" + fieldList + whereFieldList);
                 statement.executeUpdate();
 
+                // 返回主键
                 ResultSet rs = statement.getGeneratedKeys();
                 if(rs.next()){
-                    return rs.getLong(0);
+                    return rs.getLong(1);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -555,6 +641,7 @@ public class Neo {
                 for (int i = 0; i < parameters.size(); i++) {
                     statement.setObject(i + 1, parameters.get(i));
                 }
+                log.debug("parameter values is：" + parameters);
 
                 ResultSet rs = statement.executeQuery();
                 ResultSetMetaData metaData = rs.getMetaData();
@@ -593,6 +680,7 @@ public class Neo {
                     statement.setObject(i + 1, parameters.get(i));
                 }
 
+                log.debug("parameter values is：" + parameters);
                 ResultSet rs = statement.executeQuery();
                 ResultSetMetaData metaData = rs.getMetaData();
                 int col = metaData.getColumnCount();

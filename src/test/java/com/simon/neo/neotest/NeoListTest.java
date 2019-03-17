@@ -1,5 +1,6 @@
 package com.simon.neo.neotest;
 
+import com.simon.neo.Columns;
 import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
@@ -110,7 +111,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList5(){
-        show(neo.list(TABLE_NAME, NeoColumn.of("group", "name"), NeoMap.of("group", "nihao1")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1")));
     }
 
     /**
@@ -121,7 +122,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList6(){
-        show(neo.list(TABLE_NAME, NeoColumn.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc"));
+        show(neo.list(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc"));
     }
 
     /**
@@ -134,7 +135,7 @@ public class NeoListTest extends NeoBaseTest{
     public void testList7(){
         DemoEntity search = new DemoEntity();
         search.setGroup("nihao1");
-        show(neo.list(TABLE_NAME, NeoColumn.of("group", "name"), search));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), search));
     }
 
     /**
@@ -147,6 +148,6 @@ public class NeoListTest extends NeoBaseTest{
     public void testList8(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.list(TABLE_NAME, NeoColumn.of("group", "name"), search, "order by `age` desc"));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc"));
     }
 }

@@ -4,6 +4,7 @@ import com.simon.neo.BaseTest;
 import com.simon.neo.Neo;
 import java.sql.SQLException;
 import java.util.Optional;
+import org.junit.BeforeClass;
 
 /**
  * @author zhouzhenyong
@@ -17,7 +18,12 @@ public class NeoBaseTest extends BaseTest {
 
     public static final String TABLE_NAME = "tina_test";
 
-    public Neo neo = Neo.connect(URL, USER, PASSWORD);
+    public static Neo neo;
 
     public NeoBaseTest() throws SQLException {}
+
+    @BeforeClass
+    public static void start(){
+        neo = Neo.connect(URL, USER, PASSWORD);
+    }
 }

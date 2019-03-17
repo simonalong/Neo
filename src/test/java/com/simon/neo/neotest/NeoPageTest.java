@@ -1,6 +1,6 @@
 package com.simon.neo.neotest;
 
-import com.simon.neo.NeoColumn;
+import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoPage;
 import com.simon.neo.entity.DemoEntity;
@@ -118,7 +118,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage9(){
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), NeoMap.of("group", "nihao1"), 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), 0, 20));
     }
 
     /**
@@ -129,7 +129,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage10(){
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -140,7 +140,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage11(){
-        show(neo.page(TABLE_NAME, NeoColumn.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", 0, 20));
     }
 
     /**
@@ -151,7 +151,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage12(){
-        show(neo.page(TABLE_NAME, NeoColumn.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", NeoPage.of(1, 20)));
     }
 
     /**
@@ -164,7 +164,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage13(){
         DemoEntity search = new DemoEntity();
         search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), search, 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, 0, 20));
     }
 
     /**
@@ -177,7 +177,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage14(){
         DemoEntity search = new DemoEntity();
         search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), search, NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -190,7 +190,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage15(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), search, "order by `age` desc", 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc", 0, 20));
     }
 
     /**
@@ -203,6 +203,6 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage16(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, NeoColumn.of("group", "name"), search, "order by `age` desc", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc", NeoPage.of(1, 20)));
     }
 }
