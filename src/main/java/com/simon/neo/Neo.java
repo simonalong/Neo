@@ -1002,15 +1002,19 @@ public class Neo {
      * @param parameters 输入的参数
      * @return 截取之后的参数数组，用于jdbc中的?填写的数据
      */
-    // todo 这里实现有点问题，首先转换符不是都放在最前面的，是有顺序的
-    private List<Object> cutParameters(String sqlOrigin, List<Object> parameters){
-        String regex = "(%s|%c|%b|%d|%x|%o|%f|%a|%e|%g|%h|%%|%n|%tx)";
+    private List<Object> cutParameters(String sqlOrigin, List<Object> parameters) {
+        // 转换符和占位符
+        String regex = "(%s|%c|%b|%d|%x|%o|%f|%a|%e|%g|%h|%%|%n|%tx|\\?)";
         Matcher m = Pattern.compile(regex).matcher(sqlOrigin);
         int count = 0;
+        List<Object> resultList = new ArrayList<>();
         while (m.find()) {
+            if ("?".equals(m.group())) {
+                resultList.add(parameters.get(count));
+            }
             count++;
         }
-        return parameters.subList(count, parameters.size());
+        return resultList;
     }
 
     private String buildValues(Set<String> fieldList){
