@@ -59,7 +59,7 @@ public class Neo {
 
     /**
      * 通过路径加载生成
-     * @param propertiesPath 可以为绝对文件路径，也可以为classpath路径
+     * @param propertiesPath 可以为绝对文件路径，也可以为classpath路径，classpath路径记得以/开头
      */
     public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
