@@ -44,11 +44,12 @@ public class NeoTable {
     /**
      * 获取表中的自增的主键名字
      */
-    String getPrimaryKeyAutoIncName(){
-        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).findFirst().map(NeoColumn::getColumnName).get();
+    String getPrimaryKeyAutoIncName() {
+        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
+            .orElse(null);
     }
 
-    public void setPrimary(String columnName){
+    public void setPrimary(String columnName) {
         for (NeoColumn column : columnList) {
             if(column.getColumnName().equals(columnName)){
                 column.setIsPrimaryKey(true);
