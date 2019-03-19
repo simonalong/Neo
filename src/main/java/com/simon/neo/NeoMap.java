@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Setter;
 
 /**
  * @author zhouzhenyong
@@ -19,7 +21,15 @@ import java.util.stream.Stream;
 public class NeoMap implements Map<String, Object> {
 
     private Map<String, Object> dataMap;
-    private static NamingChg defaultNaming = NamingChg.DEFAULT;
+    /**
+     * 全局的命名转换，默认不转换
+     */
+    private static NamingChg globalNaming = NamingChg.NONCHG;
+    /**
+     * 单体数据的命名转换
+     */
+    @Setter
+    private NamingChg localNaming;
 
     private NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
@@ -30,19 +40,19 @@ public class NeoMap implements Map<String, Object> {
         return new NeoMap();
     }
 
-    public static List<Object> values(NeoMap... maps){
+    public static List<Object> values(NeoMap... maps) {
         List<Object> valueList = new ArrayList<>();
-        if(null != maps && maps.length > 0){
-            Stream.of(maps).forEach(m->valueList.addAll(m.values()));
+        if (null != maps && maps.length > 0) {
+            Stream.of(maps).forEach(m -> valueList.addAll(m.values()));
         }
         return valueList;
     }
 
     /**
-     * 设置全局名称转换字符
+     * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
      */
     public static void setDefaultNamingChg(NamingChg namingChg) {
-        defaultNaming = namingChg;
+        globalNaming = namingChg;
     }
 
     public static NeoMap of(Object... kvs) {
@@ -64,10 +74,18 @@ public class NeoMap implements Map<String, Object> {
      * 对象转换为NeoMap，key为属性名字
      */
     public static NeoMap from(Object object) {
+        return from(object, null);
+    }
+
+    /**
+     * 对象转换为NeoMap，key为属性名字
+     */
+    public static NeoMap from(Object object, NamingChg naming) {
         NeoMap neoMap = NeoMap.of();
         if (null == object) {
             return neoMap;
         }
+        neoMap.setLocalNaming(naming);
 
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length != 0) {
@@ -76,7 +94,7 @@ public class NeoMap implements Map<String, Object> {
                 try {
                     Object value = f.getType().cast(f.get(object));
                     if (null != value) {
-                        neoMap.putIfAbsent(f.getName(), value);
+                        neoMap.putIfAbsent(neoMap.namingChg(f.getName()), value);
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -86,15 +104,15 @@ public class NeoMap implements Map<String, Object> {
         return neoMap;
     }
 
-    public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass){
-        if(null == neoMaps || neoMaps.isEmpty()){
+    public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass) {
+        if (null == neoMaps || neoMaps.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return neoMaps.stream().map(m->m.as(tClass)).collect(Collectors.toList());
+        return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
-    public static boolean isEmpty(NeoMap neoMap){
+    public static boolean isEmpty(NeoMap neoMap) {
         return neoMap == null || neoMap.isEmpty();
     }
 
@@ -106,6 +124,18 @@ public class NeoMap implements Map<String, Object> {
      * @return 目标类的实体对象
      */
     public <T> T as(Class<T> tClass) {
+        return as(tClass, null);
+    }
+
+    /**
+     * NeoMap 转化为实体数据，其中key就是对应的属性
+     *
+     * @param tClass 目标类的Class
+     * @param naming 属性名的转换
+     * @param <T> 目标类的类型
+     * @return 目标类的实体对象
+     */
+    public <T> T as(Class<T> tClass, NamingChg naming) {
         if (dataMap.isEmpty()) {
             return null;
         }
@@ -115,10 +145,11 @@ public class NeoMap implements Map<String, Object> {
             Field[] fields = tClass.getDeclaredFields();
             if (fields.length != 0) {
                 T finalT = t;
+                setLocalNaming(naming);
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        f.set(finalT, dataMap.get(f.getName()));
+                        f.set(finalT, dataMap.get(namingChg(f.getName())));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -130,17 +161,71 @@ public class NeoMap implements Map<String, Object> {
         return t;
     }
 
-    public NeoMap append(NeoMap neoMap){
+    public NeoMap append(NeoMap neoMap) {
         this.putAll(neoMap.getDataMap());
         return this;
     }
 
-    // todo
-    enum NamingChg {
-        DEFAULT();
+    private String namingChg(String data) {
+        return (null != localNaming ? localNaming : globalNaming).namingChg(data);
     }
 
-    public Map<String, Object> getDataMap(){
+    public enum NamingChg {
+        /**
+         * 不转换
+         */
+        NONCHG(t -> t),
+        /**
+         * 小驼峰到大驼峰 dataBaseUser -> DateBaseUser
+         */
+        BIGCAMEL(StringNaming::bigCamel),
+        /**
+         * 小驼峰到下划线 dataBaseUser -> data_base_user
+         */
+        UNDERLINE(StringNaming::underLine),
+        /**
+         * 小驼峰到前下划线 dataBaseUser -> _data_base_user
+         */
+        PREUNDER(StringNaming::preUnder),
+        /**
+         * 小驼峰到前下划线 dataBaseUser -> data_base_user_
+         */
+        POSTUNDER(StringNaming::postUnder),
+        /**
+         * 小驼峰到前后下划线 dataBaseUser -> _data_base_user_
+         */
+        PREPOSTUNDER(StringNaming::prePostUnder),
+        /**
+         * 小驼峰到中划线 dataBaseUser -> data-base-user
+         */
+        MIDDLELINE(StringNaming::middleLine),
+        /**
+         * 小驼峰到大写下划线 dataBaseUser -> DATA_BASE_USER
+         */
+        UPPERUNER(StringNaming::upperUnder),
+        /**
+         * 小驼峰到大写中划线 dataBaseUser -> DATA-BASE-USER
+         */
+        UPPERMIDDLE(StringNaming::upperUnderMiddle);
+
+        /**
+         * 用于名字的转换
+         */
+        private Function<String, String> chg;
+
+        NamingChg(Function<String, String> chgFun) {
+            this.chg = chgFun;
+        }
+
+        /**
+         * 将map中的key转换到object对象对应的属性名字
+         */
+        public String namingChg(String data) {
+            return chg.apply(data);
+        }
+    }
+
+    public Map<String, Object> getDataMap() {
         return dataMap;
     }
 

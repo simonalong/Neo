@@ -23,7 +23,7 @@ public class StringNaming {
      * 小驼峰到大驼峰：首字母变成小写
      * dataBaseUser -> DateBaseUser
      */
-    public static String smallCamelToBigCamel(String word){
+    public static String bigCamel(String word){
         return (null == word) ? null : word.substring(0, 1).toUpperCase(Locale.ENGLISH) + word.substring(1);
     }
 
@@ -60,7 +60,7 @@ public class StringNaming {
      * 小驼峰到下划线：非边缘单词开头大写变前下划线和后面大写
      * dataBaseUser -> data_base_user
      */
-    public static String smallCamelToUnderLine(String word){
+    public static String underLine(String word){
         if (null == word) {
             return null;
         }
@@ -78,33 +78,33 @@ public class StringNaming {
      * 小驼峰到后下划线
      * dataBaseUser -> data_base_user_
      */
-    public static String smallCamelToPostUnder(String word){
+    public static String postUnder(String word){
         if (null == word) {
             return null;
         }
-        return smallCamelToUnderLine(word) + "_";
+        return underLine(word) + "_";
     }
 
     /**
      * 小驼峰到前下划线
      * dataBaseUser -> _data_base_user
      */
-    public static String smallCamelToPreUnder(String word){
+    public static String preUnder(String word){
         if (null == word) {
             return null;
         }
-        return "_" + smallCamelToUnderLine(word);
+        return "_" + underLine(word);
     }
 
     /**
      * 小驼峰到前后缀下划线
      * dataBaseUser -> _data_base_user_
      */
-    public static String smallCamelToPrePostUnder(String word){
+    public static String prePostUnder(String word){
         if (null == word) {
             return null;
         }
-        return "_" + smallCamelToUnderLine(word) + "_";
+        return "_" + underLine(word) + "_";
     }
 
     /**
@@ -118,7 +118,7 @@ public class StringNaming {
         if (null == word) {
             return null;
         }
-        return smallCamelToBigCamel(toUpper("(?<=_)[a-z]", word).replaceAll("_", ""));
+        return bigCamel(toUpper("(?<=_)[a-z]", word).replaceAll("_", ""));
     }
 
 
@@ -127,7 +127,7 @@ public class StringNaming {
      * DataBaseUser -> data_base_user
      */
     public static String bigCamelToUnderLine(String word){
-        return smallCamelToUnderLine(bigCamelToSmallCamel(word));
+        return underLine(bigCamelToSmallCamel(word));
     }
 
     /**
@@ -135,7 +135,7 @@ public class StringNaming {
      * DataBaseUser -> _data_base_user
      */
     public static String bigCamelToPreUnder(String word){
-        return smallCamelToPreUnder(bigCamelToSmallCamel(word));
+        return preUnder(bigCamelToSmallCamel(word));
     }
 
     /**
@@ -143,7 +143,7 @@ public class StringNaming {
      * DataBaseUser -> data_base_user_
      */
     public static String bigCamelToPostUnder(String word){
-        return smallCamelToPostUnder(bigCamelToSmallCamel(word));
+        return postUnder(bigCamelToSmallCamel(word));
     }
 
     /**
@@ -151,9 +151,8 @@ public class StringNaming {
      * DataBaseUser -> _data_base_user_
      */
     public static String bigCamelToPrePostUnder(String word){
-        return smallCamelToPrePostUnder(bigCamelToSmallCamel(word));
+        return prePostUnder(bigCamelToSmallCamel(word));
     }
-
 
     /**
      * 中划线到小驼峰
@@ -171,7 +170,7 @@ public class StringNaming {
      * 小驼峰到中划线
      * dataBaseUser -> data-base-user
      */
-    public static String smallCamelToMiddleLine(String word){
+    public static String middleLine(String word){
         if (null == word) {
             return null;
         }
@@ -200,7 +199,7 @@ public class StringNaming {
      * 小驼峰到大写下划线
      * dataBaseUser -> DATA_BASE_USER
      */
-    public static String smallCamelToUpperUnder(String word){
+    public static String upperUnder(String word){
         if (null == word) {
             return null;
         }
@@ -222,7 +221,7 @@ public class StringNaming {
      * 小驼峰到大写中划线
      * dataBaseUser -> DATA-BASE-USER
      */
-    public static String smallCamelToUpperMiddle(String word){
+    public static String upperUnderMiddle(String word){
         if (null == word) {
             return null;
         }
@@ -234,7 +233,7 @@ public class StringNaming {
      * data-base-user -> DataBaseUser
      */
     public static String middleLineToBigCamel(String word){
-        return smallCamelToBigCamel(middleLineToSmallCamel(word));
+        return bigCamel(middleLineToSmallCamel(word));
     }
 
     /**
@@ -242,7 +241,7 @@ public class StringNaming {
      * DataBaseUser -> data-base-user
      */
     public static String bigCamelToMiddleLine(String word){
-        return smallCamelToMiddleLine(bigCamelToSmallCamel(word));
+        return middleLine(bigCamelToSmallCamel(word));
     }
 
     /**
@@ -250,7 +249,7 @@ public class StringNaming {
      * DATA_BASE_USER -> DataBaseUser
      */
     public static String upperUnderToBigCamel(String word){
-        return smallCamelToBigCamel(upperUnderToSmallCamel(word));
+        return bigCamel(upperUnderToSmallCamel(word));
     }
 
     /**
@@ -258,7 +257,7 @@ public class StringNaming {
      * DataBaseUser -> DATA_BASE_USER
      */
     public static String bigCamelToUpperUnder(String word){
-        return smallCamelToUpperUnder(bigCamelToSmallCamel(word));
+        return upperUnder(bigCamelToSmallCamel(word));
     }
 
     /**
@@ -266,7 +265,7 @@ public class StringNaming {
      * DATA-BASE-USER -> DataBaseUser
      */
     public static String upperMiddleToBigCamel(String word){
-        return smallCamelToBigCamel(upperMiddleToSmallCamel(word));
+        return bigCamel(upperMiddleToSmallCamel(word));
     }
 
     /**
@@ -274,30 +273,6 @@ public class StringNaming {
      * DataBaseUser -> DATA-BASE-USER
      */
     public static String bigCamelToUpperMiddle(String word){
-        return smallCamelToUpperMiddle(bigCamelToSmallCamel(word));
-    }
-
-    /**
-     * 前缀下划线删除并转为小驼峰
-     * p_data_base_user -> dataBaseUser
-     * p_data_base_user_ -> dataBaseUser
-     */
-    public static String prefixDelToSmallCamel(String prefix, String word){
-        if(null == word){
-            return null;
-        }
-        return underLineToSmallCamel(word.substring(prefix.length()));
-    }
-
-    /**
-     * 前缀下划线删除并转为大驼峰
-     * p_data_base_user -> DataBaseUser
-     * p_data_base_user_ -> DataBaseUser
-     */
-    public static String prefixDelToBigCamel(String prefix, String word){
-        if(null == word){
-            return null;
-        }
-        return underLineToBigCamel(word.substring(prefix.length()));
+        return upperUnderMiddle(bigCamelToSmallCamel(word));
     }
 }

@@ -43,7 +43,7 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity input = new DemoEntity();
         input.setGroup("group1");
         input.setName("name1");
-        input.setUser_name("user_name1");
+        input.setUserName("user_name1");
         DemoEntity result = neo.insert(TABLE_NAME, input);
         show(result);
     }
@@ -61,7 +61,7 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity input = new DemoEntity();
         input.setGroup("group1");
         input.setName("name1");
-        input.setUser_name("user_name1");
+        input.setUserName("user_name1");
         show(neo.delete(TABLE_NAME, input));
     }
 

@@ -16,7 +16,7 @@ public class StringNamingTest {
 
     @Test
     public void smallCameToBigCamelTest(){
-        Assert.assertEquals("DataBaseUser", StringNaming.smallCamelToBigCamel("dataBaseUser"));
+        Assert.assertEquals("DataBaseUser", StringNaming.bigCamel("dataBaseUser"));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class StringNamingTest {
 
     @Test
     public void smallCamelToUnderLineTest(){
-        Assert.assertEquals("data_base_user", StringNaming.smallCamelToUnderLine("dataBaseUser"));
+        Assert.assertEquals("data_base_user", StringNaming.underLine("dataBaseUser"));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class StringNamingTest {
 
     @Test
     public void smallCamelToMiddleLineTest(){
-        Assert.assertEquals("data-base-user", StringNaming.smallCamelToMiddleLine("dataBaseUser"));
+        Assert.assertEquals("data-base-user", StringNaming.middleLine("dataBaseUser"));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class StringNamingTest {
 
     @Test
     public void smallCamelToUpperUnderTest(){
-        Assert.assertEquals("DATA_BASE_USER", StringNaming.smallCamelToUpperUnder("dataBaseUser"));
+        Assert.assertEquals("DATA_BASE_USER", StringNaming.upperUnder("dataBaseUser"));
     }
 
     @Test
@@ -67,22 +67,22 @@ public class StringNamingTest {
 
     @Test
     public void smallCamelToUpperMiddleTest(){
-        Assert.assertEquals("DATA-BASE-USER", StringNaming.smallCamelToUpperMiddle("dataBaseUser"));
+        Assert.assertEquals("DATA-BASE-USER", StringNaming.upperUnderMiddle("dataBaseUser"));
     }
 
     @Test
     public void smallCamelToPostUnderTest(){
-        Assert.assertEquals("data_base_user_", StringNaming.smallCamelToPostUnder("dataBaseUser"));
+        Assert.assertEquals("data_base_user_", StringNaming.postUnder("dataBaseUser"));
     }
 
     @Test
     public void smallCamelToPreUnderTest(){
-        Assert.assertEquals("_data_base_user", StringNaming.smallCamelToPreUnder("dataBaseUser"));
+        Assert.assertEquals("_data_base_user", StringNaming.preUnder("dataBaseUser"));
     }
 
     @Test
     public void smallCamelToPrePostUnderTest(){
-        Assert.assertEquals("_data_base_user_", StringNaming.smallCamelToPrePostUnder("dataBaseUser"));
+        Assert.assertEquals("_data_base_user_", StringNaming.prePostUnder("dataBaseUser"));
     }
 
     @Test
@@ -133,17 +133,5 @@ public class StringNamingTest {
     @Test
     public void bigCamelToPrePostUnderTest(){
         Assert.assertEquals("_data_base_user_", StringNaming.bigCamelToPrePostUnder("DataBaseUser"));
-    }
-
-    @Test
-    public void prefixDelToSmallCamelTest(){
-        Assert.assertEquals("dataBaseUser", StringNaming.prefixDelToSmallCamel("test_", "test_data_base_user_"));
-        Assert.assertEquals("dataBaseUser", StringNaming.prefixDelToSmallCamel("test_", "test_data_base_user"));
-    }
-
-    @Test
-    public void prefixDelToBigCamelTest(){
-        Assert.assertEquals("DataBaseUser", StringNaming.prefixDelToBigCamel("test_", "test_data_base_user_"));
-        Assert.assertEquals("DataBaseUser", StringNaming.prefixDelToBigCamel("test_", "test_data_base_user"));
     }
 }
