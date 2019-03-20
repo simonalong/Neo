@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.TableIndex.Index;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -110,6 +111,15 @@ public class NeoDb {
     public List<NeoColumn> getColumnList(String tableName){
         return new ArrayList<>(getTable(tableName).getColumnList());
     }
+
+    public List<Index> getIndexList(String tableName){
+        return getTable(tableName).getIndexList();
+    }
+
+    public List<String> getIndexNameList(String tableName){
+        return getTable(tableName).getIndexNameList();
+    }
+
 
     private String base(String data){
         return (null == data) ? "default" : data;

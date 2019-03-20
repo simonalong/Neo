@@ -1,14 +1,10 @@
 package com.simon.neo;
 
+import com.simon.neo.TableIndex.Index;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 /**
@@ -31,23 +27,18 @@ public class NeoTable {
      */
     private String tableDesc;
     /**
-     * 主键
-     */
-    private TablePrimaryKey primary;
-    /**
      * 外键
      */
     private List<TableForeignKey> foreignColumnList;
     /**
      * 索引
      */
-    private List<TableIndex> tableIndexList;
+    private TableIndex index = new TableIndex();
     /**
      * 列信息
      */
     @Getter
     private Set<NeoColumn> columnList = new HashSet<>();
-    private List<TableIndex> indexList = new ArrayList<>();
 
     public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnList){
         this.neo = neo;
@@ -422,7 +413,15 @@ public class NeoTable {
     }
 
     public void initIndex(ResultSet resultSet){
-        indexList.add
+        index.add(resultSet);
+    }
+
+    public List<String> getIndexNameList(){
+        return index.getIndexNameList();
+    }
+
+    public List<Index> getIndexList(){
+        return index.getIndexList();
     }
 
     /**

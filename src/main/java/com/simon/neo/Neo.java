@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.TableIndex.Index;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.JDBCType;
@@ -535,10 +536,18 @@ public class Neo {
 
     public List<String> getColumnNameList(String tableName){
         return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toList());
-    }
 
+    }
     public List<NeoColumn> getColumnList(String tableName){
         return db.getColumnList(tableName);
+    }
+
+    public List<Index> getIndexList(String tableName){
+        return db.getIndexList(tableName);
+    }
+
+    public List<String> getIndexNameList(String tableName){
+        return db.getIndexNameList(tableName);
     }
 
     private Set<String> getAllTables(){
@@ -957,12 +966,12 @@ public class Neo {
         StringBuilder stringBuilder = new StringBuilder();
         if (null != fieldList && !fieldList.isEmpty()){
             stringBuilder.append(" where `");
+            return stringBuilder
+                .append(String.join(" and `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList())))
+                .toString();
         }
-        return stringBuilder
-            .append(String.join(" and `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList())))
-            .toString();
+        return stringBuilder.toString();
     }
-
 
     private Long executeInsert(PreparedStatement statement){
         try {

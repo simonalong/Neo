@@ -1,26 +1,69 @@
 package com.simon.neo;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/17 下午2:42
  */
 @Data
-public class TableIndex {
+class TableIndex {
 
-    private Map<String, Index> indexMap = new ConcurrentHashMap<>();
+    private static final String TABLE_CAT = "TABLE_CAT";
+    private static final String TABLE_SCHEM = "TABLE_SCHEM";
+    private static final String TABLE_NAME = "TABLE_NAME";
+    private static final String NON_UNIQUE = "NON_UNIQUE";
+    private static final String INDEX_QUALIFIER = "INDEX_QUALIFIER";
+    private static final String INDEX_NAME = "INDEX_NAME";
+    private static final String TYPE = "TYPE";
+    private static final String ORDINAL_POSITION = "ORDINAL_POSITION";
+    private static final String COLUMN_NAME = "COLUMN_NAME";
+    private static final String ASC_OR_DESC = "ASC_OR_DESC";
+    private static final String CARDINALITY = "CARDINALITY";
+    private static final String PAGES = "PAGES";
+    private static final String FILTER_CONDITION = "FILTER_CONDITION";
 
-//    public static TableIndex of(ResultSet rs){
-//
-//    }
+    private Map<String, List<Index>> indexMap = new ConcurrentHashMap<>();
 
+    void add(ResultSet rs){
+        try {
+            String indexName = rs.getString(INDEX_NAME);
+            indexMap.compute(indexName, (k,v)->{
+                if (null == v) {
+                    List<Index> indexList = new ArrayList<>();
+                    indexList.add(Index.parse(rs));
+                    return indexList;
+                }else{
+                    v.add(Index.parse(rs));
+                    return v;
+                }
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
+    List<String> getIndexNameList(){
+        return new ArrayList<>(indexMap.keySet());
+    }
 
-    class Index{
+    List<Index> getIndexList() {
+        return new ArrayList<>(indexMap.values()).stream().flatMap(d -> Arrays.stream(d.toArray())).map(s -> (Index) s)
+            .collect(Collectors.toList());
+    }
+
+    @Data
+    @Accessors(chain = true)
+    static class Index{
         /**
          * table catalog
          */
@@ -78,6 +121,28 @@ public class TableIndex {
          */
         private String filterCondition;
 
+        private Index(){}
 
+        static Index parse(ResultSet rs){
+            try {
+                return new Index()
+                    .setCatalog(rs.getString(TABLE_CAT))
+                    .setSchema(rs.getString(TABLE_SCHEM))
+                    .setTableName(rs.getString(TABLE_NAME))
+                    .setNonUnique(rs.getBoolean(NON_UNIQUE))
+                    .setIndexQualifier(rs.getString(INDEX_QUALIFIER))
+                    .setIndexName(rs.getString(INDEX_NAME))
+                    .setType(rs.getShort(TYPE))
+                    .setOrdinalPosition(rs.getShort(ORDINAL_POSITION))
+                    .setColumnName(rs.getString(COLUMN_NAME))
+                    .setAscOrDesc(rs.getString(ASC_OR_DESC))
+                    .setCardinality(rs.getLong(CARDINALITY))
+                    .setPages(rs.getLong(PAGES))
+                    .setFilterCondition(rs.getString(FILTER_CONDITION));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return new Index();
+        }
     }
 }

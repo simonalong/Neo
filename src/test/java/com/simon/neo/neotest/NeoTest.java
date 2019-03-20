@@ -112,7 +112,7 @@ public class NeoTest extends NeoBaseTest{
     /******************************直接执行******************************/
     @Test
     public void testExecute1(){
-        neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122");
+        show(neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122"));
     }
 
     /**
@@ -120,12 +120,12 @@ public class NeoTest extends NeoBaseTest{
      */
     @Test
     public void testExecute2(){
-        neo.execute("update %s set `group`=?, `name`=%s where id = ?", "tina_test", "group121", "'name123'", 121);
+        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", "tina_test", "group121", "'name123'", 121));
     }
 
     @Test
     public void testExecute3(){
-        neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122");
+        show(neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122"));
     }
 
     /****************************** 查询 ******************************/
@@ -137,5 +137,15 @@ public class NeoTest extends NeoBaseTest{
     @Test
     public void getColumnsTest(){
         System.out.println(JSON.toJSONString(neo.getColumnList(TABLE_NAME)));
+    }
+
+    @Test
+    public void getIndexNameListTest(){
+        System.out.println(neo.getIndexNameList(TABLE_NAME));
+    }
+
+    @Test
+    public void getIndexListTest(){
+        System.out.println(JSON.toJSONString(neo.getIndexList(TABLE_NAME)));
     }
 }
