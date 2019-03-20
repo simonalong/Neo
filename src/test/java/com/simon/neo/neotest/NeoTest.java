@@ -1,8 +1,11 @@
 package com.simon.neo.neotest;
 
+import com.alibaba.fastjson.JSON;
+import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -104,5 +107,35 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity data = new DemoEntity();
         data.setGroup("group2");
         show(neo.update(TABLE_NAME, data, search));
+    }
+
+    /******************************直接执行******************************/
+    @Test
+    public void testExecute1(){
+        neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122");
+    }
+
+    /**
+     * 注意，转换符是直接将对应的输入转换到对应的位置
+     */
+    @Test
+    public void testExecute2(){
+        neo.execute("update %s set `group`=?, `name`=%s where id = ?", "tina_test", "group121", "'name123'", 121);
+    }
+
+    @Test
+    public void testExecute3(){
+        neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122");
+    }
+
+    /****************************** 查询 ******************************/
+    @Test
+    public void getColumnNameListTest(){
+        System.out.println(neo.getColumnNameList(TABLE_NAME));
+    }
+
+    @Test
+    public void getColumnsTest(){
+        System.out.println(JSON.toJSONString(neo.getColumnList(TABLE_NAME)));
     }
 }

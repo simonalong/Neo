@@ -135,7 +135,6 @@ public class Neo {
         if (!NeoMap.isEmpty(searchMap)) {
             return execute(() -> generateDeleteSqlPair(tableName, searchMap), this::executeUpdate);
         }
-
         return 0;
     }
 
@@ -176,7 +175,7 @@ public class Neo {
      */
     public NeoMap exeOne(String sql, Object... parameters){
         if (startWithSelect(sql)) {
-            return execute(() -> generateOneSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
+            return execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
         }
         return NeoMap.of();
     }
@@ -234,7 +233,7 @@ public class Neo {
      */
     public List<NeoMap> exeList(String sql, Object... parameters) {
         if (startWithSelect(sql)) {
-            return execute(() -> generateListSqlPair(sql, Arrays.asList(parameters)), this::executeList);
+            return execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
         }
         return new ArrayList<>();
     }
@@ -291,9 +290,12 @@ public class Neo {
      * @return 一个结果Map
      */
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        Iterator<Object> it = execute(() -> generateValueSqlPair(sql, Arrays.asList(parameters)), this::executeOne)
-            .values().iterator();
-        return it.hasNext() ? asObject(tClass, it.next()) : null;
+        NeoMap result = execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
+        if (null != result) {
+            Iterator<Object> it = result.values().iterator();
+            return it.hasNext() ? asObject(tClass, it.next()) : null;
+        }
+        return null;
     }
 
     public String exeValue(String sql, Object... parameters){
@@ -311,9 +313,11 @@ public class Neo {
      */
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
-            Iterator<Object> it = execute(() -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne)
-                .values().iterator();
-            return it.hasNext() ? asObject(tClass, it.next()) : null;
+            NeoMap result = execute(() -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne);
+            if (null != result) {
+                Iterator<Object> it = result.values().iterator();
+                return it.hasNext() ? asObject(tClass, it.next()) : null;
+            }
         }
         return null;
     }
@@ -355,7 +359,7 @@ public class Neo {
      * @return 查询到的数据实体，如果没有找到则返回null
      */
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        List<NeoMap> resultList = execute(() -> generateValuesSqlPair(sql, Arrays.asList(parameters)), this::executeList);
+        List<NeoMap> resultList = execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
@@ -387,7 +391,6 @@ public class Neo {
                 .filter(Objects::nonNull).distinct()
                 .collect(Collectors.toList());
         }
-
         return null;
     }
 
@@ -504,14 +507,18 @@ public class Neo {
      * @return 一个结果Map
      */
     public Integer exeCount(String sql, Object... parameters) {
-        Iterator<Object> it = execute(() -> generateValueSqlPair(sql, Arrays.asList(parameters)), this::executeOne)
+        Iterator<Object> it = execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne)
             .values().iterator();
         return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
-        Iterator<Object> it = execute(() -> generateCountSqlPair(tableName, searchMap), this::executeOne).values().iterator();
-        return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+        NeoMap result = execute(() -> generateCountSqlPair(tableName, searchMap), this::executeOne);
+        if(null != result) {
+            Iterator<Object> it = result.values().iterator();
+            return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+        }
+        return null;
     }
 
     public Integer count(String tableName, Object entity) {
@@ -522,8 +529,16 @@ public class Neo {
         return count(tableName, NeoMap.of());
     }
 
-    public boolean execute(String sql, Object... parameters) {
-        return execute(()->generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
+    public Boolean execute(String sql, Object... parameters) {
+        return execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::execute);
+    }
+
+    public List<String> getColumnNameList(String tableName){
+        return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toList());
+    }
+
+    public List<NeoColumn> getColumnList(String tableName){
+        return db.getColumnList(tableName);
     }
 
     private Set<String> getAllTables(){
@@ -544,13 +559,15 @@ public class Neo {
         // 初始化表中的列信息
         initColumnMeta(tableName);
         // 初始化表的主键、外键和索引
-        initTableMeta(tableName);
+        initPrimary(tableName);
+        // 初始化索引
+        initIndex(tableName);
     }
 
     /**
      * 主要是初始化表的一些信息：主键，外键，索引：这里先添加主键，其他的后面再说
      */
-    private void initTableMeta(String tableName){
+    private void initPrimary(String tableName){
         try(Connection con = pool.getConnect()){
             DatabaseMetaData dbMeta = con.getMetaData();
             ResultSet rs = dbMeta.getPrimaryKeys(con.getCatalog(), con.getSchema(), tableName);
@@ -563,9 +580,28 @@ public class Neo {
     }
 
     /**
+     * 主要是初始化表的索引信息：索引
+     */
+    private void initIndex(String tableName){
+        try(Connection con = pool.getConnect()){
+            DatabaseMetaData dbMeta = con.getMetaData();
+            // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
+            ResultSet rs = dbMeta.getIndexInfo(con.getCatalog(), con.getSchema(), tableName, false, true);
+            while (rs.next()) {
+                db.getTable(tableName).initIndex(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // tina null tina_test false  PRIMARY 3 1 id A 25 0 null
+    }
+
+    /**
      * 初始化表中的列信息
      * @param tableName 表名
      */
+    @SuppressWarnings("all")
     private void initColumnMeta(String tableName){
         try(Connection con = pool.getConnect()){
             String sql = "select * from "+ tableName +" limit 1";
@@ -609,7 +645,7 @@ public class Neo {
      * @param <T> 返回值的类型
      * @return 返回对应的要求的返回值
      */
-    private <T> T execute(Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun){
+    private <T> T execute(Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun) {
         Pair<String, List<Object>> sqlPair = sqlSupplier.get();
         String sql = sqlPair.getKey();
         List<Object> parameters = sqlPair.getValue();
@@ -690,34 +726,12 @@ public class Neo {
     }
 
     /**
-     * 替换一层转换符：比如%s，生成查询一行数据的sql
-     * key: select * from %s where a=? -> select * from xxx where a=?
-     * value: 去除跟转换符匹配的数据，剩下的数据列表用于sql的?替换
-     */
-    private Pair<String, List<Object>> generateOneSqlPair(String sqlOrigin, List<Object> parameters){
-        String sql = String.format(sqlOrigin, parameters.toArray()) + selectOneTail();
-        log.debug(sql);
-        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
-    }
-
-    /**
      * 生成查询一条数据的sql和参数
      * key: select xxx
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         return new Pair<>(generateOneSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
-    }
-
-    /**
-     * 替换一层转换符：比如%s，生成查询一行数据的sql
-     * key: select * from %s where a=? -> select * from xxx where a=?
-     * value: 去除跟转换符匹配的数据，剩下的数据列表用于sql的?替换
-     */
-    private Pair<String, List<Object>> generateListSqlPair(String sqlOrigin, List<Object> parameters){
-        String sql = String.format(sqlOrigin, parameters.toArray());
-        log.debug(sql);
-        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
     }
 
     /**
@@ -740,15 +754,6 @@ public class Neo {
     }
 
     /**
-     * 通过表名和查询参数生成查询一行数据的sql
-     */
-    private Pair<String, List<Object>> generateValueSqlPair(String sqlOrigin, List<Object> parameters){
-        String sql = String.format(sqlOrigin, parameters.toArray()) + selectOneTail();
-        log.debug(sql);
-        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
-    }
-
-    /**
      * 生成查询总数的sql和参数
      * key: select xxx
      * value: 对应的参数
@@ -767,17 +772,6 @@ public class Neo {
     }
 
     /**
-     * 替换一层转换符：比如%s，生成查询一行数据的sql
-     * key: select * from %s where a=? -> select * from xxx where a=?
-     * value: 去除跟转换符匹配的数据，剩下的数据列表用于sql的?替换
-     */
-    private Pair<String, List<Object>> generateValuesSqlPair(String sqlOrigin, List<Object> parameters){
-        String sql = String.format(sqlOrigin, parameters.toArray());
-        log.debug(sql);
-        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
-    }
-
-    /**
      * 生成查询值列表的sql和参数
      * key: select xxx
      * value: 对应的参数
@@ -789,10 +783,14 @@ public class Neo {
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters){
-        String sql = String.format(sqlOrigin, parameters.toArray());
+    private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters, Boolean single){
+        Pair<List<Object>, List<Object>> pair = replaceHolderParameters(sqlOrigin, parameters);
+        String sql = String.format(sqlOrigin, pair.getKey().toArray());
+        if (null != single && single) {
+            sql += limitOne();
+        }
         log.debug(sql);
-        return new Pair<>(sql, cutParameters(sqlOrigin, parameters));
+        return new Pair<>(sql, pair.getValue());
     }
 
     /**
@@ -812,7 +810,7 @@ public class Neo {
         if (null != tailSql) {
             sqlAppender.append(" ").append(tailSql);
         }
-        sqlAppender.append(selectOneTail());
+        sqlAppender.append(limitOne());
         String sql = sqlAppender.toString();
         log.debug(sql);
         return sql;
@@ -870,7 +868,7 @@ public class Neo {
      * @return select `xxx` from yyy where a=? and b=? limit 1
      */
     private String generateCountSql(String tableName, NeoMap searchMap){
-        String sql = "select count(1) from " + tableName + buildWhere(searchMap.keySet()) + selectOneTail();
+        String sql = "select count(1) from " + tableName + buildWhere(searchMap.keySet()) + limitOne();
         log.debug(sql);
         return sql;
     }
@@ -888,7 +886,7 @@ public class Neo {
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
-        sqlAppender.append(selectOneTail());
+        sqlAppender.append(limitOne());
         String sql = sqlAppender.toString();
         log.debug(sql);
         return sql;
@@ -912,7 +910,7 @@ public class Neo {
         return sql;
     }
 
-    private String selectOneTail(){
+    private String limitOne(){
         return " limit 1";
     }
 
@@ -924,24 +922,27 @@ public class Neo {
     }
 
     /**
-     * 截取转换符之后的数据
+     * 将转换符和占位符拆分开
      * @param sqlOrigin 原始的sql
      * @param parameters 输入的参数
-     * @return 截取之后的参数数组，用于jdbc中的?填写的数据
+     * @return 将转换符和占位符拆分开后的数组对
      */
-    private List<Object> cutParameters(String sqlOrigin, List<Object> parameters) {
+    private Pair<List<Object>, List<Object>> replaceHolderParameters(String sqlOrigin, List<Object> parameters) {
         // 转换符和占位符
         String regex = "(%s|%c|%b|%d|%x|%o|%f|%a|%e|%g|%h|%%|%n|%tx|\\?)";
         Matcher m = Pattern.compile(regex).matcher(sqlOrigin);
         int count = 0;
-        List<Object> resultList = new ArrayList<>();
+        List<Object> replaceOperatorList = new ArrayList<>();
+        List<Object> placeHolderList = new ArrayList<>();
         while (m.find()) {
             if ("?".equals(m.group())) {
-                resultList.add(parameters.get(count));
+                placeHolderList.add(parameters.get(count));
+            }else{
+                replaceOperatorList.add(parameters.get(count));
             }
             count++;
         }
-        return resultList;
+        return new Pair<>(replaceOperatorList, placeHolderList);
     }
 
     private String buildValues(Set<String> fieldList){

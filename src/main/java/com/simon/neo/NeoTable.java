@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,7 +45,9 @@ public class NeoTable {
     /**
      * 列信息
      */
+    @Getter
     private Set<NeoColumn> columnList = new HashSet<>();
+    private List<TableIndex> indexList = new ArrayList<>();
 
     public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnList){
         this.neo = neo;
@@ -416,6 +419,10 @@ public class NeoTable {
 
     public Integer count() {
         return count(NeoMap.of());
+    }
+
+    public void initIndex(ResultSet resultSet){
+        indexList.add
     }
 
     /**

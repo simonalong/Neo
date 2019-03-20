@@ -1,6 +1,8 @@
 package com.simon.neo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,6 +105,10 @@ public class NeoDb {
 
     public NeoTable getTable(String tableName){
         return getTable(null, tableName);
+    }
+
+    public List<NeoColumn> getColumnList(String tableName){
+        return new ArrayList<>(getTable(tableName).getColumnList());
     }
 
     private String base(String data){

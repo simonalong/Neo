@@ -12,6 +12,6 @@ public class DemoEntity {
     private String group;
     private String name;
     private String userName;
-    private Integer id;
+    private Long id;
     private String dataBaseName;
 }

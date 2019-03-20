@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
