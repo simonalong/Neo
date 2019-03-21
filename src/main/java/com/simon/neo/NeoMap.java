@@ -4,6 +4,7 @@ import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,12 @@ public class NeoMap implements Map<String, Object> {
     /**
      * 全局的命名转换，默认不转换
      */
-    private static NamingChg globalNaming = NamingChg.NONCHG;
+    private static NamingChg globalNaming = NamingChg.DEFAULT;
+    /**
+     * 用于自定义的转换器，key为变量名，value为dataMap的key映射，结构为：Map<String, String>
+     */
+    @Setter
+    private NeoMap userDefineNaming;
     /**
      * 单体数据的命名转换
      */
@@ -33,11 +39,6 @@ public class NeoMap implements Map<String, Object> {
 
     private NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
-    }
-
-    public static NeoMap parseJson(String json) {
-        // todo
-        return new NeoMap();
     }
 
     public static List<Object> values(NeoMap... maps) {
@@ -71,25 +72,92 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
-     * 对象转换为NeoMap，key为属性名字
+     * 对象转换为NeoMap
+     * @param object 待转换对象
      */
     public static NeoMap from(Object object) {
-        return from(object, null);
+        return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
-     * 对象转换为NeoMap，key为属性名字
+     * 对象转换为NeoMap
+     * @param object 待转换对象
      */
-    public static NeoMap from(Object object, NamingChg naming) {
+    public static NeoMap from(Object object, NamingChg namingChg) {
+        return from(object, namingChg, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /**
+     * 对象转换为NeoMap
+     * @param object 待转换对象
+     * @param userDefineNaming 用户自定义的转换，结构为Map<String, String>
+     */
+    public static NeoMap from(Object object, NeoMap userDefineNaming) {
+        return from(object, userDefineNaming, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /**
+     * 指定包括的属性进行对象转换为NeoMap
+     * @param object 待转换对象
+     * @param fields 需要的属性
+     */
+    public static NeoMap fromInclude(Object object, String... fields) {
+        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
+    }
+
+    /**
+     * 指定排除的属性进行对象转换为NeoMap
+     * @param object 待转换对象
+     * @param fields 排除的属性
+     */
+    public static NeoMap fromExclude(Object object, String... fields) {
+        return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields));
+    }
+
+    /**
+     * 对象转换为NeoMap
+     * @param object 待转换的对象
+     * @param userNaming 用户自定义命名转换方式
+     * @param inFieldList 包括的属性
+     * @param exFieldList 排除的属性
+     */
+    public static NeoMap from(Object object, NeoMap userNaming, List<String> inFieldList, List<String> exFieldList) {
+        NeoMap neoMap = NeoMap.of();
+        if (null == object) {
+            return neoMap;
+        }
+        neoMap.setUserDefineNaming(userNaming);
+        return innerFrom(neoMap, object, inFieldList, exFieldList);
+    }
+
+    /**
+     * 对象转换为NeoMap
+     * @param object 待转换的对象
+     * @param naming 转换方式
+     * @param inFieldList 包括的属性
+     * @param exFieldList 排除的属性
+     */
+    public static NeoMap from(Object object, NamingChg naming, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of();
         if (null == object) {
             return neoMap;
         }
         neoMap.setLocalNaming(naming);
+        return innerFrom(neoMap, object, inFieldList, exFieldList);
+    }
 
+    private static NeoMap innerFrom(NeoMap neoMap, Object object, List<String> inFieldList, List<String> exFieldList) {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length != 0) {
-            Stream.of(fields).forEach(f -> {
+            Stream.of(fields).filter(f -> {
+                if (!inFieldList.isEmpty()) {
+                    return inFieldList.contains(f.getName());
+                }
+                if (!exFieldList.isEmpty()) {
+                    return !exFieldList.contains(f.getName());
+                }
+                return true;
+            }).forEach(f -> {
                 f.setAccessible(true);
                 try {
                     Object value = f.getType().cast(f.get(object));
@@ -124,7 +192,7 @@ public class NeoMap implements Map<String, Object> {
      * @return 目标类的实体对象
      */
     public <T> T as(Class<T> tClass) {
-        return as(tClass, null);
+        return as(tClass, localNaming);
     }
 
     /**
@@ -166,15 +234,37 @@ public class NeoMap implements Map<String, Object> {
         return this;
     }
 
-    private String namingChg(String data) {
-        return (null != localNaming ? localNaming : globalNaming).namingChg(data);
+    public NeoMap append(String key, String value) {
+        this.put(key, value);
+        return this;
+    }
+
+    /**
+     * 添加到名字转换映射中
+     * @param entityFieldStr 实体的属性名字
+     * @param mapKey 映射的map的key的
+     */
+    public NeoMap addNamingMap(String entityFieldStr, String mapKey){
+        userDefineNaming.putIfAbsent(entityFieldStr, mapKey);
+        return this;
+    }
+
+    /**
+     * 这里根据命名订阅，如果用户自定义表中存在映射，则使用该映射，否则用设置的命名映射规则
+     */
+    private String namingChg(String name) {
+        String chgName = (String) userDefineNaming.get(name);
+        if (null != chgName) {
+            return chgName;
+        }
+        return (null != localNaming ? localNaming : globalNaming).namingChg(name);
     }
 
     public enum NamingChg {
         /**
          * 不转换
          */
-        NONCHG(t -> t),
+        DEFAULT(t -> t),
         /**
          * 小驼峰到大驼峰 dataBaseUser -> DateBaseUser
          */
@@ -290,11 +380,6 @@ public class NeoMap implements Map<String, Object> {
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return dataMap.entrySet();
-    }
-
-    public String toJson() {
-        // todo
-        return dataMap.toString();
     }
 
     @Override
