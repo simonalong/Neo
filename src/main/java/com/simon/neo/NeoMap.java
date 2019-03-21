@@ -243,9 +243,11 @@ public class NeoMap implements Map<String, Object> {
      * 这里根据命名订阅，如果用户自定义表中存在映射，则使用该映射，否则用设置的命名映射规则
      */
     private String namingChg(String name) {
-        String chgName = (String) userDefineNaming.get(name);
-        if (null != chgName) {
-            return chgName;
+        if (null != userDefineNaming) {
+            String chgName = (String) userDefineNaming.get(name);
+            if (null != chgName) {
+                return chgName;
+            }
         }
         return (null != localNaming ? localNaming : globalNaming).namingChg(name);
     }

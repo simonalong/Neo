@@ -20,10 +20,15 @@ public class SqlStandard {
      * 规范映射
      */
     private Map<Pattern, Standard> patternTypeMap = new ConcurrentHashMap<>();
+    private static SqlStandard instance = new SqlStandard();
 
-    public SqlStandard() {
+    private SqlStandard() {
         Arrays.asList(StandardEnum.values())
             .forEach(s -> patternTypeMap.putIfAbsent(Pattern.compile(s.standard.regex), s.standard));
+    }
+
+    public static SqlStandard getInstance(){
+        return instance;
     }
 
     /**
@@ -110,7 +115,7 @@ public class SqlStandard {
         /**
          * count表达式中必须
          */
-        COUNT(new Standard("^$", "命中xxxx", LogType.INFO));
+        COUNT(new Standard("^select \\*.*$", "请不要使用*，尽量使用具体的列", LogType.WARN));
 
         private Standard standard;
     }

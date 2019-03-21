@@ -1,8 +1,11 @@
 package com.simon.neo;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author zhouzhenyong
@@ -16,6 +19,17 @@ public class Columns {
 
     public static Columns of(String... fields){
         return new Columns().addAll(fields);
+    }
+
+    public static Columns of(List<Field> fieldList){
+        return Columns.of(fieldList.stream().map(Field::getName).collect(Collectors.toList()).toArray(new String[]{}));
+    }
+
+    public static Columns from(Class tClass){
+        if (null == tClass) {
+            return Columns.of();
+        }
+        return Columns.of(Arrays.asList(tClass.getDeclaredFields()));
     }
 
     public static boolean isEmpty(Columns columns){
@@ -37,5 +51,10 @@ public class Columns {
 
     public boolean isEmpty(){
         return fieldSets.isEmpty();
+    }
+
+    @Override
+    public String toString(){
+        return fieldSets.toString();
     }
 }

@@ -39,6 +39,7 @@ public class Neo {
     private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
+    private SqlStandard standard = SqlStandard.getInstance();
 
     private Neo(){}
 
@@ -202,10 +203,22 @@ public class Neo {
         return one(tableName, columns, NeoMap.from(entity), tailSql).as((Class<T>) entity.getClass());
     }
 
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param searchMap 搜索的数据
+     * @param tailSql sql的尾部sql填充
+     */
     public NeoMap one(String tableName, NeoMap searchMap, String tailSql){
         return one(tableName, null, searchMap, tailSql);
     }
 
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param entity 搜索的实体类型数据
+     * @param tailSql sql的尾部sql填充
+     */
     public <T> T one(String tableName, T entity, String tailSql){
         return one(tableName, null, entity, tailSql);
     }
@@ -218,10 +231,21 @@ public class Neo {
         return one(tableName, columns, entity, null);
     }
 
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param searchMap 搜索的映射
+     */
     public NeoMap one(String tableName, NeoMap searchMap){
         return one(tableName, null, searchMap);
     }
 
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param entity 查询的实体数据
+     * @param <T> 实体的类型映射
+     */
     public <T> T one(String tableName, T entity){
         return one(tableName, null, entity);
     }
@@ -473,6 +497,13 @@ public class Neo {
             (Class<T>) entity.getClass());
     }
 
+    /**
+     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx
+     * @param tableName 表名
+     * @param entity 搜索的实体数据
+     * @param startIndex 分页的起始位置
+     * @param pageSize 分页的大小
+     */
     public <T> List<T> page(String tableName, T entity, String tailSql, Integer startIndex, Integer pageSize){
         return page(tableName, null, entity, tailSql, startIndex, pageSize);
     }
@@ -481,6 +512,13 @@ public class Neo {
         return page(tableName, columns, entity, null, startIndex, pageSize);
     }
 
+    /**
+     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx
+     * @param tableName 表名
+     * @param entity 搜索的实体数据
+     * @param startIndex 分页的起始位置
+     * @param pageSize 分页的大小
+     */
     public <T> List<T> page(String tableName, T entity, Integer startIndex, Integer pageSize){
         return page(tableName, null, entity, startIndex, pageSize);
     }
@@ -489,6 +527,13 @@ public class Neo {
         return page(tableName, columns, entity, tailSql, page.startIndex(), page.pageSize());
     }
 
+    /**
+     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx
+     * @param tableName 表名
+     * @param entity 搜索的实体数据
+     * @param tailSql sql的尾部sql
+     * @param page 分页的实体
+     */
     public <T> List<T> page(String tableName, T entity, String tailSql, NeoPage page){
         return page(tableName, null, entity, tailSql, page.startIndex(), page.pageSize());
     }
@@ -497,20 +542,29 @@ public class Neo {
         return page(tableName, columns, entity, null, page.startIndex(), page.pageSize());
     }
 
+    /**
+     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx
+     * @param tableName 表名
+     * @param entity 搜索的实体数据
+     * @param page 分页的实体
+     */
     public <T> List<T> page(String tableName, T entity, NeoPage page){
         return page(tableName, null, entity, page.startIndex(), page.pageSize());
     }
 
     /**
-     * 查询一行的数据
+     * 执行个数数据的查询
      * @param sql 只接收select 方式
      * @param parameters 参数
      * @return 一个结果Map
      */
     public Integer exeCount(String sql, Object... parameters) {
-        Iterator<Object> it = execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne)
-            .values().iterator();
-        return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+        NeoMap result = execute(() -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
+        if (null != result){
+            Iterator<Object> it = result.values().iterator();
+            return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+        }
+        return null;
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
@@ -550,11 +604,11 @@ public class Neo {
         return db.getIndexNameList(tableName);
     }
 
-    private Set<String> getAllTables(){
+    private Set<String> getAllTables() {
         Set<String> tableSet = new HashSet<>();
-        try(Connection con = pool.getConnect()){
+        try (Connection con = pool.getConnect()) {
             DatabaseMetaData dbMeta = con.getMetaData();
-            ResultSet rs = dbMeta.getTables(con.getCatalog(), null,null,new String[]{"TABLE"});
+            ResultSet rs = dbMeta.getTables(con.getCatalog(), null, null, new String[]{"TABLE"});
             while (rs.next()) {
                 tableSet.add(rs.getString("TABLE_NAME"));
             }
@@ -576,8 +630,8 @@ public class Neo {
     /**
      * 主要是初始化表的一些信息：主键，外键，索引：这里先添加主键，其他的后面再说
      */
-    private void initPrimary(String tableName){
-        try(Connection con = pool.getConnect()){
+    private void initPrimary(String tableName) {
+        try (Connection con = pool.getConnect()) {
             DatabaseMetaData dbMeta = con.getMetaData();
             ResultSet rs = dbMeta.getPrimaryKeys(con.getCatalog(), con.getSchema(), tableName);
             if (rs.next()) {
@@ -666,6 +720,7 @@ public class Neo {
                 }
 
                 log.debug("parameter values is：" + parameters);
+
                 return stateFun.apply(state);
             } catch (SQLException e) {
                 e.printStackTrace();
