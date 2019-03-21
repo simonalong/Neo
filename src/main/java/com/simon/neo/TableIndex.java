@@ -32,6 +32,9 @@ class TableIndex {
     private static final String PAGES = "PAGES";
     private static final String FILTER_CONDITION = "FILTER_CONDITION";
 
+    /**
+     * 索引名字和索引列表
+     */
     private Map<String, List<Index>> indexMap = new ConcurrentHashMap<>();
 
     void add(ResultSet rs){
