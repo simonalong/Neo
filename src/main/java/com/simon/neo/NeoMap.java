@@ -90,7 +90,7 @@ public class NeoMap implements Map<String, Object> {
     /**
      * 对象转换为NeoMap
      * @param object 待转换对象
-     * @param userDefineNaming 用户自定义的转换，结构为Map<String, String>
+     * @param userDefineNaming 用户自定义的转换，结构为<code>Map<String, String></code>
      */
     public static NeoMap from(Object object, NeoMap userDefineNaming) {
         return from(object, userDefineNaming, new ArrayList<>(), new ArrayList<>());
@@ -236,16 +236,6 @@ public class NeoMap implements Map<String, Object> {
 
     public NeoMap append(String key, String value) {
         this.put(key, value);
-        return this;
-    }
-
-    /**
-     * 添加到名字转换映射中
-     * @param entityFieldStr 实体的属性名字
-     * @param mapKey 映射的map的key的
-     */
-    public NeoMap addNamingMap(String entityFieldStr, String mapKey){
-        userDefineNaming.putIfAbsent(entityFieldStr, mapKey);
         return this;
     }
 
