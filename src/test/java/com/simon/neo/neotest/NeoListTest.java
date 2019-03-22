@@ -58,6 +58,17 @@ public class NeoListTest extends NeoBaseTest{
 
     /**
      * 查询一行数据
+     * 采用直接执行sql方式，设定返回实体类型
+     */
+    @Test
+    @SneakyThrows
+    public void testExeList5(){
+        neo.setExplainFlag(true);
+        show(neo.exeList(DemoEntity.class, "select * from %s ", "tina_test"));
+    }
+
+    /**
+     * 查询一行数据
      * 条件通过NeoMap设置
      * 相当于：select * from tina_test where `group` = 'ok'
      */

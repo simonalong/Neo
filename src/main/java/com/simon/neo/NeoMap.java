@@ -376,6 +376,6 @@ public class NeoMap implements Map<String, Object> {
 
     @Override
     public String toString() {
-        return "NeoMap=" + dataMap.toString();
+        return dataMap.toString();
     }
 }

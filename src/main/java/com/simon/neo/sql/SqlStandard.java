@@ -1,4 +1,4 @@
-package com.simon.neo;
+package com.simon.neo.sql;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SqlStandard {
 
+    private static final String PRE_LOG = "[Neo-standard] ";
     /**
      * 规范映射
      */
@@ -38,11 +39,11 @@ public class SqlStandard {
      */
     public boolean valid(String sql){
         Set<Pattern> patternSet = patternTypeMap.keySet();
-        final Standard[] standard = {new Standard(LogType.TRACE)};
+        final Standard[] standard = {new Standard(LogType.NONE)};
         patternSet.forEach(p -> {
             if (p.matcher(sql).matches()) {
                 Standard temStd = patternTypeMap.get(p);
-                if (temStd.logType.compareTo(standard[0].logType) > 0){
+                if (temStd.logType.compareTo(standard[0].logType) > 0) {
                     standard[0] = temStd;
                 }
             }
@@ -50,22 +51,22 @@ public class SqlStandard {
 
         switch (standard[0].logType) {
             case TRACE:
-                log.trace("语句：sql => " + sql + ", " + standard[0].desc);
+                log.trace(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case DEBUG:
-                log.debug("语句：sql => " + sql + ", " + standard[0].desc);
+                log.debug(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case INFO:
-                log.info("语句：sql => " + sql + ", " + standard[0].desc);
+                log.info(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case WARN:
-                log.warn("语句：sql => " + sql + ", " + standard[0].desc);
+                log.warn(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql=> " + sql + "]");
                 break;
             case ERROR:
-                log.error("语句：sql => " + sql + ", " + standard[0].desc);
+                log.error(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case FORBIDDEN:
-                log.error("语句：sql => " + sql + ", " + standard[0].desc);
+                log.error(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 return false;
             default:
                 break;
@@ -91,8 +92,6 @@ public class SqlStandard {
         private String desc;
         private LogType logType;
 
-        Standard(){}
-
         Standard(LogType logType){
             this.regex = "";
             this.desc = "";
@@ -113,15 +112,35 @@ public class SqlStandard {
     enum StandardEnum {
 
         /**
-         * count表达式中必须
+         * 不要使用select *，尽量使用具体的列
          */
-        COUNT(new Standard("^select \\*.*$", "请不要使用*，尽量使用具体的列", LogType.WARN));
+        SELECT(new Standard("^.*(select |SELECT )\\*.*$", "请不要使用select *，尽量使用具体的列", LogType.WARN)),
+
+        /**
+         * where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like
+         */
+        WHERE_NOT(new Standard("^.*( where | WHERE ).*(!=|<>| not | NOT | not in| NOT IN| not exists| NOT EXISTS| not like| NOT LIKE)+.*$",
+            "where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like", LogType.WARN)),
+
+        /**
+         * where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'
+         */
+        LIKE(new Standard("^.*( like| LIKE) '%.*'.*$", "where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'", LogType.WARN)),
+
+        /**
+         * where子句中有in操作，请谨慎使用
+         */
+        IN(new Standard("^.*( in| IN)+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO));
 
         private Standard standard;
     }
 
     enum LogType{
 
+        /**
+         * 默认
+         */
+        NONE,
         /**
          * 日志各自对应的类型
          */

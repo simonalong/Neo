@@ -59,6 +59,16 @@ public class NeoOneTest extends NeoBaseTest{
 
     /**
      * 查询一行数据
+     * 采用直接执行sql方式随便执行sql
+     */
+    @Test
+    @SneakyThrows
+    public void testExeOne5(){
+        show(neo.exeOne("explain select * from tina_test where name like '%s'", "na%"));
+    }
+
+    /**
+     * 查询一行数据
      * 条件通过NeoMap设置
      * 相当于：select * from tina_test where `group` = 'ok' limit 1
      */

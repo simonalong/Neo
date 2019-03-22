@@ -3,6 +3,7 @@ package com.simon.neo.neotest;
 import com.alibaba.fastjson.JSON;
 import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
+import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.List;
@@ -47,7 +48,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        DemoEntity result = neo.insert(TABLE_NAME, input);
+        DemoEntity result = neo.insert(TABLE_NAME, input, NamingChg.UNDERLINE);
         show(result);
     }
 
@@ -65,7 +66,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        show(neo.delete(TABLE_NAME, input));
+        show(neo.delete(TABLE_NAME, input, NamingChg.UNDERLINE));
     }
 
     @Test
@@ -112,7 +113,7 @@ public class NeoTest extends NeoBaseTest{
     /******************************直接执行******************************/
     @Test
     public void testExecute1(){
-        show(neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122"));
+        show(neo.execute("explain select * from tina_test where name ='name'"));
     }
 
     /**
@@ -126,6 +127,19 @@ public class NeoTest extends NeoBaseTest{
     @Test
     public void testExecute3(){
         show(neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122"));
+    }
+
+    @Test
+    public void testExecute4(){
+        show(neo.execute("select * from tina_test"));
+    }
+
+    /**
+     * 测试多结果集
+     */
+    @Test
+    public void testExecute5(){
+        show(neo.execute("call proc6()"));
     }
 
     /****************************** 查询 ******************************/
