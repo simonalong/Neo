@@ -21,7 +21,7 @@ public class NeoCountTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testCount1(){
-        show(neo.exeCount("select count(1) from %s where `group`=?", "tina_test", "nihao1"));
+        show(neo.exeCount("select count(1) from %s where `group`=?", TABLE_NAME, "nihao1"));
     }
 
     /**
@@ -30,7 +30,7 @@ public class NeoCountTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testCount2(){
-        show(neo.exeCount("select count(1) from tina_test where `group`=?", "nihao1"));
+        show(neo.exeCount("select count(1) from neo_table1 where `group`=?", "nihao1"));
     }
 
     /**

@@ -12,9 +12,10 @@ import org.junit.BeforeClass;
  */
 public class BaseNeoTableTest extends BaseTest {
 
-    public  static final String URL = "jdbc:mysql://118.31.38.50:3306/tina?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
-    public static final String USER = "like";
-    public static final String PASSWORD = "Like@123";
+    public  static final String URL = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    public static final String USER = "neo_test";
+    public static final String PASSWORD = "neo@Test123";
+
     static Neo neo;
     static NeoTable tinaTest;
 
@@ -23,6 +24,6 @@ public class BaseNeoTableTest extends BaseTest {
     @BeforeClass
     public static void start(){
         neo = Neo.connect(URL, USER, PASSWORD);
-        tinaTest = neo.asTable("tina_test");
+        tinaTest = neo.asTable("neo_table1");
     }
 }

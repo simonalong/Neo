@@ -10,6 +10,8 @@ import org.junit.Test;
  * @since 2019/3/12 下午12:49
  */
 public class NeoMapTest {
+    
+    private static final String TABLE_NAME = "neo_table1";
 
     @Test
     public void testAppend(){
@@ -34,7 +36,7 @@ public class NeoMapTest {
      */
     @Test
     public void testAs1() {
-        NeoMap map1 = NeoMap.of("user_name", "name", "id", 123L, "data_base_name", "tina_test");
+        NeoMap map1 = NeoMap.of("user_name", "name", "id", 123L, "data_base_name", TABLE_NAME);
         DemoEntity demo1 = map1.as(DemoEntity.class);
         // 只有id完全匹配
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=null)
@@ -47,10 +49,10 @@ public class NeoMapTest {
     @Test
     public void testAs2() {
         NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
-        NeoMap map2 = NeoMap.of("user_name", "name", "id", 123L, "data_base_name", "tina_test");
+        NeoMap map2 = NeoMap.of("user_name", "name", "id", 123L, "data_base_name", TABLE_NAME);
         DemoEntity demo2 = map2.as(DemoEntity.class);
         // 其中，user_name、id和data_base_name都能匹配上
-        // DemoEntity(group=null, name=null, userName=name, id=123, dataBaseName=tina_test)
+        // DemoEntity(group=null, name=null, userName=name, id=123, dataBaseName=neo_table1)
         System.out.println(demo2);
     }
 
@@ -60,7 +62,7 @@ public class NeoMapTest {
     @Test
     public void testAs3() {
         NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
-        NeoMap map3 = NeoMap.of("_user_name", "name", "id", 123L, "data_base_name", "tina_test");
+        NeoMap map3 = NeoMap.of("_user_name", "name", "id", 123L, "data_base_name", TABLE_NAME);
         // 设置本地命名转换，用于覆盖全局命名转换：dataBaseUser -> _data_base_user
         map3.setLocalNaming(NamingChg.PREUNDER);
         // 其中，只有_user_name能匹配上
@@ -75,10 +77,10 @@ public class NeoMapTest {
     @Test
     public void testAs4() {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
-        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-base-name", "tina_test");
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-base-name", TABLE_NAME);
         // dataBaseUser -> data-base-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
-        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=tina_test)
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         System.out.println(demo4);
     }
 

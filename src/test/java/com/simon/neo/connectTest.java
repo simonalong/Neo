@@ -13,30 +13,30 @@ public class connectTest extends BaseTest{
     public void testPropertiesFromPath(){
         Neo neo = Neo.connect("/config/db.properties");
 
-        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+        show(neo.insert("neo_table1", NeoMap.of("group", "con1")));
     }
 
     @Test
     public void testPropertiesFromPath2(){
         Neo neo = Neo.connect("/config/db2.properties");
 
-        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+        show(neo.insert("neo_table1", NeoMap.of("group", "con1")));
     }
 
     @Test
     public void testPropertiesFromPath3(){
         Neo neo = Neo.connect("/config/db3.properties");
 
-        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+        show(neo.insert("neo_table1", NeoMap.of("group", "con1")));
     }
 
     @Test
     public void testDirectConnect(){
-        String url = "jdbc:mysql://118.31.38.50:3306/tina?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
-        String user = "like";
-        String password = "Like@123";
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
         Neo neo = Neo.connect(url, user, password);
 
-        show(neo.insert("tina_test", NeoMap.of("group", "con1")));
+        show(neo.insert("neo_table1", NeoMap.of("group", "con1")));
     }
 }

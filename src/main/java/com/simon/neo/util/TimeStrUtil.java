@@ -169,6 +169,6 @@ public class TimeStrUtil {
     }
 
     private boolean canMillis(long time) {
-        return time > MILLIS;
+        return time >= MILLIS;
     }
 }

@@ -19,7 +19,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok'
+     * 相当于：select * from neo_table1 where `group` = 'ok'
      */
     @Test
     @SneakyThrows
@@ -30,7 +30,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok'
+     * 相当于：select * from neo_table1 where `group` = 'ok'
      */
     @Test
     @SneakyThrows
@@ -41,7 +41,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok' order by 'group'
+     * 相当于：select * from neo_table1 where `group` = 'ok' order by 'group'
      */
     @Test
     @SneakyThrows
@@ -52,7 +52,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok' order by 'group'
+     * 相当于：select * from neo_table1 where `group` = 'ok' order by 'group'
      */
     @Test
     @SneakyThrows
@@ -87,7 +87,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * select * from tina_test where `group` = 'ok' limit 1
+     * select * from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -100,7 +100,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * select * from tina_test where `group` = 'ok' limit 1
+     * select * from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -113,7 +113,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -124,7 +124,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -135,7 +135,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' order by group desc
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' order by group desc
      */
     @Test
     @SneakyThrows
@@ -146,7 +146,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' order by group desc
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' order by group desc
      */
     @Test
     @SneakyThrows
@@ -157,7 +157,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1'
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1'
      */
     @Test
     @SneakyThrows
@@ -170,7 +170,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1'
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1'
      */
     @Test
     @SneakyThrows
@@ -183,7 +183,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
      */
     @Test
     @SneakyThrows
@@ -196,7 +196,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
      */
     @Test
     @SneakyThrows

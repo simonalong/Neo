@@ -54,7 +54,7 @@ public class Neo {
      * sql解析开关
      */
     @Setter
-    private Boolean explainFlag = false;
+    private Boolean explainFlag = true;
     /**
      * 规范校验开关
      */
@@ -702,13 +702,14 @@ public class Neo {
             // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
             ResultSet rs = dbMeta.getIndexInfo(con.getCatalog(), con.getSchema(), tableName, false, true);
             while (rs.next()) {
-                db.getTable(tableName).initIndex(rs);
+                NeoTable table = db.getTable(tableName);
+                table.initIndex(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        // tina null tina_test false  PRIMARY 3 1 id A 25 0 null
+        // tina null neo_table1 false  PRIMARY 3 1 id A 25 0 null
     }
 
     /**
@@ -726,7 +727,7 @@ public class Neo {
 
                 Set<NeoColumn> columnList = new HashSet<>();
                 try {
-                    if (rs.next()) {
+//                    if (rs.next()) {
                         for (int i = 1; i <= columnCount; i++) {
                             columnList.add(
                                 new NeoColumn()
@@ -740,7 +741,7 @@ public class Neo {
                             );
                         }
                         db.addColumn(this, tableName, columnList);
-                    }
+//                    }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }

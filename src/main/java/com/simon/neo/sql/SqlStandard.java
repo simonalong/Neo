@@ -130,7 +130,7 @@ public class SqlStandard {
         /**
          * where子句中有in操作，请谨慎使用
          */
-        IN(new Standard("^.*( in| IN)+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO));
+        IN(new Standard("^.*( in | in\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO));
 
         private Standard standard;
     }

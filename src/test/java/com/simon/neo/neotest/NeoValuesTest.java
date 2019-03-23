@@ -21,8 +21,8 @@ public class NeoValuesTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeValue1(){
-//        show(neo.exeValues("select `name` from tina_test where `group`=?", "nihao1"));
-        show(neo.exeValues("select `age` from tina_test where `group`=?", "nihao1"));
+//        show(neo.exeValues("select `name` from neo_table1 where `group`=?", "nihao1"));
+        show(neo.exeValues("select `age` from neo_table1 where `group`=?", "nihao1"));
     }
 
     /**
@@ -32,7 +32,7 @@ public class NeoValuesTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeValue2(){
-        show(neo.exeValues("select `group` from %s where `group`=?", "tina_test", "nihao1"));
+        show(neo.exeValues("select `group` from %s where `group`=?", "neo_table1", "nihao1"));
     }
 
     /**
@@ -42,13 +42,13 @@ public class NeoValuesTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeValue3(){
-        show(neo.exeValues(Long.class, "select `id` from %s where `group`=? order by name desc", "tina_test", "nihao1"));
+        show(neo.exeValues(Long.class, "select `id` from %s where `group`=? order by name desc", "neo_table1", "nihao1"));
     }
 
     /**
      * 查询多行数据
      * 条件通过NeoMap设置
-     * 相当于：select `id` from tina_test where `group`='group2' limit 1
+     * 相当于：select `id` from neo_table1 where `group`='group2' limit 1
      */
     @Test
     @SneakyThrows
@@ -59,7 +59,7 @@ public class NeoValuesTest extends NeoBaseTest {
     /**
      * 查询多行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group` from tina_test where `group`='ok' order by 'group' limit 1
+     * 相当于：select `group` from neo_table1 where `group`='ok' order by 'group' limit 1
      * 注意，其中的类型必须为指定的这么几种类型：主要是跟数据库对应的几种类型
      */
     @Test
@@ -72,7 +72,7 @@ public class NeoValuesTest extends NeoBaseTest {
     /**
      * 查询多行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group` from tina_test where `group`='ok' order by 'group' limit 1
+     * 相当于：select `group` from neo_table1 where `group`='ok' order by 'group' limit 1
      */
     @Test
     @SneakyThrows
@@ -83,7 +83,7 @@ public class NeoValuesTest extends NeoBaseTest {
     /**
      * 查询多行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group` from tina_test where `group`='ok' order by 'group' limit 1
+     * 相当于：select `group` from neo_table1 where `group`='ok' order by 'group' limit 1
      */
     @Test
     @SneakyThrows

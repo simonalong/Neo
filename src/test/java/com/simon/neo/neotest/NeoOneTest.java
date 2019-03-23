@@ -24,7 +24,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testExeOne1(){
-        show(neo.exeOne("select * from tina_test where `group`=?", "nihao1"));
+        show(neo.exeOne("select * from neo_table1 where `group`=?", "nihao1"));
     }
 
     /**
@@ -34,7 +34,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testExeOne2(){
-        show(neo.exeOne("select * from %s where `group`=?", "tina_test", "nihao1"));
+        show(neo.exeOne("select * from %s where `group`=?", "neo_table1", "nihao1"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testExeOne3(){
-        show(neo.exeOne("select * from %s where `group`=? order by name desc", "tina_test", "nihao1"));
+        show(neo.exeOne("select * from %s where `group`=? order by name desc", "neo_table1", "nihao1"));
     }
 
     /**
@@ -54,7 +54,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testExeOne4(){
-        show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "tina_test", "nihao1"));
+        show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "nihao1"));
     }
 
     /**
@@ -64,13 +64,13 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testExeOne5(){
-        show(neo.exeOne("explain select * from tina_test where name like '%s'", "na%"));
+        show(neo.exeOne("explain select * from neo_table1 where name like '%s'", "na%"));
     }
 
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok' limit 1
+     * 相当于：select * from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -81,7 +81,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from tina_test where `group` = 'ok' order by 'group' limit 1
+     * 相当于：select * from neo_table1 where `group` = 'ok' order by 'group' limit 1
      */
     @Test
     @SneakyThrows
@@ -104,7 +104,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * select * from tina_test where `group` = 'ok' limit 1
+     * select * from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -117,7 +117,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
@@ -128,7 +128,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 返回指定的几个列
-     * 相当于：select `group`,`name` from tina_test where `group` = 'ok' order by age desc limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' order by age desc limit 1
      */
     @Test
     @SneakyThrows
@@ -139,7 +139,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
      */
     @Test
     @SneakyThrows
@@ -152,7 +152,7 @@ public class NeoOneTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from tina_test where `group` = 'group1' limit 1
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
      */
     @Test
     @SneakyThrows

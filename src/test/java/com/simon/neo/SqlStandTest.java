@@ -15,7 +15,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid1(){
-        String sql = "select * from tina_test";
+        String sql = "select * from neo_table1";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -26,7 +26,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid2(){
-        String sql = "select `group`, `name` from tina_test where `group`='group'";
+        String sql = "select `group`, `name` from neo_table1 where `group`='group'";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -37,7 +37,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid3(){
-        String sql = "select `group`, `name` from tina_test where `name` in('name1', 'name2')";
+        String sql = "select `group`, `name` from neo_table1 where `name` in('name1', 'name2')";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -48,7 +48,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid4(){
-        String sql = "select `group`, `name` from tina_test where `name` in ('name1', 'name2')";
+        String sql = "select `group`, `name` from neo_table1 where `name` in ('name1', 'name2')";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -61,13 +61,13 @@ public class SqlStandTest {
     public void testValid5(){
         SqlStandard sqlStandard = SqlStandard.getInstance();
 
-        String sql1 = "select `group`, `name` from tina_test where `name` not in ('name1', 'name2')";
+        String sql1 = "select `group`, `name` from neo_table1 where `name` not in ('name1', 'name2')";
         Assert.assertTrue(sqlStandard.valid(sql1));
 
-        String sql2 = "select `group`, `name` from tina_test where `name` !='name1'";
+        String sql2 = "select `group`, `name` from neo_table1 where `name` !='name1'";
         Assert.assertTrue(sqlStandard.valid(sql2));
 
-        String sql3 = "select `group`, `name` from tina_test where `name` <>'name1'";
+        String sql3 = "select `group`, `name` from neo_table1 where `name` <>'name1'";
         Assert.assertTrue(sqlStandard.valid(sql3));
     }
 
@@ -78,7 +78,7 @@ public class SqlStandTest {
     public void testValid6(){
         SqlStandard sqlStandard = SqlStandard.getInstance();
 
-        String sql1 = "select `group`, `name` from tina_test where `name` like '%xx'";
+        String sql1 = "select `group`, `name` from neo_table1 where `name` like '%xx'";
         Assert.assertTrue(sqlStandard.valid(sql1));
     }
 }

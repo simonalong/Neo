@@ -1,24 +1,15 @@
 package com.simon.neo.neotest;
 
 import com.alibaba.fastjson.JSON;
-import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
-import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
 /**
- * 测试，其中待测试的表结构如下
- * CREATE TABLE `tina_test` (
- *   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- *   `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',
- *   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
- *   `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
- *   PRIMARY KEY (`id`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ * 测试，其中待测试的表结构请见文件 /db/test.sql
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:47
  */
@@ -113,7 +104,7 @@ public class NeoTest extends NeoBaseTest{
     /******************************直接执行******************************/
     @Test
     public void testExecute1(){
-        show(neo.execute("explain select * from tina_test where name ='name'"));
+        show(neo.execute("explain select * from neo_table1 where name ='name'"));
     }
 
     /**
@@ -121,25 +112,31 @@ public class NeoTest extends NeoBaseTest{
      */
     @Test
     public void testExecute2(){
-        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", "tina_test", "group121", "'name123'", 121));
+        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
+        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
     }
 
     @Test
     public void testExecute3(){
-        show(neo.execute("update tina_test set `group`='group1', `name`='name1' where id = 122"));
+        show(neo.execute("update neo_table1 set `group`='group1', `name`='name1' where id = 122"));
     }
 
     @Test
     public void testExecute4(){
-        show(neo.execute("select * from tina_test"));
+        show(neo.execute("select * from neo_table1"));
     }
 
     /**
      * 测试多结果集
+     * CREATE PROCEDURE `pro`()
+     * BEGIN
+     *   explain select * from neo_table1;
+     *   select * from neo_table1;
+     * END
      */
     @Test
     public void testExecute5(){
-        show(neo.execute("call proc6()"));
+        show(neo.execute("call pro()"));
     }
 
     /****************************** 查询 ******************************/
