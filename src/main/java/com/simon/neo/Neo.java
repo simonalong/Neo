@@ -425,7 +425,11 @@ public class Neo {
      * @return 查询到的数据实体，如果没有找到则返回null
      */
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        List<NeoMap> resultList = execute((a,b)->{}, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
+        List<NeoMap> resultList = execute((a,b)->{
+            if (explainFlag) {
+                explain.explain(this, a, b);
+            }
+        }, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
@@ -708,8 +712,6 @@ public class Neo {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        // tina null neo_table1 false  PRIMARY 3 1 id A 25 0 null
     }
 
     /**
@@ -727,21 +729,19 @@ public class Neo {
 
                 Set<NeoColumn> columnList = new HashSet<>();
                 try {
-//                    if (rs.next()) {
-                        for (int i = 1; i <= columnCount; i++) {
-                            columnList.add(
-                                new NeoColumn()
-                                    .setColumnName(metaData.getColumnName(i))
-                                    .setColumnLabel(metaData.getColumnLabel(i))
-                                    .setSize(metaData.getColumnDisplaySize(i))
-                                    .setJavaClass(Class.forName(metaData.getColumnClassName(i)))
-                                    .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(i)))
-                                    .setColumnTypeName(metaData.getColumnTypeName(i))
-                                    .setIsAutoIncrement(metaData.isAutoIncrement(i))
-                            );
-                        }
-                        db.addColumn(this, tableName, columnList);
-//                    }
+                    for (int i = 1; i <= columnCount; i++) {
+                        columnList.add(
+                            new NeoColumn()
+                                .setColumnName(metaData.getColumnName(i))
+                                .setColumnLabel(metaData.getColumnLabel(i))
+                                .setSize(metaData.getColumnDisplaySize(i))
+                                .setJavaClass(Class.forName(metaData.getColumnClassName(i)))
+                                .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(i)))
+                                .setColumnTypeName(metaData.getColumnTypeName(i))
+                                .setIsAutoIncrement(metaData.isAutoIncrement(i))
+                        );
+                    }
+                    db.addColumn(this, tableName, columnList);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
