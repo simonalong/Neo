@@ -1,7 +1,6 @@
 package com.simon.neo.sql;
 
 import com.simon.neo.Neo;
-import com.simon.neo.NeoMap;
 import com.simon.neo.util.TimeStrUtil;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,10 +27,6 @@ public class SqlMonitor {
      * 默认的sql语句打印的最大长度
      */
     private static final Integer MAX_SQL_LENGTH = 500;
-    /**
-     * 是否启动sql语句的explain功能
-     */
-    private boolean explainFlag = true;
     /**
      * 本地时间设置
      */

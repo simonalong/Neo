@@ -162,4 +162,31 @@ public class NeoListTest extends NeoBaseTest{
         search.setGroup("group2");
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc"));
     }
+
+    /**
+     * 查询大小匹配的查询
+     * 条件通过NeoMap设置
+     * 相当于：select `group`,`name` from neo_table1 where `name` < 'name' limit 1
+     */
+    @Test
+    @SneakyThrows
+    public void testList9(){
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< name")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< 'name'")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "<= name'")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "> 'name'")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", ">= 'name'")));
+    }
+
+    /**
+     * 查询大小匹配的查询
+     * 条件通过NeoMap设置
+     * 相当于：select `group`,`name` from neo_table1 where `name` < 'name' limit 1
+     */
+    @Test
+    @SneakyThrows
+    public void testList10(){
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like group")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like gr")));
+    }
 }

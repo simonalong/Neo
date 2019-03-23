@@ -13,17 +13,18 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -47,6 +48,14 @@ public class Neo {
     private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
+    /**
+     * 字段搜索的like前缀
+     */
+    private static final String LIKE_PRE = "like ";
+    /**
+     * 比较操作符的前缀
+     */
+    private static final List<String> THAN_PRE = Arrays.asList(">", "<", ">=", "<=");
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
@@ -818,11 +827,11 @@ public class Neo {
     }
 
     private String generateDeleteSql(String tableName, NeoMap neoMap){
-        return "delete from " + tableName + buildWhere(neoMap.keySet());
+        return "delete from " + tableName + buildWhere(neoMap);
     }
 
     private String generateUpdateSql(String tableName, NeoMap dataMap, NeoMap searchMap){
-        return "update " + tableName + buildSetValues(dataMap.keySet()) + buildWhere(searchMap.keySet());
+        return "update " + tableName + buildSetValues(dataMap.keySet()) + buildWhere(searchMap);
     }
 
     /**
@@ -932,7 +941,7 @@ public class Neo {
         } else {
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap.keySet())).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
         if (null != tailSql) {
             sqlAppender.append(" ").append(tailSql);
         }
@@ -953,7 +962,7 @@ public class Neo {
         }else{
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap.keySet())).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -973,7 +982,7 @@ public class Neo {
         }else{
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap.keySet())).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -988,7 +997,7 @@ public class Neo {
      * @return select `xxx` from yyy where a=? and b=? limit 1
      */
     private String generateCountSql(String tableName, NeoMap searchMap){
-        return "select count(1) from " + tableName + buildWhere(searchMap.keySet()) + limitOne();
+        return "select count(1) from " + tableName + buildWhere(searchMap) + limitOne();
     }
 
     /**
@@ -1000,7 +1009,7 @@ public class Neo {
      */
     private String generateValueSql(String tableName, String field, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(buildWhere(searchMap.keySet()));
+            .append(buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1017,7 +1026,7 @@ public class Neo {
      */
     private String generateValuesSql(String tableName, String field, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(buildWhere(searchMap.keySet()));
+            .append(buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1067,15 +1076,81 @@ public class Neo {
         return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
     }
 
-    private String buildWhere(Set<String> fieldList){
+    private String buildWhere(NeoMap searchMap) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (null != fieldList && !fieldList.isEmpty()){
+        if (!NeoMap.isEmpty(searchMap)) {
             stringBuilder.append(" where `");
             return stringBuilder
-                .append(String.join(" and `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList())))
+                .append(String.join(" and `", buildCondition(searchMap)))
                 .toString();
         }
         return stringBuilder.toString();
+    }
+
+    private List<String> buildCondition(NeoMap searchMap) {
+        return searchMap.entrySet().stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+    }
+
+    private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
+        Object value = entry.getValue();
+        if (value instanceof String) {
+            String valueStr = String.class.cast(value);
+            // 设置模糊搜索
+            if (valueStr.startsWith(LIKE_PRE)) {
+                searchMap.put(entry.getKey(), getLikeValue(valueStr));
+                return entry.getKey() + "` like ?";
+            }
+
+            // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
+            if (haveThanPre(valueStr)) {
+                Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
+                searchMap.put(entry.getKey(), symbolAndValue.getValue());
+                return entry.getKey() + "` " + symbolAndValue.getKey() + " ?";
+            }
+        }
+        return entry.getKey() + "` = ?";
+    }
+
+    /**
+     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> 'xxx%'
+     */
+    private String getLikeValue(String likeValue) {
+        return likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length()) + "%";
+    }
+
+    @SuppressWarnings("all")
+    private Pair<String, String> getSymbolAndValue(String valueStr) {
+        valueStr = valueStr.trim();
+        if (valueStr.startsWith(">")) {
+            if (valueStr.startsWith(">=")) {
+                return new Pair<>(">=", valueStr.substring(valueStr.indexOf(">=") + ">=".length()));
+            } else {
+                return new Pair<>(">", valueStr.substring(valueStr.indexOf(">") + ">".length()));
+            }
+        } else if (valueStr.startsWith("<")) {
+            if (valueStr.startsWith("<=")) {
+                return new Pair<>("<=", valueStr.substring(valueStr.indexOf("<=") + "<=".length()));
+            } else {
+                return new Pair<>("<", valueStr.substring(valueStr.indexOf("<") + "<".length()));
+            }
+        }
+        return new Pair<>("=", valueStr);
+    }
+
+    /**
+     * 搜索的数据是否有比较类型的前缀
+     */
+    private boolean haveThanPre(String value){
+        if (null == value || "".equals(value)) {
+            return false;
+        }
+
+        for(String pre : THAN_PRE){
+            if(value.startsWith(pre)){
+                return true;
+            }
+        }
+        return false;
     }
 
     private Long executeInsert(PreparedStatement statement){
