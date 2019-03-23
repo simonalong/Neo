@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -666,6 +665,14 @@ public class Neo {
 
     public List<String> getIndexNameList(String tableName){
         return db.getIndexNameList(tableName);
+    }
+
+    public List<String> getAllTableNameList(String schema){
+        return db.getTableNameList(schema);
+    }
+
+    public List<String> getAllTableNameList(){
+        return db.getTableNameList();
     }
 
     private Set<String> getAllTables() {

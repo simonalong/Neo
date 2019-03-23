@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author zhouzhenyong
@@ -106,6 +107,27 @@ public class NeoDb {
 
     public NeoTable getTable(String tableName){
         return getTable(null, tableName);
+    }
+
+    public Set<NeoTable> getTableList(String schema){
+        schema = base(schema);
+        return schemaToTableMap.get(schema);
+    }
+
+    public Set<NeoTable> getTableList(){
+        return getTableList(null);
+    }
+
+    public List<String> getTableNameList(String schema){
+        Set<NeoTable> tableList = getTableList(schema);
+        if (null != tableList && !tableList.isEmpty()){
+            return tableList.stream().map(NeoTable::getTableName).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> getTableNameList(){
+        return getTableNameList(null);
     }
 
     public List<NeoColumn> getColumnList(String tableName){

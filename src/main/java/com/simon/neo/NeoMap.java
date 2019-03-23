@@ -180,6 +180,10 @@ public class NeoMap implements Map<String, Object> {
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
+    public static String stringChg(String source, NamingChg namingChg){
+        return namingChg.namingChg(source);
+    }
+
     public static boolean isEmpty(NeoMap neoMap) {
         return neoMap == null || neoMap.isEmpty();
     }
