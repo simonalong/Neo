@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 import javax.sql.DataSource;
+import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +59,13 @@ public class Neo {
      * 规范校验开关
      */
     @Setter
+    @Getter
     private Boolean standardFlag = true;
     /**
      * sql监控开关
      */
     @Setter
+    @Getter
     private Boolean monitorFlag = true;
 
     private Neo(){}
