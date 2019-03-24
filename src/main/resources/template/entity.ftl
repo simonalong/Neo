@@ -1,4 +1,4 @@
-package ${appPath}.entity;
+package ${entityPath};
 
 import lombok.Data;
 
@@ -6,9 +6,9 @@ import lombok.Data;
  * @author robot
  */
 @Data
-public class ${tableName}Entity {
+public class ${tableName}${tableNamePost} {
 
     <#list fieldList! as field>
-    private ${field.class} ${field.name};
+    private ${field.fieldType} ${field.fieldName};
     </#list>
 }

@@ -108,7 +108,7 @@ public class StringNaming {
     }
 
     /**
-     * 下划线到小驼峰：下划线后面小写变大写，下划线去掉
+     * 下划线到大驼峰：下划线后面小写变大写，下划线去掉
      * data_base_user   -> DataBaseUser
      * _data_base_user  -> DataBaseUser
      * _data_base_user_ -> DataBaseUser
@@ -274,5 +274,24 @@ public class StringNaming {
      */
     public static String bigCamelToUpperMiddle(String word){
         return upperUnderMiddle(bigCamelToSmallCamel(word));
+    }
+
+    /**
+     * 前缀字符下划线去掉到小驼峰
+     * pre_data_base_user -> dataBaseUser
+     */
+    public static String preFixUnderToSmallCamel(String word, String preFix){
+        if(word.startsWith(preFix)){
+            return underLineToSmallCamel(word.substring(preFix.length()));
+        }
+        return underLineToSmallCamel(word);
+    }
+
+    /**
+     * 小驼峰到添加前缀字符下划线
+     *  dataBaseUser -> pre_data_base_user
+     */
+    public static String preFixUnderLine(String word, String preFix){
+        return preFix + underLine(word);
     }
 }

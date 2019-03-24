@@ -3,9 +3,11 @@ package com.simon.neo;
 import com.simon.neo.TableIndex.Index;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -73,7 +75,7 @@ public class NeoDb {
         schema = base(schema);
         schemaToTableMap.compute(schema, (k,v)->{
            if(null == v){
-               Set<NeoTable> tableSet = new HashSet<>();
+               Set<NeoTable> tableSet = new LinkedHashSet<>();
                tableSet.add(new NeoTable(neo, tableName, columnList));
                return tableSet;
            }else{
