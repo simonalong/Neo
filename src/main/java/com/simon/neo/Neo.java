@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -743,7 +744,7 @@ public class Neo {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
 
-                Set<NeoColumn> columnList = new HashSet<>();
+                Set<NeoColumn> columnList = new LinkedHashSet<>();
                 try {
                     for (int i = 1; i <= columnCount; i++) {
                         columnList.add(

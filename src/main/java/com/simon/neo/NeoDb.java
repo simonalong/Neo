@@ -75,7 +75,7 @@ public class NeoDb {
         schema = base(schema);
         schemaToTableMap.compute(schema, (k,v)->{
            if(null == v){
-               Set<NeoTable> tableSet = new LinkedHashSet<>();
+               Set<NeoTable> tableSet = new HashSet<>();
                tableSet.add(new NeoTable(neo, tableName, columnList));
                return tableSet;
            }else{
