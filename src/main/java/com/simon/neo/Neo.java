@@ -7,7 +7,6 @@ import com.simon.neo.TableIndex.Index;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
-import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;

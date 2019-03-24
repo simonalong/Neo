@@ -1,8 +1,8 @@
 package com.simon.neo.codegen;
 
 import com.simon.neo.Neo;
+import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
-import com.simon.neo.NeoTable.Table;
 import com.simon.neo.StringNaming;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
@@ -105,6 +105,7 @@ public class EntityCodeGen {
 
         if(null != tableNameList && tableNameList.size() > 0){
             tableNameList.forEach(t->{
+                generateImport(neo, t, dataMap);
                 String tableName = StringNaming.underLineToBigCamel(t.substring(preFix.length()));
                 dataMap.put("tableName", tableName);
                 dataMap.put("tableRemark", neo.getTable(t).getTableMata().getRemarks());
@@ -114,6 +115,39 @@ public class EntityCodeGen {
                 writeFile(dataMap,
                     projectPath + "/src/main/java/" + filePath(entityPath) + "/" + tableName
                         + entityPostFix + ".java", "entity.ftl");
+            });
+        }
+    }
+
+    /**
+     * 根据属性的Java类型映射，进行类型的判断和生成
+     */
+    private void generateImport(Neo neo, String tableName, NeoMap neoMap){
+        List<NeoColumn> columnList = neo.getColumnList(tableName);
+
+        // 先将标示清理掉
+        neoMap.put("importDate", 0);
+        neoMap.put("importTime", 0);
+        neoMap.put("importTimestamp", 0);
+        neoMap.put("importBigDecimal", 0);
+        if(null != columnList && !columnList.isEmpty()){
+            columnList.forEach(c->{
+                Class fieldClass = c.getJavaClass();
+                if (java.sql.Date.class.isAssignableFrom(fieldClass)) {
+                    neoMap.put("importDate", 1);
+                }
+
+                if (java.sql.Time.class.isAssignableFrom(fieldClass)) {
+                   neoMap.put("importTime", 1);
+                }
+
+                if (java.math.BigDecimal.class.isAssignableFrom(fieldClass)) {
+                    neoMap.put("importTimestamp", 1);
+                }
+
+                if (java.math.BigDecimal.class.isAssignableFrom(fieldClass)) {
+                    neoMap.put("importBigDecimal", 1);
+                }
             });
         }
     }

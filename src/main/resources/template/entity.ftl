@@ -1,5 +1,17 @@
 package ${entityPath};
 
+<#if importDate == 1>
+import java.sql.Date;
+</#if>
+<#if importTime == 1>
+import java.sql.Time;
+</#if>
+<#if importTimestamp == 1>
+import java.sql.Timestamp;
+</#if>
+<#if importBigDecimal == 1>
+import java.math.BigDecimal;
+</#if>
 import lombok.Data;
 
 /**
