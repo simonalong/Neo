@@ -2,6 +2,7 @@ package com.simon.neo.codegen;
 
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
+import com.simon.neo.NeoTable.Table;
 import com.simon.neo.StringNaming;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
@@ -106,6 +107,7 @@ public class EntityCodeGen {
             tableNameList.forEach(t->{
                 String tableName = StringNaming.underLineToBigCamel(t.substring(preFix.length()));
                 dataMap.put("tableName", tableName);
+                dataMap.put("tableRemark", neo.getTable(t).getTableMata().getRemarks());
                 dataMap.put("tableNamePost", entityPostFix);
                 dataMap.put("fieldList", getFieldInfoList(neo, t));
 
@@ -164,6 +166,7 @@ public class EntityCodeGen {
         return neo.getColumnList(tableName).stream()
             .map(c -> new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
+                .setFieldRemark(c.getColumnMeta().getRemarks())
                 .setFieldName(fieldNamingChg.apply(c.getColumnName())))
             .collect(Collectors.toList());
     }
@@ -185,14 +188,14 @@ public class EntityCodeGen {
         EntityCodeGen codeGen = new EntityCodeGen();
 
         // 设置数据库url
-        codeGen.setUrl("jdbc:mysql://127.0.0.1:3306/xxx?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+        codeGen.setUrl("jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
         // 设置用户名
-        codeGen.setUserName("user");
+        codeGen.setUserName("neo_test");
         // 设置密码
-        codeGen.setPassword("password");
+        codeGen.setPassword("neo@Test123");
 
         // 设置项目路径
-        codeGen.setProjectPath("xxx/xxx/yy/Neo");
+        codeGen.setProjectPath("/Users/zhouzhenyong/project/private/Neo");
 
         // 设置实体的包路径
         codeGen.setEntityPath("com.simon.neo.entity");
@@ -202,7 +205,7 @@ public class EntityCodeGen {
         // 设置要排除的表
         codeGen.setExcludes("xx_test");
         // 设置只要的表
-         codeGen.setIncludes("xx_test2");
+//         codeGen.setIncludes("xx_test2");
 
         // 设置属性中数据库列名字向属性名字的转换，这个跟NamingChg中的是相反的，可以不设置，默认不转换
         codeGen.setFieldNamingChg(StringNaming::underLineToSmallCamel);

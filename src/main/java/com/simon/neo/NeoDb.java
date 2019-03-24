@@ -1,7 +1,9 @@
 package com.simon.neo;
 
+import com.simon.neo.NeoTable.Table;
 import com.simon.neo.TableIndex.Index;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +31,7 @@ public class NeoDb {
     /**
      * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：default
      */
-    private Map<String, Set<NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
+    private Map<String, Map<String, NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
 
     private static final String DEFAULT = "default";
 
@@ -71,28 +73,50 @@ public class NeoDb {
         return getPrimaryAndAutoIncName(null, tableName);
     }
 
-    public void addColumn(Neo neo, String schema, String tableName, Set<NeoColumn> columnList){
+    public void addTable(Neo neo, Table table){
+        addTable(neo, null, table);
+    }
+
+    public void addTable(Neo neo, String schema, Table table){
         schema = base(schema);
-        schemaToTableMap.compute(schema, (k,v)->{
-           if(null == v){
-               Set<NeoTable> tableSet = new HashSet<>();
-               tableSet.add(new NeoTable(neo, tableName, columnList));
-               return tableSet;
-           }else{
-               v.add(new NeoTable(neo, tableName, columnList));
-               return v;
-           }
+        schemaToTableMap.compute(schema, (k, v)->{
+            if(null == v){
+                Map<String, NeoTable> tableMap = new HashMap<>();
+                tableMap.put(table.getTableName(), new NeoTable(neo, table));
+                return tableMap;
+            }else{
+                v.compute(table.getTableName(), (name, neoTable)->{
+                    if(null == neoTable){
+                        return new NeoTable(neo, table);
+                    }else{
+                        neoTable.setTableMeta(table).setNeo(neo);
+                        return neoTable;
+                    }
+                });
+                return v;
+            }
         });
     }
 
-    public void addColumn(Neo neo, String tableName, Set<NeoColumn> columnList){
-        addColumn(neo, null, tableName, columnList);
+    public void addColumn(String schema, String tableName, Set<NeoColumn> columnList){
+        schema = base(schema);
+        schemaToTableMap.computeIfPresent(schema, (k, v) -> {
+            NeoTable table = v.get(tableName);
+            if(null != table) {
+                table.setColumnList(columnList);
+            }
+            return v;
+        });
+    }
+
+    public void addColumn(String tableName, Set<NeoColumn> columnList){
+        addColumn(null, tableName, columnList);
     }
 
     public void setPrimaryKey(String schema, String tableName, String columnName){
         schema = base(schema);
         if(schemaToTableMap.containsKey(schema)){
-            schemaToTableMap.get(schema).stream()
+            schemaToTableMap.get(schema).values().stream()
                 .filter(t -> t.getTableName().equals(tableName)).findFirst()
                 .ifPresent(t -> t.setPrimary(columnName));
         }
@@ -100,9 +124,9 @@ public class NeoDb {
 
     public NeoTable getTable(String schemaName, String tableName){
         schemaName = base(schemaName);
-        if(schemaToTableMap.containsKey(schemaName)){
-            return schemaToTableMap.get(schemaName).stream().filter(t -> t.getTableName().equals(tableName)).findFirst()
-                .orElse(null);
+        if(schemaToTableMap.containsKey(schemaName)) {
+            return schemaToTableMap.get(schemaName).values().stream().filter(t -> t.getTableName().equals(tableName))
+                .findFirst().orElse(null);
         }
         return null;
     }
@@ -111,17 +135,17 @@ public class NeoDb {
         return getTable(null, tableName);
     }
 
-    public Set<NeoTable> getTableList(String schema){
+    public List<NeoTable> getTableList(String schema){
         schema = base(schema);
-        return schemaToTableMap.get(schema);
+        return new ArrayList<>(schemaToTableMap.get(schema).values());
     }
 
-    public Set<NeoTable> getTableList(){
+    public List<NeoTable> getTableList(){
         return getTableList(null);
     }
 
     public List<String> getTableNameList(String schema){
-        Set<NeoTable> tableList = getTableList(schema);
+        List<NeoTable> tableList = getTableList(schema);
         if (null != tableList && !tableList.isEmpty()){
             return tableList.stream().map(NeoTable::getTableName).collect(Collectors.toList());
         }
@@ -133,7 +157,8 @@ public class NeoDb {
     }
 
     public List<NeoColumn> getColumnList(String tableName){
-        return new ArrayList<>(getTable(tableName).getColumnList());
+         List<NeoColumn> cs = new ArrayList<>(getTable(tableName).getColumnList());
+        return cs;
     }
 
     public List<Index> getIndexList(String tableName){

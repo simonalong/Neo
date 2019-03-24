@@ -2,13 +2,14 @@ package com.simon.neo;
 
 import com.simon.neo.NeoColumn.Column;
 import com.simon.neo.NeoMap.NamingChg;
+import com.simon.neo.NeoTable.Table;
 import com.simon.neo.TableIndex.Index;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -48,6 +49,7 @@ public class Neo {
 
     Logger log = LoggerFactory.getLogger(Neo.class);
 
+    @Getter
     private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
@@ -88,6 +90,10 @@ public class Neo {
         baseProper.setProperty("jdbcUrl", url);
         baseProper.setProperty("dataSource.user", username);
         baseProper.setProperty("dataSource.password", password);
+
+        // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
+        baseProper.setProperty("dataSource.remarks", "true");
+        baseProper.setProperty("dataSource.useInformationSchema", "true");
         if(null != properties && !properties.isEmpty()) {
             baseProper.putAll(properties);
         }
@@ -113,6 +119,11 @@ public class Neo {
 
     public static Neo connect(Properties properties) {
         Neo neo = new Neo();
+
+        // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
+        properties.setProperty("dataSource.remarks", "true");
+        properties.setProperty("dataSource.useInformationSchema", "true");
+
         neo.pool = new ConnectPool(properties);
         neo.initDb();
         return neo;
@@ -657,8 +668,8 @@ public class Neo {
 
     public List<String> getColumnNameList(String tableName){
         return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toList());
-
     }
+
     public List<NeoColumn> getColumnList(String tableName){
         return db.getColumnList(tableName);
     }
@@ -679,13 +690,36 @@ public class Neo {
         return db.getTableNameList();
     }
 
+    public NeoTable getTable(String schema, String tableName){
+        return db.getTable(schema, tableName);
+    }
+
+    public NeoTable getTable(String tableName){
+        return db.getTable(tableName);
+    }
+
+    /**
+     * 获取创建sql的语句
+     * create table xxx{
+     *     id xxxx;
+     * } comment ='xxxx';
+     */
+    public String getTableCreate(String tableName){
+        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+    }
+
+    /**
+     * 获取table的信息
+     */
     private Set<String> getAllTables() {
         Set<String> tableSet = new HashSet<>();
         try (Connection con = pool.getConnect()) {
             DatabaseMetaData dbMeta = con.getMetaData();
             ResultSet rs = dbMeta.getTables(con.getCatalog(), null, null, new String[]{"TABLE"});
             while (rs.next()) {
-                tableSet.add(rs.getString("TABLE_NAME"));
+                Table table = Table.parse(rs);
+                tableSet.add(table.getTableName());
+                db.addTable(this, table);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -755,7 +789,7 @@ public class Neo {
                     column.setColumnMeta(columnMap.get(column.getColumnName()));
                     columnList.add(column);
                 }
-                db.addColumn(this, tableName, columnList);
+                db.addColumn(tableName, columnList);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

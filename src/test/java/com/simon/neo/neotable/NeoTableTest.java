@@ -83,4 +83,9 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void count1(){
         show(tinaTest.count(NeoMap.of("group", "ok2")));
     }
+
+    @Test
+    public void getCreateTable(){
+        show(tinaTest.getTableCreate());
+    }
 }

@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.TableIndex.Index;
 import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -61,7 +62,7 @@ public class NeoColumn {
     /**
      * 列的元信息
      */
-    private Column columnMeta;
+    private Column columnMeta = new Column();
 
     private NeoColumn(){}
 
@@ -94,17 +95,9 @@ public class NeoColumn {
         return columnName.hashCode();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof NeoColumn){
-            return columnName.equals(NeoColumn.class.cast(obj).getColumnName());
-        }
-        return false;
-    }
-
     @Data
     @Accessors(chain = true)
-    static class Column{
+    public static class Column{
 
         private static final String TABLE_CAT = "TABLE_CAT";
         private static final String TABLE_SCHEM = "TABLE_SCHEM";
@@ -269,5 +262,13 @@ public class NeoColumn {
             }
             return new Column();
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof NeoColumn){
+            return columnName.equals(NeoColumn.class.cast(obj).getColumnName());
+        }
+        return false;
     }
 }
