@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.NeoColumn.Column;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.TableIndex.Index;
 import com.simon.neo.sql.SqlExplain;
@@ -16,10 +17,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
@@ -737,37 +740,48 @@ public class Neo {
      */
     @SuppressWarnings("all")
     private void initColumnMeta(String tableName){
-        try(Connection con = pool.getConnect()){
-            String sql = "select * from "+ tableName +" limit 1";
+        try (Connection con = pool.getConnect()) {
+            Map<String, Column> columnMap = generateColumnMetaMap(con, tableName);
+            String sql = "select * from " + tableName + " limit 1";
+
             try (PreparedStatement statement = con.prepareStatement(sql)) {
                 ResultSet rs = statement.executeQuery();
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
 
                 Set<NeoColumn> columnList = new LinkedHashSet<>();
-                try {
-                    for (int i = 1; i <= columnCount; i++) {
-                        columnList.add(
-                            new NeoColumn()
-                                .setColumnName(metaData.getColumnName(i))
-                                .setColumnLabel(metaData.getColumnLabel(i))
-                                .setSize(metaData.getColumnDisplaySize(i))
-                                .setJavaClass(Class.forName(metaData.getColumnClassName(i)))
-                                .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(i)))
-                                .setColumnTypeName(metaData.getColumnTypeName(i))
-                                .setIsAutoIncrement(metaData.isAutoIncrement(i))
-                        );
-                    }
-                    db.addColumn(this, tableName, columnList);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                for (int i = 1; i <= columnCount; i++) {
+                    NeoColumn column = NeoColumn.parse(metaData, i);
+                    column.setColumnMeta(columnMap.get(column.getColumnName()));
+                    columnList.add(column);
                 }
+                db.addColumn(this, tableName, columnList);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 生成列的元数据map
+     *
+     * @return key为列名，value为Column
+     */
+    private Map<String, Column> generateColumnMetaMap(Connection conn, String tableName){
+        Map<String, Column> columnMap = new HashMap<>(16);
+        try {
+            // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
+            ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, tableName, null);
+            while (rs.next()) {
+                Column column = Column.parse(rs);
+                columnMap.put(column.getColumnName(), column);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return columnMap;
     }
 
     /**
