@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 import lombok.Data;
 
 /**
- * <#if tableRemark == ""><#else >${tableRemark}</#if>
+<#if tableRemark != "">
+ * ${tableRemark}
+</#if>
  * @author robot
  */
 @Data
