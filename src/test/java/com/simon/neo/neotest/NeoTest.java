@@ -133,6 +133,11 @@ public class NeoTest extends NeoBaseTest{
         show(neo.execute("select * from neo_table1"));
     }
 
+    @Test
+    public void testExecute4_2(){
+        show(neo.execute("update neo_table1 set `group` = 'group1'"));
+    }
+
     /**
      * 测试多结果集
      * CREATE PROCEDURE `pro`()
