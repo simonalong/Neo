@@ -1,6 +1,7 @@
 package com.simon.neo.neotest;
 
 import com.alibaba.fastjson.JSON;
+import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
@@ -66,7 +67,6 @@ public class NeoTest extends NeoBaseTest{
         show(neo.delete(TABLE_NAME, NeoMap.of("group", "group1")));
     }
 
-
     /******************************修改******************************/
     @Test
     @SneakyThrows
@@ -77,9 +77,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate2(){
-        DemoEntity input = new DemoEntity();
-        input.setGroup("group2");
-        show(neo.update(TABLE_NAME, input, NeoMap.of("group", "group1", "name", "name")));
+        show(neo.update(TABLE_NAME, NeoMap.of("group", "ok3", "name", "name"), Columns.of("name")));
     }
 
     @Test
@@ -87,7 +85,7 @@ public class NeoTest extends NeoBaseTest{
     public void testUpdate3(){
         DemoEntity input = new DemoEntity();
         input.setGroup("group2");
-        show(neo.update(TABLE_NAME, NeoMap.of("group", "group1", "name", "name"), input));
+        show(neo.update(TABLE_NAME, input, NeoMap.of("group", "group1", "name", "name")));
     }
 
     @Test
@@ -99,6 +97,15 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity data = new DemoEntity();
         data.setGroup("group2");
         show(neo.update(TABLE_NAME, data, search));
+    }
+
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate5(){
+        show(neo.update(TABLE_NAME, NeoMap.of("group", "group1", "name", "name2"), Columns.of("group")));
     }
 
     /******************************直接执行******************************/

@@ -62,7 +62,7 @@ public class StringNamingTest {
 
     @Test
     public void upperMiddleToSmallCamelTest(){
-        Assert.assertEquals("dataBaseUser", StringNaming.upperMiddleToSmallCamel("DATA-BASE-USER"));
+        Assert.assertEquals("dataBaseUser", StringNaming.upperUnderMiddleToSmallCamel("DATA-BASE-USER"));
     }
 
     @Test

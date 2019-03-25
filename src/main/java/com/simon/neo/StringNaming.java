@@ -210,7 +210,7 @@ public class StringNaming {
      * 大写中划线到小驼峰
      * DATA-BASE-USER -> dataBaseUser
      */
-    public static String upperMiddleToSmallCamel(String word){
+    public static String upperUnderMiddleToSmallCamel(String word){
         if (null == word) {
             return null;
         }
@@ -265,7 +265,7 @@ public class StringNaming {
      * DATA-BASE-USER -> DataBaseUser
      */
     public static String upperMiddleToBigCamel(String word){
-        return bigCamel(upperMiddleToSmallCamel(word));
+        return bigCamel(upperUnderMiddleToSmallCamel(word));
     }
 
     /**

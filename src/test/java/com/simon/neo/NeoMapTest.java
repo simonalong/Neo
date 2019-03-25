@@ -141,6 +141,21 @@ public class NeoMapTest {
         System.out.println(neoMap);
     }
 
+    @Test
+    public void testFrom5(){
+        DemoEntity demo = new DemoEntity();
+        demo.setGroup("group1");
+        demo.setName("name1");
+        demo.setUserName("userName1");
+        demo.setDataBaseName("databasename");
+        demo.setId(212L);
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.fromInclude(demo, "userName");
+        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        System.out.println(neoMap);
+    }
+
     /**
      * 用于自定义命名转换
      */
@@ -173,4 +188,14 @@ public class NeoMapTest {
         // 数据完全一直
         Assert.assertEquals(demo, newDemo);
     }
+
+    @Test
+    public void testAssign(){
+        NeoMap neoMap1 = NeoMap.of("a", "1", "b", "2", "c", "3");
+        NeoMap neoMap2 = NeoMap.of("a", "1", "c", "3");
+        NeoMap neoMapResult = neoMap1.assign(Columns.of("a", "c"));
+
+        Assert.assertEquals(neoMap2.toString(), neoMapResult.toString());
+    }
+
 }

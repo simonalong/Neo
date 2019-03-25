@@ -37,16 +37,16 @@ import javafx.util.Pair;
 import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/3 下午2:53
  */
+@Slf4j
 public class Neo {
 
-    Logger log = LoggerFactory.getLogger(Neo.class);
+    private static final String PRE_LOG = "[Neo] ";
 
     @Getter
     private NeoDb db;
@@ -211,7 +211,10 @@ public class Neo {
      */
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
         execute((a,b)->{}, () -> generateUpdateSqlPair(tableName, dataMap, searchMap), this::executeUpdate);
-        return one(tableName, NeoMap.of().append(searchMap).append(dataMap));
+        closeStandard();
+        NeoMap result = one(tableName, NeoMap.of().append(searchMap).append(dataMap));
+        openStandard();
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -223,8 +226,8 @@ public class Neo {
         return update(tableName, setEntity, NeoMap.from(searchEntity));
     }
 
-    public NeoMap update(String tableName, NeoMap dataMap, Object searchEntity) {
-        return update(tableName, dataMap, NeoMap.from(searchEntity));
+    public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
+        return update(tableName, dataMap, dataMap.assign(columns));
     }
 
     /**
@@ -698,6 +701,108 @@ public class Neo {
     }
 
     /**
+     * 批量插入NeoMap列表数据
+     * @param tableName 表名
+     * @param dataMapList 设置数据和对应的搜索map的映射集合
+     * @return 插入的数据个数：0或者all
+     */
+    public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {
+        if (null == dataMapList || dataMapList.isEmpty()) {
+            return 0;
+        }
+        return executeBatch(generateBatchInsertPair(tableName, dataMapList));
+    }
+
+    /**
+     * 批量插入实体列表
+     * @param tableName 表名
+     * @param dataList 数据列表
+     * @param namingChg 命名转换
+     * @return 插入的数据个数：0或者all
+     */
+    public <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg){
+        return batchInsert(tableName, NeoMap.fromArray(dataList, namingChg));
+    }
+
+    /**
+     * 批量插入实体列表
+     * @param tableName 表名
+     * @param dataList 数据列表
+     * @return 插入的数据个数：0或者all
+     */
+    public <T> Integer batchInsertEntity(String tableName, List<T> dataList){
+        return batchInsert(tableName, NeoMap.fromArray(dataList));
+    }
+
+    /**
+     * 批量更新
+     * @param tableName 表名
+     * @param pairList 设置待更新的数据和对应的搜索数据的映射集合
+     */
+    private Integer innerBatchUpdate(String tableName, List<Pair<NeoMap, NeoMap>> pairList) {
+        if (null == pairList || pairList.isEmpty()) {
+            return 0;
+        }
+        return executeBatch(generateBatchUpdatePair(tableName, pairList));
+    }
+
+    /**
+     * 批量更新，默认根据主键进行更新
+     * @param tableName 表名
+     * @param dataList 待更新的数据
+     * @return 批量更新的个数：0或者all
+     */
+    public Integer batchUpdate(String tableName, List<NeoMap> dataList){
+        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(dataList, columns));
+    }
+
+    /**
+     * 批量更新，指定搜索的哪些列
+     * @param tableName 表名
+     * @param dataList 待更新的数据
+     * @param columns where搜索条件用到的前面待更新的数据的列
+     * @return 批量更新的个数：0或者all
+     */
+    public Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns){
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(dataList, columns));
+    }
+
+    /**
+     * 批量更新，默认根据主键进行更新
+     * @param tableName 表名
+     * @param dataList 待更新的数据
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){
+        Columns columns = Columns.of(db.getPrimaryAndAutoIncName(tableName));
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns, null));
+    }
+
+    /**
+     * 批量执行更新，指定搜索的哪些列和命名转换方式
+     * @param tableName 表名
+     * @param dataList 数据列表
+     * @param columns 这里的列为对象的属性名字，记得这里不是对象转换到NeoMap之后的列
+     * @param namingChg 对象的命名转换，如果为null，则执行全局的，默认的全局为不转换
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg){
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns, namingChg));
+    }
+
+    /**
+     * 批量执行更新，指定搜索的哪些列
+     * @param tableName 表名
+     * @param dataList 数据列表
+     * @param columns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns){
+        return batchUpdateEntity(tableName, dataList, columns, null);
+    }
+
+    /**
      * 获取创建sql的语句
      * create table xxx{
      *     id xxxx;
@@ -705,6 +810,20 @@ public class Neo {
      */
     public String getTableCreate(String tableName){
         return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+    }
+
+    /**
+     * 关闭sql规范
+     */
+    public void closeStandard(){
+        standardFlag = false;
+    }
+
+    /**
+     * 开启sql规范
+     */
+    public void openStandard(){
+        standardFlag = true;
     }
 
     /**
@@ -819,12 +938,13 @@ public class Neo {
 
     /**
      * sql执行器
-     * @param before sql执行之前进行检查
+     * @param before sql执行之前进行explain检查
      * @param sqlSupplier sql和对应的参数的拼接生成器
      * @param stateFun sql Statement执行回调函数
      * @param <T> 返回值的类型
      * @return 返回对应的要求的返回值
      */
+    // todo before 这个可以进行优化，放到外面，不需要作为回调，因为这个在最外面
     private <T> T execute(BiConsumer<String, List<Object>> before, Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun) {
         Pair<String, List<Object>> sqlPair = sqlSupplier.get();
         String sql = sqlPair.getKey();
@@ -833,11 +953,6 @@ public class Neo {
         before.accept(sql, parameters);
         try(Connection con = pool.getConnect()){
             try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                int i, dataSize = parameters.size();
-                for (i = 0; i < dataSize; i++) {
-                    state.setObject(i + 1, parameters.get(i));
-                }
-
                 if (standardFlag) {
                     // sql规范化校验
                     standard.valid(sql);
@@ -846,6 +961,12 @@ public class Neo {
                     // 添加对sql的监控
                     monitor.start(this, sql, parameters);
                 }
+
+                int i, dataSize = parameters.size();
+                for (i = 0; i < dataSize; i++) {
+                    state.setObject(i + 1, parameters.get(i));
+                }
+
                 T result = stateFun.apply(state);
 
                 if (monitorFlag) {
@@ -855,14 +976,75 @@ public class Neo {
                 return result;
             } catch (SQLException e) {
                 e.printStackTrace();
+                log.error(PRE_LOG + "sql=> " + sql);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            log.error(PRE_LOG + "sql=> " + sql);
         } finally {
             monitor.close();
         }
         return null;
     }
+
+    private Integer executeBatch(Pair<String, List<List<Object>>> sqlPair){
+        String sql = sqlPair.getKey();
+        List<List<Object>> parameterList = sqlPair.getValue();
+
+        try (Connection con = pool.getConnect()) {
+            try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                con.setAutoCommit(false);
+                // 插入批次数据
+                int i, j, batchCount = parameterList.size(), fieldCount;
+                for (i = 0; i < batchCount; i++) {
+                    List<Object> mList = parameterList.get(i);
+                    fieldCount = parameterList.get(i).size();
+                    for (j = 0; j < fieldCount; j++) {
+                        state.setObject(j + 1, mList.get(j));
+                    }
+                    state.addBatch();
+                }
+
+                if (standardFlag) {
+                    // sql规范化校验
+                    standard.valid(sql);
+                }
+                if (monitorFlag) {
+                    // 添加对sql的监控
+                    monitor.start(this, sql, Collections.singletonList(parameterList));
+                }
+                state.executeBatch();
+                con.commit();
+                con.setAutoCommit(true);
+
+                if (monitorFlag) {
+                    // 统计sql信息
+                    monitor.calculate();
+                }
+                return batchCount;
+            } catch (SQLException e) {
+                log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
+                e.printStackTrace();
+                try {
+                    // 出现异常，进行回滚
+                    if(!con.isClosed()){
+                        con.rollback();
+                        con.setAutoCommit(true);
+                    }
+                } catch (SQLException e1) {
+                    log.error(PRE_LOG + "[回滚异常]");
+                    e1.printStackTrace();
+                }
+            }
+        } catch (SQLException e) {
+            log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
+            e.printStackTrace();
+        } finally {
+            monitor.close();
+        }
+        return 0;
+    }
+
 
     private String generateInsertSql(String tableName, NeoMap neoMap){
         return "insert into "
@@ -981,6 +1163,51 @@ public class Neo {
             sql += limitOne();
         }
         return new Pair<>(sql, pair.getValue());
+    }
+
+    /**
+     * 通过表名和查询参数生成查询一行数据的sql
+     */
+    private Pair<String, List<List<Object>>> generateBatchInsertPair(String tableName, List<NeoMap> parameters){
+        String sql = generateInsertSql(tableName, parameters.get(0));
+        return new Pair<>(sql, parameters.stream().map(this::generateValueList).collect(Collectors.toList()));
+    }
+
+    /**
+     * 通过表名和查询参数生成查询一行数据的sql
+     */
+    private Pair<String, List<List<Object>>> generateBatchUpdatePair(String tableName, List<Pair<NeoMap, NeoMap>> pairList){
+        String sql = generateUpdateSql(tableName, pairList.get(0).getKey(), pairList.get(0).getValue());
+        return new Pair<>(sql, pairList.stream().map(p-> NeoMap.values(p.getKey(), p.getValue())).collect(Collectors.toList()));
+    }
+
+    /**
+     * 构建批次的value和where语句对的list
+     * @param dataList 全部的数据列表
+     * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
+     * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
+     */
+    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(List<NeoMap> dataList, Columns columns){
+        if(null == dataList || dataList.isEmpty()){
+            return new ArrayList<>();
+        }
+        return dataList.stream().map(m-> new Pair<>(m, m.assign(columns))).collect(Collectors.toList());
+    }
+
+    /**
+     * 构建批次的value和where语句对的list
+     * @param dataList 全部的数据列表
+     * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
+     * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
+     */
+    private <T> List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereListFromEntity(List<T> dataList, Columns columns,
+        NamingChg namingChg) {
+        if (null == dataList || dataList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return dataList.stream()
+            .map(m -> new Pair<>(NeoMap.from(m, namingChg), NeoMap.from(m, columns, namingChg)))
+            .collect(Collectors.toList());
     }
 
     /**

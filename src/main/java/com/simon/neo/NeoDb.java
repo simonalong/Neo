@@ -59,7 +59,6 @@ public class NeoDb {
      * @param tableName 库中的表名
      * @return 自增的主键的列名，如果没有，则返回null
      */
-
     public String getPrimaryAndAutoIncName(String schemaName, String tableName){
         schemaName = base(schemaName);
         NeoTable neoTable = getTable(schemaName, tableName);
@@ -71,6 +70,25 @@ public class NeoDb {
 
     public String getPrimaryAndAutoIncName(String tableName){
         return getPrimaryAndAutoIncName(null, tableName);
+    }
+
+    /**
+     * 如果数据表有自增的键，则返回该列
+     * @param schemaName 模式名
+     * @param tableName 库中的表名
+     * @return 自增的主键的列名，如果没有，则返回null
+     */
+    public String getPrimaryName(String schemaName, String tableName){
+        schemaName = base(schemaName);
+        NeoTable neoTable = getTable(schemaName, tableName);
+        if (null != neoTable) {
+            return neoTable.getPrimary();
+        }
+        return null;
+    }
+
+    public String getPrimaryName(String tableName){
+        return getPrimaryName(null, tableName);
     }
 
     public void addTable(Neo neo, Table table){

@@ -458,6 +458,14 @@ public class NeoTable {
             .orElse(null);
     }
 
+    /**
+     * 获取表中的主键名字
+     */
+    public String getPrimary() {
+        return columnList.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()
+            .orElse(null);
+    }
+
     public void setPrimary(String columnName) {
         for (NeoColumn column : columnList) {
             if(column.getColumnName().equals(columnName)){
