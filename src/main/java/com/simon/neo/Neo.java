@@ -736,7 +736,7 @@ public class Neo {
     }
 
     public NeoTable getTable(String tableName){
-        return db.getTable(tableName);
+        return getTable(null, tableName);
     }
 
     /**
