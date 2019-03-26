@@ -13,26 +13,67 @@ import javax.sql.DataSource;
  */
 public class ConnectPool {
 
+    private final Neo neo;
     private final DataSource dataSource;
+    private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
-    public ConnectPool(DataSource dataSource){
+    public ConnectPool(Neo neo, DataSource dataSource){
+        this.neo = neo;
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(String propertiesPath){
+    public ConnectPool(Neo neo, String propertiesPath){
+        this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    public ConnectPool(Properties properties){
+    public ConnectPool(Neo neo, Properties properties){
+        this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(properties));
     }
 
-    public Connection getConnect() {
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    /**
+     * 获取链接，非事务获取普通的链接对象，事务获取可重用的链接
+     */
+    public Connection getConnect() throws SQLException {
+        Connection con = connectLocal.get();
+        if (null != con) {
+            return con;
         }
-        return null;
+
+        con = dataSource.getConnection();
+        if (neo.isTransaction()) {
+            ReusableConnection reConnection = ReusableConnection.of(con);
+            reConnection.setAutoCommit(false);
+            connectLocal.set(reConnection);
+            return reConnection;
+        }
+        return con;
+    }
+
+    public void submit() throws SQLException {
+        ReusableConnection con = connectLocal.get();
+        if(null != con){
+            try {
+                con.commit();
+                con.setAutoCommit(true);
+                con.handleClose();
+            } finally {
+                connectLocal.remove();
+            }
+        }
+    }
+
+    public void rollback() throws SQLException {
+        ReusableConnection con = connectLocal.get();
+        if(null != con){
+            try {
+                con.rollback();
+                con.setAutoCommit(true);
+                con.handleClose();
+            } finally {
+                connectLocal.remove();
+            }
+        }
     }
 }

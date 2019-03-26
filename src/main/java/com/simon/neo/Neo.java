@@ -81,6 +81,11 @@ public class Neo {
     @Getter
     private Boolean monitorFlag = true;
 
+    /**
+     * 事务
+     */
+    private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
+
     private Neo(){}
 
     public static Neo connect(String url, String username, String password, Properties properties) {
@@ -96,7 +101,7 @@ public class Neo {
         if(null != properties && !properties.isEmpty()) {
             baseProper.putAll(properties);
         }
-        neo.pool = new ConnectPool(baseProper);
+        neo.pool = new ConnectPool(neo, baseProper);
         neo.initDb();
         return neo;
     }
@@ -111,7 +116,7 @@ public class Neo {
      */
     public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
-        neo.pool = new ConnectPool(propertiesPath);
+        neo.pool = new ConnectPool(neo, propertiesPath);
         neo.initDb();
         return neo;
     }
@@ -123,14 +128,14 @@ public class Neo {
         properties.setProperty("dataSource.remarks", "true");
         properties.setProperty("dataSource.useInformationSchema", "true");
 
-        neo.pool = new ConnectPool(properties);
+        neo.pool = new ConnectPool(neo, properties);
         neo.initDb();
         return neo;
     }
 
     public static Neo connect(DataSource dataSource) {
         Neo neo = new Neo();
-        neo.pool = new ConnectPool(dataSource);
+        neo.pool = new ConnectPool(neo, dataSource);
         neo.initDb();
         return neo;
     }
@@ -819,6 +824,43 @@ public class Neo {
     }
 
     /**
+     * 事务的执行，可以进行嵌套事务，针对嵌套事务，这里进行最外层统一提交
+     */
+    public void tx(Runnable runnable) {
+        tx(()->{
+            runnable.run();
+            return null;
+        });
+    }
+
+    /**
+     * 带返回值的事务执行，可以进行嵌套事务，针对嵌套事务，这里进行最外层统一提交
+     */
+    public <T> T tx(Supplier<T> supplier){
+        // 针对事务嵌套这里采用最外层事务提交
+        Boolean originalTxFlag = txFlag.get();
+        txFlag.set(true);
+
+        try {
+            T result = supplier.get();
+            pool.submit();
+            return result;
+        } catch (Exception e) {
+            log.error(PRE_LOG + "[提交失败，事务回滚]");
+            e.printStackTrace();
+            try {
+                pool.rollback();
+            } catch (SQLException e1) {
+                log.error(PRE_LOG + "[回滚失败]");
+                e1.printStackTrace();
+            }
+        } finally {
+            txFlag.set(originalTxFlag);
+        }
+        return null;
+    }
+
+    /**
      * 获取创建sql的语句
      * create table xxx{
      *     id xxxx;
@@ -840,6 +882,10 @@ public class Neo {
      */
     public void openStandard(){
         standardFlag = true;
+    }
+
+    public Boolean isTransaction(){
+        return txFlag.get();
     }
 
     /**
@@ -1020,8 +1066,17 @@ public class Neo {
         List<List<Object>> parameterList = sqlPair.getValue();
 
         try (Connection con = pool.getConnect()) {
-            try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement state = con.prepareStatement(sql)) {
                 con.setAutoCommit(false);
+                if (standardFlag) {
+                    // sql规范化校验
+                    standard.valid(sql);
+                }
+                if (monitorFlag) {
+                    // 添加对sql的监控
+                    monitor.start(this, sql, Collections.singletonList(parameterList));
+                }
+
                 // 插入批次数据
                 int i, j, batchCount = parameterList.size(), fieldCount;
                 for (i = 0; i < batchCount; i++) {
@@ -1033,14 +1088,6 @@ public class Neo {
                     state.addBatch();
                 }
 
-                if (standardFlag) {
-                    // sql规范化校验
-                    standard.valid(sql);
-                }
-                if (monitorFlag) {
-                    // 添加对sql的监控
-                    monitor.start(this, sql, Collections.singletonList(parameterList));
-                }
                 state.executeBatch();
                 con.commit();
                 con.setAutoCommit(true);
@@ -1072,7 +1119,6 @@ public class Neo {
         }
         return 0;
     }
-
 
     private String generateInsertSql(String tableName, NeoMap neoMap){
         return "insert into "
