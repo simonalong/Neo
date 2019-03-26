@@ -156,6 +156,36 @@ public class NeoMapTest {
         System.out.println(neoMap);
     }
 
+    @Test
+    public void testFrom6(){
+        DemoEntity demo = new DemoEntity();
+        demo.setGroup("group1");
+        demo.setName("name1");
+        demo.setUserName("userName1");
+        demo.setDataBaseName("databasename");
+        demo.setId(212L);
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"));
+        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        System.out.println(neoMap);
+    }
+
+    @Test
+    public void testFrom7(){
+        DemoEntity demo = new DemoEntity();
+        demo.setGroup("group1");
+        demo.setName("name1");
+        demo.setUserName("userName1");
+        demo.setDataBaseName("databasename");
+        demo.setId(212L);
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"), NamingChg.UNDERLINE);
+        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        System.out.println(neoMap);
+    }
+
     /**
      * 用于自定义命名转换
      */

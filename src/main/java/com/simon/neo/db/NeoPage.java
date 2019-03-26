@@ -1,4 +1,4 @@
-package com.simon.neo;
+package com.simon.neo.db;
 
 /**
  * @author zhouzhenyong

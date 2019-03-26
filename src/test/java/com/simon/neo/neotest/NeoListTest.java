@@ -1,7 +1,6 @@
 package com.simon.neo.neotest;
 
 import com.simon.neo.Columns;
-import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;

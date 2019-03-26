@@ -1,9 +1,13 @@
 package com.simon.neo;
 
-import com.simon.neo.NeoColumn.Column;
+import com.simon.neo.db.NeoColumn;
+import com.simon.neo.db.NeoColumn.Column;
 import com.simon.neo.NeoMap.NamingChg;
-import com.simon.neo.NeoTable.Table;
-import com.simon.neo.TableIndex.Index;
+import com.simon.neo.db.NeoPage;
+import com.simon.neo.db.NeoTable;
+import com.simon.neo.db.NeoTable.Table;
+import com.simon.neo.db.TableIndex.Index;
+import com.simon.neo.db.NeoDb;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
@@ -27,7 +31,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -207,6 +210,16 @@ public class Neo {
         return delete(tableName, NeoMap.from(entity));
     }
 
+    public Integer delete(String tableName, Long id) {
+        String primaryKey = db.getPrimaryName(tableName);
+        NeoMap neoMap = NeoMap.of();
+        if(null != primaryKey){
+            neoMap.append(primaryKey, id);
+            return delete(tableName, neoMap);
+        }
+        return 0;
+    }
+
     /**
      * 数据更新
      * @param tableName 表名
@@ -223,8 +236,13 @@ public class Neo {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> T update(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
+        return update(tableName, NeoMap.from(setEntity, namingChg), searchMap).as((Class<T>) setEntity.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
-        return update(tableName, NeoMap.from(setEntity), searchMap).as((Class<T>) setEntity.getClass());
+        return update(tableName, setEntity, searchMap, NamingChg.DEFAULT);
     }
 
     public <T> T update(String tableName, T setEntity, T searchEntity) {
@@ -249,7 +267,7 @@ public class Neo {
      * @param namingChg 命名转换方式
      */
     public <T> T update(String tableName, T entity, Columns columns, NamingChg namingChg) {
-        return update(tableName, entity, NeoMap.from(entity, columns, namingChg));
+        return update(tableName, entity, NeoMap.from(entity, columns, namingChg), namingChg);
     }
 
     public <T> T update(String tableName, T entity, Columns columns) {
@@ -261,9 +279,9 @@ public class Neo {
         return update(tableName, dataMap, dataMap.assign(columns));
     }
 
-    public <T> T update(String tableName, T dataMap) {
+    public <T> T update(String tableName, T entity) {
         Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
-        return update(tableName, dataMap, NeoMap.from(dataMap, columns));
+        return update(tableName, entity, NeoMap.from(entity, columns));
     }
 
     /**

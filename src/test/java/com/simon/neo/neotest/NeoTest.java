@@ -117,6 +117,43 @@ public class NeoTest extends NeoBaseTest{
         show(neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group222", "name", "name2")));
     }
 
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate7(){
+        DemoEntity search = new DemoEntity();
+        search.setId(281L);
+        search.setGroup("group555");
+        show(neo.update(TABLE_NAME, search));
+    }
+
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate8(){
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group555");
+        search.setName("name333");
+        show(neo.update(TABLE_NAME, search, Columns.of("name")));
+    }
+
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate9(){
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group555");
+        search.setName("name333");
+        search.setUserName("userName2222");
+        show(neo.update(TABLE_NAME, search, Columns.of("userName"), NamingChg.UNDERLINE));
+    }
+
     /******************************直接执行******************************/
     @Test
     public void testExecute1(){

@@ -1,7 +1,7 @@
 package com.simon.neo.codegen;
 
 import com.simon.neo.Neo;
-import com.simon.neo.NeoColumn;
+import com.simon.neo.db.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.StringNaming;
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Setter;
 

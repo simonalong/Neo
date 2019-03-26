@@ -331,7 +331,7 @@ public class NeoMap implements Map<String, Object> {
         return this;
     }
 
-    public NeoMap append(String key, String value) {
+    public NeoMap append(String key, Object value) {
         this.put(key, value);
         return this;
     }
@@ -346,7 +346,7 @@ public class NeoMap implements Map<String, Object> {
                 return chgName;
             }
         }
-        return ((null != localNaming && localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).javaToDb(name);
+        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).javaToDb(name);
     }
 
     public enum NamingChg {

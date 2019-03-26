@@ -64,4 +64,19 @@ public class NeoTxTest extends NeoBaseTest {
         });
         neo.update(TABLE_NAME, NeoMap.of("id", 32, "group", "group335"));
     }
+
+    /**
+     * 验证异常情况下的回退，并且不影响其他的执行
+     */
+    @Test
+    public void test4(){
+        show(neo.tx(()->{
+            neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group31"));
+            neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group32"));
+            neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group33"));
+            neo.update(TABLE_NAME, NeoMap.of("id", 4, "group", "group34"));
+            neo.update(TABLE_NAME, NeoMap.of("id", 5, "group", "group35"));
+            return neo.one(TABLE_NAME, NeoMap.of("id", 282));
+        }));
+    }
 }

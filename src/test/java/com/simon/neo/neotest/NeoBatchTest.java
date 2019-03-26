@@ -84,6 +84,7 @@ public class NeoBatchTest extends NeoBaseTest{
     }
 
     /**
+     * 异常测试
      * 注意在Entity的批量更新这里，列的选择，里面输入是完全跟列的属性名字相同的，而上面NeoMap的批量更新里面是跟NeoMap的key相同，那里的key一般情况下都是DB中的名字
      */
     @Test
