@@ -738,7 +738,7 @@ public class Neo {
      * @return 批量更新的个数：0或者all
      */
     public Integer batchUpdate(String tableName, List<NeoMap> dataList){
-        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
+        Columns columns = Columns.of(db.getPrimaryAndAutoIncName(tableName));
         return innerBatchUpdate(tableName, buildBatchValueAndWhereList(dataList, columns));
     }
 
@@ -760,7 +760,7 @@ public class Neo {
      * @return 批量更新的个数：0或者all
      */
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){
-        Columns columns = Columns.of(db.getPrimaryAndAutoIncName(tableName));
+        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
         return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns, null));
     }
 
