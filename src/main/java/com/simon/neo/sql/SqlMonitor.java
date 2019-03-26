@@ -28,6 +28,10 @@ public class SqlMonitor {
      */
     private static final Integer MAX_SQL_LENGTH = 500;
     /**
+     * 批量数据的展示这里最多展示5个
+     */
+    private static final Integer MAX_BATCH_PARAMETER_SHOW_SIZE = 5;
+    /**
      * 本地时间设置
      */
     private ThreadLocal<SqlCost> sqlTime = new ThreadLocal<>();
@@ -98,8 +102,18 @@ public class SqlMonitor {
             return sql.substring(0, MAX_SQL_LENGTH) + " ...";
         }
 
+        private List<Object> getParamsList(){
+            if (paramsList.size() <= MAX_BATCH_PARAMETER_SHOW_SIZE) {
+                return paramsList;
+            }
+            log.warn("sql 长度过长超过500");
+            List<Object> resultList = paramsList.subList(0, MAX_BATCH_PARAMETER_SHOW_SIZE);
+            resultList.add("...");
+            return resultList;
+        }
+
         String buildCost(Long costTime){
-            return "[耗时: " + TimeStrUtil.parseTime(costTime) + "] [sql => " + getSql() + "], {params => " + paramsList + " }";
+            return "[耗时: " + TimeStrUtil.parseTime(costTime) + "] [sql => " + getSql() + "], {params => " + getParamsList() + " }";
         }
     }
 }

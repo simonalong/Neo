@@ -51,22 +51,22 @@ public class SqlStandard {
 
         switch (standard[0].logType) {
             case TRACE:
-                log.trace(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
+                log.trace(PRE_LOG + "[命中跟踪] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case DEBUG:
-                log.debug(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
+                log.debug(PRE_LOG + "[命中调试] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case INFO:
-                log.info(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
+                log.info(PRE_LOG + "[命中信息] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case WARN:
-                log.warn(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql=> " + sql + "]");
+                log.warn(PRE_LOG + "[命中告警规范] [" + standard[0].desc + "] [sql=> " + sql + "]");
                 break;
             case ERROR:
-                log.error(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
+                log.error(PRE_LOG + "[命中错误规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 break;
             case FORBIDDEN:
-                log.error(PRE_LOG + "[命中规范] [" + standard[0].desc + "] [sql => " + sql + "]");
+                log.error(PRE_LOG + "[命中禁用规范] [" + standard[0].desc + "] [sql => " + sql + "]");
                 return false;
             default:
                 break;
@@ -114,23 +114,28 @@ public class SqlStandard {
         /**
          * 不要使用select *，尽量使用具体的列
          */
-        SELECT(new Standard("^.*(select |SELECT )\\*.*$", "请不要使用select *，尽量使用具体的列", LogType.WARN)),
+        SELECT(new Standard("^.*(select |SELECT |Select)\\*.*$", "请不要使用select *，尽量使用具体的列", LogType.WARN)),
 
         /**
          * where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like
          */
-        WHERE_NOT(new Standard("^.*( where | WHERE ).*(!=|<>| not | NOT | not in| NOT IN| not exists| NOT EXISTS| not like| NOT LIKE)+.*$",
+        WHERE_NOT(new Standard("^.*( where | WHERE | Where ).*(!=|<>| not | NOT | not in| NOT IN| not exists| NOT EXISTS| not like| NOT LIKE)+.*$",
             "where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like", LogType.WARN)),
 
         /**
          * where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'
          */
-        LIKE(new Standard("^.*( like| LIKE) '%.*'.*$", "where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'", LogType.WARN)),
+        LIKE(new Standard("^.*( where | WHERE | Where )+.*( like | LIKE )+'%.*'.*$", "where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'", LogType.WARN)),
 
         /**
          * where子句中有in操作，请谨慎使用
          */
-        IN(new Standard("^.*( in | in\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO));
+        IN(new Standard("^.*( where | WHERE | Where )+.*( in | in\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO)),
+
+        /**
+         * update 语句，如果后面没有where语句，则进行日志显示
+         */
+        UPDATE_NO_WHERE(new Standard("^(update |UPDATE |Update )+(?!.*((WHERE)|(where)|(Where))).*$", "update 更新语句中，没有where子句", LogType.WARN));
 
         private Standard standard;
     }

@@ -3,6 +3,7 @@ package com.simon.neo.codegen;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoColumn;
 import com.simon.neo.NeoMap;
+import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.StringNaming;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
@@ -53,7 +54,7 @@ public class EntityCodeGen {
     /**
      * 属性名字的字符转换，默认为不转换
      */
-    private Function<String, String> fieldNamingChg = t->t;
+    private NamingChg fieldNamingChg = NamingChg.DEFAULT;
     /**
      * 待生成的表
      */
@@ -202,7 +203,7 @@ public class EntityCodeGen {
             .map(c -> new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getColumnMeta().getRemarks())
-                .setFieldName(fieldNamingChg.apply(c.getColumnName())))
+                .setFieldName(fieldNamingChg.dBToJava(c.getColumnName())))
             .collect(Collectors.toList());
     }
 

@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 /**
  * @author zhouzhenyong
@@ -13,12 +14,17 @@ import java.util.stream.Collectors;
  */
 public class Columns {
 
+    @Getter
     private Set<String> fieldSets = new LinkedHashSet<>();
 
     private Columns(){}
 
-    public static Columns of(String... fields){
-        return new Columns().addAll(fields);
+    public static Columns of(String... fields) {
+        Columns columns = new Columns();
+        if (null == fields || 0 == fields.length) {
+            return columns;
+        }
+        return columns.addAll(fields);
     }
 
     public static Columns of(List<Field> fieldList){
@@ -47,6 +53,10 @@ public class Columns {
     public Columns addAll(String... fields){
         this.fieldSets.addAll(Arrays.asList(fields));
         return this;
+    }
+
+    public boolean contains(String data){
+        return fieldSets.contains(data);
     }
 
     public boolean isEmpty(){

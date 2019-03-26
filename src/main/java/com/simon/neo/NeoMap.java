@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,7 @@ import lombok.Setter;
  */
 public class NeoMap implements Map<String, Object> {
 
-    private Map<String, Object> dataMap;
+    private ConcurrentSkipListMap<String, Object> dataMap;
     /**
      * 全局的命名转换，默认不转换
      */
@@ -41,6 +42,11 @@ public class NeoMap implements Map<String, Object> {
         dataMap = new ConcurrentSkipListMap<>();
     }
 
+    /**
+     * 将多个NeoMap中的value集合起来
+     * @param maps 多个NeoMap
+     * @return 多个NeoMap的Values集合
+     */
     public static List<Object> values(NeoMap... maps) {
         List<Object> valueList = new ArrayList<>();
         if (null != maps && maps.length > 0) {
@@ -80,8 +86,29 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 根据指定的一些列转换为NeoMap对象，该函数同函数 fromInclude，只是为了方便命名的统一
+     * @param object 待转换对象
+     * @param columns 对象的属性名列表
+     */
+    public static NeoMap from(Object object, Columns columns) {
+        return from(object, NamingChg.DEFAULT, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
+    }
+
+    /**
      * 对象转换为NeoMap
      * @param object 待转换对象
+     * @param columns 对象的属性名列表
+     * @param namingChg 对象属性和NeoMap的映射关系
+     */
+    public static NeoMap from(Object object, Columns columns, NamingChg namingChg) {
+        return from(object, namingChg,
+            new ArrayList<>(null == columns ? Collections.emptyList() : columns.getFieldSets()), new ArrayList<>());
+    }
+
+    /**
+     * 对象转换为NeoMap
+     * @param object 待转换对象
+     * @param namingChg 对象属性和NeoMap的映射关系
      */
     public static NeoMap from(Object object, NamingChg namingChg) {
         return from(object, namingChg, new ArrayList<>(), new ArrayList<>());
@@ -90,7 +117,17 @@ public class NeoMap implements Map<String, Object> {
     /**
      * 对象转换为NeoMap
      * @param object 待转换对象
+     * @param columns 对象的属性名列表
      * @param userDefineNaming 用户自定义的转换，结构为<code>Map<String, String></code>
+     */
+    public static NeoMap from(Object object, Columns columns, NeoMap userDefineNaming) {
+        return from(object, userDefineNaming, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
+    }
+
+    /**
+     * 对象转换为NeoMap
+     * @param object 待转换对象
+     * @param userDefineNaming 用户自定义的转换，结构为<code>Map<String, String></code>，key为实体的属性名，value为DB中的列名
      */
     public static NeoMap from(Object object, NeoMap userDefineNaming) {
         return from(object, userDefineNaming, new ArrayList<>(), new ArrayList<>());
@@ -115,7 +152,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
-     * 对象转换为NeoMap
+     * 通过用户自定义的方式，将对象转换为NeoMap
      * @param object 待转换的对象
      * @param userNaming 用户自定义命名转换方式
      * @param inFieldList 包括的属性
@@ -144,6 +181,14 @@ public class NeoMap implements Map<String, Object> {
         }
         neoMap.setLocalNaming(naming);
         return innerFrom(neoMap, object, inFieldList, exFieldList);
+    }
+
+    /**
+     * 通过指定某些列转化为一个新的对象
+     * @param columns 对象中的某些列
+     */
+    public static NeoMap assign(NeoMap neoMap, Columns columns) {
+        return neoMap.assign(columns);
     }
 
     private static NeoMap innerFrom(NeoMap neoMap, Object object, List<String> inFieldList, List<String> exFieldList) {
@@ -180,8 +225,42 @@ public class NeoMap implements Map<String, Object> {
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
-    public static String stringChg(String source, NamingChg namingChg){
-        return namingChg.namingChg(source);
+    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, NamingChg namingChg){
+        if (null == dataList || dataList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return dataList.stream().map(m -> NeoMap.from(m, columns, namingChg)).collect(Collectors.toList());
+    }
+
+    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns){
+        return fromArray(dataList, columns, null);
+    }
+
+    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg){
+        if (null == dataList || dataList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return dataList.stream().map(m -> NeoMap.from(m, namingChg)).collect(Collectors.toList());
+    }
+
+    public static <T> List<NeoMap> fromArray(List<T> dataList){
+        return fromArray(dataList, null, null);
+    }
+
+    /**
+     * 将数据库字符转换为对应的属性变量规范字符
+     * @param source 源字符串
+     * @param namingChg 转换规则
+     */
+    public static String dbToJavaStr(String source, NamingChg namingChg){
+        return namingChg.dBToJava(source);
+    }
+
+    /**
+     * 默认全局转换
+     */
+    public static String dbToJavaStr(String source){
+        return globalNaming.javaToDb(source);
     }
 
     public static boolean isEmpty(NeoMap neoMap) {
@@ -233,6 +312,20 @@ public class NeoMap implements Map<String, Object> {
         return t;
     }
 
+    public NeoMap assign(Columns columns){
+        Set<String> fields = columns.getFieldSets();
+        if(null == fields || fields.isEmpty()){
+            return this;
+        }
+        NeoMap neoMap = NeoMap.of();
+        fields.forEach(f->{
+            if (containsKey(f)){
+               neoMap.put(f, get(f));
+            }
+        });
+        return neoMap;
+    }
+
     public NeoMap append(NeoMap neoMap) {
         this.putAll(neoMap.getDataMap());
         return this;
@@ -253,61 +346,70 @@ public class NeoMap implements Map<String, Object> {
                 return chgName;
             }
         }
-        return (null != localNaming ? localNaming : globalNaming).namingChg(name);
+        return (null != localNaming ? localNaming : globalNaming).javaToDb(name);
     }
 
     public enum NamingChg {
         /**
          * 不转换
          */
-        DEFAULT(t -> t),
+        DEFAULT(t -> t, t -> t),
         /**
-         * 小驼峰到大驼峰 dataBaseUser -> DateBaseUser
+         * 小驼峰到大驼峰 dataBaseUser <------> DateBaseUser
          */
-        BIGCAMEL(StringNaming::bigCamel),
+        BIGCAMEL(StringNaming::bigCamel, StringNaming::bigCamelToSmallCamel),
         /**
-         * 小驼峰到下划线 dataBaseUser -> data_base_user
+         * 小驼峰到下划线 dataBaseUser <------> data_base_user
          */
-        UNDERLINE(StringNaming::underLine),
+        UNDERLINE(StringNaming::underLine, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前下划线 dataBaseUser -> _data_base_user
+         * 小驼峰到前下划线 dataBaseUser <------> _data_base_user
          */
-        PREUNDER(StringNaming::preUnder),
+        PREUNDER(StringNaming::preUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前下划线 dataBaseUser -> data_base_user_
+         * 小驼峰到前下划线 dataBaseUser <------> data_base_user_
          */
-        POSTUNDER(StringNaming::postUnder),
+        POSTUNDER(StringNaming::postUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前后下划线 dataBaseUser -> _data_base_user_
+         * 小驼峰到前后下划线 dataBaseUser <------> _data_base_user_
          */
-        PREPOSTUNDER(StringNaming::prePostUnder),
+        PREPOSTUNDER(StringNaming::prePostUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到中划线 dataBaseUser -> data-base-user
+         * 小驼峰到中划线 dataBaseUser <------> data-base-user
          */
-        MIDDLELINE(StringNaming::middleLine),
+        MIDDLELINE(StringNaming::middleLine, StringNaming::middleLineToSmallCamel),
         /**
-         * 小驼峰到大写下划线 dataBaseUser -> DATA_BASE_USER
+         * 小驼峰到大写下划线 dataBaseUser <------> DATA_BASE_USER
          */
-        UPPERUNER(StringNaming::upperUnder),
+        UPPERUNER(StringNaming::upperUnder, StringNaming::upperUnderToSmallCamel),
         /**
-         * 小驼峰到大写中划线 dataBaseUser -> DATA-BASE-USER
+         * 小驼峰到大写中划线 dataBaseUser <------> DATA-BASE-USER
          */
-        UPPERMIDDLE(StringNaming::upperUnderMiddle);
+        UPPERMIDDLE(StringNaming::upperUnderMiddle, StringNaming::upperUnderMiddleToSmallCamel);
 
         /**
          * 用于名字的转换
          */
-        private Function<String, String> chg;
+        private Function<String, String> javaToDbFun;
+        private Function<String, String> dbToJavaFun;
 
-        NamingChg(Function<String, String> chgFun) {
-            this.chg = chgFun;
+        NamingChg(Function<String, String> javaToDbFun, Function<String, String> dbToJavaFun) {
+            this.javaToDbFun = javaToDbFun;
+            this.dbToJavaFun = dbToJavaFun;
         }
 
         /**
          * 将map中的key转换到object对象对应的属性名字
          */
-        public String namingChg(String data) {
-            return chg.apply(data);
+        public String javaToDb(String data) {
+            return javaToDbFun.apply(data);
+        }
+
+        /**
+         * 数据库中的字段向Java属性名字转换
+         */
+        public String dBToJava(String data) {
+            return dbToJavaFun.apply(data);
         }
     }
 

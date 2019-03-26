@@ -1,5 +1,6 @@
 package com.simon.neo.codegen;
 
+import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.StringNaming;
 import org.junit.Test;
 
@@ -33,8 +34,8 @@ public class CodeGenTest {
         // 设置只要的表
 //         codeGen.setIncludes("xx_test2");
 
-        // 设置属性中数据库列名字向属性名字的转换，这个跟NamingChg中的是相反的，可以不设置，默认不转换
-        codeGen.setFieldNamingChg(StringNaming::underLineToSmallCamel);
+        // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
+        codeGen.setFieldNamingChg(NamingChg.UNDERLINE);
 
         // 代码生成
         codeGen.generate();
