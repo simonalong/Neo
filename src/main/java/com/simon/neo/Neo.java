@@ -258,7 +258,7 @@ public class Neo {
 
     public <T> T update(String tableName, T dataMap) {
         Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
-        return update(tableName, dataMap, dataMap.assign(columns));
+        return update(tableName, dataMap, NeoMap.from(dataMap, columns));
     }
 
     /**

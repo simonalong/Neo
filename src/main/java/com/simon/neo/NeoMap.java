@@ -346,7 +346,7 @@ public class NeoMap implements Map<String, Object> {
                 return chgName;
             }
         }
-        return (null != localNaming ? localNaming : globalNaming).javaToDb(name);
+        return ((null != localNaming && localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).javaToDb(name);
     }
 
     public enum NamingChg {
