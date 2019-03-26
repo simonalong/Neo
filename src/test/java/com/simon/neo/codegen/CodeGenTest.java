@@ -1,7 +1,6 @@
 package com.simon.neo.codegen;
 
 import com.simon.neo.NeoMap.NamingChg;
-import com.simon.neo.StringNaming;
 import org.junit.Test;
 
 /**

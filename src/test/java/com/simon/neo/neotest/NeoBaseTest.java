@@ -3,7 +3,6 @@ package com.simon.neo.neotest;
 import com.simon.neo.BaseTest;
 import com.simon.neo.Neo;
 import java.sql.SQLException;
-import java.util.Optional;
 import org.junit.BeforeClass;
 
 /**

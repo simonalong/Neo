@@ -1,9 +1,7 @@
 package com.simon.neo.neotest;
 
-import com.simon.neo.BaseTest;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
-import com.simon.neo.neotable.BaseNeoTableTest;
 import java.sql.SQLException;
 import org.junit.Test;
 
