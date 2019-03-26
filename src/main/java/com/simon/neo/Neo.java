@@ -226,7 +226,38 @@ public class Neo {
         return update(tableName, setEntity, NeoMap.from(searchEntity));
     }
 
+    /**
+     * 更新
+     * @param tableName 表名
+     * @param dataMap 待更新的数据
+     * @param columns 搜索条件，其中该列为 dataMap 中对应的key的名字
+     */
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
+        return update(tableName, dataMap, dataMap.assign(columns));
+    }
+
+    /**
+     * 更新
+     * @param tableName 表名
+     * @param entity 设置的实体数据
+     * @param columns 注意：该搜索条件中的列是entity实体中的属性的名字，跟作为NeoMap时候搜索是不一样的
+     * @param namingChg 命名转换方式
+     */
+    public <T> T update(String tableName, T entity, Columns columns, NamingChg namingChg) {
+        return update(tableName, entity, NeoMap.from(entity, columns, namingChg));
+    }
+
+    public <T> T update(String tableName, T entity, Columns columns) {
+        return update(tableName, entity, NeoMap.from(entity, columns));
+    }
+
+    public NeoMap update(String tableName, NeoMap dataMap) {
+        Columns columns = Columns.of(db.getPrimaryAndAutoIncName(tableName));
+        return update(tableName, dataMap, dataMap.assign(columns));
+    }
+
+    public <T> T update(String tableName, T dataMap) {
+        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryAndAutoIncName(tableName)));
         return update(tableName, dataMap, dataMap.assign(columns));
     }
 
