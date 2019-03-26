@@ -108,6 +108,15 @@ public class NeoTest extends NeoBaseTest{
         show(neo.update(TABLE_NAME, NeoMap.of("group", "group1", "name", "name2"), Columns.of("group")));
     }
 
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate6(){
+        show(neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group222", "name", "name2")));
+    }
+
     /******************************直接执行******************************/
     @Test
     public void testExecute1(){

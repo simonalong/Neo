@@ -16,8 +16,8 @@ public class NeoTxTest extends NeoBaseTest {
 
     @Test
     public void test1(){
-        neo.tx(()->{
-            neo.update(TABLE_NAME, NeoMap.of("group", "group1"));
-        });
+//        neo.tx(()->{
+//            neo.update(TABLE_NAME, NeoMap.of("group", "group1"));
+//        });
     }
 }
