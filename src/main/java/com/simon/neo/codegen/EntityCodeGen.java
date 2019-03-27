@@ -142,7 +142,7 @@ public class EntityCodeGen {
                    neoMap.put("importTime", 1);
                 }
 
-                if (java.math.BigDecimal.class.isAssignableFrom(fieldClass)) {
+                if (java.sql.Timestamp.class.isAssignableFrom(fieldClass)) {
                     neoMap.put("importTimestamp", 1);
                 }
 

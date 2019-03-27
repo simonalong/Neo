@@ -16,15 +16,15 @@ public class CodeGenTest {
         // 设置数据库url
         codeGen.setUrl("jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
         // 设置用户名
-        codeGen.setUserName("xxx");
+        codeGen.setUserName("neo_test");
         // 设置密码
-        codeGen.setPassword("xxx");
+        codeGen.setPassword("neo@Test123");
 
         // 设置项目路径
-        codeGen.setProjectPath("/xxxxx/Neo");
+        codeGen.setProjectPath("/Users/zhouzhenyong/project/private/Neo");
 
         // 设置实体的包路径
-        codeGen.setEntityPath("xxxx.entity");
+        codeGen.setEntityPath("com.simon.neo.entity");
 
         // 设置表前缀过滤
         codeGen.setPreFix("xx_");
