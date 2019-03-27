@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +72,10 @@ public class EntityCodeGen {
      */
     private String entityPostFix = "DO";
     /**
+     * 枚举类型的map
+     */
+    private Map<String, String> enumMap = new HashMap<>();
+    /**
      * template的配置
      */
     private Configuration configuration = new Configuration(Configuration.VERSION_2_3_22);
@@ -116,6 +121,15 @@ public class EntityCodeGen {
                 writeFile(dataMap,
                     projectPath + "/src/main/java/" + filePath(entityPath) + "/" + tableName
                         + entityPostFix + ".java", "entity.ftl");
+
+                // todo
+                enumMap.forEach((key, value) -> {
+                    String bigCamelKey = NamingChg.BIGCAMEL.javaToDb(key);
+                        writeFile(dataMap,
+                            projectPath + "/src/main/java/" + filePath(entityPath) + "/" + bigCamelKey
+                                + entityPostFix + ".java", "enum.ftl");
+                    }
+                );
             });
         }
     }
@@ -148,6 +162,11 @@ public class EntityCodeGen {
 
                 if (java.math.BigDecimal.class.isAssignableFrom(fieldClass)) {
                     neoMap.put("importBigDecimal", 1);
+                }
+
+                // 枚举类型
+                if ("ENUM".equals(c.getColumnTypeName())){
+                    neoMap.put("enumFlag", 1);
                 }
             });
         }
