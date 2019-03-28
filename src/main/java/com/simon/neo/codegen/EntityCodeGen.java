@@ -109,7 +109,7 @@ public class EntityCodeGen {
 
         List<String> tableNameList = getShowTableList(neo);
 
-        if(null != tableNameList && tableNameList.size() > 0){
+        if (null != tableNameList && tableNameList.size() > 0) {
             tableNameList.forEach(t->{
                 generateImport(neo, t, dataMap);
                 String tableName = StringNaming.underLineToBigCamel(t.substring(preFix.length()));
@@ -118,20 +118,34 @@ public class EntityCodeGen {
                 dataMap.put("tableNamePost", entityPostFix);
                 dataMap.put("fieldList", getFieldInfoList(neo, t));
 
+                // 生成对应的枚举数据
+                generateEnum(neo, t, dataMap);
+
                 writeFile(dataMap,
                     projectPath + "/src/main/java/" + filePath(entityPath) + "/" + tableName
                         + entityPostFix + ".java", "entity.ftl");
-
-                // todo
-                enumMap.forEach((key, value) -> {
-                    String bigCamelKey = NamingChg.BIGCAMEL.javaToDb(key);
-                        writeFile(dataMap,
-                            projectPath + "/src/main/java/" + filePath(entityPath) + "/" + bigCamelKey
-                                + entityPostFix + ".java", "enum.ftl");
-                    }
-                );
             });
+
+            // todo
+            enumMap.forEach((key, value) -> {
+                    String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
+                    writeFile(dataMap,
+                        projectPath + "/src/main/java/" + filePath(entityPath) + "/enumeration/" + bigCamelKey
+                            + entityPostFix + ".java", "enum.ftl");
+                }
+            );
         }
+    }
+
+    /**
+     * 设置外部和内部的枚举类型，如果有共同的类名和枚举类型，则作为公共的外部共同枚举，如果有同名的，但是内部属性不同，则作为内部枚举
+     */
+    private void generateEnum(Neo neo, String tableName, NeoMap dataMap){
+        dataMap.put("innerEnumList", 1);
+    }
+
+    private EnumInfo parseEnum(String tableCreateSql){
+
     }
 
     /**
@@ -221,7 +235,7 @@ public class EntityCodeGen {
             .map(c -> new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getColumnMeta().getRemarks())
-                .setFieldName(fieldNamingChg.dBToJava(c.getColumnName())))
+                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName())))
             .collect(Collectors.toList());
     }
 

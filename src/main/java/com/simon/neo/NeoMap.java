@@ -253,14 +253,14 @@ public class NeoMap implements Map<String, Object> {
      * @param namingChg 转换规则
      */
     public static String dbToJavaStr(String source, NamingChg namingChg){
-        return namingChg.dBToJava(source);
+        return namingChg.otherToSmallCamel(source);
     }
 
     /**
      * 默认全局转换
      */
     public static String dbToJavaStr(String source){
-        return globalNaming.javaToDb(source);
+        return globalNaming.smallCamelToOther(source);
     }
 
     public static boolean isEmpty(NeoMap neoMap) {
@@ -346,7 +346,7 @@ public class NeoMap implements Map<String, Object> {
                 return chgName;
             }
         }
-        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).javaToDb(name);
+        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).smallCamelToOther(name);
     }
 
     public enum NamingChg {
@@ -390,26 +390,26 @@ public class NeoMap implements Map<String, Object> {
         /**
          * 用于名字的转换
          */
-        private Function<String, String> javaToDbFun;
-        private Function<String, String> dbToJavaFun;
+        private Function<String, String> smallCamelToOther;
+        private Function<String, String> otherToSmallCamel;
 
-        NamingChg(Function<String, String> javaToDbFun, Function<String, String> dbToJavaFun) {
-            this.javaToDbFun = javaToDbFun;
-            this.dbToJavaFun = dbToJavaFun;
+        NamingChg(Function<String, String> smallCamelToOther, Function<String, String> otherToSmallCamel) {
+            this.smallCamelToOther = smallCamelToOther;
+            this.otherToSmallCamel = otherToSmallCamel;
         }
 
         /**
-         * 将map中的key转换到object对象对应的属性名字
+         * 小驼峰类型到其他类型的转换
          */
-        public String javaToDb(String data) {
-            return javaToDbFun.apply(data);
+        public String smallCamelToOther(String data) {
+            return smallCamelToOther.apply(data);
         }
 
         /**
-         * 数据库中的字段向Java属性名字转换
+         * 其他类型到小驼峰转换
          */
-        public String dBToJava(String data) {
-            return dbToJavaFun.apply(data);
+        public String otherToSmallCamel(String data) {
+            return otherToSmallCamel.apply(data);
         }
     }
 

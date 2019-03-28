@@ -32,4 +32,28 @@ public class ${tableName}${tableNamePost} {
     </#if>
     private ${field.fieldType} ${field.fieldName};
 </#list>
+
+<#list innerEnumList! as inner>
+/**
+<#if inner.enumRemark != "">
+ * ${inner.enumRemark}
+</#if>
+ * @author robot
+ */
+@Getter
+@AllArgsConstructor
+public enum ${inner.enumType} {
+
+<#list inner.enumList! as inner.enumMeta>
+    <#if inner.enumMeta.remark != "">
+    /**
+     * ${inner.enumMeta.remark}
+     */
+    </#if>
+    ${inner.enumMeta.enumName}("${inner.enumMeta.enumName}"),
+</#list>;
+
+    private String value;
+}
+</#list>
 }
