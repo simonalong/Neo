@@ -6,6 +6,11 @@ import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -279,5 +284,22 @@ public class NeoTest extends NeoBaseTest{
         //  PRIMARY KEY (`id`)
         //) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项'
         System.out.println(neo.getTableCreate("xx_test5"));
+    }
+
+    @Test
+    public void test23(){
+        String sql = "`gander` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '性别：Y=男；N=女'";
+
+        String regex = "(?<= enum)\\((.*)\\)";
+        Matcher matcher = Pattern.compile(regex).matcher(sql);
+        if (matcher.find()) {
+            // 'Y','N'
+            String enums = matcher.group(1);
+            show(enums);
+            List<String> dataList = Arrays.stream(enums.split(",")).map(c -> c.substring(1, c.length() - 1))
+                .collect(Collectors.toList());
+            // [Y, N]
+            show(dataList);
+        }
     }
 }
