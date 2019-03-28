@@ -144,9 +144,9 @@ public class EntityCodeGen {
         dataMap.put("innerEnumList", 1);
     }
 
-    private EnumInfo parseEnum(String tableCreateSql){
-
-    }
+//    private EnumInfo parseEnum(String tableCreateSql){
+//
+//    }
 
     /**
      * 根据属性的Java类型映射，进行类型的判断和生成
