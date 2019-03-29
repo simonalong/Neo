@@ -29,9 +29,9 @@ public class CodeGenTest {
         // 设置表前缀过滤
         codeGen.setPreFix("xx_");
         // 设置要排除的表
-        codeGen.setExcludes("xx_test");
+//        codeGen.setExcludes("xx_test");
         // 设置只要的表
-//         codeGen.setIncludes("xx_test2");
+         codeGen.setIncludes("xx_test5", "xx_test");
 
         // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
         codeGen.setFieldNamingChg(NamingChg.UNDERLINE);

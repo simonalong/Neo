@@ -13,6 +13,10 @@ import java.sql.Timestamp;
 import java.math.BigDecimal;
 </#if>
 import lombok.Data;
+<#if importInnerEnum == 1>
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+</#if>
 
 /**
 <#if tableRemark != "">
@@ -34,26 +38,24 @@ public class ${tableName}${tableNamePost} {
 </#list>
 
 <#list innerEnumList! as inner>
-/**
-<#if inner.enumRemark != "">
- * ${inner.enumRemark}
-</#if>
- * @author robot
- */
-@Getter
-@AllArgsConstructor
-public enum ${inner.enumType} {
-
-<#list inner.enumList! as inner.enumMeta>
-    <#if inner.enumMeta.remark != "">
     /**
-     * ${inner.enumMeta.remark}
-     */
+    <#if inner.enumRemark??>
+    * ${inner.enumRemark}
     </#if>
-    ${inner.enumMeta.enumName}("${inner.enumMeta.enumName}"),
-</#list>;
+    */
+    @Getter
+    @AllArgsConstructor
+    public enum ${inner.enumType} {
+<#list inner.enumList! as enumMeta>
+        <#if enumMeta.desc??>
+        /**
+        * ${enumMeta.desc}
+        */
+        </#if>
+        ${enumMeta.enumData}("${enumMeta.enumData}"),
+        </#list>;
 
-    private String value;
-}
+        private String value;
+    }
 </#list>
 }

@@ -26,6 +26,9 @@ public class Test5DO {
      * 修改人名字
      */
     private String userName;
+    /**
+     * 性别：Y=男；N=女
+     */
     private String gander;
     private Long biginta;
     private byte[] binarya;
@@ -69,4 +72,5 @@ public class Test5DO {
     private Integer tinyint1;
     private String tinytext1;
     private Date year2;
+
 }

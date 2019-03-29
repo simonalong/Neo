@@ -87,6 +87,9 @@ public class EnumInfo {
             }else{
                 inner.setMetaSet(metaSet);
             }
+        }else{
+            inner.setRemark(str);
+            inner.setMetaSet(metaSet);
         }
         return inner;
     }

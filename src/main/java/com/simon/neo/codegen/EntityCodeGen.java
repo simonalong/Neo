@@ -138,20 +138,26 @@ public class EntityCodeGen {
      */
     private void generateEnum(Neo neo, String tableName, NeoMap dataMap){
         EnumInfo enumInfo = EnumInfo.build(tableName, neo.getTableCreate(tableName));
-        List<Pair<String, EnumInner>> innerEnumList = new ArrayList<>();
+
+        // 先清理设置
+        dataMap.put("enumType", null);
+        dataMap.put("enumRemark", null);
+        dataMap.put("enumList", null);
+        dataMap.put("importInnerEnum", 0);
+        List<NeoMap> innerEnumList = new ArrayList<>();
         enumInfo.getEnumInnerMap().forEach((key, value) -> {
-            String enumUniqueStr = tableName + "-" + key + "-" + value.enumMetaKey();
+            String enumUniqueStr = "-" + key + "-" + value.enumMetaKey();
+            String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
+            NeoMap enumDataMap = NeoMap.of("enumType", bigCamelKey, "enumRemark", value.getRemark(), "enumList", value.getMetaSet());
             if(!enumMap.contains(enumUniqueStr)){
                 enumMap.add(enumUniqueStr);
-                String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
-                dataMap.put("enumType", key);
-                dataMap.put("enumRemark", value.getRemark());
-                dataMap.put("enumList", value.getMetaSet());
+                dataMap.putAll(enumDataMap);
                 writeFile(dataMap,
-                        projectPath + "/src/main/java/" + filePath(entityPath) + "/enumeration/" + bigCamelKey
-                            + entityPostFix + ".java", "enum.ftl");
+                        projectPath + "/src/main/java/" + filePath(entityPath) + "/" + bigCamelKey
+                            + ".java", "enum.ftl");
             }else{
-                innerEnumList.add(new Pair<>(key, value));
+                dataMap.put("importInnerEnum", 1);
+                innerEnumList.add(enumDataMap);
             }
         });
 

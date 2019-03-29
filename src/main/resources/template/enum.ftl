@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
-<#if enumRemark != "">
+<#if enumRemark??>
  * ${enumRemark}
 </#if>
  * @author robot
@@ -14,7 +14,7 @@ import lombok.Getter;
 public enum ${enumType} {
 
 <#list enumList! as enumMeta>
-    <#if enumMeta.desc != "">
+    <#if enumMeta.desc??>
     /**
      * ${enumMeta.desc}
      */
