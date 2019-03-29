@@ -28,33 +28,33 @@ import lombok.Getter;
 public class ${tableName}${tableNamePost} {
 
 <#list fieldList! as field>
-    <#if field.fieldRemark == "">
-    <#else >
+<#if field.fieldRemark == "">
+<#else >
     /**
      * ${field.fieldRemark}
      */
-    </#if>
+</#if>
     private ${field.fieldType} ${field.fieldName};
 </#list>
 
 <#list innerEnumList! as inner>
     /**
-    <#if inner.enumRemark??>
+<#if inner.enumRemark??>
     * ${inner.enumRemark}
-    </#if>
+</#if>
     */
     @Getter
     @AllArgsConstructor
     public enum ${inner.enumType} {
 <#list inner.enumList! as enumMeta>
-        <#if enumMeta.desc??>
+<#if enumMeta.desc??>
         /**
         * ${enumMeta.desc}
         */
-        </#if>
+</#if>
         ${enumMeta.enumData}("${enumMeta.enumData}"),
-        </#list>;
-
+</#list>
+        ;
         private String value;
     }
 </#list>

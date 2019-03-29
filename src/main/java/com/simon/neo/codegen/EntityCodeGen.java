@@ -78,7 +78,7 @@ public class EntityCodeGen {
     /**
      * 枚举类型的map
      */
-    private Set<String> enumMap = new HashSet<>();
+    private Map<String, EnumInner> enumMap = new HashMap<>();
     /**
      * template的配置
      */
@@ -146,18 +146,20 @@ public class EntityCodeGen {
         dataMap.put("importInnerEnum", 0);
         List<NeoMap> innerEnumList = new ArrayList<>();
         enumInfo.getEnumInnerMap().forEach((key, value) -> {
-            String enumUniqueStr = "-" + key + "-" + value.enumMetaKey();
             String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
             NeoMap enumDataMap = NeoMap.of("enumType", bigCamelKey, "enumRemark", value.getRemark(), "enumList", value.getMetaSet());
-            if(!enumMap.contains(enumUniqueStr)){
-                enumMap.add(enumUniqueStr);
+            if(!enumMap.containsKey(key)){
+                enumMap.put(key, value);
                 dataMap.putAll(enumDataMap);
                 writeFile(dataMap,
                         projectPath + "/src/main/java/" + filePath(entityPath) + "/" + bigCamelKey
                             + ".java", "enum.ftl");
             }else{
-                dataMap.put("importInnerEnum", 1);
-                innerEnumList.add(enumDataMap);
+                // 只有跟已经有的枚举类型不同，才进行在类内部生成
+                if (!enumMap.get(key).equals(value)){
+                    dataMap.put("importInnerEnum", 1);
+                    innerEnumList.add(enumDataMap);
+                }
             }
         });
 
@@ -167,6 +169,7 @@ public class EntityCodeGen {
     /**
      * 根据属性的Java类型映射，进行类型的判断和生成
      */
+    @SuppressWarnings("all")
     private void generateImport(Neo neo, String tableName, NeoMap neoMap){
         List<NeoColumn> columnList = neo.getColumnList(tableName);
 

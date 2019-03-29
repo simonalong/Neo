@@ -158,9 +158,14 @@ public class EnumInfo {
 
         public String enumMetaKey() {
             if (null != metaSet && !metaSet.isEmpty()) {
-                return metaSet.stream().map(c->c.enumData).reduce((a, b)->a+":"+b).orElse(null);
+                return metaSet.stream().map(c->c.enumData+c.desc).reduce((a, b)->a+":"+b).orElse(null);
             }
             return "";
+        }
+
+        @Override
+        public String toString(){
+            return remark + metaSet.toString();
         }
     }
 
@@ -181,6 +186,11 @@ public class EnumInfo {
         EnumMeta(String enumData, String desc){
             this.enumData = enumData;
             this.desc = desc;
+        }
+
+        @Override
+        public String toString(){
+            return enumData + desc;
         }
     }
 }
