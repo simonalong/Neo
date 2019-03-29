@@ -9,6 +9,7 @@ import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
 import com.simon.neo.sql.SqlExplain;
+import com.simon.neo.sql.SqlHelper;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
 import java.sql.Connection;
@@ -1156,11 +1157,11 @@ public class Neo {
     }
 
     private String generateDeleteSql(String tableName, NeoMap neoMap){
-        return "delete from " + tableName + buildWhere(neoMap);
+        return "delete from " + tableName + SqlHelper.buildWhere(neoMap);
     }
 
     private String generateUpdateSql(String tableName, NeoMap dataMap, NeoMap searchMap){
-        return "update " + tableName + buildSetValues(dataMap.keySet()) + buildWhere(searchMap);
+        return "update " + tableName + buildSetValues(dataMap.keySet()) + SqlHelper.buildWhere(searchMap);
     }
 
     /**
@@ -1315,7 +1316,7 @@ public class Neo {
         } else {
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
         if (null != tailSql) {
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1336,7 +1337,7 @@ public class Neo {
         }else{
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1356,7 +1357,7 @@ public class Neo {
         }else{
             sqlAppender.append("*");
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
+        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1371,7 +1372,7 @@ public class Neo {
      * @return select `xxx` from yyy where a=? and b=? limit 1
      */
     private String generateCountSql(String tableName, NeoMap searchMap){
-        return "select count(1) from " + tableName + buildWhere(searchMap) + limitOne();
+        return "select count(1) from " + tableName + SqlHelper.buildWhere(searchMap) + limitOne();
     }
 
     /**
@@ -1383,7 +1384,7 @@ public class Neo {
      */
     private String generateValueSql(String tableName, String field, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(buildWhere(searchMap));
+            .append(SqlHelper.buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1400,7 +1401,7 @@ public class Neo {
      */
     private String generateValuesSql(String tableName, String field, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(buildWhere(searchMap));
+            .append(SqlHelper.buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
@@ -1448,83 +1449,6 @@ public class Neo {
 
     private String buildSetValues(Set<String> fieldList){
         return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
-    }
-
-    private String buildWhere(NeoMap searchMap) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (!NeoMap.isEmpty(searchMap)) {
-            stringBuilder.append(" where `");
-            return stringBuilder
-                .append(String.join(" and `", buildCondition(searchMap)))
-                .toString();
-        }
-        return stringBuilder.toString();
-    }
-
-    private List<String> buildCondition(NeoMap searchMap) {
-        return searchMap.entrySet().stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
-    }
-
-    private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
-        Object value = entry.getValue();
-        if (value instanceof String) {
-            String valueStr = String.class.cast(value);
-            // 设置模糊搜索
-            if (valueStr.startsWith(LIKE_PRE)) {
-                searchMap.put(entry.getKey(), getLikeValue(valueStr));
-                return entry.getKey() + "` like ?";
-            }
-
-            // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
-            if (haveThanPre(valueStr)) {
-                Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
-                searchMap.put(entry.getKey(), symbolAndValue.getValue());
-                return entry.getKey() + "` " + symbolAndValue.getKey() + " ?";
-            }
-        }
-        return entry.getKey() + "` = ?";
-    }
-
-    /**
-     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> 'xxx%'
-     */
-    private String getLikeValue(String likeValue) {
-        return likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length()) + "%";
-    }
-
-    @SuppressWarnings("all")
-    private Pair<String, String> getSymbolAndValue(String valueStr) {
-        valueStr = valueStr.trim();
-        if (valueStr.startsWith(">")) {
-            if (valueStr.startsWith(">=")) {
-                return new Pair<>(">=", valueStr.substring(valueStr.indexOf(">=") + ">=".length()));
-            } else {
-                return new Pair<>(">", valueStr.substring(valueStr.indexOf(">") + ">".length()));
-            }
-        } else if (valueStr.startsWith("<")) {
-            if (valueStr.startsWith("<=")) {
-                return new Pair<>("<=", valueStr.substring(valueStr.indexOf("<=") + "<=".length()));
-            } else {
-                return new Pair<>("<", valueStr.substring(valueStr.indexOf("<") + "<".length()));
-            }
-        }
-        return new Pair<>("=", valueStr);
-    }
-
-    /**
-     * 搜索的数据是否有比较类型的前缀
-     */
-    private boolean haveThanPre(String value){
-        if (null == value || "".equals(value)) {
-            return false;
-        }
-
-        for(String pre : THAN_PRE){
-            if(value.startsWith(pre)){
-                return true;
-            }
-        }
-        return false;
     }
 
     private Long executeInsert(PreparedStatement statement){

@@ -3,7 +3,12 @@ package com.simon.neo.neotest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
+import com.simon.neo.sql.SqlHelper;
+import com.sun.tools.corba.se.idl.InterfaceGen;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -69,6 +74,18 @@ public class NeoListTest extends NeoBaseTest{
 
     /**
      * 查询一行数据
+     * 采用直接执行sql方式，设定返回实体类型
+     */
+    @Test
+    @SneakyThrows
+    public void testExeList6(){
+        neo.setExplainFlag(true);
+        List<Integer> idList = Arrays.asList(310, 311);
+        show(neo.exeList("select * from %s where id in %s", TABLE_NAME, SqlHelper.in(idList)));
+    }
+
+    /**
+     * 查询一行数据
      * 条件通过NeoMap设置
      * 相当于：select * from neo_table1 where `group` = 'ok'
      */
@@ -86,7 +103,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList2(){
-        show(neo.list(TABLE_NAME, NeoMap.of("group", "nihao1"), "order by `age`"));
+        show(neo.list(TABLE_NAME, NeoMap.of("group", "ok"), "order by `age`"));
     }
 
     /**
