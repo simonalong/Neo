@@ -19,12 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import lombok.Setter;
 
 /**
@@ -124,7 +121,6 @@ public class EntityCodeGen {
 
                 // 生成对应的枚举数据
                 generateEnum(neo, t, dataMap);
-                // todo 待验证
 
                 writeFile(dataMap,
                     projectPath + "/src/main/java/" + filePath(entityPath) + "/" + tableName
