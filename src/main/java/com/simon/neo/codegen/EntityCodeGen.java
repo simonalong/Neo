@@ -1,6 +1,7 @@
 package com.simon.neo.codegen;
 
 import com.simon.neo.Neo;
+import com.simon.neo.codegen.EnumInfo.EnumInner;
 import com.simon.neo.db.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
@@ -18,9 +19,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 import lombok.Setter;
 
 /**
@@ -74,7 +78,7 @@ public class EntityCodeGen {
     /**
      * 枚举类型的map
      */
-    private Map<String, String> enumMap = new HashMap<>();
+    private Set<String> enumMap = new HashSet<>();
     /**
      * template的配置
      */
@@ -120,20 +124,12 @@ public class EntityCodeGen {
 
                 // 生成对应的枚举数据
                 generateEnum(neo, t, dataMap);
+                // todo 待验证
 
                 writeFile(dataMap,
                     projectPath + "/src/main/java/" + filePath(entityPath) + "/" + tableName
                         + entityPostFix + ".java", "entity.ftl");
             });
-
-            // todo
-            enumMap.forEach((key, value) -> {
-                    String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
-                    writeFile(dataMap,
-                        projectPath + "/src/main/java/" + filePath(entityPath) + "/enumeration/" + bigCamelKey
-                            + entityPostFix + ".java", "enum.ftl");
-                }
-            );
         }
     }
 
@@ -141,12 +137,26 @@ public class EntityCodeGen {
      * 设置外部和内部的枚举类型，如果有共同的类名和枚举类型，则作为公共的外部共同枚举，如果有同名的，但是内部属性不同，则作为内部枚举
      */
     private void generateEnum(Neo neo, String tableName, NeoMap dataMap){
-        dataMap.put("innerEnumList", 1);
-    }
+        EnumInfo enumInfo = EnumInfo.build(tableName, neo.getTableCreate(tableName));
+        List<Pair<String, EnumInner>> innerEnumList = new ArrayList<>();
+        enumInfo.getEnumInnerMap().forEach((key, value) -> {
+            String enumUniqueStr = tableName + "-" + key + "-" + value.enumMetaKey();
+            if(!enumMap.contains(enumUniqueStr)){
+                enumMap.add(enumUniqueStr);
+                String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
+                dataMap.put("enumType", key);
+                dataMap.put("enumRemark", value.getRemark());
+                dataMap.put("enumList", value.getMetaSet());
+                writeFile(dataMap,
+                        projectPath + "/src/main/java/" + filePath(entityPath) + "/enumeration/" + bigCamelKey
+                            + entityPostFix + ".java", "enum.ftl");
+            }else{
+                innerEnumList.add(new Pair<>(key, value));
+            }
+        });
 
-//    private EnumInfo parseEnum(String tableCreateSql){
-//
-//    }
+        dataMap.put("innerEnumList", innerEnumList);
+    }
 
     /**
      * 根据属性的Java类型映射，进行类型的判断和生成

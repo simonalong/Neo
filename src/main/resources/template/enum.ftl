@@ -14,12 +14,12 @@ import lombok.Getter;
 public enum ${enumType} {
 
 <#list enumList! as enumMeta>
-    <#if enumMeta.remark != "">
+    <#if enumMeta.desc != "">
     /**
-     * ${enumMeta.remark}
+     * ${enumMeta.desc}
      */
     </#if>
-    ${enumMeta.enumName}("${enumMeta.enumName}"),
+    ${enumMeta.enumData}("${enumMeta.enumData}"),
 </#list>;
 
     private String value;

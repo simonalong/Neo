@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
@@ -22,6 +23,7 @@ import lombok.experimental.Accessors;
 public class EnumInfo {
 
     private String tableName;
+    @Getter
     private Map<String, EnumInner> enumInnerMap;
     private EnumInfo(){}
 
@@ -150,6 +152,13 @@ public class EnumInfo {
          */
         private String remark;
         private Set<EnumMeta> metaSet;
+
+        public String enumMetaKey() {
+            if (null != metaSet && !metaSet.isEmpty()) {
+                return metaSet.stream().map(c->c.enumData).reduce((a, b)->a+":"+b).orElse(null);
+            }
+            return "";
+        }
     }
 
     @Data
