@@ -6,7 +6,7 @@
 
     <groupId>com.simon</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.2-SNAPSHOT</version>
 
     <name>Neo</name>
     <url>https://github.com/SimonAlong/Neo</url>

@@ -63,6 +63,12 @@ public class NeoMap implements Map<String, Object> {
         globalNaming = namingChg;
     }
 
+    /**
+     * 通过key-value-key-value生成
+     *
+     * @param kvs 参数是通过key-value-key-value等等这种
+     * @return 生成的map数据
+     */
     public static NeoMap of(Object... kvs) {
         if (kvs.length % 2 != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
