@@ -20,7 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * 只是用于将close方法不进行不关闭，该类只给事务使用
+ * 可重复使用的链接，用于将close方法不进行不关闭，进行手动关系
  *
  * @author zhouzhenyong
  * @since 2019/3/26 下午8:44
