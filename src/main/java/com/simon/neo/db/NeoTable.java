@@ -216,8 +216,11 @@ public class NeoTable {
 
     /**
      * 查询一行的数据
+     * <p>
+     * @param tClass 目标类
      * @param sql 只接收select 方式
      * @param parameters 参数
+     * @param <T> 目标类型
      * @return 一个结果Map
      */
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
@@ -234,6 +237,7 @@ public class NeoTable {
      * @param field 某个属性的名字
      * @param searchMap 搜索条件
      * @param tailSql 尾部sql，比如：order by `xxx`
+     * @param <T> 目标类型
      * @return 指定的数据值
      */
     public <T> T value(Class<T> tClass, String field, NeoMap searchMap, String tailSql){
@@ -290,6 +294,7 @@ public class NeoTable {
      * @param field 列名
      * @param searchMap 搜索条件
      * @param tailSql sql尾部，比如order by `xxx`
+     * @param <T> 目标类型
      * @return 一列值
      */
     public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap, String tailSql){
@@ -440,9 +445,13 @@ public class NeoTable {
 
     /**
      * 获取创建sql的语句
+     * {@code
      * create table xxx{
      *     id xxxx;
      * } comment ='xxxx';
+     * }
+     * <p>
+     * @return 表创建的sql语句
      */
     public String getTableCreate(){
         return (String) (neo.execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
@@ -450,6 +459,8 @@ public class NeoTable {
 
     /**
      * 获取表中的自增的主键名字
+     * <p>
+     * @return 主键且自增的列的名字
      */
     String getPrimaryKeyAutoIncName() {
         return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
@@ -458,6 +469,8 @@ public class NeoTable {
 
     /**
      * 获取表中的主键名字
+     * <p>
+     * @return 主键的列名
      */
     public String getPrimary() {
         return columnList.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()

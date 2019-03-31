@@ -1,7 +1,6 @@
 package com.simon.neo.sql;
 
 import com.simon.neo.NeoMap;
-import com.sun.deploy.util.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -32,7 +31,7 @@ public class SqlHelper {
             return "";
         }
         List<String> strList = values.stream().map(c -> (null == c) ? null : String.valueOf(c)).collect(Collectors.toList());
-        return "('" + StringUtils.join(strList, "','") + "')";
+        return "('" + String.join("','", strList) + "')";
     }
 
     public String buildWhere(NeoMap searchMap) {

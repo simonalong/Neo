@@ -110,6 +110,7 @@ public class Neo {
     /**
      * 通过路径加载生成
      * @param propertiesPath 可以为绝对文件路径，也可以为classpath路径，classpath路径记得以/开头
+     * @return 连接的Neo对象
      */
     public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
@@ -248,6 +249,7 @@ public class Neo {
      * @param tableName 表名
      * @param dataMap 待更新的数据
      * @param columns 搜索条件，其中该列为 dataMap 中对应的key的名字
+     * @return map对象
      */
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
         return update(tableName, dataMap, dataMap.assign(columns));
@@ -259,6 +261,8 @@ public class Neo {
      * @param entity 设置的实体数据
      * @param columns 注意：该搜索条件中的列是entity实体中的属性的名字，跟作为NeoMap时候搜索是不一样的
      * @param namingChg 命名转换方式
+     * @param <T> 命名转换方式
+     * @return 更新后的结果对象
      */
     public <T> T update(String tableName, T entity, Columns columns, NamingChg namingChg) {
         return update(tableName, entity, NeoMap.from(entity, columns, namingChg), namingChg);
@@ -314,6 +318,7 @@ public class Neo {
      * @param tableName 表名
      * @param searchMap 搜索的数据
      * @param tailSql sql的尾部sql填充
+     * @return NeoMap对象
      */
     public NeoMap one(String tableName, NeoMap searchMap, String tailSql){
         return one(tableName, null, searchMap, tailSql);
@@ -324,6 +329,8 @@ public class Neo {
      * @param tableName 表名
      * @param entity 搜索的实体类型数据
      * @param tailSql sql的尾部sql填充
+     * @param <T> 插入的对象类型
+     * @return 插入的对象类型
      */
     public <T> T one(String tableName, T entity, String tailSql){
         return one(tableName, null, entity, tailSql);
@@ -341,6 +348,7 @@ public class Neo {
      * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
      * @param tableName 表名
      * @param searchMap 搜索的映射
+     * @return NeoMap对象
      */
     public NeoMap one(String tableName, NeoMap searchMap){
         return one(tableName, null, searchMap);
@@ -351,6 +359,7 @@ public class Neo {
      * @param tableName 表名
      * @param entity 查询的实体数据
      * @param <T> 实体的类型映射
+     * @return 实体的类型
      */
     public <T> T one(String tableName, T entity){
         return one(tableName, null, entity);
@@ -360,7 +369,7 @@ public class Neo {
      * 查询一行的数据
      * @param sql 只接收select 方式
      * @param parameters 参数
-     * @return 一个结果Map
+     * @return 一个结果Map列表
      */
     public List<NeoMap> exeList(String sql, Object... parameters) {
         if (startWithSelect(sql)) {
@@ -415,10 +424,12 @@ public class Neo {
     }
 
     /**
-     * 查询一行的数据
+     * 查询返回单个值
+     * @param tClass 目标类的classs
      * @param sql 只接收select 方式
      * @param parameters 参数
-     * @return 一个结果Map
+     * @param <T> 返回的目标类型
+     * @return 目标类的对象
      */
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
         NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
@@ -440,6 +451,7 @@ public class Neo {
      * @param field 某个属性的名字
      * @param searchMap 搜索条件
      * @param tailSql 尾部sql，比如：order by `xxx`
+     * @param <T> 目标类型
      * @return 指定的数据值
      */
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql) {
@@ -511,6 +523,7 @@ public class Neo {
      * @param field 列名
      * @param searchMap 搜索条件
      * @param tailSql sql尾部，比如order by `xxx`
+     * @param <T> 目标类型
      * @return 一列值
      */
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
@@ -608,8 +621,11 @@ public class Neo {
      * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx，请使用指明具体的列名的函数
      * @param tableName 表名
      * @param entity 搜索的实体数据
+     * @param tailSql where条件之后拼接的sql
      * @param startIndex 分页的起始位置
      * @param pageSize 分页的大小
+     * @param <T> 目标类型
+     * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, String tailSql, Integer startIndex, Integer pageSize){
         return page(tableName, null, entity, tailSql, startIndex, pageSize);
@@ -625,6 +641,8 @@ public class Neo {
      * @param entity 搜索的实体数据
      * @param startIndex 分页的起始位置
      * @param pageSize 分页的大小
+     * @param <T> 目标类型
+     * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, Integer startIndex, Integer pageSize){
         return page(tableName, null, entity, startIndex, pageSize);
@@ -640,6 +658,8 @@ public class Neo {
      * @param entity 搜索的实体数据
      * @param tailSql sql的尾部sql
      * @param page 分页的实体
+     * @param <T> 目标类型
+     * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, String tailSql, NeoPage page){
         return page(tableName, null, entity, tailSql, page.startIndex(), page.pageSize());
@@ -654,6 +674,8 @@ public class Neo {
      * @param tableName 表名
      * @param entity 搜索的实体数据
      * @param page 分页的实体
+     * @param <T> 目标类型
+     * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, NeoPage page){
         return page(tableName, null, entity, page.startIndex(), page.pageSize());
@@ -751,6 +773,7 @@ public class Neo {
      * @param tableName 表名
      * @param dataList 数据列表
      * @param namingChg 命名转换
+     * @param <T> 目标类型
      * @return 插入的数据个数：0或者all
      */
     public <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg){
@@ -761,6 +784,7 @@ public class Neo {
      * 批量插入实体列表
      * @param tableName 表名
      * @param dataList 数据列表
+     * @param <T> 目标类型
      * @return 插入的数据个数：0或者all
      */
     public <T> Integer batchInsertEntity(String tableName, List<T> dataList){
@@ -805,6 +829,7 @@ public class Neo {
      * 批量更新，默认根据主键进行更新
      * @param tableName 表名
      * @param dataList 待更新的数据
+     * @param <T> 目标类型
      * @return 批量更新的个数：0或者all
      */
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){
@@ -818,6 +843,7 @@ public class Neo {
      * @param dataList 数据列表
      * @param columns 这里的列为对象的属性名字，记得这里不是对象转换到NeoMap之后的列
      * @param namingChg 对象的命名转换，如果为null，则执行全局的，默认的全局为不转换
+     * @param <T> 目标类型
      * @return 批量更新的个数：0或者all
      */
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg){
@@ -829,6 +855,7 @@ public class Neo {
      * @param tableName 表名
      * @param dataList 数据列表
      * @param columns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
+     * @param <T> 目标类型
      * @return 批量更新的个数：0或者all
      */
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns){
@@ -852,6 +879,20 @@ public class Neo {
 
     /**
      * 事务的执行
+     * 注意：
+     * 1.这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * 2.隔离级别采用数据库默认
+     * 3.读写的事务
+     * @param supplier 待执行的任务
+     * @param <T> 目标类型
+     * @return 事务执行完成返回的数据
+     */
+    public <T> T tx(Supplier<T> supplier) {
+        return tx(null, null, supplier);
+    }
+
+    /**
+     * 事务的执行
      * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
      * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
      * @param readOnly 事务的只读属性，默认为false
@@ -870,6 +911,8 @@ public class Neo {
      * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
      * @param readOnly 事务的只读属性，默认为false
      * @param supplier 待执行的任务
+     * @param <T> 目标类型
+     * @return 事务执行完成返回的数据
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier){
         // 针对事务嵌套这里采用最外层事务提交
@@ -906,9 +949,14 @@ public class Neo {
 
     /**
      * 获取创建sql的语句
+     * {@code
      * create table xxx{
      *     id xxxx;
      * } comment ='xxxx';
+     * }
+     *
+     * @param tableName 表名
+     * @return 表的创建语句
      */
     public String getTableCreate(String tableName){
         return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));

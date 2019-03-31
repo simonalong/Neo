@@ -39,6 +39,7 @@ public class ReusableConnection implements Connection {
 
     /**
      * 手动进行关闭
+     * @throws SQLException SQL异常
      */
     public void handleClose() throws SQLException {
         connection.close();

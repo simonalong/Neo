@@ -37,6 +37,8 @@ public class SqlExplain {
 
     /**
      * 专门用于对sql进行explain解析
+     * <p>
+     * @param neo Neo 对象
      * @param sql 待解析的sql
      * @param parameters sql的参数用于sql的执行用
      */
@@ -57,6 +59,7 @@ public class SqlExplain {
 
     /**
      * 执行并获取sql的explain
+     * <p>
      * @return 返回sql的explain中的解析数据
      */
     private Explain exeSqlExplain(Neo neo, String sql, List<Object> parameters){

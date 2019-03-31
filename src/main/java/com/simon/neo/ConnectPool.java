@@ -35,6 +35,8 @@ public class ConnectPool {
 
     /**
      * 获取链接，非事务获取普通的链接对象，事务获取可重用的链接
+     * @return 返回连接
+     * @throws SQLException 获取连接失败
      */
     public Connection getConnect() throws SQLException {
         Connection con = connectLocal.get();
@@ -56,6 +58,7 @@ public class ConnectPool {
      * 设置事务的一些配置
      * @param isolationEnum 事务隔离级别
      * @param readOnly 事务的可读性
+     * @throws SQLException SQL异常
      */
     @SuppressWarnings("all")
     public void setTxConfig(TxIsolationEnum isolationEnum, Boolean readOnly) throws SQLException {

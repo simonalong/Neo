@@ -57,6 +57,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
+     * @param namingChg 转换类型
      */
     public static void setDefaultNamingChg(NamingChg namingChg) {
         globalNaming = namingChg;
@@ -80,6 +81,7 @@ public class NeoMap implements Map<String, Object> {
     /**
      * 对象转换为NeoMap
      * @param object 待转换对象
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object) {
         return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
@@ -89,6 +91,7 @@ public class NeoMap implements Map<String, Object> {
      * 根据指定的一些列转换为NeoMap对象，该函数同函数 fromInclude，只是为了方便命名的统一
      * @param object 待转换对象
      * @param columns 对象的属性名列表
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, Columns columns) {
         return from(object, NamingChg.DEFAULT, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
@@ -99,6 +102,7 @@ public class NeoMap implements Map<String, Object> {
      * @param object 待转换对象
      * @param columns 对象的属性名列表
      * @param namingChg 对象属性和NeoMap的映射关系
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, Columns columns, NamingChg namingChg) {
         return from(object, namingChg,
@@ -109,6 +113,7 @@ public class NeoMap implements Map<String, Object> {
      * 对象转换为NeoMap
      * @param object 待转换对象
      * @param namingChg 对象属性和NeoMap的映射关系
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, NamingChg namingChg) {
         return from(object, namingChg, new ArrayList<>(), new ArrayList<>());
@@ -118,7 +123,8 @@ public class NeoMap implements Map<String, Object> {
      * 对象转换为NeoMap
      * @param object 待转换对象
      * @param columns 对象的属性名列表
-     * @param userDefineNaming 用户自定义的转换，结构为<code>Map<String, String></code>
+     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, Columns columns, NeoMap userDefineNaming) {
         return from(object, userDefineNaming, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
@@ -127,7 +133,8 @@ public class NeoMap implements Map<String, Object> {
     /**
      * 对象转换为NeoMap
      * @param object 待转换对象
-     * @param userDefineNaming 用户自定义的转换，结构为<code>Map<String, String></code>，key为实体的属性名，value为DB中的列名
+     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}，key为实体的属性名，value为DB中的列名
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, NeoMap userDefineNaming) {
         return from(object, userDefineNaming, new ArrayList<>(), new ArrayList<>());
@@ -137,6 +144,7 @@ public class NeoMap implements Map<String, Object> {
      * 指定包括的属性进行对象转换为NeoMap
      * @param object 待转换对象
      * @param fields 需要的属性
+     * @return 转换之后的NeoMap
      */
     public static NeoMap fromInclude(Object object, String... fields) {
         return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
@@ -146,6 +154,7 @@ public class NeoMap implements Map<String, Object> {
      * 指定排除的属性进行对象转换为NeoMap
      * @param object 待转换对象
      * @param fields 排除的属性
+     * @return 转换之后的NeoMap
      */
     public static NeoMap fromExclude(Object object, String... fields) {
         return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields));
@@ -157,6 +166,7 @@ public class NeoMap implements Map<String, Object> {
      * @param userNaming 用户自定义命名转换方式
      * @param inFieldList 包括的属性
      * @param exFieldList 排除的属性
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, NeoMap userNaming, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of();
@@ -173,6 +183,7 @@ public class NeoMap implements Map<String, Object> {
      * @param naming 转换方式
      * @param inFieldList 包括的属性
      * @param exFieldList 排除的属性
+     * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, NamingChg naming, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of();
@@ -185,7 +196,9 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 通过指定某些列转化为一个新的对象
+     * @param neoMap 源数据map
      * @param columns 对象中的某些列
+     * @return 转换之后的NeoMap
      */
     public static NeoMap assign(NeoMap neoMap, Columns columns) {
         return neoMap.assign(columns);
@@ -259,6 +272,7 @@ public class NeoMap implements Map<String, Object> {
      * 将数据库字符转换为对应的属性变量规范字符
      * @param source 源字符串
      * @param namingChg 转换规则
+     * @return 转换之后的字符
      */
     public static String dbToJavaStr(String source, NamingChg namingChg){
         return namingChg.otherToSmallCamel(source);
@@ -266,6 +280,9 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 默认全局转换
+     *
+     * @param source 源字符
+     * @return 转换后的字符
      */
     public static String dbToJavaStr(String source){
         return globalNaming.smallCamelToOther(source);
@@ -380,35 +397,35 @@ public class NeoMap implements Map<String, Object> {
          */
         DEFAULT(t -> t, t -> t),
         /**
-         * 小驼峰到大驼峰 dataBaseUser <------> DateBaseUser
+         * 小驼峰到大驼峰 {@code dataBaseUser <------> DateBaseUser }
          */
         BIGCAMEL(StringNaming::bigCamel, StringNaming::bigCamelToSmallCamel),
         /**
-         * 小驼峰到下划线 dataBaseUser <------> data_base_user
+         * 小驼峰到下划线 {@code dataBaseUser <------> data_base_user }
          */
         UNDERLINE(StringNaming::underLine, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前下划线 dataBaseUser <------> _data_base_user
+         * 小驼峰到前下划线 {@code dataBaseUser <------> _data_base_user }
          */
         PREUNDER(StringNaming::preUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前下划线 dataBaseUser <------> data_base_user_
+         * 小驼峰到前下划线 {@code dataBaseUser <------> data_base_user_ }
          */
         POSTUNDER(StringNaming::postUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到前后下划线 dataBaseUser <------> _data_base_user_
+         * 小驼峰到前后下划线 {@code dataBaseUser <------> _data_base_user_ }
          */
         PREPOSTUNDER(StringNaming::prePostUnder, StringNaming::underLineToSmallCamel),
         /**
-         * 小驼峰到中划线 dataBaseUser <------> data-base-user
+         * 小驼峰到中划线 {@code dataBaseUser <------> data-base-user }
          */
         MIDDLELINE(StringNaming::middleLine, StringNaming::middleLineToSmallCamel),
         /**
-         * 小驼峰到大写下划线 dataBaseUser <------> DATA_BASE_USER
+         * 小驼峰到大写下划线 {@code dataBaseUser <------> DATA_BASE_USER }
          */
         UPPERUNER(StringNaming::upperUnder, StringNaming::upperUnderToSmallCamel),
         /**
-         * 小驼峰到大写中划线 dataBaseUser <------> DATA-BASE-USER
+         * 小驼峰到大写中划线 {@code dataBaseUser <------> DATA-BASE-USER }
          */
         UPPERMIDDLE(StringNaming::upperUnderMiddle, StringNaming::upperUnderMiddleToSmallCamel);
 
@@ -425,6 +442,8 @@ public class NeoMap implements Map<String, Object> {
 
         /**
          * 小驼峰类型到其他类型的转换
+         * @param data 源数据
+         * @return 转换后的数据
          */
         public String smallCamelToOther(String data) {
             return smallCamelToOther.apply(data);
@@ -432,6 +451,8 @@ public class NeoMap implements Map<String, Object> {
 
         /**
          * 其他类型到小驼峰转换
+         * @param data 源数据
+         * @return 转换后的数据
          */
         public String otherToSmallCamel(String data) {
             return otherToSmallCamel.apply(data);

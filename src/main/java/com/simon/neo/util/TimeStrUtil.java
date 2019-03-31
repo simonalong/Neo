@@ -39,7 +39,9 @@ public class TimeStrUtil {
 
     /**
      * 计算两个时间的差值，用字符表示
-     *
+     * <p>
+     * @param date1 日期1
+     * @param date2 日期2
      * @return 返回两个值的差值的字符展示：举例：4天 1分钟 12秒 132毫秒
      */
     public String parseDuration(Date date1, Date date2) {
@@ -52,7 +54,9 @@ public class TimeStrUtil {
 
     /**
      * 计算两个时间的差值，用字符表示
-     *
+     * <p>
+     * @param date1 日期1
+     * @param date2 日期2
      * @return 返回两个值的差值的字符展示：举例：1周 1分钟 12秒 132毫秒
      */
     public String parseDurationWeek(Date date1, Date date2) {
@@ -64,7 +68,9 @@ public class TimeStrUtil {
     }
 
     /**
-     * 根据传入的参数自动返回对应的字符：毫秒，秒，分钟，小时，天：其中这里默认按照天来计算
+     * 解析时间，根据传入的参数自动返回对应的字符：毫秒，秒，分钟，小时，天：其中这里默认按照天来计算
+     * <p>
+     * @param time 时间
      * @return 返回时间的字符展示：举例：2天 1分钟 12秒
      */
     public String parseTime(long time) {
@@ -73,7 +79,9 @@ public class TimeStrUtil {
 
     /**
      * 周：按周来显示
-     * 举例：1周 1分钟 12秒 132毫秒
+     * <p>
+     * @param time 时间
+     * @return 返回按周解析后的字符，比如：1周 1分钟 12秒 132毫秒
      */
     public String parseWeeks(long time) {
         StringBuilder sb = new StringBuilder();
@@ -86,7 +94,10 @@ public class TimeStrUtil {
     }
 
     /**
-     * 天
+     * 按天解析
+     * <p>
+     * @param time 时间
+     * @return 按照解析后的时间字符
      */
     private String parseDays(long time) {
         StringBuilder sb = new StringBuilder();
@@ -99,7 +110,10 @@ public class TimeStrUtil {
     }
 
     /**
-     * 小时
+     * 按照小时解析
+     * <p>
+     * @param time 时间
+     * @return 时间类型的字符
      */
     private String parseHours(long time) {
         StringBuilder sb = new StringBuilder();
@@ -112,7 +126,10 @@ public class TimeStrUtil {
     }
 
     /**
-     * 分钟
+     * 按照分钟解析时间
+     * <p>
+     * @param time 时间
+     * @return 按照分钟解析返回的字符
      */
     private String parseMinutes(long time) {
         StringBuilder sb = new StringBuilder();
@@ -125,7 +142,10 @@ public class TimeStrUtil {
     }
 
     /**
-     * 秒
+     * 按照秒解析时间
+     * <p>
+     * @param time 时间
+     * @return 按照秒解析时间返回的字符
      */
     private String parseSeconds(long time) {
         StringBuilder sb = new StringBuilder();
@@ -138,7 +158,10 @@ public class TimeStrUtil {
     }
 
     /**
-     * 毫秒
+     * 按照毫秒解析时间
+     * <p>
+     * @param time 时间
+     * @return 按照毫秒解析时间返回的字符
      */
     private String parseMillis(long time) {
         StringBuilder sb = new StringBuilder();

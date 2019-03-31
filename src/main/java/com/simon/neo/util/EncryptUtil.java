@@ -13,6 +13,9 @@ public class EncryptUtil {
 
     /**
      * 传入文本内容，返回 encrypt-256 串
+     * <p>
+     * @param strText 源字符
+     * @return 哈希之后的字符
      */
     public String SHA256(final String strText) {
         return encrypt(strText, "SHA-256");
@@ -20,6 +23,9 @@ public class EncryptUtil {
 
     /**
      * 传入文本内容，返回 encrypt-512 串
+     * <p>
+     * @param strText 源字符
+     * @return 哈希之后的字符
      */
     public String SHA512(final String strText) {
         return encrypt(strText, "SHA-512");
@@ -27,6 +33,9 @@ public class EncryptUtil {
 
     /**
      * 传入文本内容，返回 MD5 串
+     * <p>
+     * @param strText 源字符
+     * @return 哈希之后的字符
      */
     public String MD5(final String strText){
         return encrypt(strText, "MD5");
@@ -34,6 +43,9 @@ public class EncryptUtil {
 
     /**
      * 字符串 encrypt 加密
+     * @param str 源字符
+     * @param strType 字符类型
+     * @return 压缩后的字符
      */
     private String encrypt(final String str, final String strType) {
         MessageDigest messageDigest;
