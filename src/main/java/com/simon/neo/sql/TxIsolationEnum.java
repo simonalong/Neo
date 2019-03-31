@@ -6,7 +6,6 @@ import lombok.Getter;
 
 /**
  * 事务隔离级别枚举类型
- * @see java.sql.Connection
  *
  * @author zhouzhenyong
  * @since 2019/3/31 下午12:55
