@@ -44,8 +44,12 @@ public class SqlMonitor {
         return instance;
     }
 
-    public void start(Neo neo, String sql, List<Object> paramsList) {
+    public void start(String sql, List<Object> paramsList) {
         sqlTime.set(new SqlCost(System.currentTimeMillis(), sql, paramsList));
+    }
+
+    public void startTx() {
+        sqlTime.set(new SqlCost(System.currentTimeMillis()));
     }
 
     /**
@@ -94,6 +98,10 @@ public class SqlMonitor {
         private String sql;
         private List<Object> paramsList;
 
+        public SqlCost(Long startTime){
+            this.startTime = startTime;
+        }
+
         private String getSql() {
             if (sql.length() <= MAX_SQL_LENGTH) {
                 return sql;
@@ -113,7 +121,12 @@ public class SqlMonitor {
         }
 
         String buildCost(Long costTime){
-            return "[耗时: " + TimeStrUtil.parseTime(costTime) + "] [sql => " + getSql() + "], {params => " + getParamsList() + " }";
+            if (null != sql) {
+                return "[耗时: " + TimeStrUtil.parseTime(costTime) + costTime + " ] [sql => " + getSql()
+                    + "], {params => " + getParamsList() + " }";
+            } else {
+                return "[耗时: " + TimeStrUtil.parseTime(costTime) + costTime + " ]";
+            }
         }
     }
 }
