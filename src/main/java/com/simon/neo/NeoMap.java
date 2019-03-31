@@ -490,7 +490,7 @@ public class NeoMap implements Map<String, Object> {
 
     @Override
     public Object put(String key, Object value) {
-        if (null != value) {
+        if (null != key) {
             dataMap.put(key, value);
         }
         return value;
