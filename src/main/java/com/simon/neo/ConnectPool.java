@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.sql.TxIsolationEnum;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
@@ -49,6 +50,25 @@ public class ConnectPool {
             return reConnection;
         }
         return con;
+    }
+
+    /**
+     * 设置事务的一些配置
+     * @param isolationEnum 事务隔离级别
+     * @param readOnly 事务的可读性
+     */
+    @SuppressWarnings("all")
+    public void setTxConfig(TxIsolationEnum isolationEnum, Boolean readOnly) throws SQLException {
+        Connection con = connectLocal.get();
+        if (null != con) {
+            if (null != readOnly) {
+                con.setReadOnly(readOnly);
+            }
+
+            if (null != isolationEnum) {
+                con.setTransactionIsolation(isolationEnum.getLevel());
+            }
+        }
     }
 
     public void submit() throws SQLException {

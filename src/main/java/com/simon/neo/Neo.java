@@ -12,6 +12,7 @@ import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlHelper;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
+import com.simon.neo.sql.TxIsolationEnum;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -56,14 +57,6 @@ public class Neo {
     private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
-    /**
-     * 字段搜索的like前缀
-     */
-    private static final String LIKE_PRE = "like ";
-    /**
-     * 比较操作符的前缀
-     */
-    private static final List<String> THAN_PRE = Arrays.asList(">", "<", ">=", "<=");
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
@@ -843,10 +836,29 @@ public class Neo {
     }
 
     /**
-     * 事务的执行，可以进行嵌套事务，针对嵌套事务，这里进行最外层统一提交
+     * 事务的执行
+     * 注意：
+     * 1.这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * 2.隔离级别采用数据库默认
+     * 3.读写的事务
+     * @param runnable 待执行的任务
      */
     public void tx(Runnable runnable) {
-        tx(()->{
+        tx(null, null, ()->{
+            runnable.run();
+            return null;
+        });
+    }
+
+    /**
+     * 事务的执行
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
+     * @param readOnly 事务的只读属性，默认为false
+     * @param runnable 待执行的任务
+     */
+    public void tx(TxIsolationEnum isolationEnum, Boolean readOnly, Runnable runnable) {
+        tx(isolationEnum, readOnly, ()->{
             runnable.run();
             return null;
         });
@@ -854,13 +866,17 @@ public class Neo {
 
     /**
      * 带返回值的事务执行，可以进行嵌套事务，针对嵌套事务，这里进行最外层统一提交
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
+     * @param readOnly 事务的只读属性，默认为false
+     * @param supplier 待执行的任务
      */
-    public <T> T tx(Supplier<T> supplier){
+    public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier){
         // 针对事务嵌套这里采用最外层事务提交
         Boolean originalTxFlag = txFlag.get();
         txFlag.set(true);
-
         try {
+            pool.setTxConfig(isolationEnum, readOnly);
             if (openTxMonitor()) {
                 // 统计sql
                 monitor.startTx();
