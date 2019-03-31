@@ -75,7 +75,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testOne1(){
-        show(neo.one(TABLE_NAME, NeoMap.of("group", "nihao1")));
+        show(neo.one(TABLE_NAME, NeoMap.of("group", "ok")));
     }
 
     /**

@@ -41,7 +41,7 @@ public class NeoPageTest extends NeoBaseTest{
     /**
      * 查询一行数据
      * 条件通过NeoMap设置
-     * 相当于：select * from neo_table1 where `group` = 'ok' order by 'group'
+     * 相当于：select * from neo_table1 where `group` = 'ok' order by 'group' limit 0, 20
      */
     @Test
     @SneakyThrows

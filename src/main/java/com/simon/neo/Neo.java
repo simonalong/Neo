@@ -1091,7 +1091,7 @@ public class Neo {
                     // sql规范化校验
                     standard.valid(sql);
                 }
-                if (monitorFlag) {
+                if (openMonitor()) {
                     // 添加对sql的监控
                     monitor.start(this, sql, Collections.singletonList(parameterList));
                 }
@@ -1111,7 +1111,7 @@ public class Neo {
                 con.commit();
                 con.setAutoCommit(true);
 
-                if (monitorFlag) {
+                if (openMonitor()) {
                     // 统计sql信息
                     monitor.calculate();
                 }
@@ -1137,6 +1137,13 @@ public class Neo {
             monitor.close();
         }
         return 0;
+    }
+
+    /**
+     * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
+     */
+    private Boolean openMonitor(){
+        return monitorFlag && txFlag.get();
     }
 
     private String generateInsertSql(String tableName, NeoMap neoMap){

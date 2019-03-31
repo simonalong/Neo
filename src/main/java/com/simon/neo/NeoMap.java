@@ -217,6 +217,14 @@ public class NeoMap implements Map<String, Object> {
         return neoMap;
     }
 
+    public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg){
+        NeoMap targetMap = NeoMap.of();
+        sourceMap.stream().forEach(c->{
+            targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
+        });
+        return targetMap;
+    }
+
     public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass) {
         if (null == neoMaps || neoMaps.isEmpty()) {
             return new ArrayList<>();
@@ -333,6 +341,23 @@ public class NeoMap implements Map<String, Object> {
 
     public NeoMap append(String key, Object value) {
         this.put(key, value);
+        return this;
+    }
+
+    public Stream<Entry<String, Object>> stream(){
+        return dataMap.entrySet().stream();
+    }
+
+    public Stream<String> keyStream(){
+        return dataMap.keySet().stream();
+    }
+
+    public Stream<Object> valueStream(){
+        return dataMap.values().stream();
+    }
+
+    public NeoMap putAll(NeoMap sourceMap, NamingChg namingChg){
+        this.putAll(NeoMap.fromMap(sourceMap, namingChg));
         return this;
     }
 

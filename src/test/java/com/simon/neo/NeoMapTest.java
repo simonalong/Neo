@@ -156,7 +156,7 @@ public class NeoMapTest {
 
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromInclude(demo, "userName");
-        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        // {userName=userName1}
         System.out.println(neoMap);
     }
 
@@ -186,7 +186,17 @@ public class NeoMapTest {
 
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"), NamingChg.UNDERLINE);
-        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        // {data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        System.out.println(neoMap);
+    }
+
+    @Test
+    public void testFrom8(){
+        NeoMap sourceMap = NeoMap.of("group", "group1", "userName", "userName1");
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
+        // {group=group1, user_name=userName1}
         System.out.println(neoMap);
     }
 
