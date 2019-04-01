@@ -35,8 +35,10 @@ public class SqlHelper {
     }
 
     public String buildWhere(NeoMap searchMap) {
-
-        return " where " + buildCondition(searchMap);
+        if(!NeoMap.isEmpty(searchMap)) {
+            return " where " + buildCondition(searchMap);
+        }
+        return "";
     }
 
     public String buildWhereWithValue(NeoMap searchMap) {
