@@ -1,6 +1,5 @@
 package com.simon.neo.sql;
 
-import com.simon.neo.sql.SqlStandard;
 import org.junit.Assert;
 import org.junit.Test;
 
