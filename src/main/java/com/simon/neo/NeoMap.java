@@ -343,6 +343,12 @@ public class NeoMap implements Map<String, Object> {
         return t;
     }
 
+    /**
+     * 只要固定的几个列值
+     *
+     * @param columns 具体的列
+     * @return 新的map结构
+     */
     public NeoMap assign(Columns columns){
         Set<String> fields = columns.getFieldSets();
         if(null == fields || fields.isEmpty()){
