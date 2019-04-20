@@ -72,6 +72,26 @@ public class SqlHelper {
         return buildCondition(searchMap);
     }
 
+    public String buildOne(){
+        // todo
+        return "";
+    }
+
+    public String buildList() {
+        // todo
+        return "";
+    }
+
+    public String buildValue() {
+        // todo
+        return "";
+    }
+
+    public String buildValues(){
+        // todo
+        return "";
+    }
+
     private List<String> buildConditionMeta(NeoMap searchMap) {
         return searchMap.entrySet().stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
     }

@@ -173,4 +173,14 @@ public class NeoOneTest extends NeoBaseTest{
         search.setGroup("group2");
         show(neo.one(TABLE_NAME, Columns.of("group", "name"), search, "order by `group` desc"));
     }
+
+    /******************************** join用法 **********************************/
+    /**
+     *
+     */
+    @Test
+    @SneakyThrows
+    public void testOne9(){
+        show(neo.one());
+    }
 }

@@ -88,4 +88,30 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void getCreateTable(){
         show(tinaTest.getTableCreate());
     }
+
+    @Test
+    public void leftJoinTest() {
+        String otherTableName = "";
+        show(tinaTest.leftJoin(otherTableName).on().one(Columns.of("group"), NeoMap.of()));
+    }
+
+    @Test
+    public void leftJoinTest() {
+        String otherTableName = "";
+        show(tinaTest.rightJoin(otherTableName).on().one(Columns.of("group"), NeoMap.of()));
+    }
+
+    @Test
+    public void leftJoinTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.innerJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void outerJoinTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.outerJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
 }
