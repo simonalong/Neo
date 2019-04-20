@@ -19,6 +19,11 @@ public class Columns {
 
     private Columns(){}
 
+    public static Columns all(Neo neo, String tableName) {
+        // todo
+        return Columns.of();
+    }
+
     public static Columns of(String... fields) {
         Columns columns = new Columns();
         if (null == fields || 0 == fields.length) {

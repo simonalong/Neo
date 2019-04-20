@@ -305,10 +305,4 @@ public class NeoTest extends NeoBaseTest{
             show(dataList);
         }
     }
-
-    /****************************** 表的join ******************************/
-    @Test
-    public void test24(){
-
-    }
 }

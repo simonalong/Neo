@@ -92,13 +92,13 @@ public class NeoTableTest extends BaseNeoTableTest {
     @Test
     public void leftJoinTest() {
         String otherTableName = "";
-        show(tinaTest.leftJoin(otherTableName).on().one(Columns.of("group"), NeoMap.of()));
+        show(tinaTest.leftJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of()));
     }
 
     @Test
     public void leftJoinTest() {
         String otherTableName = "";
-        show(tinaTest.rightJoin(otherTableName).on().one(Columns.of("group"), NeoMap.of()));
+        show(tinaTest.rightJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of()));
     }
 
     @Test
@@ -113,5 +113,69 @@ public class NeoTableTest extends BaseNeoTableTest {
         String otherTableName = "";
         String tailSql = "";
         show(tinaTest.outerJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void joinTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.join(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void leftJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.leftJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void rightJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.rightJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void innerJoinTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.innerJoin(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void outerJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.outerJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void leftJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.leftJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void rightJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.rightJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void outerJoinExceptInnerTest() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.outerJoinExceptInner(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of(), tailSql));
     }
 }

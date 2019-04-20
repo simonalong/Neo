@@ -1,15 +1,17 @@
 package com.simon.neo;
 
+import static com.simon.neo.sql.SqlBuilder.*;
 import com.simon.neo.db.NeoColumn;
 import com.simon.neo.db.NeoColumn.Column;
 import com.simon.neo.NeoMap.NamingChg;
+import com.simon.neo.db.NeoJoiner;
 import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
+import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlExplain;
-import com.simon.neo.sql.SqlHelper;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
 import com.simon.neo.sql.TxIsolationEnum;
@@ -29,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -756,6 +757,94 @@ public class Neo {
     }
 
     /**
+     * 默认的join采用的是innerJoin
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner join(String leftTableName, String rightTableName){
+        return innerJoin(leftTableName, rightTableName);
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner leftJoin(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner rightJoin(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner innerJoin(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner outerJoin(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
+
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
+
+    }
+
+    /**
      * 批量插入NeoMap列表数据
      * @param tableName 表名
      * @param dataMapList 设置数据和对应的搜索map的映射集合
@@ -1105,7 +1194,7 @@ public class Neo {
 
     /**
      * sql执行器
-     * @param multiLine 是否多行执行，对于多行执行，这里会进行explain 对应的sql和查
+     * @param multiLine 是否多行执行，对于多行执行，这里会进行explain 对应的sql核查
      * @param sqlSupplier sql和对应的参数的拼接生成器
      * @param stateFun sql Statement执行回调函数
      * @param <T> 返回值的类型
@@ -1230,15 +1319,15 @@ public class Neo {
         return txFlag.get();
     }
 
-    private String generateInsertSql(String tableName, NeoMap neoMap){
-        return "insert into "
-            + tableName
-            + "(`"
-            + String.join("`, `", neoMap.keySet())
-            + "`) values ("
-            + buildValues(neoMap.keySet())
-            + ")";
-    }
+//    private String generateInsertSql(String tableName, NeoMap neoMap){
+//        return "insert into "
+//            + tableName
+//            + "(`"
+//            + String.join("`, `", neoMap.keySet())
+//            + "`) values ("
+//            + buildValues(neoMap.keySet())
+//            + ")";
+//    }
 
     /**
      * sql 是select 语句
@@ -1247,13 +1336,13 @@ public class Neo {
         return null != sql && sql.startsWith(SELECT);
     }
 
-    private String generateDeleteSql(String tableName, NeoMap neoMap){
-        return "delete from " + tableName + SqlHelper.buildWhere(neoMap);
-    }
-
-    private String generateUpdateSql(String tableName, NeoMap dataMap, NeoMap searchMap){
-        return "update " + tableName + buildSetValues(dataMap.keySet()) + SqlHelper.buildWhere(searchMap);
-    }
+//    private String generateDeleteSql(String tableName, NeoMap neoMap){
+//        return "delete from " + tableName + SqlBuilder.buildWhere(neoMap);
+//    }
+//
+//    private String generateUpdateSql(String tableName, NeoMap dataMap, NeoMap searchMap){
+//        return "update " + tableName + buildSetValues(dataMap.keySet()) + SqlBuilder.buildWhere(searchMap);
+//    }
 
     /**
      * 生成插入的sql和参数
@@ -1261,7 +1350,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap){
-        return new Pair<>(generateInsertSql(tableName, valueMap), new ArrayList<>(valueMap.values()));
+        return new Pair<>(buildInsert(tableName, valueMap), new ArrayList<>(valueMap.values()));
     }
 
     /**
@@ -1270,7 +1359,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap){
-        return new Pair<>(generateDeleteSql(tableName, searchMap), new ArrayList<>(searchMap.values()));
+        return new Pair<>(buildDelete(tableName, searchMap), new ArrayList<>(searchMap.values()));
     }
 
     /**
@@ -1279,7 +1368,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap){
-        return new Pair<>(generateUpdateSql(tableName, dataMap, searchMap), NeoMap.values(dataMap, searchMap));
+        return new Pair<>(buildUpdate(tableName, dataMap, searchMap), NeoMap.values(dataMap, searchMap));
     }
 
     /**
@@ -1288,7 +1377,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(generateOneSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildOne(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1297,7 +1386,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(generateListSql(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildList(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1307,7 +1396,7 @@ public class Neo {
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         String tailSql, Integer pageIndex, Integer pageSize) {
-        return new Pair<>(generatePageSql(tableName, columns, searchMap, tailSql, pageIndex, pageSize), generateValueList(searchMap));
+        return new Pair<>(buildPageList(tableName, columns, searchMap, tailSql, pageIndex, pageSize), generateValueList(searchMap));
     }
 
     /**
@@ -1316,7 +1405,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap){
-        return new Pair<>(generateCountSql(tableName, searchMap), generateValueList(searchMap));
+        return new Pair<>(buildCount(tableName, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1325,7 +1414,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
-        return new Pair<>(generateValueSql(tableName, field, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildValue(tableName, field, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1334,7 +1423,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
-        return new Pair<>(generateValuesSql(tableName, field, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildValues(tableName, field, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1352,17 +1441,17 @@ public class Neo {
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<List<Object>>> generateBatchInsertPair(String tableName, List<NeoMap> parameters){
-        String sql = generateInsertSql(tableName, parameters.get(0));
-        return new Pair<>(sql, parameters.stream().map(this::generateValueList).collect(Collectors.toList()));
+    private Pair<String, List<List<Object>>> generateBatchInsertPair(String tableName, List<NeoMap> parameters) {
+        return new Pair<>(buildInsert(tableName, parameters.get(0)),
+            parameters.stream().map(this::generateValueList).collect(Collectors.toList()));
     }
 
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<List<Object>>> generateBatchUpdatePair(String tableName, List<Pair<NeoMap, NeoMap>> pairList){
-        String sql = generateUpdateSql(tableName, pairList.get(0).getKey(), pairList.get(0).getValue());
-        return new Pair<>(sql, pairList.stream().map(p-> NeoMap.values(p.getKey(), p.getValue())).collect(Collectors.toList()));
+    private Pair<String, List<List<Object>>> generateBatchUpdatePair(String tableName, List<Pair<NeoMap, NeoMap>> pairList) {
+        return new Pair<>(buildUpdate(tableName, pairList.get(0).getKey(), pairList.get(0).getValue()),
+            pairList.stream().map(p -> NeoMap.values(p.getKey(), p.getValue())).collect(Collectors.toList()));
     }
 
     /**
@@ -1394,114 +1483,114 @@ public class Neo {
             .collect(Collectors.toList());
     }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param searchMap 查询参数
-     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
-     */
-    private String generateOneSql(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!Columns.isEmpty(columns)) {
-            sqlAppender.append(columns.buildFields());
-        } else {
-            sqlAppender.append("*");
-        }
-        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
-        if (null != tailSql) {
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(limitOne());
-        return sqlAppender.toString();
-    }
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param searchMap 查询参数
+//     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
+//     */
+//    private String generateOneSql(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
+//        StringBuilder sqlAppender = new StringBuilder("select ");
+//        if (!Columns.isEmpty(columns)) {
+//            sqlAppender.append(columns.buildFields());
+//        } else {
+//            sqlAppender.append("*");
+//        }
+//        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
+//        if (null != tailSql) {
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        sqlAppender.append(limitOne());
+//        return sqlAppender.toString();
+//    }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param searchMap 查询参数
-     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
-     */
-    private String generateListSql(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!Columns.isEmpty(columns)){
-            sqlAppender.append(columns.buildFields());
-        }else{
-            sqlAppender.append("*");
-        }
-        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        return sqlAppender.toString();
-    }
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param searchMap 查询参数
+//     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
+//     */
+//    private String generateListSql(String tableName, Columns columns, NeoMap searchMap, String tailSql){
+//        StringBuilder sqlAppender = new StringBuilder("select ");
+//        if (!Columns.isEmpty(columns)){
+//            sqlAppender.append(columns.buildFields());
+//        }else{
+//            sqlAppender.append("*");
+//        }
+//        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
+//        if(null != tailSql){
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        return sqlAppender.toString();
+//    }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param searchMap 查询参数
-     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
-     */
-    private String generatePageSql(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
-        StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!Columns.isEmpty(columns)){
-            sqlAppender.append(columns.buildFields());
-        }else{
-            sqlAppender.append("*");
-        }
-        sqlAppender.append(" from ").append(tableName).append(SqlHelper.buildWhere(searchMap)).append(" ");
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(" limit ").append(pageIndex).append(", ").append(pageSize);
-        return sqlAppender.toString();
-    }
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param searchMap 查询参数
+//     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, pageSize
+//     */
+//    private String generatePageSql(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
+//        StringBuilder sqlAppender = new StringBuilder("select ");
+//        if (!Columns.isEmpty(columns)){
+//            sqlAppender.append(columns.buildFields());
+//        }else{
+//            sqlAppender.append("*");
+//        }
+//        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
+//        if(null != tailSql){
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        sqlAppender.append(" limit ").append(pageIndex).append(", ").append(pageSize);
+//        return sqlAppender.toString();
+//    }
+//
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param searchMap 查询参数
+//     * @return select `xxx` from yyy where a=? and b=? limit 1
+//     */
+//    private String generateCountSql(String tableName, NeoMap searchMap){
+//        return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap) + limitOne();
+//    }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param searchMap 查询参数
-     * @return select `xxx` from yyy where a=? and b=? limit 1
-     */
-    private String generateCountSql(String tableName, NeoMap searchMap){
-        return "select count(1) from " + tableName + SqlHelper.buildWhere(searchMap) + limitOne();
-    }
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param field 要查询的字段
+//     * @param searchMap 查询参数
+//     * @return select `xxx` from yyy where a=? and b=? order by `xx` limit 1
+//     */
+//    private String generateValueSql(String tableName, String field, NeoMap searchMap, String tailSql){
+//        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
+//            .append(SqlBuilder.buildWhere(searchMap));
+//        if(null != tailSql){
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        sqlAppender.append(limitOne());
+//        return sqlAppender.toString();
+//    }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param field 要查询的字段
-     * @param searchMap 查询参数
-     * @return select `xxx` from yyy where a=? and b=? order by `xx` limit 1
-     */
-    private String generateValueSql(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(SqlHelper.buildWhere(searchMap));
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(limitOne());
-        return sqlAppender.toString();
-    }
+//    /**
+//     * 返回拼接的sql
+//     * @param tableName 表名
+//     * @param field 要查询的字段
+//     * @param searchMap 查询参数
+//     * @return select `xxx` from yyy where a=? and b=? order by `xx` limit 1
+//     */
+//    private String generateValuesSql(String tableName, String field, NeoMap searchMap, String tailSql){
+//        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
+//            .append(SqlBuilder.buildWhere(searchMap));
+//        if(null != tailSql){
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        return sqlAppender.toString();
+//    }
 
-    /**
-     * 返回拼接的sql
-     * @param tableName 表名
-     * @param field 要查询的字段
-     * @param searchMap 查询参数
-     * @return select `xxx` from yyy where a=? and b=? order by `xx` limit 1
-     */
-    private String generateValuesSql(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
-            .append(SqlHelper.buildWhere(searchMap));
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        return sqlAppender.toString();
-    }
-
-    private String limitOne(){
-        return " limit 1";
-    }
+//    private String limitOne(){
+//        return " limit 1";
+//    }
 
     private List<Object> generateValueList(NeoMap searchMap){
         if (NeoMap.isEmpty(searchMap)) {
@@ -1534,13 +1623,9 @@ public class Neo {
         return new Pair<>(replaceOperatorList, placeHolderList);
     }
 
-    private String buildValues(Set<String> fieldList){
-        return String.join(", ", fieldList.stream().map(f->"?").collect(Collectors.toList()));
-    }
-
-    private String buildSetValues(Set<String> fieldList){
-        return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
-    }
+//    private String buildSetValues(Set<String> fieldList){
+//        return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
+//    }
 
     private Long executeInsert(PreparedStatement statement){
         try {

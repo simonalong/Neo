@@ -3,7 +3,7 @@ package com.simon.neo.neotest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
-import com.simon.neo.sql.SqlHelper;
+import com.simon.neo.sql.SqlBuilder;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class NeoOneTest extends NeoBaseTest{
     @SneakyThrows
     public void testExeOne6(){
         NeoMap search = NeoMap.of("group", "ok", "name", "haode");
-        show(neo.exeOne(DemoEntity.class, "select * from %s %s", "neo_table1", SqlHelper.buildWhereWithValue(search)));
+        show(neo.exeOne(DemoEntity.class, "select * from %s %s", "neo_table1", SqlBuilder.buildWhereWithValue(search)));
     }
 
     /**
@@ -172,15 +172,5 @@ public class NeoOneTest extends NeoBaseTest{
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
         show(neo.one(TABLE_NAME, Columns.of("group", "name"), search, "order by `group` desc"));
-    }
-
-    /******************************** join用法 **********************************/
-    /**
-     *
-     */
-    @Test
-    @SneakyThrows
-    public void testOne9(){
-        show(neo.one());
     }
 }
