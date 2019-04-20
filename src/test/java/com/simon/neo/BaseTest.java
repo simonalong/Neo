@@ -13,6 +13,6 @@ public class BaseTest {
             System.out.println("obj is null ");
             return;
         }
-        Optional.ofNullable(object).ifPresent(objects1 -> System.out.println(objects1.toString()));
+        Optional.of(object).ifPresent(objects1 -> System.out.println(objects1.toString()));
     }
 }

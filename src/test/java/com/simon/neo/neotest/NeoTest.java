@@ -212,22 +212,22 @@ public class NeoTest extends NeoBaseTest{
     /****************************** 查询 ******************************/
     @Test
     public void getColumnNameListTest(){
-        System.out.println(neo.getColumnNameList(TABLE_NAME));
+        show(neo.getColumnNameList(TABLE_NAME));
     }
 
     @Test
     public void getColumnsTest(){
-        System.out.println(JSON.toJSONString(neo.getColumnList(TABLE_NAME)));
+        show(JSON.toJSONString(neo.getColumnList(TABLE_NAME)));
     }
 
     @Test
     public void getIndexNameListTest(){
-        System.out.println(neo.getIndexNameList(TABLE_NAME));
+        show(neo.getIndexNameList(TABLE_NAME));
     }
 
     @Test
     public void getIndexListTest(){
-        System.out.println(JSON.toJSONString(neo.getIndexList(TABLE_NAME)));
+        show(JSON.toJSONString(neo.getIndexList(TABLE_NAME)));
     }
 
     /****************************** 表的创建语句 ******************************/
@@ -283,9 +283,12 @@ public class NeoTest extends NeoBaseTest{
         //  `year2` year(4) NOT NULL,
         //  PRIMARY KEY (`id`)
         //) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项'
-        System.out.println(neo.getTableCreate("xx_test5"));
+        show(neo.getTableCreate("xx_test5"));
     }
 
+    /**
+     * 测试获取枚举的类型
+     */
     @Test
     public void test23(){
         String sql = "`gander` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '性别：Y=男；N=女'";
@@ -301,5 +304,11 @@ public class NeoTest extends NeoBaseTest{
             // [Y, N]
             show(dataList);
         }
+    }
+
+    /****************************** 表的join ******************************/
+    @Test
+    public void test24(){
+
     }
 }
