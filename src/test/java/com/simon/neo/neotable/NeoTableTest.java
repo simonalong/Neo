@@ -90,32 +90,6 @@ public class NeoTableTest extends BaseNeoTableTest {
     }
 
     @Test
-    public void leftJoinTest() {
-        String otherTableName = "";
-        show(tinaTest.leftJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of()));
-    }
-
-    @Test
-    public void leftJoinTest() {
-        String otherTableName = "";
-        show(tinaTest.rightJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of()));
-    }
-
-    @Test
-    public void leftJoinTest() {
-        String otherTableName = "";
-        String tailSql = "";
-        show(tinaTest.innerJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of(), tailSql));
-    }
-
-    @Test
-    public void outerJoinTest() {
-        String otherTableName = "";
-        String tailSql = "";
-        show(tinaTest.outerJoin(otherTableName).on("id", "otherId").one(Columns.of("group"), NeoMap.of(), tailSql));
-    }
-
-    @Test
     public void joinTest() {
         String otherTableName = "";
         String tailSql = "";
@@ -124,19 +98,50 @@ public class NeoTableTest extends BaseNeoTableTest {
     }
 
     @Test
-    public void leftJoinExceptInnerTest() {
+    public void leftJoinOneTest1() {
         String otherTableName = "";
         String tailSql = "";
-        show(tinaTest.leftJoinExceptInner(otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), NeoMap.of(), tailSql));
+        show(tinaTest.leftJoin(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
-    public void rightJoinExceptInnerTest() {
+    public void leftJoinOneTest2() {
+        String otherTableName = "";
+        show(tinaTest.rightJoin(otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of()));
+    }
+
+    @Test
+    public void leftJoinOneTest3() {
         String otherTableName = "";
         String tailSql = "";
-        show(tinaTest.rightJoinExceptInner(otherTableName).on("id", "otherId")
+        show(tinaTest.innerJoin(otherTableName).on("id", "otherId")
             .one(Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+
+    @Test
+    public void rightJoinOneTest1() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.leftJoin(otherTableName).on("id", "otherId")
+            .list(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    @Test
+    public void rightJoinOneTest2() {
+        String otherTableName = "";
+        show(tinaTest.rightJoin(otherTableName).on("id", "otherId")
+            .list(Columns.of("group"), Columns.of("group"), NeoMap.of()));
+    }
+
+    @Test
+    public void rightJoinOneTest3() {
+        String otherTableName = "";
+        String tailSql = "";
+        show(tinaTest.innerJoin(otherTableName).on("id", "otherId")
+            .list(Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
@@ -148,7 +153,7 @@ public class NeoTableTest extends BaseNeoTableTest {
     }
 
     @Test
-    public void outerJoinExceptInnerTest() {
+    public void outerInnerTest() {
         String otherTableName = "";
         String tailSql = "";
         show(tinaTest.outerJoinExceptInner(otherTableName).on("id", "otherId")
@@ -156,19 +161,19 @@ public class NeoTableTest extends BaseNeoTableTest {
     }
 
     @Test
-    public void leftJoinExceptInnerTest() {
+    public void leftJoinExceptInnerListTest1() {
         String otherTableName = "";
         String tailSql = "";
         show(tinaTest.leftJoinExceptInner(otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), NeoMap.of(), tailSql));
+            .list(Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
-    public void rightJoinExceptInnerTest() {
+    public void rightJoinExceptInnerListTest2() {
         String otherTableName = "";
         String tailSql = "";
         show(tinaTest.rightJoinExceptInner(otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), NeoMap.of(), tailSql));
+            .list(Columns.of("group"), tailSql));
     }
 
     @Test

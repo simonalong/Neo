@@ -434,7 +434,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner join(String rightTableName){
-        return innerJoin(tableName, rightTableName);
+        return neo.innerJoin(tableName, rightTableName);
     }
 
     /**
@@ -444,7 +444,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoin(String rightTableName){
-
+        return neo.leftJoin(tableName, rightTableName);
     }
 
     /**
@@ -454,7 +454,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoin(String rightTableName){
-
+        return neo.rightJoin(tableName, rightTableName);
     }
 
     /**
@@ -464,7 +464,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner innerJoin(String rightTableName){
-
+        return neo.innerJoin(tableName, rightTableName);
     }
 
     /**
@@ -474,7 +474,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoin(String rightTableName){
-
+        return neo.outerJoin(tableName, rightTableName);
     }
 
     /**
@@ -484,7 +484,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoinExceptInner(String rightTableName){
-
+        return neo.leftJoinExceptInner(tableName, rightTableName);
     }
 
     /**
@@ -494,7 +494,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoinExceptInner(String rightTableName){
-
+        return neo.rightJoinExceptInner(tableName, rightTableName);
     }
 
     /**
@@ -504,7 +504,7 @@ public class NeoTable {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoinExceptInner(String rightTableName){
-
+        return neo.outerJoinExceptInner(tableName, rightTableName);
     }
 
     public void initIndex(ResultSet resultSet){

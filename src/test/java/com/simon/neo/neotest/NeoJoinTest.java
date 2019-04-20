@@ -1,6 +1,5 @@
 package com.simon.neo.neotest;
 
-import com.simon.neo.BaseTest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import java.sql.SQLException;
@@ -18,7 +17,53 @@ public class NeoJoinTest extends NeoBaseTest {
      * join 采用的是innerJoin
      */
     @Test
-    public void joinTest() {
+    public void joinOneTest1() {
+        String tableName = "neo_table1";
+        String otherTableName = "neo_table2";
+        String tailSql = "";
+        show(neo.join(tableName, otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    /**
+     * join 采用的是innerJoin
+     */
+    @Test
+    public void joinOneTest2() {
+        String tableName = "neo_table1";
+        String otherTableName = "neo_table2";
+        String tailSql = "";
+        show(neo.join(tableName, otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
+    }
+
+    /**
+     * join 采用的是innerJoin
+     */
+    @Test
+    public void joinListTest() {
+        String tableName = "neo_table1";
+        String otherTableName = "neo_table2";
+        show(neo.join(tableName, otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of()));
+    }
+
+    /**
+     * join 采用的是innerJoin
+     */
+    @Test
+    public void joinListValueTest() {
+        String tableName = "neo_table1";
+        String otherTableName = "neo_table2";
+        show(neo.join(tableName, otherTableName).on("id", "otherId")
+            .one(Columns.of("group"), NeoMap.of()));
+    }
+
+    /**
+     * join 采用的是innerJoin
+     */
+    @Test
+    public void joinListValuesTest() {
         String tableName = "neo_table1";
         String otherTableName = "neo_table2";
         String tailSql = "";
@@ -27,30 +72,30 @@ public class NeoJoinTest extends NeoBaseTest {
     }
 
     @Test
-    public void leftJoinTest() {
+    public void leftJoinListTest1() {
         String tableName = "";
         String otherTableName = "";
         String tailSql = "";
         show(neo.leftJoin(tableName, otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), NeoMap.of(), tailSql));
+            .list(Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
-    public void leftJoinTest() {
+    public void leftJoinListTest2() {
         String tableName = "";
         String otherTableName = "";
         String tailSql = "";
         show(neo.rightJoin(tableName, otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), NeoMap.of(), tailSql));
+            .list(Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
-    public void leftJoinTest() {
+    public void leftJoinListTest3() {
         String tableName = "";
         String otherTableName = "";
         String tailSql = "";
         show(neo.innerJoin(tableName, otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
+            .list(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
     }
 
     @Test
