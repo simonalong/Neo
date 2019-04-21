@@ -72,7 +72,7 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     public NeoMap one(Columns leftColumns, Columns rightColumns, NeoMap searchMap, String tailSql){
-        String joinHeadSql = buildJoinHead(leftTableName, leftColumns, rightTableName, rightColumns);
+        String joinHeadSql = buildJoinHead(neo, leftTableName, leftColumns, rightTableName, rightColumns);
         String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
         return neo.exeOne(joinHeadSql + " " + joinSql + " " + joinTailSql);
     }
@@ -139,7 +139,7 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     public List<NeoMap> list(Columns leftColumns, Columns rightColumns, NeoMap searchMap, String tailSql){
-        String joinHeadSql = buildJoinHead(leftTableName, leftColumns, rightTableName, rightColumns);
+        String joinHeadSql = buildJoinHead(neo, leftTableName, leftColumns, rightTableName, rightColumns);
         String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
         return neo.exeList(joinHeadSql + " " + joinSql + " " + joinTailSql);
     }

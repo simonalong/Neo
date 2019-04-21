@@ -104,7 +104,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String tableName = "neo_table2";
         String otherTableName = "neo_table1";
         show(neo.join(tableName, otherTableName).on("n_id", "id")
-            .list(Columns.of("group as group1"), Columns.of("group as group2")));
+            .list(Columns.of("*", "group as group1"), Columns.of("group as group2")));
     }
 
     /**
@@ -157,7 +157,15 @@ public class NeoJoinTest extends NeoBaseTest {
     }
 
     /**
-     * select neo_table2.`group`, neo_table2.`id` from neo_table2 left join neo_table1 on neo_table2.`group`=neo_table1.`group`  where (neo_table1.id is null) order by sort desc
+     * select neo_table2.`user_name`, neo_table2.`age`, neo_table2.`id`, neo_table2.`group` as group1, neo_table2.`name`, neo_table2.`n_id`, neo_table2.`sort`
+     * from neo_table2
+     * left join neo_table1
+     * on neo_table2.`group`=neo_table1.`group`
+     * where (neo_table1.id is null) order by sort desc
+     *
+     * 注意：
+     * 这里支持用"*"表示所有的列，同时，也支持在列后面添加" as "这种列别名，该别名会替换前面已有的列，并进行替换
+     *
      */
     @Test
     public void leftJoinExceptInnerTest() {
@@ -165,19 +173,22 @@ public class NeoJoinTest extends NeoBaseTest {
         String otherTableName = "neo_table1";
         String tailSql = "order by sort desc";
         show(neo.leftJoinExceptInner(tableName, otherTableName).on("group", "group")
-            .list(Columns.of("id", "group"), NeoMap.of(), tailSql));
+            .list(Columns.of("*", "group as group1"), NeoMap.of(), tailSql));
     }
 
     /**
      * select neo_table1.`group` from neo_table2 right join neo_table1 on neo_table2.`group`=neo_table1.`group`  where (neo_table2.id is null) order by sort desc
+     *
+     * 列别名，若前面已有对应的列，则会替换掉前面已有的列，否则，用对应的列别名
      */
     @Test
     public void rightJoinExceptInnerTest() {
         String tableName = "neo_table2";
         String otherTableName = "neo_table1";
         String tailSql = "order by sort desc";
+        // [{group=test5, nn_id=15}, {group=test6, nn_id=16}]
         show(neo.rightJoinExceptInner(tableName, otherTableName).on("group", "group")
-            .list(Columns.of(), Columns.of("group"), tailSql));
+            .list(Columns.of(), Columns.of("group", "id", "id as nn_id"), tailSql));
     }
 
     /**

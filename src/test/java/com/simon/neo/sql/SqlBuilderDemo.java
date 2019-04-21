@@ -4,6 +4,8 @@ import static com.simon.neo.sql.SqlBuilder.*;
 import com.simon.neo.BaseTest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
+import com.simon.neo.neotest.NeoBaseTest;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -12,7 +14,9 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/29 下午11:28
  */
-public class SqlBuilderDemo extends BaseTest {
+public class SqlBuilderDemo extends NeoBaseTest {
+
+    public SqlBuilderDemo() throws SQLException {}
 
     @Test
     public void inTest(){
@@ -68,7 +72,7 @@ public class SqlBuilderDemo extends BaseTest {
         Columns leftColumns = Columns.of("c1", "c11");
         Columns rightColumns = Columns.of("c2", "c22");
         // select table1.`c11`, table1.`c1`,table2.`c22`, table2.`c2`
-        show(buildJoinHead(table1, leftColumns, table2, rightColumns));
+        show(buildJoinHead(neo, table1, leftColumns, table2, rightColumns));
     }
 
     @Test

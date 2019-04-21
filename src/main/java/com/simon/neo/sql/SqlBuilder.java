@@ -214,26 +214,43 @@ public class SqlBuilder {
     /**
      * join的head 部分对应的sql，主要是选择的列
      *
+     * @param neo 库对象
      * @param leftTableName 左表表名
      * @param leftColumns 左表选择的列
      * @param rightTableName 右表表名
      * @param rightColumns 右表的列
      * @return join对应的head，比如：select xxx,xxx
      */
-    public String buildJoinHead(String leftTableName, Columns leftColumns, String rightTableName, Columns rightColumns){
+    public String buildJoinHead(Neo neo, String leftTableName, Columns leftColumns, String rightTableName, Columns rightColumns) {
         StringBuilder sb = new StringBuilder("select ");
-        if(!Columns.isEmpty(leftColumns)){
-            sb.append(leftColumns.buildFields(leftTableName));
-        }
 
-        if(!Columns.isEmpty(leftColumns) && !Columns.isEmpty(rightColumns)){
+        appendColumns(sb, neo, leftTableName, leftColumns);
+        if (!Columns.isEmpty(leftColumns) && !Columns.isEmpty(rightColumns)) {
             sb.append(", ");
         }
-
-        if(!Columns.isEmpty(rightColumns)){
-            sb.append(rightColumns.buildFields(rightTableName));
-        }
+        appendColumns(sb, neo, rightTableName, rightColumns);
         return sb.toString();
+    }
+
+    /**
+     * 将列中含有*的类进行展开
+     *
+     * @param sb 字符拼接
+     * @param neo 库对象
+     * @param tableName 表名
+     * @param columns 列对象
+     */
+    private void appendColumns(StringBuilder sb, Neo neo, String tableName, Columns columns){
+        String allColumnName = "*";
+        if (!Columns.isEmpty(columns)) {
+            // 包含所有的列
+            if (columns.contains(allColumnName)) {
+                columns.remove(allColumnName);
+                sb.append(Columns.buildAllFields(neo, columns, tableName));
+            } else {
+                sb.append(columns.buildFields(tableName));
+            }
+        }
     }
 
     /**
