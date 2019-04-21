@@ -3,6 +3,7 @@ package com.simon.neo.neotest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
+import com.simon.neo.sql.SqlBuilder;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -65,6 +66,12 @@ public class NeoOneTest extends NeoBaseTest{
     @SneakyThrows
     public void testExeOne5(){
         show(neo.exeOne("explain select * from neo_table1 where name like '%s'", "na%"));
+    }
+
+    @Test
+    public void testExeOne6(){
+        NeoMap search = NeoMap.of("group", "ok", "name", "haode");
+        show(neo.exeOne(DemoEntity.class, "select * from %s %s", "neo_table1", SqlBuilder.buildWhereWithValue(search)));
     }
 
     /**

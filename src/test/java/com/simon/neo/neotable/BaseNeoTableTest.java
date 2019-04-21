@@ -24,6 +24,6 @@ public class BaseNeoTableTest extends BaseTest {
     @BeforeClass
     public static void start(){
         neo = Neo.connect(URL, USER, PASSWORD);
-        tinaTest = neo.asTable("neo_table1");
+        tinaTest = neo.asTable("neo_table2");
     }
 }

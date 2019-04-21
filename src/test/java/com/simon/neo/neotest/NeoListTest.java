@@ -3,7 +3,7 @@ package com.simon.neo.neotest;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
-import com.simon.neo.sql.SqlHelper;
+import com.simon.neo.sql.SqlBuilder;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +79,7 @@ public class NeoListTest extends NeoBaseTest{
     public void testExeList6(){
         neo.setExplainFlag(true);
         List<Integer> idList = Arrays.asList(310, 311);
-        show(neo.exeList("select * from %s where id in %s", TABLE_NAME, SqlHelper.in(idList)));
+        show(neo.exeList("select * from %s where id in %s", TABLE_NAME, SqlBuilder.in(idList)));
     }
 
     /**

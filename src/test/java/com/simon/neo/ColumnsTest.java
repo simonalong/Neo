@@ -7,15 +7,21 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/21 下午10:26
  */
-public class ColumnsTest {
+public class ColumnsTest extends BaseTest{
 
     @Test
     public void testOf(){
-        System.out.println(Columns.of("name", "name1"));
+        show(Columns.of("name", "name1"));
     }
 
     @Test
     public void testFrom(){
-        System.out.println(Columns.from(DemoEntity.class));
+        show(Columns.from(DemoEntity.class));
+    }
+    
+    @Test
+    public void buildFieldsTest(){
+        Columns columns = Columns.of("c1", "c2", "c3");
+        show(columns.buildFields("table1"));
     }
 }
