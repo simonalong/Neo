@@ -207,7 +207,6 @@ public class NeoTest extends NeoBaseTest{
         NeoMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
         show("****");
         show(sql.get("Create Table"));
-        // todo
     }
 
     /****************************** 查询 ******************************/
