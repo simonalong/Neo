@@ -45,6 +45,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 将多个NeoMap中的value集合起来
+     *
      * @param maps 多个NeoMap
      * @return 多个NeoMap的Values集合
      */
@@ -58,6 +59,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
+     *
      * @param namingChg 转换类型
      */
     public static void setDefaultNamingChg(NamingChg namingChg) {
@@ -87,6 +89,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @return 转换之后的NeoMap
      */
@@ -96,6 +99,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 根据指定的一些列转换为NeoMap对象，该函数同函数 fromInclude，只是为了方便命名的统一
+     *
      * @param object 待转换对象
      * @param columns 对象的属性名列表
      * @return 转换之后的NeoMap
@@ -106,6 +110,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param columns 对象的属性名列表
      * @param namingChg 对象属性和NeoMap的映射关系
@@ -118,6 +123,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param namingChg 对象属性和NeoMap的映射关系
      * @return 转换之后的NeoMap
@@ -128,6 +134,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param columns 对象的属性名列表
      * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}
@@ -139,6 +146,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}，key为实体的属性名，value为DB中的列名
      * @return 转换之后的NeoMap
@@ -149,6 +157,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 指定包括的属性进行对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param fields 需要的属性
      * @return 转换之后的NeoMap
@@ -159,6 +168,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 指定排除的属性进行对象转换为NeoMap
+     *
      * @param object 待转换对象
      * @param fields 排除的属性
      * @return 转换之后的NeoMap
@@ -169,6 +179,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 通过用户自定义的方式，将对象转换为NeoMap
+     *
      * @param object 待转换的对象
      * @param userNaming 用户自定义命名转换方式
      * @param inFieldList 包括的属性
@@ -186,6 +197,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对象转换为NeoMap
+     *
      * @param object 待转换的对象
      * @param naming 转换方式
      * @param inFieldList 包括的属性
@@ -203,6 +215,7 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 通过指定某些列转化为一个新的对象
+     *
      * @param neoMap 源数据map
      * @param columns 对象中的某些列
      * @return 转换之后的NeoMap
@@ -237,9 +250,9 @@ public class NeoMap implements Map<String, Object> {
         return neoMap;
     }
 
-    public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg){
+    public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {
         NeoMap targetMap = NeoMap.of();
-        sourceMap.stream().forEach(c->{
+        sourceMap.stream().forEach(c -> {
             targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
         });
         return targetMap;
@@ -253,35 +266,36 @@ public class NeoMap implements Map<String, Object> {
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
-    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, NamingChg namingChg){
+    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, NamingChg namingChg) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
         return dataList.stream().map(m -> NeoMap.from(m, columns, namingChg)).collect(Collectors.toList());
     }
 
-    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns){
+    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns) {
         return fromArray(dataList, columns, null);
     }
 
-    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg){
+    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
         return dataList.stream().map(m -> NeoMap.from(m, namingChg)).collect(Collectors.toList());
     }
 
-    public static <T> List<NeoMap> fromArray(List<T> dataList){
+    public static <T> List<NeoMap> fromArray(List<T> dataList) {
         return fromArray(dataList, null, null);
     }
 
     /**
      * 将数据库字符转换为对应的属性变量规范字符
+     *
      * @param source 源字符串
      * @param namingChg 转换规则
      * @return 转换之后的字符
      */
-    public static String dbToJavaStr(String source, NamingChg namingChg){
+    public static String dbToJavaStr(String source, NamingChg namingChg) {
         return namingChg.otherToSmallCamel(source);
     }
 
@@ -291,7 +305,7 @@ public class NeoMap implements Map<String, Object> {
      * @param source 源字符
      * @return 转换后的字符
      */
-    public static String dbToJavaStr(String source){
+    public static String dbToJavaStr(String source) {
         return globalNaming.smallCamelToOther(source);
     }
 
@@ -305,9 +319,9 @@ public class NeoMap implements Map<String, Object> {
      * @param preFix 前缀
      * @return 所有的key替换之后的NeoMap
      */
-    public NeoMap setPre(String preFix){
+    public NeoMap setPre(String preFix) {
         NeoMap neoMap = NeoMap.of();
-        stream().forEach(e->{
+        stream().forEach(e -> {
             neoMap.put(preFix + e.getKey(), e.getValue());
         });
         return neoMap;
@@ -364,15 +378,15 @@ public class NeoMap implements Map<String, Object> {
      * @param columns 具体的列
      * @return 新的map结构
      */
-    public NeoMap assign(Columns columns){
+    public NeoMap assign(Columns columns) {
         Set<String> fields = columns.getFieldSets();
-        if(null == fields || fields.isEmpty()){
+        if (null == fields || fields.isEmpty()) {
             return this;
         }
         NeoMap neoMap = NeoMap.of();
-        fields.forEach(f->{
-            if (containsKey(f)){
-               neoMap.put(f, get(f));
+        fields.forEach(f -> {
+            if (containsKey(f)) {
+                neoMap.put(f, get(f));
             }
         });
         return neoMap;
@@ -380,12 +394,23 @@ public class NeoMap implements Map<String, Object> {
 
     /**
      * 对NeoMap中的key进行转换
-     * @return key转换之后的NeoMap
+     *
+     * @param keys 新旧key的映射，key-value-key-value...的形式，比如：a, a1, b, b1
+     * @return key转换之后的NeoMap，比如：{a=ok, b=name} -> {a1=ok, b1=name}
      */
-    public NeoMap keyConvert(Pair<String, String> keyPair){
+    @SuppressWarnings("confusing")
+    public NeoMap keyConvert(String... keys) {
+        NeoMap keyChgMap = NeoMap.of(Arrays.asList(keys).toArray());
         NeoMap neoMap = NeoMap.fromMap(this, NamingChg.DEFAULT);
-        // todo
-        return this;
+        keyChgMap.stream().forEach(e -> {
+            String oldKey = e.getKey();
+            String newKey = (String) e.getValue();
+            if (neoMap.containsKey(oldKey)) {
+                neoMap.put(newKey, neoMap.get(oldKey));
+                neoMap.remove(oldKey);
+            }
+        });
+        return neoMap;
     }
 
     public NeoMap append(NeoMap neoMap) {
@@ -398,19 +423,19 @@ public class NeoMap implements Map<String, Object> {
         return this;
     }
 
-    public Stream<Entry<String, Object>> stream(){
+    public Stream<Entry<String, Object>> stream() {
         return dataMap.entrySet().stream();
     }
 
-    public Stream<String> keyStream(){
+    public Stream<String> keyStream() {
         return dataMap.keySet().stream();
     }
 
-    public Stream<Object> valueStream(){
+    public Stream<Object> valueStream() {
         return dataMap.values().stream();
     }
 
-    public NeoMap putAll(NeoMap sourceMap, NamingChg namingChg){
+    public NeoMap putAll(NeoMap sourceMap, NamingChg namingChg) {
         this.putAll(NeoMap.fromMap(sourceMap, namingChg));
         return this;
     }
@@ -425,7 +450,8 @@ public class NeoMap implements Map<String, Object> {
                 return chgName;
             }
         }
-        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming).smallCamelToOther(name);
+        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming)
+            .smallCamelToOther(name);
     }
 
     public enum NamingChg {
@@ -479,6 +505,7 @@ public class NeoMap implements Map<String, Object> {
 
         /**
          * 小驼峰类型到其他类型的转换
+         *
          * @param data 源数据
          * @return 转换后的数据
          */
@@ -488,6 +515,7 @@ public class NeoMap implements Map<String, Object> {
 
         /**
          * 其他类型到小驼峰转换
+         *
          * @param data 源数据
          * @return 转换后的数据
          */

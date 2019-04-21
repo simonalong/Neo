@@ -245,7 +245,15 @@ public class NeoMapTest extends BaseTest{
     @Test
     public void setPreTest(){
         NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
+        // {t1.a=ok, t1.b=name}
         show(neoMap.setPre("t1."));
+    }
+
+    @Test
+    public void keyConvertTest(){
+        NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
+        // {t1.a=ok, t1.b=name}
+        show(neoMap.keyConvert("a", "a1", "b", "b1"));
     }
 
 }
