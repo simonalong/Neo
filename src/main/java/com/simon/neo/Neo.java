@@ -443,7 +443,7 @@ public class Neo {
 
     /**
      * 查询返回单个值
-     * @param tClass 目标类的classs
+     * @param tClass 目标类的class
      * @param sql 只接收select 方式
      * @param parameters 参数
      * @param <T> 返回的目标类型
