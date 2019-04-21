@@ -194,10 +194,13 @@ public class NeoJoiner {
 
     /**
      * join核查中的查询一个数据
-     *
+     * @param tableName 表名
+     * @param columnName 列名
+     * @param tClass 目标类型
      * @param searchMap 搜索条件
-     * @param tailSql sql的尾部语句
-     * @return join执行后的结果
+     * @param tailSql 尾部sql，比如order by xxx
+     * @param <T> 返回值类型
+     * @return 返回的指定类型的值
      */
     @SuppressWarnings("unchecked")
     public <T> T value(String tableName, String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
@@ -315,10 +318,13 @@ public class NeoJoiner {
 
     /**
      * join核查中的查询一个数据
-     *
+     * @param tableName 表名
+     * @param columnName 列名
+     * @param tClass 目标class
      * @param searchMap 搜索条件
      * @param tailSql sql的尾部语句
-     * @return join执行后的结果
+     * @param <T> 返回值的目标类型
+     * @return 返回值list
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> values(String tableName, String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){

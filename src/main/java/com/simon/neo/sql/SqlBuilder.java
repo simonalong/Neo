@@ -87,7 +87,9 @@ public class SqlBuilder {
     /**
      * 返回拼接的sql
      * @param tableName 表名
-     * @param searchMap 查询参数
+     * @param columns 列名
+     * @param searchMap 查询条件
+     * @param tailSql 尾部sql
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
      */
     public String buildOne(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
@@ -108,8 +110,10 @@ public class SqlBuilder {
     /**
      * 返回拼接的sql
      * @param tableName 表名
-     * @param searchMap 查询参数
-     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
+     * @param columns 列信息
+     * @param searchMap 搜索条件
+     * @param tailSql 尾部sql
+     * @return 返回拼接的sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
     public String buildList(String tableName, Columns columns, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select ");
@@ -126,9 +130,13 @@ public class SqlBuilder {
     }
 
     /**
-     * 返回拼接的sql
+     * 返回拼接的包含分页的sql
      * @param tableName 表名
-     * @param searchMap 查询参数
+     * @param columns 列信息
+     * @param searchMap 搜索条件
+     * @param tailSql 尾部sql
+     * @param pageIndex 分页
+     * @param pageSize 分页大小
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, pageSize
      */
     public String buildPageList(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
@@ -161,7 +169,8 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param field 要查询的字段
      * @param searchMap 查询参数
-     * @return select `xxx` from yyy where a=? and b=? order by `xx` limit 1
+     * @param tailSql 尾部sql
+     * @return 比如：select `xxx` from yyy where a=? and b=? order by `xx` limit 1
      */
     public String buildValue(String tableName, String field, NeoMap searchMap, String tailSql){
         StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
@@ -178,6 +187,7 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param field 要查询的字段
      * @param searchMap 查询参数
+     * @param tailSql 尾部sql
      * @return select `xxx` from yyy where a=? and b=? order by `xx`
      */
     public String buildValues(String tableName, String field, NeoMap searchMap, String tailSql){
@@ -287,6 +297,7 @@ public class SqlBuilder {
      * 创建在排除公共部分的join中对应的where条件
      *
      * 比如：对于left_join_except_inner，则是排除右表的key
+     * @param neo 库对象
      * @param leftTableName 左表的表名
      * @param rightTableName 右表的表名
      * @param joinType join的类型

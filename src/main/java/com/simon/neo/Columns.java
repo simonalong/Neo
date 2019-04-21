@@ -60,6 +60,8 @@ public class Columns {
 
     /**
      * 返回select 后面选择的列对应的数据库的字段
+     *
+     * @param tableName 表名
      * @return 比如：table1.`c2`, table1.`c3`, table1.`c1`
      */
     public String buildFields(String tableName){
@@ -70,6 +72,7 @@ public class Columns {
     /**
      * 返回一个表的所有的列的数据
      * @param neo 库对象
+     * @param columns 列数据
      * @param tableName 表名
      * @return 所有的列构成的查询列的字符，比如：table1.`c2`, table1.`c3`, table1.`c1`
      */

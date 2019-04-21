@@ -395,7 +395,7 @@ public class NeoMap implements Map<String, Object> {
      * 对NeoMap中的key进行转换
      *
      * @param keys 新旧key的映射，key-value-key-value...的形式，比如：a, a1, b, b1
-     * @return key转换之后的NeoMap，比如：{a=ok, b=name} -> {a1=ok, b1=name}
+     * @return key转换之后的NeoMap，比如：{@code a=ok, b=name} 到 {@code a1=ok, b1=name}
      */
     @SuppressWarnings("confusing")
     public NeoMap keyConvert(String... keys) {
