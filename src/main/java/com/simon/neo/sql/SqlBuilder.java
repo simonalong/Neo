@@ -221,7 +221,19 @@ public class SqlBuilder {
      * @return join对应的head，比如：select xxx,xxx
      */
     public String buildJoinHead(String leftTableName, Columns leftColumns, String rightTableName, Columns rightColumns){
-        return "select " + leftColumns.buildFields(leftTableName) + "," + rightColumns.buildFields(rightTableName);
+        StringBuilder sb = new StringBuilder("select ");
+        if(!Columns.isEmpty(leftColumns)){
+            sb.append(leftColumns.buildFields(leftTableName));
+        }
+
+        if(!Columns.isEmpty(leftColumns) && !Columns.isEmpty(rightColumns)){
+            sb.append(", ");
+        }
+
+        if(!Columns.isEmpty(rightColumns)){
+            sb.append(rightColumns.buildFields(rightTableName));
+        }
+        return sb.toString();
     }
 
     /**

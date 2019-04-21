@@ -56,7 +56,7 @@ public class NeoJoiner {
      * @return 返回关联之后的Joiner
      */
     public NeoJoiner on(String leftColumnName, String rightColumnName){
-        this.joinSql = buildJoin(leftTableName, rightTableName, leftColumnName, rightColumnName, joinType);
+        this.joinSql = buildJoin(leftTableName, leftColumnName, rightTableName, rightColumnName, joinType);
         return this;
     }
 
@@ -123,6 +123,10 @@ public class NeoJoiner {
 
     public NeoMap one(Columns leftColumns){
         return one(leftColumns, Columns.of());
+    }
+
+    public NeoMap one(){
+        return one(Columns.all(neo, leftTableName), Columns.all(neo, rightTableName));
     }
 
     /**

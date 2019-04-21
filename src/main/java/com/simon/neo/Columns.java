@@ -84,10 +84,19 @@ public class Columns {
 
     /**
      * 将列名的前后添加"`"，name -> `name`
+     *
+     * 针对有相同列名的情况，这里进行转换，比如：group as group1 -> `group` as group1
      */
     private Set<String> columnToDbField(){
+        String asStr = " as ";
         Set<String> fieldSet = new HashSet<>();
-        fieldSets.forEach(f-> fieldSet.add("`" + f + "`"));
+        fieldSets.forEach(f-> {
+            if(f.contains(asStr)){
+                fieldSet.add("`" + f.substring(0, f.indexOf(asStr)) + "`" + f.substring(f.indexOf(asStr)));
+            }else{
+                fieldSet.add("`" + f + "`");
+            }
+        });
         return fieldSet;
     }
 }

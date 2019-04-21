@@ -1534,7 +1534,7 @@ public class Neo {
                     while (rs.next()) {
                         NeoMap data = NeoMap.of();
                         for (int i = 1; i <= meta.getColumnCount(); i++) {
-                            data.put(meta.getColumnName(i), rs.getObject(i));
+                            data.put(meta.getColumnLabel(i), rs.getObject(i));
                         }
                         dataList.add(data);
                     }
@@ -1556,7 +1556,7 @@ public class Neo {
 
             if (rs.next()) {
                 for (int j = 1; j <= col; j++) {
-                    result.put(metaData.getColumnName(j), rs.getObject(j));
+                    result.put(metaData.getColumnLabel(j), rs.getObject(j));
                 }
             }
         } catch (SQLException e) {
@@ -1575,7 +1575,7 @@ public class Neo {
             while (rs.next()) {
                 NeoMap row = NeoMap.of();
                 for (int j = 1; j <= col; j++) {
-                    row.put(metaData.getColumnName(j), rs.getObject(j));
+                    row.put(metaData.getColumnLabel(j), rs.getObject(j));
                 }
                 result.add(row);
             }

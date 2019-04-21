@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javafx.util.Pair;
 import lombok.Setter;
 
 /**
@@ -375,6 +376,16 @@ public class NeoMap implements Map<String, Object> {
             }
         });
         return neoMap;
+    }
+
+    /**
+     * 对NeoMap中的key进行转换
+     * @return key转换之后的NeoMap
+     */
+    public NeoMap keyConvert(Pair<String, String> keyPair){
+        NeoMap neoMap = NeoMap.fromMap(this, NamingChg.DEFAULT);
+        // todo
+        return this;
     }
 
     public NeoMap append(NeoMap neoMap) {
