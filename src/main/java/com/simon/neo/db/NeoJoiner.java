@@ -256,6 +256,64 @@ public class NeoJoiner {
     }
 
     /**
+     * 对于没有表名的，则这里默认为左表的列
+     * @param columnName 列名
+     * @param tClass 返回值的类型
+     * @param searchMap 搜索map
+     * @param tailSql 尾部sql
+     * @param <T> 返回值的类型
+     * @return 返回值对应的数据
+     */
+    public <T> T value(String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
+        return value(leftTableName, columnName, tClass, searchMap, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T value(String columnName, Class<T> tClass, NeoMap searchMap){
+        return value(leftTableName, columnName, tClass, searchMap);
+    }
+
+    public String value(String columnName, NeoMap searchMap, String tailSql){
+        return value(leftTableName, columnName, searchMap, tailSql);
+    }
+
+    public String value(String columnName, NeoMap searchMap){
+        return value(leftTableName, columnName, searchMap);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T value(String columnName, Class<T> tClass, Object entity, String tailSql){
+        return value(leftTableName, columnName, tClass, entity, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T value(String columnName, Class<T> tClass, Object entity){
+        return value(leftTableName, columnName, tClass, entity);
+    }
+
+    public String value(String columnName, Object entity, String tailSql){
+        return value(leftTableName, columnName, entity, tailSql);
+    }
+
+    public String value(String columnName, Object entity){
+        return value(leftTableName, columnName, entity);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T value(String columnName, Class<T> tClass, String tailSql){
+        return value(leftTableName, columnName, tClass, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T value(String columnName, Class<T> tClass){
+        return value(leftTableName, columnName, tClass);
+    }
+
+    public String value(String columnName){
+        return value(leftTableName, columnName);
+    }
+
+    /**
      * join核查中的查询一个数据
      *
      * @param searchMap 搜索条件
@@ -316,5 +374,55 @@ public class NeoJoiner {
 
     public List<String> values(String tableName, String columnName){
         return values(tableName, columnName, "");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
+        return values(leftTableName, columnName, tClass, searchMap, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass, NeoMap searchMap){
+        return values(leftTableName, columnName, tClass, searchMap);
+    }
+
+    public List<String> values(String columnName, NeoMap searchMap, String tailSql){
+        return values(leftTableName, columnName, searchMap, tailSql);
+    }
+
+    public List<String> values(String columnName, NeoMap searchMap){
+        return values(leftTableName, columnName, searchMap);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass, Object entity, String tailSql){
+        return values(leftTableName, columnName, tClass, entity, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass, Object entity){
+        return values(leftTableName, columnName, tClass, entity);
+    }
+
+    public List<String> values(String columnName, Object entity, String tailSql){
+        return values(leftTableName, columnName, entity, tailSql);
+    }
+
+    public List<String> values(String columnName, Object entity){
+        return values(leftTableName, columnName, entity);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass, String tailSql){
+        return values(leftTableName, columnName, tClass, tailSql);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String columnName, Class<T> tClass){
+        return values(leftTableName, columnName, tClass);
+    }
+
+    public List<String> values(String columnName){
+        return values(leftTableName, columnName);
     }
 }

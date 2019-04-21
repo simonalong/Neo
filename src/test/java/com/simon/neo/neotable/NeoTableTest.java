@@ -134,6 +134,17 @@ public class NeoTableTest extends BaseNeoTableTest {
     }
 
     /**
+     * select neo_table2.`group` from neo_table2 inner join neo_table1 on neo_table2.`group`=neo_table1.`group`  order by sort desc
+     */
+    @Test
+    public void leftJoinValueTest() {
+        String otherTableName = "neo_table1";
+        String tailSql = "order by sort desc";
+        show(tinaTest.innerJoin(otherTableName).on("group", "group")
+            .value("group", String.class, tailSql));
+    }
+
+    /**
      * select neo_table2.`group` as group1, neo_table1.`group` as group2 from neo_table2 left join neo_table1 on neo_table2.`group`=neo_table1.`group`  order by sort desc
      */
     @Test
