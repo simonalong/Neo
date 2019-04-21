@@ -22,7 +22,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String otherTableName = "neo_table2";
         String tailSql = "";
         show(neo.join(tableName, otherTableName).on("id", "otherId")
-            .one(Columns.of("group"), Columns.of("group"), NeoMap.of(), tailSql));
+            .one(Columns.of("group"), Columns.of("group"), NeoMap.of("group", "ok").setPre(tableName + "."), tailSql));
     }
 
     /**

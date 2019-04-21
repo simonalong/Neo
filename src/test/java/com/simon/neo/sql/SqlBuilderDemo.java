@@ -1,6 +1,8 @@
 package com.simon.neo.sql;
 
+import static com.simon.neo.sql.SqlBuilder.*;
 import com.simon.neo.BaseTest;
+import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,41 +23,79 @@ public class SqlBuilderDemo extends BaseTest {
         dataList.add(4);
 
         // ('1','2','3','4')
-        show(SqlBuilder.in(dataList));
+        show(in(dataList));
     }
 
     @Test
     public void buildWhereTest1(){
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
         // where `group` =  ? and `name` =  ?
-        show(SqlBuilder.buildWhere(searchMap));
+        show(buildWhere(searchMap));
     }
 
     @Test
     public void buildWhereTest2(){
         NeoMap searchMap = NeoMap.of();
         // 
-        show(SqlBuilder.buildWhere(searchMap));
+        show(buildWhere(searchMap));
     }
 
     @Test
     public void buildConditionTest(){
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
         // `group` =  ? and `name` =  ?
-        show(SqlBuilder.buildCondition(searchMap));
+        show(buildCondition(searchMap));
     }
 
     @Test
     public void buildWhereWithValueTest(){
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
         //  where `group` = 'group1' and `name` = 'name1'
-        show(SqlBuilder.buildWhereWithValue(searchMap));
+        show(buildWhereWithValue(searchMap));
     }
 
     @Test
     public void buildConditionWithValueTest(){
         NeoMap searchMap = NeoMap.of("group", 1, "name", "name1");
         // `group` = 1 and `name` = 'name1'
-        show(SqlBuilder.buildConditionWithValue(searchMap));
+        show(buildConditionWithValue(searchMap));
+    }
+
+    @Test
+    public void buildJoinHeadTest1(){
+        String table1 = "table1";
+        String table2 = "table2";
+        Columns leftColumns = Columns.of("c1", "c11");
+        Columns rightColumns = Columns.of("c2", "c22");
+        // select table1.`c11`, table1.`c1`,table2.`c22`, table2.`c2`
+        show(buildJoinHead(table1, leftColumns, table2, rightColumns));
+    }
+
+    @Test
+    public void buildJoinHeadTest2(){
+        String table1 = "table1";
+        String columnName = "c1";
+        // select table1.c1
+        show(buildJoinHead(table1, columnName));
+    }
+
+    @Test
+    public void buildJoinTest(){
+        String table1 = "table1";
+        String table2 = "table2";
+        String c1 = "tId";
+        String c2 = "id";
+        // from table1 left join table2 on table1.`tId`=table2.`id`
+        show(buildJoin(table1, c1, table2, c2, JoinType.LEFT_JOIN));
+    }
+
+    @Test
+    public void buildJoinTailTest(){
+        String table = "table1";
+        NeoMap neoMap = NeoMap.of("name", "ok").setPre(table+".");
+        String tailSql = "order by sort";
+        String sqlCondition = "table2.id is null";
+        //  where (table2.id is null) and `table1.name` = 'ok' order by sort
+        show(buildJoinTail(sqlCondition, neoMap, tailSql));
     }
 }

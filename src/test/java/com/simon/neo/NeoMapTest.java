@@ -13,7 +13,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:49
  */
-public class NeoMapTest {
+public class NeoMapTest extends BaseTest{
     
     private static final String TABLE_NAME = "neo_table1";
 
@@ -23,7 +23,7 @@ public class NeoMapTest {
         NeoMap neoMap2 = NeoMap.of("b", 123);
 
         NeoMap data = NeoMap.of().append(neoMap1).append(neoMap2);
-        System.out.println(data);
+        show(data);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class NeoMapTest {
         NeoMap neoMap2 = NeoMap.of("a", 222);
 
         NeoMap data = NeoMap.of().append(neoMap1).append(neoMap2);
-        System.out.println(data);
+        show(data);
     }
 
     /**
@@ -44,7 +44,7 @@ public class NeoMapTest {
         DemoEntity demo1 = map1.as(DemoEntity.class);
         // 只有id完全匹配
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=null)
-        System.out.println(demo1);
+        show(demo1);
     }
 
     /**
@@ -57,7 +57,7 @@ public class NeoMapTest {
         DemoEntity demo2 = map2.as(DemoEntity.class);
         // 其中，user_name、id和data_base_name都能匹配上
         // DemoEntity(group=null, name=null, userName=name, id=123, dataBaseName=neo_table1)
-        System.out.println(demo2);
+        show(demo2);
     }
 
     /**
@@ -72,7 +72,7 @@ public class NeoMapTest {
         // 其中，只有_user_name能匹配上
         // DemoEntity(group=null, name=null, userName=name, id=null, dataBaseName=null)
         DemoEntity demo3 = map3.as(DemoEntity.class);
-        System.out.println(demo3);
+        show(demo3);
     }
 
     /**
@@ -85,7 +85,7 @@ public class NeoMapTest {
         // dataBaseUser -> data-base-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
-        System.out.println(demo4);
+        show(demo4);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class NeoMapTest {
 
         NeoMap neoMap = NeoMap.from(demo);
         // NeoMap={dataBaseName=databasename, group=group1, id=212, name=name1, userName=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class NeoMapTest {
 
         NeoMap neoMap = NeoMap.fromInclude(demo, "group", "name");
         // NeoMap={group=group1, name=name1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class NeoMapTest {
 
         NeoMap neoMap = NeoMap.fromExclude(demo, "group", "name");
         // NeoMap={dataBaseName=databasename, id=212, userName=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class NeoMapTest {
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.from(demo, NamingChg.UNDERLINE);
         // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class NeoMapTest {
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromInclude(demo, "userName");
         // {userName=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class NeoMapTest {
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"));
         // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -187,7 +187,7 @@ public class NeoMapTest {
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"), NamingChg.UNDERLINE);
         // {data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class NeoMapTest {
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
         // {group=group1, user_name=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
     }
 
     /**
@@ -222,12 +222,12 @@ public class NeoMapTest {
         NeoMap neoMap = NeoMap.from(demo, namingChg);
 
         // NeoMap={m_data_base_name=databasename, m_group=group1, m_id=212, m_name=name1, m_user_name=userName1}
-        System.out.println(neoMap);
+        show(neoMap);
 
         // 生成新的数据
         DemoEntity newDemo = neoMap.as(DemoEntity.class);
         // DemoEntity(group=group1, name=name1, userName=userName1, id=212, dataBaseName=databasename)
-        System.out.println(newDemo);
+        show(newDemo);
 
         // 数据完全一直
         Assert.assertEquals(demo, newDemo);
@@ -240,6 +240,12 @@ public class NeoMapTest {
         NeoMap neoMapResult = neoMap1.assign(Columns.of("a", "c"));
 
         Assert.assertEquals(neoMap2.toString(), neoMapResult.toString());
+    }
+
+    @Test
+    public void setPreTest(){
+        NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
+        show(neoMap.setPre("t1."));
     }
 
 }

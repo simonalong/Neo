@@ -2,6 +2,7 @@ package com.simon.neo;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,8 +21,7 @@ public class Columns {
     private Columns(){}
 
     public static Columns all(Neo neo, String tableName) {
-        // todo
-        return Columns.of();
+        return Columns.of(neo.getColumnNameList(tableName).toArray(new String[]{}));
     }
 
     public static Columns of(String... fields) {
@@ -55,6 +55,15 @@ public class Columns {
         return "`" + String.join("`, `", fieldSets) + "`";
     }
 
+    /**
+     * 返回select 后面选择的列对应的数据库的字段
+     * @return 比如：table1.`c2`, table1.`c3`, table1.`c1`
+     */
+    public String buildFields(String tableName){
+        fieldSets = columnToDbField();
+        return tableName + "." + String.join(", " + tableName + ".", fieldSets);
+    }
+
     public Columns addAll(String... fields){
         this.fieldSets.addAll(Arrays.asList(fields));
         return this;
@@ -71,5 +80,14 @@ public class Columns {
     @Override
     public String toString(){
         return fieldSets.toString();
+    }
+
+    /**
+     * 将列名的前后添加"`"，name -> `name`
+     */
+    private Set<String> columnToDbField(){
+        Set<String> fieldSet = new HashSet<>();
+        fieldSets.forEach(f-> fieldSet.add("`" + f + "`"));
+        return fieldSet;
     }
 }

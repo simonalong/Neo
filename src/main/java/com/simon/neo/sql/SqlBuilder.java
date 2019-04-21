@@ -1,7 +1,13 @@
 package com.simon.neo.sql;
 
+import static com.simon.neo.sql.JoinType.LEFT_JOIN_EXCEPT_INNER;
+import static com.simon.neo.sql.JoinType.OUTER_JOIN_EXCEPT_INNER;
+import static com.simon.neo.sql.JoinType.RIGHT_JOIN_EXCEPT_INNER;
+
 import com.simon.neo.Columns;
+import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
+import com.simon.neo.db.NeoTable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -203,6 +209,108 @@ public class SqlBuilder {
 
     public String buildSetValues(Set<String> fieldList){
         return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
+    }
+
+    /**
+     * join的head 部分对应的sql，主要是选择的列
+     *
+     * @param leftTableName 左表表名
+     * @param leftColumns 左表选择的列
+     * @param rightTableName 右表表名
+     * @param rightColumns 右表的列
+     * @return join对应的head，比如：select xxx,xxx
+     */
+    public String buildJoinHead(String leftTableName, Columns leftColumns, String rightTableName, Columns rightColumns){
+        return "select " + leftColumns.buildFields(leftTableName) + "," + rightColumns.buildFields(rightTableName);
+    }
+
+    /**
+     * join的head 部分对应的sql，主要是选择的列
+     *
+     * @param tableName 表名
+     * @param columnName 表选择的列
+     * @return join对应的head，比如：select xxx,xxx
+     */
+    public String buildJoinHead(String tableName, String columnName){
+        return "select " + tableName + "." + columnName;
+    }
+
+    /**
+     * join 的join 部分对应的sql
+     *
+     * @param leftTableName 左表名
+     * @param leftColumnName 左表的on列名
+     * @param rightTableName 右表名
+     * @param rightColumnName 右表的on列名
+     * @param joinType join的类型
+     * @return join对应的部分sql，比如：from leftTableName xxJoin rightTableName on leftTableName.`leftColumnName` = rightTableName.`rightColumnName`
+     */
+    public String buildJoin(String leftTableName, String leftColumnName, String rightTableName, String rightColumnName, JoinType joinType){
+        return "from " + leftTableName + " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + ".`"
+            + leftColumnName + "`=" + rightTableName + ".`" + rightColumnName + "`";
+    }
+
+    /**
+     * 创建在排除公共部分的join中对应的where条件
+     *
+     * 比如：对于left_join_except_inner，则是排除右表的key
+     * @param leftTableName 左表的表名
+     * @param rightTableName 右表的表名
+     * @param joinType join的类型
+     * @return rightTableName.key is null 或者 leftTableName.key is null 或者 (leftTableName.key is null or rightTableName.key is null)
+     */
+    public String buildJoinCondition(Neo neo, String leftTableName, String rightTableName, JoinType joinType){
+        if (joinType.equals(LEFT_JOIN_EXCEPT_INNER)){
+            NeoTable table = neo.getTable(rightTableName);
+            if(null != table){
+                return rightTableName + "." + table.getPrimary() + " is null";
+            }
+        } else if(joinType.equals(RIGHT_JOIN_EXCEPT_INNER)){
+            NeoTable table = neo.getTable(leftTableName);
+            if(null != table){
+                return leftTableName + "." + table.getPrimary() + " is null";
+            }
+        } else if(joinType.equals(OUTER_JOIN_EXCEPT_INNER)){
+            NeoTable leftTable = neo.getTable(leftTableName);
+            NeoTable rightTable = neo.getTable(rightTableName);
+            StringBuilder result = new StringBuilder();
+            if(null != leftTable){
+                result.append(leftTableName).append(".").append(leftTable.getPrimary()).append(" is null");
+            }
+            if(null != rightTable){
+                result.append(leftTableName).append(".").append(rightTable.getPrimary()).append(" is null");
+            }
+            return result.toString();
+        }
+        return "";
+    }
+
+    /**
+     * 对于join的对应的sql的后缀部分
+     *
+     * @param sqlCondition sql的条件
+     * @param searchMap 搜索条件
+     * @param tail sql的尾部信息，比如order by xxx
+     * @return where xxx and xxx
+     */
+    public String buildJoinTail(String sqlCondition, NeoMap searchMap, String tail) {
+        StringBuilder sb = new StringBuilder();
+        Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
+        Boolean searchMapEmpty = NeoMap.isEmpty(searchMap);
+        if (sqlConditionNotEmpty || !searchMapEmpty) {
+            sb.append(" where ");
+        }
+
+        if (sqlConditionNotEmpty) {
+            sb.append("(").append(sqlCondition).append(")");
+        }
+
+        if (!searchMapEmpty) {
+            sb.append(" and ").append(buildConditionWithValue(searchMap));
+        }
+
+        sb.append(" ").append(tail);
+        return sb.toString();
     }
 
     public String limitOne(){

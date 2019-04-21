@@ -1,7 +1,10 @@
 package com.simon.neo.db;
 
+import static com.simon.neo.sql.SqlBuilder.*;
 import com.simon.neo.Columns;
+import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
+import com.simon.neo.sql.JoinType;
 import java.util.List;
 
 /**
@@ -10,8 +13,39 @@ import java.util.List;
  */
 public class NeoJoiner {
 
-    public NeoJoiner(String tableLeft, String tableRight) {
-        //todo
+    private Neo neo;
+    /**
+     * 左表表名
+     */
+    private String leftTableName;
+    /**
+     * 右表表名
+     */
+    private String rightTableName;
+    /**
+     * join的类型
+     */
+    private JoinType joinType;
+    /**
+     * join对应的sql，from a xxJoin b on a.xxx=b.xxx
+     */
+    private String joinSql;
+    /**
+     * 在一些join中，会有一些额外的条件
+     */
+    private String sqlCondition;
+
+
+    public NeoJoiner(Neo neo, String tableLeft, String tableRight) {
+        this.neo = neo;
+        this.leftTableName = tableLeft;
+        this.rightTableName = tableRight;
+    }
+
+    public NeoJoiner setJoin(JoinType joinType){
+        this.joinType = joinType;
+        this.sqlCondition = buildJoinCondition(neo, leftTableName, rightTableName, joinType);
+        return this;
     }
 
     /**
@@ -22,12 +56,14 @@ public class NeoJoiner {
      * @return 返回关联之后的Joiner
      */
     public NeoJoiner on(String leftColumnName, String rightColumnName){
-        // todo
+        this.joinSql = buildJoin(leftTableName, rightTableName, leftColumnName, rightColumnName, joinType);
         return this;
     }
 
     /**
      * join核查中的查询一个数据
+     *
+     * {@code select xxx from a inner join b on a.xxxxxx=b.yyy where x=? and y=? and a.m=? and b.n=? order by xx }
      *
      * @param leftColumns 左表的列名
      * @param rightColumns 右表的列名
@@ -36,8 +72,9 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     public NeoMap one(Columns leftColumns, Columns rightColumns, NeoMap searchMap, String tailSql){
-        // todo
-        return null;
+        String joinHeadSql = buildJoinHead(leftTableName, leftColumns, rightTableName, rightColumns);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+        return neo.exeOne(joinHeadSql + " " + joinSql + " " + joinTailSql);
     }
 
     public NeoMap one(Columns leftColumns, Columns rightColumns, NeoMap searchMap){
@@ -98,8 +135,9 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     public List<NeoMap> list(Columns leftColumns, Columns rightColumns, NeoMap searchMap, String tailSql){
-        // todo
-        return null;
+        String joinHeadSql = buildJoinHead(leftTableName, leftColumns, rightTableName, rightColumns);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+        return neo.exeList(joinHeadSql + " " + joinSql + " " + joinTailSql);
     }
 
     public List<NeoMap> list(Columns leftColumns, Columns rightColumns, NeoMap searchMap){
@@ -158,58 +196,59 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
-        // todo
-        return null;
+    public <T> T value(String tableName, String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
+        String joinHeadSql = buildJoinHead(tableName, columnName);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+        return neo.exeValue(tClass, joinHeadSql + " " + joinSql + " " + joinTailSql);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass, NeoMap searchMap){
-        return value(columnName, tClass, searchMap, "");
+    public <T> T value(String tableName, String columnName, Class<T> tClass, NeoMap searchMap){
+        return value(tableName, columnName, tClass, searchMap, "");
     }
 
-    public String value(String columnName, NeoMap searchMap, String tailSql){
-        return value(columnName, String.class, searchMap, tailSql);
+    public String value(String tableName, String columnName, NeoMap searchMap, String tailSql){
+        return value(tableName, columnName, String.class, searchMap, tailSql);
     }
 
-    public String value(String columnName, NeoMap searchMap){
-        return value(columnName, searchMap, "");
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass, Object entity, String tailSql){
-        return value(columnName, tClass, NeoMap.from(entity), tailSql);
+    public String value(String tableName, String columnName, NeoMap searchMap){
+        return value(tableName, columnName, searchMap, "");
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass, Object entity){
-        return value(columnName, tClass, NeoMap.from(entity), "");
-    }
-
-    public String value(String columnName, Object entity, String tailSql){
-        return value(columnName, String.class, NeoMap.from(entity), tailSql);
-    }
-
-    public String value(String columnName, Object entity){
-        return value(columnName, NeoMap.from(entity), "");
+    public <T> T value(String tableName, String columnName, Class<T> tClass, Object entity, String tailSql){
+        return value(tableName, columnName, tClass, NeoMap.from(entity), tailSql);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass, String tailSql){
-        return value(columnName, tClass, NeoMap.of(), tailSql);
+    public <T> T value(String tableName, String columnName, Class<T> tClass, Object entity){
+        return value(tableName, columnName, tClass, NeoMap.from(entity), "");
+    }
+
+    public String value(String tableName, String columnName, Object entity, String tailSql){
+        return value(tableName, columnName, String.class, NeoMap.from(entity), tailSql);
+    }
+
+    public String value(String tableName, String columnName, Object entity){
+        return value(tableName, columnName, NeoMap.from(entity), "");
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T value(String columnName, Class<T> tClass){
-        return value(columnName, tClass, "");
+    public <T> T value(String tableName, String columnName, Class<T> tClass, String tailSql){
+        return value(tableName, columnName, tClass, NeoMap.of(), tailSql);
     }
 
-    public String value(String columnName, String tailSql){
-        return value(columnName, String.class, tailSql);
+    @SuppressWarnings("unchecked")
+    public <T> T value(String tableName, String columnName, Class<T> tClass){
+        return value(tableName, columnName, tClass, "");
     }
 
-    public String value(String columnName){
-        return value(columnName, "");
+    public String value(String tableName, String columnName, String tailSql){
+        return value(tableName, columnName, String.class, tailSql);
+    }
+
+    public String value(String tableName, String columnName){
+        return value(tableName, columnName, "");
     }
 
     /**
@@ -220,57 +259,58 @@ public class NeoJoiner {
      * @return join执行后的结果
      */
     @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
-        // todo
-        return null;
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass, NeoMap searchMap, String tailSql){
+        String joinHeadSql = buildJoinHead(tableName, columnName);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+        return neo.exeValues(tClass, joinHeadSql + " " + joinSql + " " + joinTailSql);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass, NeoMap searchMap){
-        return values(columnName, tClass, searchMap, "");
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass, NeoMap searchMap){
+        return values(tableName, columnName, tClass, searchMap, "");
     }
 
-    public String values(String columnName, NeoMap searchMap, String tailSql){
-        return values(columnName, String.class, searchMap, tailSql);
+    public List<String> values(String tableName, String columnName, NeoMap searchMap, String tailSql){
+        return values(tableName, columnName, String.class, searchMap, tailSql);
     }
 
-    public String values(String columnName, NeoMap searchMap){
-        return values(columnName, searchMap, "");
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass, Object entity, String tailSql){
-        return values(columnName, tClass, NeoMap.from(entity), tailSql);
+    public List<String> values(String tableName, String columnName, NeoMap searchMap){
+        return values(tableName, columnName, searchMap, "");
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass, Object entity){
-        return values(columnName, tClass, NeoMap.from(entity), "");
-    }
-
-    public String values(String columnName, Object entity, String tailSql){
-        return values(columnName, String.class, NeoMap.from(entity), tailSql);
-    }
-
-    public String values(String columnName, Object entity){
-        return values(columnName, NeoMap.from(entity), "");
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass, Object entity, String tailSql){
+        return values(tableName, columnName, tClass, NeoMap.from(entity), tailSql);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass, String tailSql){
-        return value(columnName, tClass, NeoMap.of(), tailSql);
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass, Object entity){
+        return values(tableName, columnName, tClass, NeoMap.from(entity), "");
+    }
+
+    public List<String> values(String tableName, String columnName, Object entity, String tailSql){
+        return values(tableName, columnName, String.class, NeoMap.from(entity), tailSql);
+    }
+
+    public List<String> values(String tableName, String columnName, Object entity){
+        return values(tableName, columnName, NeoMap.from(entity), "");
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T values(String columnName, Class<T> tClass){
-        return values(columnName, tClass, "");
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass, String tailSql){
+        return values(tableName, columnName, tClass, NeoMap.of(), tailSql);
     }
 
-    public String values(String columnName, String tailSql){
-        return values(columnName, String.class, tailSql);
+    @SuppressWarnings("unchecked")
+    public <T> List<T> values(String tableName, String columnName, Class<T> tClass){
+        return values(tableName, columnName, tClass, "");
     }
 
-    public String values(String columnName){
-        return values(columnName, "");
+    public List<String> values(String tableName, String columnName, String tailSql){
+        return values(tableName, columnName, String.class, tailSql);
+    }
+
+    public List<String> values(String tableName, String columnName){
+        return values(tableName, columnName, "");
     }
 }

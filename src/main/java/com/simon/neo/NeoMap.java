@@ -299,6 +299,20 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 给所有的key设置前缀
+     *
+     * @param preFix 前缀
+     * @return 所有的key替换之后的NeoMap
+     */
+    public NeoMap setPre(String preFix){
+        NeoMap neoMap = NeoMap.of();
+        stream().forEach(e->{
+            neoMap.put(preFix + e.getKey(), e.getValue());
+        });
+        return neoMap;
+    }
+
+    /**
      * NeoMap 转化为实体数据，其中key就是对应的属性
      *
      * @param tClass 目标类的Class

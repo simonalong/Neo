@@ -10,6 +10,7 @@ import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
+import com.simon.neo.sql.JoinType;
 import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
@@ -775,8 +776,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoin(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.LEFT_JOIN);
     }
 
     /**
@@ -787,8 +787,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoin(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.RIGHT_JOIN);
     }
 
     /**
@@ -799,8 +798,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner innerJoin(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.INNER_JOIN);
     }
 
     /**
@@ -811,8 +809,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoin(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.OUTER_JOIN);
     }
 
     /**
@@ -823,8 +820,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.LEFT_JOIN_EXCEPT_INNER);
     }
 
     /**
@@ -835,8 +831,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.RIGHT_JOIN_EXCEPT_INNER);
     }
 
     /**
@@ -847,8 +842,7 @@ public class Neo {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
-        return null;
+        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.OUTER_JOIN_EXCEPT_INNER);
     }
 
     /**
