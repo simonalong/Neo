@@ -178,12 +178,20 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> T insert(String tableName, T entity, NamingChg naming) {
-        return insert(tableName, NeoMap.from(entity, naming)).as((Class<T>) entity.getClass());
+        NeoMap neoMap = insert(tableName, NeoMap.from(entity, naming));
+        if(!NeoMap.isEmpty(neoMap)){
+            neoMap.as((Class<T>) entity.getClass());
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     public <T> T insert(String tableName, T entity) {
-        return insert(tableName, NeoMap.from(entity)).as((Class<T>) entity.getClass());
+        NeoMap neoMap = insert(tableName, NeoMap.from(entity));
+        if(!NeoMap.isEmpty(neoMap)){
+            neoMap.as((Class<T>) entity.getClass());
+        }
+        return null;
     }
 
     /**
@@ -234,7 +242,11 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> T update(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
-        return update(tableName, NeoMap.from(setEntity, namingChg), searchMap).as((Class<T>) setEntity.getClass());
+        NeoMap neoMap = update(tableName, NeoMap.from(setEntity, namingChg), searchMap);
+        if (!NeoMap.isEmpty(neoMap)){
+            neoMap.as((Class<T>) setEntity.getClass());
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -312,7 +324,11 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> T one(String tableName, Columns columns, T entity, String tailSql){
-        return one(tableName, columns, NeoMap.from(entity), tailSql).as((Class<T>) entity.getClass());
+        NeoMap neoMap = one(tableName, columns, NeoMap.from(entity), tailSql);
+        if (!NeoMap.isEmpty(neoMap)) {
+            return neoMap.as((Class<T>) entity.getClass());
+        }
+        return null;
     }
 
     /**

@@ -50,8 +50,12 @@ public class SqlBuilder {
     }
 
     public String buildWhereWithValue(NeoMap searchMap) {
-        withValueFlag.set(true);
-        return buildWhere(searchMap);
+        try {
+            withValueFlag.set(true);
+            return buildWhere(searchMap);
+        }finally {
+            withValueFlag.set(false);
+        }
     }
 
     /**
