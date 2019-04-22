@@ -440,6 +440,210 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 根据传入的类进行对应类型的获取
+     *
+     * @param tClass 目标值的class
+     * @param key map的key
+     * @param <T> 目标值的类型
+     * @return 目标值
+     */
+    public <T> T get(Class<T> tClass, String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return tClass.cast(value);
+        }catch (ClassCastException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 根据传入的类进行对应类型的获取，若没有获取到，则返回默认值
+     *
+     * @param tClass 目标的class
+     * @param key map的key
+     * @param defaultValue 默认值
+     * @param <T> 目标的类型
+     * @return 目标值
+     */
+    public <T> T get(Class<T> tClass, String key, T defaultValue){
+        T result = get(tClass, key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
+     * 返回值为String类型的值
+     *
+     * @param key map的key
+     * @return String类型的值
+     */
+    public String getStr(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        return String.valueOf(value);
+    }
+
+    public String getStr(String key, String defaultValue){
+        String result = getStr(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
+     * 获取值类型为Boolean的值
+     * @param key map中对应的key
+     * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
+     */
+    public Boolean getBoolean(String key) {
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        return Boolean.valueOf(String.valueOf(value));
+    }
+
+    public Boolean getBoolean(String key, Boolean defaultValue) {
+        Boolean result = getBoolean(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Byte getByte(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Byte.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Byte getByte(String key, Byte defaultValue) {
+        Byte result = getByte(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
+     * 获取字符
+     *
+     * @param key map的key
+     * @return 字符，如果是字符串，则返回字符串的第一个字符
+     */
+    public Character getCharacter(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+
+        String valueStr = String.valueOf(get(key));
+        if (valueStr.length() == 0){
+           return null;
+        }
+        return valueStr.charAt(0);
+    }
+
+    public Character getCharacter(String key, Character defaultValue) {
+        Character result = getCharacter(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Short getShort(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Short.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Short getShort(String key, Short defaultValue) {
+        Short result = getShort(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Integer getInteger(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Integer getInteger(String key, Integer defaultValue) {
+        Integer result = getInteger(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Long getLong(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Long.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Long getLong(String key, Long defaultValue) {
+        Long result = getLong(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Double getDouble(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Double.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Double getDouble(String key, Double defaultValue) {
+        Double result = getDouble(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Float getFloat(String key){
+        Object value = get(key);
+        if (null == value) {
+            return null;
+        }
+        try {
+            return Float.valueOf(String.valueOf(value));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Float getFloat(String key, Float defaultValue) {
+        Float result = getFloat(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
      * 这里根据命名订阅，如果用户自定义表中存在映射，则使用该映射，否则用设置的命名映射规则
      */
     private String namingChg(String name) {
