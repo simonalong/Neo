@@ -204,4 +204,16 @@ public class NeoJoinTest extends NeoBaseTest {
         show(neo.outerJoinExceptInner(tableName, otherTableName).on("group", "group")
             .list(Columns.of("id"), Columns.of("group"), NeoMap.of(), tailSql));
     }
+
+    /**
+     * 多表join
+     */
+    @Test
+    public void multiJoinTest() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String table3 = "neo_table3";
+        // todo
+        show(neo.innerJoin(table1, table2).on("group", "group"));
+    }
 }
