@@ -4,6 +4,7 @@ import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.db.NeoColumn.Column;
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.junit.Test;
 
 /**
@@ -213,7 +214,21 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String table3 = "neo_table3";
-        // todo
-        show(neo.innerJoin(table1, table2).on("group", "group"));
+        // todo 多表进行关联
+        show(neo.innerJoin(table1, table2).on("group", "group")
+            .leftJoin(table2, table3).on("name", "name").one());
+    }
+
+    @Test
+    public void oneTest(){
+        // todo 还有点问题，现在输出如下
+        // select  from neo_table1 inner join neo_table2 on neo_table1.`name`=neo_table2.`name`  where  and `neo_table1.group` = 'ok'
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        show(neo.join(table1, table2).on("name", "name")
+            .oneStr(Arrays.asList(
+                Columns.name(table1).columns("id", "name", "group"),
+                Columns.name(table2).columns("id", "name", "group")),
+                Arrays.asList(NeoMap.of("group", "ok").keyPre(table1 + ".")), ""));
     }
 }

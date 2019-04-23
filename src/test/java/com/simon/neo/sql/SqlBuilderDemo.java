@@ -1,7 +1,7 @@
 package com.simon.neo.sql;
 
 import static com.simon.neo.sql.SqlBuilder.*;
-import com.simon.neo.BaseTest;
+
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.neotest.NeoBaseTest;
@@ -45,9 +45,17 @@ public class SqlBuilderDemo extends NeoBaseTest {
     }
 
     @Test
-    public void buildConditionTest(){
+    public void buildConditionTest1(){
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
         // `group` =  ? and `name` =  ?
+        show(buildCondition(searchMap));
+    }
+
+    @Test
+    public void buildConditionTest2(){
+        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1").keyPre("table1.");
+        // `group` =  ? and `name` =  ?
+        show(searchMap);
         show(buildCondition(searchMap));
     }
 
@@ -96,7 +104,7 @@ public class SqlBuilderDemo extends NeoBaseTest {
     @Test
     public void buildJoinTailTest(){
         String table = "table1";
-        NeoMap neoMap = NeoMap.of("name", "ok").setPre(table+".");
+        NeoMap neoMap = NeoMap.of("name", "ok").keyPre(table+".");
         String tailSql = "order by sort";
         String sqlCondition = "table2.id is null";
         //  where (table2.id is null) and `table1.name` = 'ok' order by sort

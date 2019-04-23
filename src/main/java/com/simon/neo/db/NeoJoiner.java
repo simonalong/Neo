@@ -31,7 +31,7 @@ public class NeoJoiner {
      */
     private String joinSql;
     /**
-     * 在一些join中，会有一些额外的条件
+     * 在一些join中，会有一些额外的条件， 比如leftOuterJoin，这种就是leftJoin和other表的key为空情况，sqlCondition为：tableb.key is null
      */
     private String sqlCondition;
 
@@ -49,6 +49,102 @@ public class NeoJoiner {
     }
 
     /**
+     * 默认的join采用的是innerJoin
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner join(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner leftJoin(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner rightJoin(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner innerJoin(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner outerJoin(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
+     * 左关联，只保留左表的信息
+     *
+     * @param leftTableName 左表表名
+     * @param rightTableName 右表表名
+     * @return 做关联的关联器
+     */
+    public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
+        // todo
+        return this;
+    }
+
+    /**
      * join 的关联字段
      *
      * @param leftColumnName 左表的列名
@@ -58,6 +154,30 @@ public class NeoJoiner {
     public NeoJoiner on(String leftColumnName, String rightColumnName){
         this.joinSql = buildJoin(leftTableName, leftColumnName, rightTableName, rightColumnName, joinType);
         return this;
+    }
+
+//    /**
+//     * join核查中的查询一个数据
+//     *
+//     * {@code select xxx from a inner join b on a.xxxxxx=b.yyy where x=? and y=? and a.m=? and b.n=? order by xx }
+//     *
+//     * @param leftColumns 左表的列名
+//     * @param rightColumns 右表的列名
+//     * @param searchMap 搜索条件
+//     * @param tailSql sql的尾部语句
+//     * @return join执行后的结果
+//     */
+//    // todo 库对象中的表和列可以有多个
+//    public NeoMap one(Columns... columns, NeoMap... searchMaps, String tailSql){
+//        String joinHeadSql = buildJoinHead(neo, columns);
+//        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+//        return neo.exeOne(joinHeadSql + " " + joinSql + " " + joinTailSql);
+//    }
+
+    public String oneStr(List<Columns> columns, List<NeoMap> searchMapList, String tailSql) {
+        String joinHeadSql = buildJoinHead(neo, columns);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMapList, tailSql);
+        return joinHeadSql + " " + joinSql + " " + joinTailSql;
     }
 
     /**

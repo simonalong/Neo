@@ -8,11 +8,14 @@ import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
 import com.simon.neo.db.NeoTable;
+import freemarker.template.utility.CollectionUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
 
@@ -80,8 +83,25 @@ public class SqlBuilder {
      * @return 比如：`group` = 'group1' and `name` = 'name1'
      */
     public String buildConditionWithValue(NeoMap searchMap){
-        withValueFlag.set(true);
-        return buildCondition(searchMap);
+        try {
+            withValueFlag.set(true);
+            return buildCondition(searchMap);
+        }finally {
+            withValueFlag.set(false);
+        }
+    }
+
+    public String buildConditionWithValue(List<NeoMap> searchMapList) {
+        try {
+            withValueFlag.set(true);
+            List<String> metaList = new ArrayList<>();
+            if (!NeoMap.isEmpty(searchMapList)) {
+                searchMapList.forEach(s -> metaList.add(buildCondition(s)));
+            }
+            return String.join(" and ", metaList);
+        } finally {
+            withValueFlag.set(false);
+        }
     }
 
     /**
@@ -229,6 +249,33 @@ public class SqlBuilder {
      * join的head 部分对应的sql，主要是选择的列
      *
      * @param neo 库对象
+     * @param columns 多个表的列信息
+     * @return join对应的head，比如：select xxx,xxx
+     */
+    public String buildJoinHead(Neo neo, List<Columns> columns) {
+        StringBuilder sb = new StringBuilder("select ");
+        String allColumnName = "*";
+        if (Columns.isEmpty(columns)) {
+            columns.forEach(c -> {
+                if (!Columns.isEmpty(c)) {
+                    // 包含所有的列
+                    if (c.contains(allColumnName)) {
+                        c.remove(allColumnName);
+                        sb.append(c.buildAllFields(neo, c));
+                    } else {
+                        sb.append(c.buildFields());
+                    }
+                    sb.append(", ");
+                }
+            });
+        }
+        return sb.toString();
+    }
+
+    /**
+     * join的head 部分对应的sql，主要是选择的列
+     *
+     * @param neo 库对象
      * @param leftTableName 左表表名
      * @param leftColumns 左表选择的列
      * @param rightTableName 右表表名
@@ -251,9 +298,9 @@ public class SqlBuilder {
      *
      * @param sb 字符拼接
      * @param neo 库对象
-     * @param tableName 表名
      * @param columns 列对象
      */
+    // todo 被替换
     private void appendColumns(StringBuilder sb, Neo neo, String tableName, Columns columns){
         String allColumnName = "*";
         if (!Columns.isEmpty(columns)) {
@@ -330,6 +377,34 @@ public class SqlBuilder {
     }
 
     /**
+     * where x=? and y=? and a.m=? and b.n=?
+     *
+     * @param sqlCondition
+     * @param searchMapList
+     * @param tail
+     * @return
+     */
+    public String buildJoinTail(String sqlCondition, List<NeoMap> searchMapList, String tail) {
+        StringBuilder sb = new StringBuilder();
+        Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
+        Boolean searchMapsEmpty = NeoMap.isEmpty(searchMapList);
+        if (sqlConditionNotEmpty || !searchMapsEmpty) {
+            sb.append(" where ");
+        }
+
+        if (sqlConditionNotEmpty) {
+            sb.append("(").append(sqlCondition).append(")");
+        }
+
+        if (!searchMapsEmpty) {
+            sb.append(" and ").append(buildConditionWithValue(searchMapList));
+        }
+
+        sb.append(" ").append(tail);
+        return sb.toString();
+    }
+
+    /**
      * 对于join的对应的sql的后缀部分
      *
      * @param sqlCondition sql的条件
@@ -337,6 +412,7 @@ public class SqlBuilder {
      * @param tail sql的尾部信息，比如order by xxx
      * @return where xxx and xxx
      */
+    // todo 待替换删除
     public String buildJoinTail(String sqlCondition, NeoMap searchMap, String tail) {
         StringBuilder sb = new StringBuilder();
         Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);

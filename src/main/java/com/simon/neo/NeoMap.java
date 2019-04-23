@@ -43,6 +43,27 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 通过key-value-key-value生成
+     *
+     * @param kvs 参数是通过key-value-key-value等等这种
+     * @return 生成的map数据
+     */
+    public static NeoMap of(Object... kvs) {
+        if (kvs.length % 2 != 0) {
+            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
+        }
+
+        NeoMap neoMap = new NeoMap();
+        for (int i = 0; i < kvs.length; i += 2) {
+            if (null == kvs[i]) {
+                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
+            }
+            neoMap.put((String) kvs[i], kvs[i + 1]);
+        }
+        return neoMap;
+    }
+
+    /**
      * 将多个NeoMap中的value集合起来
      *
      * @param maps 多个NeoMap
@@ -63,27 +84,6 @@ public class NeoMap implements Map<String, Object> {
      */
     public static void setDefaultNamingChg(NamingChg namingChg) {
         globalNaming = namingChg;
-    }
-
-    /**
-     * 通过key-value-key-value生成
-     *
-     * @param kvs 参数是通过key-value-key-value等等这种
-     * @return 生成的map数据
-     */
-    public static NeoMap of(Object... kvs) {
-        if (kvs.length % 2 != 0) {
-            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
-        }
-
-        NeoMap neoMap = new NeoMap();
-        for (int i = 0; i < kvs.length; i += 2) {
-            if (null == kvs[i]) {
-                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
-            }
-            neoMap.put((String) kvs[i], kvs[i + 1]);
-        }
-        return neoMap;
     }
 
     /**
@@ -312,17 +312,19 @@ public class NeoMap implements Map<String, Object> {
         return neoMap == null || neoMap.isEmpty();
     }
 
+    public static boolean isEmpty(Collection<NeoMap> neoMaps) {
+        return neoMaps == null || neoMaps.isEmpty();
+    }
+
     /**
      * 给所有的key设置前缀
      *
      * @param preFix 前缀
      * @return 所有的key替换之后的NeoMap
      */
-    public NeoMap setPre(String preFix) {
+    public NeoMap keyPre(String preFix) {
         NeoMap neoMap = NeoMap.of();
-        stream().forEach(e -> {
-            neoMap.put(preFix + e.getKey(), e.getValue());
-        });
+        stream().forEach(e -> neoMap.put(preFix + e.getKey(), e.getValue()));
         return neoMap;
     }
 

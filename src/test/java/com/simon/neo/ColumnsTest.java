@@ -24,4 +24,11 @@ public class ColumnsTest extends BaseTest{
         Columns columns = Columns.of("c1", "c2", "c3");
         show(columns.buildFields("table1"));
     }
+
+    @Test
+    public void buildFieldsTest2(){
+        Columns columns = Columns.name("tableName").columns("c1", "c2", "c3");
+        show(columns.buildFields());
+        show(columns.buildFields("table1"));
+    }
 }
