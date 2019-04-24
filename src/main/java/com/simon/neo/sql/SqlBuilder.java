@@ -252,24 +252,8 @@ public class SqlBuilder {
      * @param columns 多个表的列信息
      * @return join对应的head，比如：select xxx,xxx
      */
-    public String buildJoinHead(Neo neo, List<Columns> columns) {
-        StringBuilder sb = new StringBuilder("select ");
-        String allColumnName = "*";
-        if (Columns.isEmpty(columns)) {
-            columns.forEach(c -> {
-                if (!Columns.isEmpty(c)) {
-                    // 包含所有的列
-                    if (c.contains(allColumnName)) {
-                        c.remove(allColumnName);
-                        sb.append(c.buildAllFields(neo, c));
-                    } else {
-                        sb.append(c.buildFields());
-                    }
-                    sb.append(", ");
-                }
-            });
-        }
-        return sb.toString();
+    public String buildJoinHead(Neo neo, Columns columns) {
+        return "select " + columns.extend(neo).buildFields();
     }
 
     /**

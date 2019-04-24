@@ -7,11 +7,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,28 +23,14 @@ import lombok.Setter;
  */
 public class Columns {
 
+    private static final String DEFAULT_TABLE = "";
     @Getter
-    private Set<String> fieldSets = new LinkedHashSet<>();
-    @Setter
-    private String tableName;
+    private Map<String, Set<String>> tableFieldsMap = new LinkedHashMap<>();
 
     private Columns(){}
 
-    /**
-     * 将对应表的所有列返回
-     *
-     * @param neo 库对象
-     * @param tableName 表名
-     * @return 列所有的数据
-     */
-    public static Columns all(Neo neo, String tableName) {
-        return Columns.of(neo.getColumnNameList(tableName).toArray(new String[]{}));
-    }
-
-    public static Columns name(String tableName){
-        Columns columns = Columns.of();
-        columns.setTableName(tableName);
-        return columns;
+    public static Columns table(String tableName, String... cs){
+        return Columns.of().and(tableName, cs);
     }
 
     public static Columns of(String... fields) {
@@ -50,7 +38,7 @@ public class Columns {
         if (null == fields || 0 == fields.length) {
             return columns;
         }
-        return columns.columns(fields);
+        return columns.and(DEFAULT_TABLE, fields);
     }
 
     public static Columns of(List<Field> fieldList){
@@ -64,6 +52,17 @@ public class Columns {
         return Columns.of(Arrays.asList(tClass.getDeclaredFields()));
     }
 
+    /**
+     * 将对应表的所有列返回
+     *
+     * @param neo 库对象
+     * @param tableName 表名
+     * @return 列所有的数据
+     */
+    public static Columns all(Neo neo, String tableName) {
+        return Columns.of().and(tableName, neo.getColumnNameList(tableName));
+    }
+
     public static boolean isEmpty(Columns columns){
         return null == columns || columns.isEmpty();
     }
@@ -72,11 +71,38 @@ public class Columns {
         return null == columnsList || columnsList.isEmpty();
     }
 
-    public Columns columns(String... fields){
-        if (null == fields || 0 == fields.length) {
-            return this;
-        }
-        this.fieldSets.addAll(Arrays.asList(fields));
+    public Columns and(String tableName, String... cs) {
+        return and(tableName, new HashSet<>(Arrays.asList(cs)));
+    }
+
+    public Columns and(String tableName, Set<String> fieldSets) {
+        this.tableFieldsMap.compute(tableName, (k, v) -> {
+            if (null == v) {
+                return new HashSet<>(fieldSets);
+            } else {
+                v.addAll(fieldSets);
+                return v;
+            }
+        });
+        return this;
+    }
+
+    /**
+     * 针对列中如果包含*，则进行列扩展
+     *
+     * 请注意，这里如果列中包含*，那么必须指明表名，用于获取指定的列
+     */
+    public Columns extend(Neo neo){
+        String allColumnName = "*";
+        tableFieldsMap.forEach((tableName, fieldSets) -> {
+            if(!tableName.equals(DEFAULT_TABLE)){
+                if(fieldSets.contains(allColumnName)){
+                    fieldSets.addAll(neo.getColumnNameList(tableName));
+                }
+            }
+        });
+
+        remove("*");
         return this;
     }
 
@@ -85,12 +111,19 @@ public class Columns {
      * @return 比如：`xxx`, `kkk`
      */
     public String buildFields() {
-        Set<String> fieldSetList = columnToDbField();
-        if (null == tableName) {
-            return "`" + String.join("`, `", fieldSetList) + "`";
-        } else {
-            return tableName + "." + String.join(", " + tableName + ".", fieldSetList);
-        }
+        return String.join(", ", tableFieldsMap.entrySet().stream().flatMap(e->{
+            String tableName = e.getKey();
+            return columnToDbField(e.getValue()).stream().map(c->{
+                if(!tableName.equals(DEFAULT_TABLE)){
+                    return tableName + "." + c;
+                }
+                return c;
+            });
+        }).collect(Collectors.toSet()));
+    }
+
+    public Set<String> getFieldSets(){
+        return tableFieldsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     /**
@@ -99,23 +132,24 @@ public class Columns {
      * @param tableName 表名
      * @return 比如：table1.`c2`, table1.`c3`, table1.`c1`
      */
+    // todo to delete
     public String buildFields(String tableName){
-        Set<String> fieldSetList = columnToDbField();
+        Set<String> fieldSetList = columnToDbField(new HashSet<>());
         return tableName + "." + String.join(", " + tableName + ".", fieldSetList);
     }
 
-    /**
-     * 返回一个表的所有的列的数据
-     * @param neo 库对象
-     * @param columns 列数据
-     * @return 所有的列构成的查询列的字符，比如：table1.`c2`, table1.`c3`, table1.`c1`
-     */
-    public String buildAllFields(Neo neo, Columns columns){
-        if (null == tableName){
-           return "";
-        }
-        return Columns.all(neo, tableName).add(columns).buildFields(tableName);
-    }
+//    /**
+//     * 返回一个表的所有的列的数据
+//     * @param neo 库对象
+//     * @param columns 列数据
+//     * @return 所有的列构成的查询列的字符，比如：table1.`c2`, table1.`c3`, table1.`c1`
+//     */
+//    public String buildAllFields(Neo neo, Columns columns){
+//        if (null == tableName){
+//           return "";
+//        }
+//        return Columns.all(neo, tableName).add(columns).buildFields(tableName);
+//    }
 
     // todo delete
     public static String buildAllFields(Neo neo, Columns columns, String tableName){
@@ -123,25 +157,29 @@ public class Columns {
     }
 
     public Columns add(Columns columns){
-        this.fieldSets.addAll(columns.getFieldSets());
+        this.getTableFieldsMap().putAll(columns.getTableFieldsMap());
         return this;
     }
 
+    public Columns add(String...cs){
+        return and(DEFAULT_TABLE, cs);
+    }
+
     public boolean contains(String data){
-        return fieldSets.contains(data);
+        return tableFieldsMap.values().stream().flatMap(Collection::stream).anyMatch(c->c.equals(data));
     }
 
     public void remove(String key){
-        fieldSets.remove(key);
+        tableFieldsMap.forEach((key1, value) -> value.remove(key));
     }
 
     public boolean isEmpty(){
-        return fieldSets.isEmpty();
+        return tableFieldsMap.isEmpty();
     }
 
     @Override
     public String toString(){
-        return fieldSets.toString();
+        return buildFields();
     }
 
     /**
@@ -152,12 +190,13 @@ public class Columns {
      * 注意：还有一种是有列为*，展开后会有很多列，然后再在列后面添加对应的列转换，则这里会进行覆盖和替换
      * 对于这样的一种情况：group, group as group1 -> `group` as group1
      */
-    private Set<String> columnToDbField(){
+    private Set<String> columnToDbField(Set<String> fieldSets){
         String asStr = " as ";
         Set<String> fieldSet = new HashSet<>();
 
         // key: group, value: `group` as group1
-        Map<String, String> columnMap = fieldSets.stream().filter(f -> f.contains(asStr))
+        Map<String, String> columnMap = fieldSets.stream()
+            .filter(f -> f.contains(asStr))
             .collect(Collectors.toMap(f -> f.substring(0, f.indexOf(asStr)),
                 f -> "`" + f.substring(0, f.indexOf(asStr)) + "`" + f.substring(f.indexOf(asStr))));
 

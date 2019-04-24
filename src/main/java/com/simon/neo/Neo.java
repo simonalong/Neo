@@ -741,8 +741,8 @@ public class Neo {
         return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::execute);
     }
 
-    public List<String> getColumnNameList(String tableName){
-        return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toList());
+    public Set<String> getColumnNameList(String tableName){
+        return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toSet());
     }
 
     public List<NeoColumn> getColumnList(String tableName){

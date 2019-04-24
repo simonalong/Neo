@@ -174,7 +174,8 @@ public class NeoJoiner {
 //        return neo.exeOne(joinHeadSql + " " + joinSql + " " + joinTailSql);
 //    }
 
-    public String oneStr(List<Columns> columns, List<NeoMap> searchMapList, String tailSql) {
+    // todo 这里是开发的起点，这里继续开发
+    public String oneStr(Columns columns, List<NeoMap> searchMapList, String tailSql) {
         String joinHeadSql = buildJoinHead(neo, columns);
         String joinTailSql = buildJoinTail(sqlCondition, searchMapList, tailSql);
         return joinHeadSql + " " + joinSql + " " + joinTailSql;
