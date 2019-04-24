@@ -4,7 +4,7 @@ import static com.simon.neo.sql.SqlBuilder.*;
 
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
-import com.simon.neo.neotest.NeoBaseTest;
+import com.simon.neo.neo.NeoBaseTest;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
