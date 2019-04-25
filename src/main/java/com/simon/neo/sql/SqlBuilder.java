@@ -371,8 +371,8 @@ public class SqlBuilder {
     public String buildJoinTail(String sqlCondition, List<NeoMap> searchMapList, String tail) {
         StringBuilder sb = new StringBuilder();
         Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
-        Boolean searchMapsEmpty = NeoMap.isEmpty(searchMapList);
-        if (sqlConditionNotEmpty || !searchMapsEmpty) {
+        Boolean searchMapsNotEmpty = !NeoMap.isEmpty(searchMapList);
+        if (sqlConditionNotEmpty || searchMapsNotEmpty) {
             sb.append(" where ");
         }
 
@@ -380,8 +380,12 @@ public class SqlBuilder {
             sb.append("(").append(sqlCondition).append(")");
         }
 
-        if (!searchMapsEmpty) {
-            sb.append(" and ").append(buildConditionWithValue(searchMapList));
+        if (sqlConditionNotEmpty && searchMapsNotEmpty) {
+            sb.append(" and ");
+        }
+
+        if (searchMapsNotEmpty) {
+            sb.append(buildConditionWithValue(searchMapList));
         }
 
         sb.append(" ").append(tail);
@@ -425,6 +429,8 @@ public class SqlBuilder {
         return searchMap.entrySet().stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
     }
 
+
+    // todo 这里针对table.key 这种NeoMap的是有问题的
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
         Object value = entry.getValue();
         if (value instanceof String) {
