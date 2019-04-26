@@ -20,6 +20,10 @@ public class NeoJoiner {
      */
     private String leftTableName;
     /**
+     * join时候左表表名
+     */
+    private String joinLeftTableName;
+    /**
      * 右表表名
      */
     private String rightTableName;
@@ -30,7 +34,7 @@ public class NeoJoiner {
     /**
      * join对应的sql，from a xxJoin b on a.xxx=b.xxx
      */
-    private String joinSql;
+    private String joinSql = " from ";
     /**
      * 在一些join中，会有一些额外的条件， 比如leftOuterJoin，这种就是leftJoin和other表的key为空情况，sqlCondition为：tableb.key is null
      */
@@ -39,6 +43,7 @@ public class NeoJoiner {
     public NeoJoiner(Neo neo, String tableLeft, String tableRight) {
         this.neo = neo;
         this.leftTableName = tableLeft;
+        this.joinLeftTableName = tableLeft;
         this.rightTableName = tableRight;
     }
 
@@ -56,7 +61,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner join(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.INNER_JOIN;
         return this;
     }
 
@@ -68,7 +76,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoin(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.LEFT_JOIN;
         return this;
     }
 
@@ -80,7 +91,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoin(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.RIGHT_JOIN;
         return this;
     }
 
@@ -92,7 +106,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner innerJoin(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.INNER_JOIN;
         return this;
     }
 
@@ -104,7 +121,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoin(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.OUTER_JOIN;
         return this;
     }
 
@@ -116,7 +136,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.LEFT_JOIN_EXCEPT_INNER;
         return this;
     }
 
@@ -128,7 +151,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.RIGHT_JOIN_EXCEPT_INNER;
         return this;
     }
 
@@ -140,7 +166,10 @@ public class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
-        // todo
+        this.joinLeftTableName = null;
+        this.leftTableName = leftTableName;
+        this.rightTableName = rightTableName;
+        this.joinType = JoinType.OUTER_JOIN_EXCEPT_INNER;
         return this;
     }
 
@@ -152,7 +181,7 @@ public class NeoJoiner {
      * @return 返回关联之后的Joiner
      */
     public NeoJoiner on(String leftColumnName, String rightColumnName){
-        this.joinSql = buildJoin(leftTableName, leftColumnName, rightTableName, rightColumnName, joinType);
+        this.joinSql += buildJoin(joinLeftTableName, leftTableName, leftColumnName, rightTableName, rightColumnName, joinType);
         return this;
     }
 
@@ -217,7 +246,7 @@ public class NeoJoiner {
     }
 
     public <T> T value(Class<T> tClass, String tableName, String columnName, NeoMap... searchMapList){
-        return value(tClass, columnName, "", searchMapList);
+        return value(tClass, tableName, columnName, "", searchMapList);
     }
 
     public <T> T value(Class<T> tClass, String tableName, String columnName){
@@ -273,6 +302,10 @@ public class NeoJoiner {
     private String buildSql(Columns columns, String tailSql, NeoMap... searchMapList){
         String joinHeadSql = buildJoinHead(neo, columns);
         String joinTailSql = buildJoinTail(sqlCondition, Arrays.asList(searchMapList), tailSql);
-        return joinHeadSql + " " + joinSql + " " + joinTailSql;
+        if(null != joinSql && !"".equals(joinSql)){
+            return joinHeadSql + " " + joinSql + " " + joinTailSql;
+        }else {
+            return joinHeadSql + " " + joinTailSql;
+        }
     }
 }

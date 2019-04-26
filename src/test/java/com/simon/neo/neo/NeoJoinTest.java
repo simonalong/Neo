@@ -159,6 +159,23 @@ public class NeoJoinTest extends NeoBaseTest {
     }
 
     /**
+     * 针对有搜索条件情况下的使用
+     *
+     * select neo_table1.`group`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * where neo_table1.`group` = 'group1' order by sort desc limit 1
+     */
+    @Test
+    public void joinOneTest8() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String tailSql = "order by sort desc";
+        // {group1=group3, id=13, name=name1, user_name=user_name1}
+        show(neo.join(table1, table2).on("id", "n_id")
+            .one(Columns.table(table1, "*"), tailSql, NeoMap.of("group", "group1", "id", 11).keyPre(table1+".")));
+    }
+
+    /**
      * join 采用的是innerJoin
      *
      * select neo_table1.`group`
@@ -249,6 +266,10 @@ public class NeoJoinTest extends NeoBaseTest {
 
     /**
      * 多表join
+     *
+     * select neo_table1.`group`, neo_table1.`id`, neo_table2.`name`
+     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * right join neo_table3 on neo_table2.`name`=neo_table3.`name`    limit 1
      */
     @Test
     public void multiJoinTest() {
@@ -256,11 +277,15 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         String table3 = "neo_table3";
         show(neo.rightJoin(table1, table2).on("id", "n_id")
-            .leftJoin(table2, table3).on("name", "name")
-            .one(Columns.table(table1, "id", "group").and(table2, "name").and(table3, "id"),
-                NeoMap.of("name", "ena").keyPre(table1 + ".")));
+            .rightJoin(table2, table3).on("name", "name")
+            .one(Columns.table(table1, "id", "group").and(table2, "name")));
     }
 
+    /**
+     * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
+     * from neo_table1 inner join neo_table2 on neo_table1.`name`=neo_table2.`name`
+     * where neo_table1.`group` = 'ok' and neo_table1.`name` = 'haode' and neo_table2.`name` = 'ceshi'  limit 1
+     */
     @Test
     public void oneTest(){
         // select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
