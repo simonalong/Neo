@@ -8,10 +8,10 @@ import com.simon.neo.db.NeoJoiner;
 import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
+import com.simon.neo.uid.UidGenerator;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
 import com.simon.neo.sql.JoinType;
-import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
@@ -62,6 +62,7 @@ public class Neo {
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
+    private UidGenerator uidGenerator;
     /**
      * sql解析开关
      */
@@ -138,6 +139,15 @@ public class Neo {
         neo.pool = new ConnectPool(neo, dataSource);
         neo.initDb();
         return neo;
+    }
+
+    private void init(){
+        initDb();
+        initUid();
+    }
+
+    private void initUid(){
+        uidGenerator = UidGenerator.getInstance(this, 1, 0.12f);
     }
 
     private void initDb(){
@@ -472,7 +482,7 @@ public class Neo {
      * @param <T> 目标类型
      * @return 指定的数据值
      */
-    public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql) {
+    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
             NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne);
             if (null != result) {
@@ -483,24 +493,24 @@ public class Neo {
         return null;
     }
 
-    public <T> T value(String tableName, Class<T> tClass, String field, Object entity, String tailSql) {
-        return value(tableName, tClass, field, NeoMap.from(entity), tailSql);
+    public <T> T value(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {
+        return value(tClass, tableName, field, NeoMap.from(entity), tailSql);
     }
 
-    public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return value(tableName, tClass, field, searchMap, null);
+    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return value(tClass, tableName, field, searchMap, null);
     }
 
-    public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
-        return value(tableName, tClass, field, entity, null);
+    public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
+        return value(tClass, tableName, field, entity, null);
     }
 
     public String value(String tableName, String field, NeoMap searchMap, String tailSql){
-        return value(tableName, String.class, field, searchMap, tailSql);
+        return value(String.class, tableName, field, searchMap, tailSql);
     }
 
     public String value(String tableName, String field, Object entity, String tailSql) {
-        return value(tableName, String.class, field, entity, tailSql);
+        return value(String.class, tableName, field, entity, tailSql);
     }
 
     public String value(String tableName, String field, NeoMap searchMap) {
@@ -544,7 +554,7 @@ public class Neo {
      * @param <T> 目标类型
      * @return 一列值
      */
-    public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap, String tailSql){
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql){
         List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMap, tailSql), this::executeList);
 
         if(null != resultList && !resultList.isEmpty()){
@@ -556,32 +566,32 @@ public class Neo {
         return null;
     }
 
-    public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity, String tailSql) {
-        return values(tableName, tClass, field, NeoMap.from(entity), tailSql);
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {
+        return values(tClass, tableName, field, NeoMap.from(entity), tailSql);
     }
 
-    public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return values(tableName, tClass, field, searchMap, null);
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return values(tClass, tableName, field, searchMap, null);
     }
 
-    public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
-        return values(tableName, tClass, field, entity, null);
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
+        return values(tClass, tableName, field, entity, null);
     }
 
     public List<String> values(String tableName, String field, NeoMap searchMap, String tailSql) {
-        return values(tableName, String.class, field, searchMap, tailSql);
+        return values(String.class, tableName, field, searchMap, tailSql);
     }
 
     public List<String> values(String tableName, String field, Object entity, String tailSql) {
-        return values(tableName, String.class, field, entity, tailSql);
+        return values(String.class, tableName, field, entity, tailSql);
     }
 
     public List<String> values(String tableName, String field, NeoMap searchMap) {
-        return values(tableName, String.class, field, searchMap);
+        return values(String.class, tableName, field, searchMap);
     }
 
     public List<String> values(String tableName, String field, Object entity) {
-        return values(tableName, String.class, field, entity, null);
+        return values(String.class, tableName, field, entity, null);
     }
 
     /**
@@ -1066,6 +1076,22 @@ public class Neo {
      */
     public String getTableCreate(String tableName){
         return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+    }
+
+    /**
+     * 获取全局id
+     *
+     * @return 当前分布式系统内的唯一id
+     */
+    public Long getUid(){
+        return uidGenerator.getUid();
+    }
+
+    /**
+     * 判断对应的表名是否存在
+     */
+    public Boolean tableExist(String tableName){
+        return null != getTable(tableName);
     }
 
     /**

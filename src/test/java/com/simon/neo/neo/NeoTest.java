@@ -304,4 +304,13 @@ public class NeoTest extends NeoBaseTest{
             show(dataList);
         }
     }
+
+    /**
+     * 全局id生成器
+     */
+    @Test
+    public void testUid(){
+        Long uid = neo.getUid();
+        show(uid);
+    }
 }
