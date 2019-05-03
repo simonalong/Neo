@@ -8,6 +8,7 @@ import com.simon.neo.db.NeoJoiner;
 import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
+import com.simon.neo.exception.UidGeneratorNotInitException;
 import com.simon.neo.uid.UidGenerator;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
@@ -143,11 +144,6 @@ public class Neo {
 
     private void init(){
         initDb();
-        initUid();
-    }
-
-    private void initUid(){
-        uidGenerator = UidGenerator.getInstance(this, 1, 0.12f);
     }
 
     private void initDb(){
@@ -1083,7 +1079,10 @@ public class Neo {
      *
      * @return 当前分布式系统内的唯一id
      */
-    public Long getUid(){
+    public Long getUid() {
+        if (null == uidGenerator) {
+            throw new UidGeneratorNotInitException();
+        }
         return uidGenerator.getUid();
     }
 
@@ -1106,6 +1105,23 @@ public class Neo {
      */
     public void openStandard(){
         standardFlag = true;
+    }
+
+    /**
+     * 开启全局id生成器
+     */
+    public void openUidGenerator(){
+        uidGenerator = UidGenerator.getInstance(this, 10000, 0.12f);
+    }
+
+    /**
+     * 开启管局id生成器
+     *
+     * @param stepSize 步长
+     * @param refreshRatio 开启刷新二级缓存的比率
+     */
+    public void openUidGenerator(Integer stepSize, Float refreshRatio){
+        uidGenerator = UidGenerator.getInstance(this, stepSize, refreshRatio);
     }
 
     public Boolean isTransaction(){

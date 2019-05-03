@@ -2,6 +2,7 @@ package com.simon.neo.uid;
 
 import com.simon.neo.Neo;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 缓存起点的管理器
@@ -9,13 +10,13 @@ import lombok.Setter;
  * @author zhouzhenyong
  * @since 2019/5/2 上午9:59
  */
+@Slf4j
 public class RangeStartManager {
 
     private Neo neo;
     /**
      * 步长设置
      */
-    @Setter
     private Integer stepSize;
     /**
      * 刷新第二buf的尺寸大小
@@ -65,6 +66,7 @@ public class RangeStartManager {
         if (uid - currentStart < refreshBufSize || haveRefreshed) {
             return false;
         }
+        log.debug("到达刷新二级buf");
         return true;
     }
 
@@ -112,14 +114,15 @@ public class RangeStartManager {
         haveRefreshed = false;
         if (currentStart.equals(rangeStartOfBuf1)){
             currentStart = rangeStartOfBuf2;
+            log.debug("buf起点切换，currentStart = " + currentStart);
             return currentStart;
         }
 
         if(currentStart.equals(rangeStartOfBuf2)){
             currentStart = rangeStartOfBuf1;
+            log.debug("buf起点切换，currentStart = " + currentStart);
             return currentStart;
         }
         return null;
     }
-
 }

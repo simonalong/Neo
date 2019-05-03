@@ -18,11 +18,13 @@ public class UidGeneratorTest extends NeoBaseTest {
 
     @Before
     public void before(){
-        generator = UidGenerator.getInstance(neo, 1, 0.12f);
+        generator = UidGenerator.getInstance(neo, 10, 0.3f);
     }
 
     @Test
     public void generateTest1(){
+        show(generator.getUid());
+        show(generator.getUid());
         show(generator.getUid());
     }
 

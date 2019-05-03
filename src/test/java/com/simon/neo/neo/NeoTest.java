@@ -310,7 +310,20 @@ public class NeoTest extends NeoBaseTest{
      */
     @Test
     public void testUid(){
-        Long uid = neo.getUid();
-        show(uid);
+        neo.openUidGenerator(10, 0.2f);
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
     }
 }
