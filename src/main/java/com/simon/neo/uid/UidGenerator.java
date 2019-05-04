@@ -89,7 +89,7 @@ public class UidGenerator {
         return uid;
     }
 
-    private void init(Neo neo, Integer stepSize, Float refreshRatio){
+    private void init(Neo neo, Integer stepSize, Float refreshRatio) {
         rangeManager = new RangeStartManager(neo, stepSize, getRefreshBufSize(stepSize, refreshRatio));
         tableInitPreHandle();
         this.uuidIndex.set(rangeManager.initBufStart(allocStart()));
@@ -100,8 +100,8 @@ public class UidGenerator {
      * @param stepSize 步长
      * @param refreshRatio float类型的刷新比率
      */
-    private Integer getRefreshBufSize(Integer stepSize, Float refreshRatio){
-        return (int)(stepSize * refreshRatio);
+    private Integer getRefreshBufSize(Integer stepSize, Float refreshRatio) {
+        return (int) (stepSize * refreshRatio);
     }
 
     /**
@@ -120,9 +120,9 @@ public class UidGenerator {
     /**
      * 用于全局表的初始化，若全局表没有创建，则创建
      */
-    private void tableInitPreHandle(){
-        if (!tableInitFlag){
-            synchronized (UidGenerator.class){
+    private void tableInitPreHandle() {
+        if (!tableInitFlag) {
+            synchronized (UidGenerator.class) {
                 if (!tableInitFlag) {
                     initTable();
                     tableInitFlag = true;
