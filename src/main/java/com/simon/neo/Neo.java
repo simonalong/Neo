@@ -11,7 +11,6 @@ import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
 import com.simon.neo.sql.JoinType;
-import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
