@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import java.lang.reflect.Field;
@@ -15,11 +16,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
+@Slf4j
 public class NeoMap implements Map<String, Object> {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
@@ -208,19 +211,40 @@ public class NeoMap implements Map<String, Object> {
         if (null == object) {
             return neoMap;
         }
+
+        String valueResult = valueCheck(object);
+        if (null != valueResult) {
+            throw new NeoMapChgException("object 不是普通对象，转换失败：" + valueResult);
+        }
         neoMap.setLocalNaming(naming);
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
 
     /**
-     * 通过指定某些列转化为一个新的对象
+     * 判断对象是否是普通对象，若是枚举、数组、集合和Map则返回false
      *
-     * @param neoMap 源数据map
-     * @param columns 对象中的某些列
-     * @return 转换之后的NeoMap
+     * @param value 待检查的值
+     * @return true：value是普通对象，false：非普通对象
      */
-    public static NeoMap assign(NeoMap neoMap, Columns columns) {
-        return neoMap.assign(columns);
+    @SuppressWarnings("unchecked")
+    private static String valueCheck(Object value){
+        Class vClass = value.getClass();
+        if(vClass.isEnum()){
+            return "value 是枚举类型";
+        }
+
+        if(vClass.isArray()){
+            return "value 是数组类型";
+        }
+
+        if (vClass.isAssignableFrom(Collection.class)) {
+            return "value 是集合类型";
+        }
+
+        if (vClass.isAssignableFrom(Map.class)) {
+            return "value 是map类型";
+        }
+        return null;
     }
 
     private static NeoMap innerFrom(NeoMap neoMap, Object object, List<String> inFieldList, List<String> exFieldList) {
@@ -448,16 +472,7 @@ public class NeoMap implements Map<String, Object> {
      * @return 目标值
      */
     public <T> T get(Class<T> tClass, String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            return tClass.cast(value);
-        }catch (ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.cast(tClass, get(key));
     }
 
     /**
@@ -475,17 +490,28 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 获取字符
+     *
+     * @param key map的key
+     * @return 字符，如果是字符串，则返回字符串的第一个字符
+     */
+    public Character getCharacter(String key){
+        return TypeFormat.toChar(get(key));
+    }
+
+    public Character getCharacter(String key, Character defaultValue) {
+        Character result = getCharacter(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
      * 返回值为String类型的值
      *
      * @param key map的key
      * @return String类型的值
      */
     public String getStr(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        return String.valueOf(value);
+        return TypeFormat.toStr(get(key));
     }
 
     public String getStr(String key, String defaultValue){
@@ -499,11 +525,7 @@ public class NeoMap implements Map<String, Object> {
      * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
      */
     public Boolean getBoolean(String key) {
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        return Boolean.valueOf(String.valueOf(value));
+        return TypeFormat.toBoolean(get(key));
     }
 
     public Boolean getBoolean(String key, Boolean defaultValue) {
@@ -512,44 +534,11 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Byte getByte(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            return Byte.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toByte(get(key));
     }
 
     public Byte getByte(String key, Byte defaultValue) {
         Byte result = getByte(key);
-        return (null == result) ? defaultValue : result;
-    }
-
-    /**
-     * 获取字符
-     *
-     * @param key map的key
-     * @return 字符，如果是字符串，则返回字符串的第一个字符
-     */
-    public Character getCharacter(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-
-        String valueStr = String.valueOf(get(key));
-        if (valueStr.length() == 0){
-           return null;
-        }
-        return valueStr.charAt(0);
-    }
-
-    public Character getCharacter(String key, Character defaultValue) {
-        Character result = getCharacter(key);
         return (null == result) ? defaultValue : result;
     }
 
@@ -559,8 +548,11 @@ public class NeoMap implements Map<String, Object> {
             return null;
         }
         try {
+            if (value instanceof Number) {
+                return Number.class.cast(value).shortValue();
+            }
             return Short.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
+        }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();
             return null;
         }
@@ -577,8 +569,11 @@ public class NeoMap implements Map<String, Object> {
             return null;
         }
         try {
+            if (value instanceof Number) {
+                return Number.class.cast(value).intValue();
+            }
             return Integer.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
+        }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();
             return null;
         }
@@ -595,8 +590,11 @@ public class NeoMap implements Map<String, Object> {
             return null;
         }
         try {
+            if (value instanceof Number) {
+                return Number.class.cast(value).longValue();
+            }
             return Long.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
+        }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();
             return null;
         }
@@ -613,8 +611,11 @@ public class NeoMap implements Map<String, Object> {
             return null;
         }
         try {
+            if (value instanceof Number) {
+                return Number.class.cast(value).doubleValue();
+            }
             return Double.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
+        }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();
             return null;
         }
@@ -631,8 +632,11 @@ public class NeoMap implements Map<String, Object> {
             return null;
         }
         try {
+            if (value instanceof Number) {
+                return Number.class.cast(value).floatValue();
+            }
             return Float.valueOf(String.valueOf(value));
-        }catch (NumberFormatException e){
+        }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();
             return null;
         }
