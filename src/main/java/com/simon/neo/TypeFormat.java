@@ -290,62 +290,62 @@ public class TypeFormat {
         }
 
         // 对于是对应的实例，则直接转换，对于不是的，则进行额外特殊处理
-        if(tClass.isInstance(value)){
+        if (tClass.isInstance(value)) {
             return (T) value;
         }
 
-        if(tClass == char.class || tClass == Character.class){
+        if (tClass == char.class || tClass == Character.class) {
             return (T) toChar(value);
         }
-        if(tClass == String.class){
+        if (tClass == String.class) {
             return (T) toStr(value);
         }
 
-        if(tClass == byte.class || tClass == Byte.class){
+        if (tClass == byte.class || tClass == Byte.class) {
             return (T) toByte(value);
         }
 
-        if(tClass == short.class || tClass == Short.class){
+        if (tClass == short.class || tClass == Short.class) {
             return (T) toShort(value);
         }
 
-        if(tClass == int.class || tClass == Integer.class){
+        if (tClass == int.class || tClass == Integer.class) {
             return (T) toInt(value);
         }
 
-        if(tClass == long.class || tClass == Long.class){
+        if (tClass == long.class || tClass == Long.class) {
             return (T) toLong(value);
         }
 
-        if(tClass == float.class || tClass == Float.class){
+        if (tClass == float.class || tClass == Float.class) {
             return (T) toFloat(value);
         }
 
-        if(tClass == double.class || tClass == Double.class){
+        if (tClass == double.class || tClass == Double.class) {
             return (T) toDouble(value);
         }
 
-        if(tClass.isEnum()){
+        if (tClass.isEnum()) {
             return toEnum(tClass, value);
         }
 
-        if(tClass.isArray() || Array.class.isAssignableFrom(tClass)){
+        if (tClass.isArray() || Array.class.isAssignableFrom(tClass)) {
             return (T) toArray(value);
         }
 
-        if(List.class.isAssignableFrom(tClass)){
+        if (List.class.isAssignableFrom(tClass)) {
             return (T) toList(value);
         }
 
-        if(Set.class.isAssignableFrom(tClass)){
+        if (Set.class.isAssignableFrom(tClass)) {
             return (T) toSet(value);
         }
 
-        if(Queue.class.isAssignableFrom(tClass)){
+        if (Queue.class.isAssignableFrom(tClass)) {
             return (T) toQueue(value);
         }
 
-        if (Collection.class.isAssignableFrom(tClass)){
+        if (Collection.class.isAssignableFrom(tClass)) {
             return (T) toCollection(value);
         }
         return Objects.cast(tClass, String.valueOf(value));
