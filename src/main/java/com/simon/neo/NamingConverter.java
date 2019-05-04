@@ -5,11 +5,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 字符命名的规则转换
+ * 命名规则转换器
+ *
  * @author zhouzhenyong
  * @since 2019/3/18 下午10:03
  */
-public class StringNaming {
+public class NamingConverter {
 
     /**
      * 大驼峰到小驼峰：首字母变成小写

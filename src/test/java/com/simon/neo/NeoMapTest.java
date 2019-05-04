@@ -340,14 +340,4 @@ public class NeoMapTest extends BaseTest{
         show(neoMap.get(Long.class, "test2", 0L));
         show(neoMap.get(Double.class, "t", 0.1));
     }
-
-    @Test
-    public void getLongDate(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.get(Integer.class, "flag", 12));
-        show(neoMap.get(String.class, "test", "de"));
-        show(neoMap.get(Long.class, "test2", 0L));
-        show(neoMap.get(Double.class, "t",0.1));
-    }
-
 }

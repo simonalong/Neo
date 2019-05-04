@@ -611,35 +611,35 @@ public class NeoMap implements Map<String, Object> {
         /**
          * 小驼峰到大驼峰 {@code dataBaseUser <------> DateBaseUser }
          */
-        BIGCAMEL(StringNaming::bigCamel, StringNaming::bigCamelToSmallCamel),
+        BIGCAMEL(NamingConverter::bigCamel, NamingConverter::bigCamelToSmallCamel),
         /**
          * 小驼峰到下划线 {@code dataBaseUser <------> data_base_user }
          */
-        UNDERLINE(StringNaming::underLine, StringNaming::underLineToSmallCamel),
+        UNDERLINE(NamingConverter::underLine, NamingConverter::underLineToSmallCamel),
         /**
          * 小驼峰到前下划线 {@code dataBaseUser <------> _data_base_user }
          */
-        PREUNDER(StringNaming::preUnder, StringNaming::underLineToSmallCamel),
+        PREUNDER(NamingConverter::preUnder, NamingConverter::underLineToSmallCamel),
         /**
          * 小驼峰到前下划线 {@code dataBaseUser <------> data_base_user_ }
          */
-        POSTUNDER(StringNaming::postUnder, StringNaming::underLineToSmallCamel),
+        POSTUNDER(NamingConverter::postUnder, NamingConverter::underLineToSmallCamel),
         /**
          * 小驼峰到前后下划线 {@code dataBaseUser <------> _data_base_user_ }
          */
-        PREPOSTUNDER(StringNaming::prePostUnder, StringNaming::underLineToSmallCamel),
+        PREPOSTUNDER(NamingConverter::prePostUnder, NamingConverter::underLineToSmallCamel),
         /**
          * 小驼峰到中划线 {@code dataBaseUser <------> data-base-user }
          */
-        MIDDLELINE(StringNaming::middleLine, StringNaming::middleLineToSmallCamel),
+        MIDDLELINE(NamingConverter::middleLine, NamingConverter::middleLineToSmallCamel),
         /**
          * 小驼峰到大写下划线 {@code dataBaseUser <------> DATA_BASE_USER }
          */
-        UPPERUNER(StringNaming::upperUnder, StringNaming::upperUnderToSmallCamel),
+        UPPERUNER(NamingConverter::upperUnder, NamingConverter::upperUnderToSmallCamel),
         /**
          * 小驼峰到大写中划线 {@code dataBaseUser <------> DATA-BASE-USER }
          */
-        UPPERMIDDLE(StringNaming::upperUnderMiddle, StringNaming::upperUnderMiddleToSmallCamel);
+        UPPERMIDDLE(NamingConverter::upperUnderMiddle, NamingConverter::upperUnderMiddleToSmallCamel);
 
         /**
          * 用于名字的转换

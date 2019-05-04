@@ -5,7 +5,7 @@ import com.simon.neo.codegen.EnumInfo.EnumInner;
 import com.simon.neo.db.NeoColumn;
 import com.simon.neo.NeoMap;
 import com.simon.neo.NeoMap.NamingChg;
-import com.simon.neo.StringNaming;
+import com.simon.neo.NamingConverter;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
 import freemarker.template.Configuration;
@@ -113,7 +113,7 @@ public class EntityCodeGen {
         if (null != tableNameList && tableNameList.size() > 0) {
             tableNameList.forEach(t->{
                 generateImport(neo, t, dataMap);
-                String tableName = StringNaming.underLineToBigCamel(t.substring(preFix.length()));
+                String tableName = NamingConverter.underLineToBigCamel(t.substring(preFix.length()));
                 dataMap.put("tableName", tableName);
                 dataMap.put("tableRemark", neo.getTable(t).getTableMata().getRemarks());
                 dataMap.put("tableNamePost", entityPostFix);
