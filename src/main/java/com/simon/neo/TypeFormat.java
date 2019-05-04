@@ -193,15 +193,15 @@ public class TypeFormat {
             return null;
         }
 
-        if (value.getClass().isAssignableFrom(List.class)){
+        if (List.class.isAssignableFrom(value.getClass())){
             return List.class.cast(value);
         }
 
-        if(value.getClass().isAssignableFrom(Array.class)){
+        if(Array.class.isAssignableFrom(value.getClass())){
             return Arrays.asList(toArray(value));
         }
 
-        if(value.getClass().isAssignableFrom(Collection.class)){
+        if(Collection.class.isAssignableFrom(value.getClass())){
             return new ArrayList(Collection.class.cast(value));
         }
         return null;
@@ -213,15 +213,15 @@ public class TypeFormat {
             return null;
         }
 
-        if (value.getClass().isAssignableFrom(Set.class)){
+        if (Set.class.isAssignableFrom(value.getClass())){
             return Set.class.cast(value);
         }
 
-        if(value.getClass().isAssignableFrom(Array.class)){
+        if(Array.class.isAssignableFrom(value.getClass())){
             return new HashSet(Arrays.asList(toArray(value)));
         }
 
-        if (value.getClass().isAssignableFrom(Collection.class)) {
+        if (Collection.class.isAssignableFrom(value.getClass())) {
             return new HashSet<>(Collection.class.cast(value));
         }
         return null;
@@ -233,15 +233,15 @@ public class TypeFormat {
             return null;
         }
 
-        if (value.getClass().isAssignableFrom(Queue.class)){
+        if (Queue.class.isAssignableFrom(value.getClass())){
             return Queue.class.cast(value);
         }
 
-        if(value.getClass().isAssignableFrom(Array.class)){
+        if(Array.class.isAssignableFrom(value.getClass())){
             return new ArrayDeque(Arrays.asList(toArray(value)));
         }
 
-        if (value.getClass().isAssignableFrom(Collection.class)) {
+        if (Collection.class.isAssignableFrom(value.getClass())) {
             return new ArrayDeque<>(Collection.class.cast(value));
         }
         return null;
@@ -253,7 +253,7 @@ public class TypeFormat {
             return null;
         }
 
-        if(value.getClass().isAssignableFrom(Collection.class)){
+        if(Collection.class.isAssignableFrom(value.getClass())){
             return Collection.class.cast(value);
         }
         return null;
@@ -329,23 +329,23 @@ public class TypeFormat {
             return toEnum(tClass, value);
         }
 
-        if(tClass.isArray() || tClass.isAssignableFrom(Array.class)){
+        if(tClass.isArray() || Array.class.isAssignableFrom(tClass)){
             return (T) toArray(value);
         }
 
-        if(tClass.isAssignableFrom(List.class)){
+        if(List.class.isAssignableFrom(tClass)){
             return (T) toList(value);
         }
 
-        if(tClass.isAssignableFrom(Set.class)){
+        if(Set.class.isAssignableFrom(tClass)){
             return (T) toSet(value);
         }
 
-        if(tClass.isAssignableFrom(Queue.class)){
+        if(Queue.class.isAssignableFrom(tClass)){
             return (T) toQueue(value);
         }
 
-        if (tClass.isAssignableFrom(Collection.class)){
+        if (Collection.class.isAssignableFrom(tClass)){
             return (T) toCollection(value);
         }
         return Objects.cast(tClass, String.valueOf(value));

@@ -237,11 +237,11 @@ public class NeoMap implements Map<String, Object> {
             return "value 是数组类型";
         }
 
-        if (vClass.isAssignableFrom(Collection.class)) {
+        if (Collection.class.isAssignableFrom(vClass)) {
             return "value 是集合类型";
         }
 
-        if (vClass.isAssignableFrom(Map.class)) {
+        if (Map.class.isAssignableFrom(vClass)) {
             return "value 是map类型";
         }
         return null;
