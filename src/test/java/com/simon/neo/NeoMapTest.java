@@ -2,10 +2,6 @@ package com.simon.neo;
 
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -246,7 +242,7 @@ public class NeoMapTest extends BaseTest{
     public void setPreTest(){
         NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
         // {t1.a=ok, t1.b=name}
-        show(neoMap.setPre("t1."));
+        show(neoMap.keyPre("t1."));
     }
 
     @Test

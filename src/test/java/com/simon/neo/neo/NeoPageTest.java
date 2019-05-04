@@ -1,4 +1,4 @@
-package com.simon.neo.neotest;
+package com.simon.neo.neo;
 
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;

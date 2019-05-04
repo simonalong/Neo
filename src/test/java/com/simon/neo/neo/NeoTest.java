@@ -1,4 +1,4 @@
-package com.simon.neo.neotest;
+package com.simon.neo.neo;
 
 import com.alibaba.fastjson.JSON;
 import com.simon.neo.Columns;
@@ -303,5 +303,27 @@ public class NeoTest extends NeoBaseTest{
             // [Y, N]
             show(dataList);
         }
+    }
+
+    /**
+     * 全局id生成器
+     */
+    @Test
+    public void testUid(){
+        neo.openUidGenerator(10, 0f);
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
+
+        show(neo.getUid());
+        show(neo.getUid());
+        show(neo.getUid());
     }
 }
