@@ -241,7 +241,7 @@ public class NeoTable {
      * @return 指定的数据值
      */
     public <T> T value(Class<T> tClass, String field, NeoMap searchMap, String tailSql){
-        return neo.value(tableName, tClass, field, searchMap, tailSql);
+        return neo.value(tClass, tableName, field, searchMap, tailSql);
     }
 
     public <T> T value(Class<T> tClass, String field, Object entity, String tailSql) {
@@ -298,7 +298,7 @@ public class NeoTable {
      * @return 一列值
      */
     public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap, String tailSql){
-        return neo.values(tableName, tClass, field, searchMap, tailSql);
+        return neo.values(tClass, tableName, field, searchMap, tailSql);
     }
 
     public <T> List<T> values(Class<T> tClass, String field, Object entity, String tailSql) {

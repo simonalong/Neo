@@ -1,12 +1,13 @@
 package com.simon.neo.sql;
 
 import static com.simon.neo.sql.SqlBuilder.*;
-import com.simon.neo.BaseTest;
+
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
-import com.simon.neo.neotest.NeoBaseTest;
+import com.simon.neo.neo.NeoBaseTest;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -14,9 +15,9 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/29 下午11:28
  */
-public class SqlBuilderDemo extends NeoBaseTest {
+public class SqlBuilderTest extends NeoBaseTest {
 
-    public SqlBuilderDemo() throws SQLException {}
+    public SqlBuilderTest() throws SQLException {}
 
     @Test
     public void inTest(){
@@ -45,9 +46,17 @@ public class SqlBuilderDemo extends NeoBaseTest {
     }
 
     @Test
-    public void buildConditionTest(){
+    public void buildConditionTest1(){
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
         // `group` =  ? and `name` =  ?
+        show(buildCondition(searchMap));
+    }
+
+    @Test
+    public void buildConditionTest2(){
+        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1").keyPre("table1.");
+        // table1.`group` =  ? and table1.`name` =  ?
+        show(searchMap);
         show(buildCondition(searchMap));
     }
 
@@ -69,10 +78,9 @@ public class SqlBuilderDemo extends NeoBaseTest {
     public void buildJoinHeadTest1(){
         String table1 = "table1";
         String table2 = "table2";
-        Columns leftColumns = Columns.of("c1", "c11");
-        Columns rightColumns = Columns.of("c2", "c22");
-        // select table1.`c11`, table1.`c1`,table2.`c22`, table2.`c2`
-        show(buildJoinHead(neo, table1, leftColumns, table2, rightColumns));
+        Columns columns = Columns.table(table1, "c1", "c11").and(table2, "c2", "c22");
+        // select table1.`c11`, table1.`c1`, table2.`c22`, table2.`c2`
+        show(buildJoinHead(neo, columns));
     }
 
     @Test
@@ -90,16 +98,30 @@ public class SqlBuilderDemo extends NeoBaseTest {
         String c1 = "tId";
         String c2 = "id";
         // from table1 left join table2 on table1.`tId`=table2.`id`
-        show(buildJoin(table1, c1, table2, c2, JoinType.LEFT_JOIN));
+        show(buildJoin(table1, table1, c1, table2, c2, JoinType.LEFT_JOIN));
     }
 
     @Test
     public void buildJoinTailTest(){
         String table = "table1";
-        NeoMap neoMap = NeoMap.of("name", "ok").setPre(table+".");
+        NeoMap neoMap = NeoMap.of("name", "ok").keyPre(table+".");
         String tailSql = "order by sort";
         String sqlCondition = "table2.id is null";
         //  where (table2.id is null) and `table1.name` = 'ok' order by sort
-        show(buildJoinTail(sqlCondition, neoMap, tailSql));
+        show(buildJoinTail(sqlCondition, Arrays.asList(neoMap), tailSql));
+    }
+
+    @Test
+    public void mapToTableFilterTest1(){
+        NeoMap neoMap = NeoMap.of("table1.name", "haode", "table1.group", "ok");
+        // {table1.`group`=ok, table1.`name`=haode}
+        show(SqlBuilder.toDbField(neoMap));
+    }
+
+    @Test
+    public void mapToTableFilterTest2(){
+        NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
+        // {`group`=ok, `name`=haode}
+        show(SqlBuilder.toDbField(neoMap));
     }
 }

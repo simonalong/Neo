@@ -8,6 +8,7 @@ import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
 import com.simon.neo.db.NeoTable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -66,9 +67,8 @@ public class SqlBuilder {
     public String buildCondition(NeoMap searchMap){
         StringBuilder stringBuilder = new StringBuilder();
         if (!NeoMap.isEmpty(searchMap)) {
-            stringBuilder.append("`");
             return stringBuilder
-                .append(String.join(" and `", buildConditionMeta(searchMap)))
+                .append(String.join(" and ", buildConditionMeta(searchMap)))
                 .toString();
         }
         return stringBuilder.toString();
@@ -80,8 +80,25 @@ public class SqlBuilder {
      * @return 比如：`group` = 'group1' and `name` = 'name1'
      */
     public String buildConditionWithValue(NeoMap searchMap){
-        withValueFlag.set(true);
-        return buildCondition(searchMap);
+        try {
+            withValueFlag.set(true);
+            return buildCondition(searchMap);
+        }finally {
+            withValueFlag.set(false);
+        }
+    }
+
+    public String buildConditionWithValue(List<NeoMap> searchMapList) {
+        try {
+            withValueFlag.set(true);
+            List<String> metaList = new ArrayList<>();
+            if (!NeoMap.isEmpty(searchMapList)) {
+                searchMapList.forEach(s -> metaList.add(buildCondition(s)));
+            }
+            return String.join(" and ", metaList);
+        } finally {
+            withValueFlag.set(false);
+        }
     }
 
     /**
@@ -173,7 +190,7 @@ public class SqlBuilder {
      * @return 比如：select `xxx` from yyy where a=? and b=? order by `xx` limit 1
      */
     public String buildValue(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
+        StringBuilder sqlAppender = new StringBuilder("select ").append(toDbField(field)).append(" from ").append(tableName)
             .append(SqlBuilder.buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
@@ -191,7 +208,7 @@ public class SqlBuilder {
      * @return select `xxx` from yyy where a=? and b=? order by `xx`
      */
     public String buildValues(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select `").append(field).append("` from ").append(tableName)
+        StringBuilder sqlAppender = new StringBuilder("select ").append(toDbField(field)).append(" from ").append(tableName)
             .append(SqlBuilder.buildWhere(searchMap));
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
@@ -204,13 +221,9 @@ public class SqlBuilder {
     }
 
     public String buildInsert(String tableName, NeoMap neoMap){
-        return "insert into "
-            + tableName
-            + "(`"
-            + String.join("`, `", neoMap.keySet())
-            + "`) values ("
-            + buildValues(neoMap.keySet())
-            + ")";
+        neoMap = toDbField(neoMap);
+        return "insert into " + tableName + " (" + String.join(", ", neoMap.keySet()) + ") values (" + buildValues(
+            neoMap.keySet()) + ")";
     }
 
     public String buildDelete(String tableName, NeoMap neoMap){
@@ -222,49 +235,18 @@ public class SqlBuilder {
     }
 
     public String buildSetValues(Set<String> fieldList){
-        return " set `" + String.join(", `", fieldList.stream().map(f -> f + "`=?").collect(Collectors.toList()));
+        return " set " + String.join(", ", fieldList.stream().map(f -> toDbField(f) + "=?").collect(Collectors.toList()));
     }
 
     /**
      * join的head 部分对应的sql，主要是选择的列
      *
      * @param neo 库对象
-     * @param leftTableName 左表表名
-     * @param leftColumns 左表选择的列
-     * @param rightTableName 右表表名
-     * @param rightColumns 右表的列
+     * @param columns 多个表的列信息
      * @return join对应的head，比如：select xxx,xxx
      */
-    public String buildJoinHead(Neo neo, String leftTableName, Columns leftColumns, String rightTableName, Columns rightColumns) {
-        StringBuilder sb = new StringBuilder("select ");
-
-        appendColumns(sb, neo, leftTableName, leftColumns);
-        if (!Columns.isEmpty(leftColumns) && !Columns.isEmpty(rightColumns)) {
-            sb.append(", ");
-        }
-        appendColumns(sb, neo, rightTableName, rightColumns);
-        return sb.toString();
-    }
-
-    /**
-     * 将列中含有*的类进行展开
-     *
-     * @param sb 字符拼接
-     * @param neo 库对象
-     * @param tableName 表名
-     * @param columns 列对象
-     */
-    private void appendColumns(StringBuilder sb, Neo neo, String tableName, Columns columns){
-        String allColumnName = "*";
-        if (!Columns.isEmpty(columns)) {
-            // 包含所有的列
-            if (columns.contains(allColumnName)) {
-                columns.remove(allColumnName);
-                sb.append(Columns.buildAllFields(neo, columns, tableName));
-            } else {
-                sb.append(columns.buildFields(tableName));
-            }
-        }
+    public String buildJoinHead(Neo neo, Columns columns) {
+        return "select " + columns.extend(neo).buildFields();
     }
 
     /**
@@ -288,9 +270,15 @@ public class SqlBuilder {
      * @param joinType join的类型
      * @return join对应的部分sql，比如：from leftTableName xxJoin rightTableName on leftTableName.`leftColumnName` = rightTableName.`rightColumnName`
      */
-    public String buildJoin(String leftTableName, String leftColumnName, String rightTableName, String rightColumnName, JoinType joinType){
-        return "from " + leftTableName + " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + ".`"
-            + leftColumnName + "`=" + rightTableName + ".`" + rightColumnName + "`";
+    public String buildJoin(String joinLeftTableName, String leftTableName, String leftColumnName,
+        String rightTableName, String rightColumnName, JoinType joinType) {
+        if(null != joinLeftTableName){
+            return joinLeftTableName + " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + "."
+                + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName) + " ";
+        }else{
+            return " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + "."
+                + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName) + " ";
+        }
     }
 
     /**
@@ -303,25 +291,25 @@ public class SqlBuilder {
      * @param joinType join的类型
      * @return rightTableName.key is null 或者 leftTableName.key is null 或者 (leftTableName.key is null or rightTableName.key is null)
      */
-    public String buildJoinCondition(Neo neo, String leftTableName, String rightTableName, JoinType joinType){
-        if (joinType.equals(LEFT_JOIN_EXCEPT_INNER)){
+    public String buildJoinCondition(Neo neo, String leftTableName, String rightTableName, JoinType joinType) {
+        if (joinType.equals(LEFT_JOIN_EXCEPT_INNER)) {
             NeoTable table = neo.getTable(rightTableName);
-            if(null != table){
+            if (null != table) {
                 return rightTableName + "." + table.getPrimary() + " is null";
             }
-        } else if(joinType.equals(RIGHT_JOIN_EXCEPT_INNER)){
+        } else if (joinType.equals(RIGHT_JOIN_EXCEPT_INNER)) {
             NeoTable table = neo.getTable(leftTableName);
-            if(null != table){
+            if (null != table) {
                 return leftTableName + "." + table.getPrimary() + " is null";
             }
-        } else if(joinType.equals(OUTER_JOIN_EXCEPT_INNER)){
+        } else if (joinType.equals(OUTER_JOIN_EXCEPT_INNER)) {
             NeoTable leftTable = neo.getTable(leftTableName);
             NeoTable rightTable = neo.getTable(rightTableName);
             StringBuilder result = new StringBuilder();
-            if(null != leftTable){
+            if (null != leftTable) {
                 result.append(leftTableName).append(".").append(leftTable.getPrimary()).append(" is null");
             }
-            if(null != rightTable){
+            if (null != rightTable) {
                 result.append(leftTableName).append(".").append(rightTable.getPrimary()).append(" is null");
             }
             return result.toString();
@@ -330,18 +318,18 @@ public class SqlBuilder {
     }
 
     /**
-     * 对于join的对应的sql的后缀部分
+     * 生成拼接的join的条件{@code where x=? and y=? and a.m=? and b.n=?}
      *
-     * @param sqlCondition sql的条件
-     * @param searchMap 搜索条件
-     * @param tail sql的尾部信息，比如order by xxx
-     * @return where xxx and xxx
+     * @param sqlCondition 对于join_except类型需要用的一些排除条件
+     * @param searchMapList 搜索条件map列表
+     * @param tail 尾部sql
+     * @return 返回拼接的sql
      */
-    public String buildJoinTail(String sqlCondition, NeoMap searchMap, String tail) {
+    public String buildJoinTail(String sqlCondition, List<NeoMap> searchMapList, String tail) {
         StringBuilder sb = new StringBuilder();
         Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
-        Boolean searchMapEmpty = NeoMap.isEmpty(searchMap);
-        if (sqlConditionNotEmpty || !searchMapEmpty) {
+        Boolean searchMapsNotEmpty = !NeoMap.isEmpty(searchMapList);
+        if (sqlConditionNotEmpty || searchMapsNotEmpty) {
             sb.append(" where ");
         }
 
@@ -349,8 +337,12 @@ public class SqlBuilder {
             sb.append("(").append(sqlCondition).append(")");
         }
 
-        if (!searchMapEmpty) {
-            sb.append(" and ").append(buildConditionWithValue(searchMap));
+        if (sqlConditionNotEmpty && searchMapsNotEmpty) {
+            sb.append(" and ");
+        }
+
+        if (searchMapsNotEmpty) {
+            sb.append(buildConditionWithValue(searchMapList));
         }
 
         sb.append(" ").append(tail);
@@ -362,7 +354,29 @@ public class SqlBuilder {
     }
 
     private List<String> buildConditionMeta(NeoMap searchMap) {
-        return searchMap.entrySet().stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+        return toDbField(searchMap).stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+    }
+
+    /**
+     * 对于NeoMap的key含有表名的进行转换，比如{@code table1.name} 到 {@code table1.`name`} 或者{@code name}到{@code `name`}
+     *
+     * @param neoMap 原map
+     * @return 转换之后的map
+     */
+    public NeoMap toDbField(NeoMap neoMap) {
+        NeoMap resultMap = NeoMap.of();
+        String point = ".";
+        neoMap.stream().forEach(e -> {
+            String key = e.getKey();
+            Object value = e.getValue();
+            if (key.contains(point)) {
+                Integer index = key.indexOf(".");
+                resultMap.put(key.substring(0, index + 1) + toDbField(key.substring(index + 1)), value);
+            } else {
+                resultMap.put(toDbField(key), value);
+            }
+        });
+        return resultMap;
     }
 
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
@@ -372,18 +386,18 @@ public class SqlBuilder {
             // 设置模糊搜索
             if (valueStr.startsWith(LIKE_PRE)) {
                 searchMap.put(entry.getKey(), getLikeValue(valueStr));
-                return entry.getKey() + "` like " + (withValueFlag.get() ? "'" + valueStr + "'" : "?");
+                return entry.getKey() + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "?");
             }
 
             // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
             if (haveThanPre(valueStr)) {
                 Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
                 searchMap.put(entry.getKey(), symbolAndValue.getValue());
-                return entry.getKey() + "` " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+                return entry.getKey() + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
             }
-            return entry.getKey() + "` = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+            return entry.getKey() + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
         }
-        return entry.getKey() + "` = " + ((withValueFlag.get() ? value : " ?"));
+        return entry.getKey() + " = " + ((withValueFlag.get() ? value : " ?"));
     }
 
     /**
@@ -426,5 +440,14 @@ public class SqlBuilder {
             }
         }
         return new Pair<>("=", valueStr);
+    }
+
+    /**
+     * 将普通的列名转换为sql语句中的列，其实就是在列的前后添加`
+     * @param column 原列名
+     * @return 转换后的列名，比如name 到 `name`
+     */
+    private String toDbField(String column){
+        return "`" + column + "`";
     }
 }
