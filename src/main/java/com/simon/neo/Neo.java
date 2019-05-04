@@ -17,6 +17,7 @@ import com.simon.neo.sql.SqlExplain;
 import com.simon.neo.sql.SqlMonitor;
 import com.simon.neo.sql.SqlStandard;
 import com.simon.neo.sql.TxIsolationEnum;
+import com.simon.neo.util.ObjectUtil;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -459,7 +460,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
         if (null != result) {
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
+            return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
         }
         return null;
     }
@@ -483,7 +484,7 @@ public class Neo {
             NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne);
             if (null != result) {
                 Iterator<Object> it = result.values().iterator();
-                return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
+                return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
             }
         }
         return null;
@@ -530,7 +531,7 @@ public class Neo {
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
-                return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
+                return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
             }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         }
         return new ArrayList<>();
@@ -715,7 +716,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
         if (null != result){
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? TypeFormat.cast(Integer.class, it.next()) : null;
+            return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
         }
         return null;
     }
@@ -724,7 +725,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateCountSqlPair(tableName, searchMap), this::executeOne);
         if(null != result) {
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? TypeFormat.cast(Integer.class, it.next()) : null;
+            return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
         }
         return null;
     }

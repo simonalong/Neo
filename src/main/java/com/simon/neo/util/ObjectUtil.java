@@ -1,18 +1,17 @@
-package com.simon.neo;
+package com.simon.neo.util;
 
-import com.simon.neo.util.Objects;
+import com.simon.neo.NeoMap;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 
@@ -23,7 +22,9 @@ import lombok.experimental.UtilityClass;
  * @since 2019/5/4 下午12:30
  */
 @UtilityClass
-public class TypeFormat {
+public class ObjectUtil {
+
+    private static final String NULL_STR = "null";
 
     public Boolean toBoolean(Object value) {
         if(null == value){
@@ -348,6 +349,34 @@ public class TypeFormat {
         if (Collection.class.isAssignableFrom(tClass)) {
             return (T) toCollection(value);
         }
-        return Objects.cast(tClass, String.valueOf(value));
+        return castStr(tClass, String.valueOf(value));
+    }
+
+    /**
+     * 将对象的数据，按照cls类型进行转换
+     * @param cls 待转换的Class类型
+     * @param data 数据
+     * @return Class类型对应的对象
+     */
+    public <T> T castStr(Class<T> cls, String data){
+        if(cls.equals(String.class)) {
+            // 针对data为null的情况进行转换
+            if(NULL_STR.equals(data)){
+                return null;
+            }
+            return cls.cast(data);
+        } else if (Character.class.isAssignableFrom(cls)) {
+            return cls.cast(data.toCharArray());
+        } else {
+            try {
+                if(NULL_STR.equals(data)){
+                    return null;
+                }
+                return cls.cast(cls.getMethod("valueOf", String.class).invoke(null, data));
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 }

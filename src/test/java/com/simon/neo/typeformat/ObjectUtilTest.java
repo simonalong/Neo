@@ -3,7 +3,7 @@ package com.simon.neo.typeformat;
 import com.alibaba.fastjson.JSON;
 import com.simon.neo.BaseTest;
 import com.simon.neo.NeoMap;
-import com.simon.neo.TypeFormat;
+import com.simon.neo.util.ObjectUtil;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,30 +19,30 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/5/4 下午12:55
  */
-public class TypeFormatTest extends BaseTest {
+public class ObjectUtilTest extends BaseTest {
 
     @Test
     public void CharTest() {
         //c
-        show(TypeFormat.cast(Character.class, 'c'));
+        show(ObjectUtil.cast(Character.class, 'c'));
         //a
-        show(TypeFormat.cast(Character.class, "adsf"));
+        show(ObjectUtil.cast(Character.class, "adsf"));
         //1
-        show(TypeFormat.cast(Character.class, 1f));
+        show(ObjectUtil.cast(Character.class, 1f));
         //1
-        show(TypeFormat.cast(char.class, 1f));
+        show(ObjectUtil.cast(char.class, 1f));
     }
 
     @Test
     public void StringTest() {
         //ok
-        show(TypeFormat.cast(String.class, "ok"));
+        show(ObjectUtil.cast(String.class, "ok"));
         //1
-        show(TypeFormat.cast(String.class, 1));
+        show(ObjectUtil.cast(String.class, 1));
         //1.0
-        show(TypeFormat.cast(String.class, 1f));
+        show(ObjectUtil.cast(String.class, 1f));
         //{a=12}
-        show(TypeFormat.cast(String.class, NeoMap.of("a", 12)));
+        show(ObjectUtil.cast(String.class, NeoMap.of("a", 12)));
     }
 
     /**
@@ -51,76 +51,76 @@ public class TypeFormatTest extends BaseTest {
     @Test
     public void ByteTest() {
         // 1
-        show(TypeFormat.cast(Byte.class, 1));
+        show(ObjectUtil.cast(Byte.class, 1));
         // 127
-        show(TypeFormat.cast(Byte.class, 127));
+        show(ObjectUtil.cast(Byte.class, 127));
         // 127
-        show(TypeFormat.cast(byte.class, 127));
+        show(ObjectUtil.cast(byte.class, 127));
         // -128
-        show(TypeFormat.cast(Byte.class, 128));
+        show(ObjectUtil.cast(Byte.class, 128));
         // -57
-        show(TypeFormat.cast(Byte.class, 199));
+        show(ObjectUtil.cast(Byte.class, 199));
         // null
-        show(TypeFormat.cast(Byte.class, "ok"));
+        show(ObjectUtil.cast(Byte.class, "ok"));
     }
 
     @Test
     public void ShortTest() {
         Short s = 1;
-        show(TypeFormat.cast(Short.class, s));
-        show(TypeFormat.cast(short.class, s));
-        show(TypeFormat.cast(Short.class, "s"));
+        show(ObjectUtil.cast(Short.class, s));
+        show(ObjectUtil.cast(short.class, s));
+        show(ObjectUtil.cast(Short.class, "s"));
     }
 
     @Test
     public void IntegerTest() {
         Integer s = 1;
-        show(TypeFormat.cast(Integer.class, s));
-        show(TypeFormat.cast(int.class, s));
-        show(TypeFormat.cast(Integer.class, "s"));
+        show(ObjectUtil.cast(Integer.class, s));
+        show(ObjectUtil.cast(int.class, s));
+        show(ObjectUtil.cast(Integer.class, "s"));
     }
 
     @Test
     public void LongTest() {
         Long s = 1L;
-        show(TypeFormat.cast(Long.class, s));
-        show(TypeFormat.cast(long.class, s));
-        show(TypeFormat.cast(Long.class, "s"));
+        show(ObjectUtil.cast(Long.class, s));
+        show(ObjectUtil.cast(long.class, s));
+        show(ObjectUtil.cast(Long.class, "s"));
     }
 
     @Test
     public void DoubleTest() {
         Double s = 1D;
-        show(TypeFormat.cast(Long.class, s));
-        show(TypeFormat.cast(long.class, s));
-        show(TypeFormat.cast(Long.class, "s"));
+        show(ObjectUtil.cast(Long.class, s));
+        show(ObjectUtil.cast(long.class, s));
+        show(ObjectUtil.cast(Long.class, "s"));
     }
 
     @Test
     public void FloatTest() {
         Float s = 1F;
-        show(TypeFormat.cast(Float.class, s));
-        show(TypeFormat.cast(float.class, s));
-        show(TypeFormat.cast(Float.class, "s"));
+        show(ObjectUtil.cast(Float.class, s));
+        show(ObjectUtil.cast(float.class, s));
+        show(ObjectUtil.cast(Float.class, "s"));
     }
 
     @Test
     public void EnumTest() {
-        show(TypeFormat.cast(EnumEntity.class, "T1"));
-        show(TypeFormat.cast(EnumEntity.class, 12));
+        show(ObjectUtil.cast(EnumEntity.class, "T1"));
+        show(ObjectUtil.cast(EnumEntity.class, 12));
     }
 
     @Test
     public void ArrayTest() {
         Integer[] integers = new Integer[]{1, 34, 5, 15};
         // [1,34,5,15]
-        show(JSON.toJSONString(TypeFormat.toArray(integers)));
+        show(JSON.toJSONString(ObjectUtil.toArray(integers)));
     }
 
     @Test
     public void ListTest() {
         List<Integer> integerList = Arrays.asList(22, 12, 3, 32, 45);
-        show(TypeFormat.toList(integerList));
+        show(ObjectUtil.toList(integerList));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class TypeFormatTest extends BaseTest {
         integerSet.add(1);
         integerSet.add(4);
         integerSet.add(12);
-        show(TypeFormat.toSet(integerSet));
+        show(ObjectUtil.toSet(integerSet));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class TypeFormatTest extends BaseTest {
         arrayDeque.add(1);
         arrayDeque.add(4);
         arrayDeque.add(12);
-        show(TypeFormat.toQueue(arrayDeque));
+        show(ObjectUtil.toQueue(arrayDeque));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class TypeFormatTest extends BaseTest {
         arrayDeque.add(1);
         arrayDeque.add(4);
         arrayDeque.add(12);
-        show(TypeFormat.toCollection(arrayDeque));
+        show(ObjectUtil.toCollection(arrayDeque));
     }
 
     @Test
@@ -157,18 +157,18 @@ public class TypeFormatTest extends BaseTest {
         dataMap.put(2, "b");
         dataMap.put(3, "c");
 
-        show(TypeFormat.toMap(dataMap));
+        show(ObjectUtil.toMap(dataMap));
     }
 
     @Test
     public void NeoMapTest1() {
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
-        show(TypeFormat.toNeoMap(neoMap));
+        show(ObjectUtil.toNeoMap(neoMap));
     }
 
     @Test
     public void NeoMapTest2() {
         ObjectEntity objectEntity = new ObjectEntity().setName("word").setAge(12);
-        show(TypeFormat.toNeoMap(objectEntity));
+        show(ObjectUtil.toNeoMap(objectEntity));
     }
 }
