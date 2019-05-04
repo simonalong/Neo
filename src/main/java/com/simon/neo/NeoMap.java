@@ -230,19 +230,19 @@ public class NeoMap implements Map<String, Object> {
     private static String valueCheck(Object value){
         Class vClass = value.getClass();
         if(vClass.isEnum()){
-            return "value 是枚举类型";
+            return "对象是枚举类型";
         }
 
         if(vClass.isArray()){
-            return "value 是数组类型";
+            return "对象是数组类型";
         }
 
         if (Collection.class.isAssignableFrom(vClass)) {
-            return "value 是集合类型";
+            return "对象是集合类型";
         }
 
         if (Map.class.isAssignableFrom(vClass)) {
-            return "value 是map类型";
+            return "对象是map类型";
         }
         return null;
     }

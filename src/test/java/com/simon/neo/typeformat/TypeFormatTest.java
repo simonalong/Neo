@@ -1,16 +1,25 @@
-package com.simon.neo;
+package com.simon.neo.typeformat;
 
 import com.alibaba.fastjson.JSON;
-import com.sun.tools.javac.code.Attribute.Array;
+import com.simon.neo.BaseTest;
+import com.simon.neo.NeoMap;
+import com.simon.neo.TypeFormat;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 
 /**
  * @author zhouzhenyong
  * @since 2019/5/4 下午12:55
  */
-public class TypeFormatTest extends BaseTest{
+public class TypeFormatTest extends BaseTest {
 
     @Test
     public void CharTest() {
@@ -116,26 +125,50 @@ public class TypeFormatTest extends BaseTest{
 
     @Test
     public void SetTest() {
-
+        Set<Integer> integerSet = new HashSet<>();
+        integerSet.add(1);
+        integerSet.add(4);
+        integerSet.add(12);
+        show(TypeFormat.toSet(integerSet));
     }
 
     @Test
     public void QueueTest() {
-
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque();
+        arrayDeque.add(1);
+        arrayDeque.add(4);
+        arrayDeque.add(12);
+        show(TypeFormat.toQueue(arrayDeque));
     }
 
     @Test
     public void CollectionTest() {
-
+        Collection<Integer> arrayDeque = new ArrayList<>();
+        arrayDeque.add(1);
+        arrayDeque.add(4);
+        arrayDeque.add(12);
+        show(TypeFormat.toCollection(arrayDeque));
     }
 
     @Test
     public void MapTest() {
+        Map<Integer, String> dataMap = new HashMap<>();
+        dataMap.put(1, "a");
+        dataMap.put(2, "b");
+        dataMap.put(3, "c");
 
+        show(TypeFormat.toMap(dataMap));
     }
 
     @Test
-    public void NeoMapTest() {
+    public void NeoMapTest1() {
+        NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
+        show(TypeFormat.toNeoMap(neoMap));
+    }
 
+    @Test
+    public void NeoMapTest2() {
+        ObjectEntity objectEntity = new ObjectEntity().setName("word").setAge(12);
+        show(TypeFormat.toNeoMap(objectEntity));
     }
 }

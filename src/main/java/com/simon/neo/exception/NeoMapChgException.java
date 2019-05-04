@@ -7,6 +7,6 @@ package com.simon.neo.exception;
 public class NeoMapChgException extends NeoException {
 
     public NeoMapChgException(String msg){
-        super("Neo异常：" + msg);
+        super(msg);
     }
 }
