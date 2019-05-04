@@ -453,7 +453,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
         if (null != result) {
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? asObject(tClass, it.next()) : null;
+            return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
         }
         return null;
     }
@@ -477,7 +477,7 @@ public class Neo {
             NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne);
             if (null != result) {
                 Iterator<Object> it = result.values().iterator();
-                return it.hasNext() ? asObject(tClass, it.next()) : null;
+                return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
             }
         }
         return null;
@@ -524,7 +524,7 @@ public class Neo {
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
-                return it.hasNext() ? asObject(tClass, it.next()) : null;
+                return it.hasNext() ? TypeFormat.cast(tClass, it.next()) : null;
             }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         }
         return new ArrayList<>();
@@ -549,7 +549,7 @@ public class Neo {
 
         if(null != resultList && !resultList.isEmpty()){
             return resultList.stream()
-                .map(r -> asObject(tClass, r.get(field)))
+                .map(r -> r.get(tClass, field))
                 .filter(Objects::nonNull).distinct()
                 .collect(Collectors.toList());
         }
@@ -709,7 +709,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
         if (null != result){
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+            return it.hasNext() ? TypeFormat.cast(Integer.class, it.next()) : null;
         }
         return null;
     }
@@ -718,7 +718,7 @@ public class Neo {
         NeoMap result = execute(false, () -> generateCountSqlPair(tableName, searchMap), this::executeOne);
         if(null != result) {
             Iterator<Object> it = result.values().iterator();
-            return it.hasNext() ? Integer.valueOf(asString(it.next())) : null;
+            return it.hasNext() ? TypeFormat.cast(Integer.class, it.next()) : null;
         }
         return null;
     }
@@ -1455,19 +1455,21 @@ public class Neo {
 
     /**
      * 构建批次的value和where语句对的list
+     *
      * @param dataList 全部的数据列表
      * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
      * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
      */
-    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(List<NeoMap> dataList, Columns columns){
-        if(null == dataList || dataList.isEmpty()){
+    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(List<NeoMap> dataList, Columns columns) {
+        if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
-        return dataList.stream().map(m-> new Pair<>(m, m.assign(columns))).collect(Collectors.toList());
+        return dataList.stream().map(m -> new Pair<>(m, m.assign(columns))).collect(Collectors.toList());
     }
 
     /**
      * 构建批次的value和where语句对的list
+     *
      * @param dataList 全部的数据列表
      * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
      * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
@@ -1482,7 +1484,7 @@ public class Neo {
             .collect(Collectors.toList());
     }
 
-    private List<Object> generateValueList(NeoMap searchMap){
+    private List<Object> generateValueList(NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
             return Collections.emptyList();
         }
@@ -1491,6 +1493,7 @@ public class Neo {
 
     /**
      * 将转换符和占位符拆分开
+     *
      * @param sqlOrigin 原始的sql
      * @param parameters 输入的参数
      * @return 将转换符和占位符拆分开后的数组对
@@ -1505,7 +1508,7 @@ public class Neo {
         while (m.find()) {
             if ("?".equals(m.group())) {
                 placeHolderList.add(parameters.get(count));
-            }else{
+            } else {
                 replaceOperatorList.add(parameters.get(count));
             }
             count++;
@@ -1513,7 +1516,7 @@ public class Neo {
         return new Pair<>(replaceOperatorList, placeHolderList);
     }
 
-    private Long executeInsert(PreparedStatement statement){
+    private Long executeInsert(PreparedStatement statement) {
         try {
             statement.executeUpdate();
             // 返回主键
@@ -1527,7 +1530,7 @@ public class Neo {
         return null;
     }
 
-    private Integer executeUpdate(PreparedStatement statement){
+    private Integer executeUpdate(PreparedStatement statement) {
         try {
             return statement.executeUpdate();
         } catch (SQLException e) {
@@ -1536,7 +1539,7 @@ public class Neo {
         return 0;
     }
 
-    private List<List<NeoMap>> execute(PreparedStatement statement){
+    private List<List<NeoMap>> execute(PreparedStatement statement) {
         List<List<NeoMap>> resultList = new ArrayList<>();
         try {
             statement.execute();
@@ -1563,7 +1566,7 @@ public class Neo {
         return resultList;
     }
 
-    private NeoMap executeOne(PreparedStatement statement){
+    private NeoMap executeOne(PreparedStatement statement) {
         NeoMap result = NeoMap.of();
         try {
             ResultSet rs = statement.executeQuery();
@@ -1581,7 +1584,7 @@ public class Neo {
         return result;
     }
 
-    private List<NeoMap> executeList(PreparedStatement statement){
+    private List<NeoMap> executeList(PreparedStatement statement) {
         List<NeoMap> result = new ArrayList<>();
         try {
             ResultSet rs = statement.executeQuery();
@@ -1599,17 +1602,5 @@ public class Neo {
             e.printStackTrace();
         }
         return result;
-    }
-
-    private <T> T asObject(Class<T> tClass, Object target) {
-        if (String.class.isAssignableFrom(tClass)) {
-            return tClass.cast((null == target ? null : String.valueOf(target)));
-        } else {
-            return tClass.cast(target);
-        }
-    }
-
-    private String asString(Object object){
-        return (null == object?null:String.valueOf(object));
     }
 }

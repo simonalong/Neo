@@ -543,19 +543,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Short getShort(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            if (value instanceof Number) {
-                return Number.class.cast(value).shortValue();
-            }
-            return Short.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toShort(get(key));
     }
 
     public Short getShort(String key, Short defaultValue) {
@@ -564,19 +552,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Integer getInteger(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            if (value instanceof Number) {
-                return Number.class.cast(value).intValue();
-            }
-            return Integer.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toInt(get(key));
     }
 
     public Integer getInteger(String key, Integer defaultValue) {
@@ -585,19 +561,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Long getLong(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            if (value instanceof Number) {
-                return Number.class.cast(value).longValue();
-            }
-            return Long.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toLong(get(key));
     }
 
     public Long getLong(String key, Long defaultValue) {
@@ -606,19 +570,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Double getDouble(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            if (value instanceof Number) {
-                return Number.class.cast(value).doubleValue();
-            }
-            return Double.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toDouble(get(key));
     }
 
     public Double getDouble(String key, Double defaultValue) {
@@ -627,19 +579,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public Float getFloat(String key){
-        Object value = get(key);
-        if (null == value) {
-            return null;
-        }
-        try {
-            if (value instanceof Number) {
-                return Number.class.cast(value).floatValue();
-            }
-            return Float.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
-            return null;
-        }
+        return TypeFormat.toFloat(get(key));
     }
 
     public Float getFloat(String key, Float defaultValue) {
