@@ -143,10 +143,6 @@ public class Neo {
         return neo;
     }
 
-    private void init(){
-        initDb();
-    }
-
     private void initDb(){
         try(Connection con = pool.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
