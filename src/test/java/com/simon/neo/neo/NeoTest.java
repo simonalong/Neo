@@ -69,19 +69,21 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testDelete3(){
-        show(neo.delete(TABLE_NAME, NeoMap.of("group", "group1")));
+        show(neo.delete(TABLE_NAME, 14L));
     }
 
     /******************************修改******************************/
     @Test
     @SneakyThrows
     public void testUpdate1(){
+        // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("group", "ok2"), NeoMap.of("group", "group2", "name", "name")));
     }
 
     @Test
     @SneakyThrows
     public void testUpdate2(){
+        // update neo_table1 set `group`=?, `name`=? where `name` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("group", "ok3", "name", "name"), Columns.of("name")));
     }
 
@@ -90,6 +92,7 @@ public class NeoTest extends NeoBaseTest{
     public void testUpdate3(){
         DemoEntity input = new DemoEntity();
         input.setGroup("group2");
+        // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
         show(neo.update(TABLE_NAME, input, NeoMap.of("group", "group1", "name", "name")));
     }
 
@@ -101,6 +104,7 @@ public class NeoTest extends NeoBaseTest{
 
         DemoEntity data = new DemoEntity();
         data.setGroup("group2");
+        // update neo_table1 set `group`=? where `group` =  ?
         show(neo.update(TABLE_NAME, data, search));
     }
 
@@ -110,6 +114,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate5(){
+        // update neo_table1 set `group`=?, `name`=? where `group` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("group", "group1", "name", "name2"), Columns.of("group")));
     }
 
@@ -119,6 +124,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate6(){
+        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group222", "name", "name2")));
     }
 
@@ -131,7 +137,19 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity search = new DemoEntity();
         search.setId(281L);
         search.setGroup("group555");
+        // update neo_table1 set `group`=?, `id`=? where `id` =  ?
         show(neo.update(TABLE_NAME, search));
+    }
+
+    /**
+     * 指定某个列作为查询条件
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate61(){
+        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
+        // todo 这里有点问题，继续修复和修改
+        show(neo.update("neo_table4", NeoMap.of("id", 2, "group", "group222", "name", "name2")));
     }
 
     /**
@@ -143,6 +161,7 @@ public class NeoTest extends NeoBaseTest{
         DemoEntity search = new DemoEntity();
         search.setGroup("group555");
         search.setName("name333");
+        // update neo_table1 set `group`=?, `name`=? where `name` =  ?
         show(neo.update(TABLE_NAME, search, Columns.of("name")));
     }
 

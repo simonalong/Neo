@@ -67,10 +67,14 @@ public class Columns {
     }
 
     public Columns and(String tableName, String... cs) {
-        return and(tableName, new HashSet<>(Arrays.asList(cs)));
+        List<String> fieldList = Arrays.stream(cs).filter(c->!"".equals(c)).collect(Collectors.toList());
+        return and(tableName, new HashSet<>(fieldList));
     }
 
     public Columns and(String tableName, Set<String> fieldSets) {
+        if (null == fieldSets || fieldSets.isEmpty()) {
+            return this;
+        }
         this.tableFieldsMap.compute(tableName, (k, v) -> {
             if (null == v) {
                 return new HashSet<>(fieldSets);

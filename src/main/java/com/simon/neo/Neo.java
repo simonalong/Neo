@@ -214,11 +214,14 @@ public class Neo {
         return 0;
     }
 
-    public Integer delete(String tableName, Object entity, NamingChg naming) {
+    public <T> Integer delete(String tableName, T entity, NamingChg naming) {
         return delete(tableName, NeoMap.from(entity, naming));
     }
 
-    public Integer delete(String tableName, Object entity) {
+    public <T> Integer delete(String tableName, T entity) {
+        if (entity instanceof Number){
+           return delete(tableName, Number.class.cast(entity).longValue());
+        }
         return delete(tableName, NeoMap.from(entity));
     }
 
