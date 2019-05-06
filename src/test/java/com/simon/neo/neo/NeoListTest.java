@@ -79,6 +79,7 @@ public class NeoListTest extends NeoBaseTest{
     public void testExeList6(){
         neo.setExplainFlag(true);
         List<Integer> idList = Arrays.asList(310, 311);
+        // select * from neo_table1 where id in ('310','311')
         show(neo.exeList("select * from %s where id in %s", TABLE_NAME, SqlBuilder.in(idList)));
     }
 

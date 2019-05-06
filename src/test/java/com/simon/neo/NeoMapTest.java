@@ -2,6 +2,13 @@ package com.simon.neo;
 
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -339,5 +346,78 @@ public class NeoMapTest extends BaseTest{
         show(neoMap.get(String.class, "test", "de"));
         show(neoMap.get(Long.class, "test2", 0L));
         show(neoMap.get(Double.class, "t", 0.1));
+    }
+
+    @Test
+    public void getListTest1(){
+        NeoMap neoMap = NeoMap.of("a", Arrays.asList("a", "b", "c"));
+
+        List<String> integerList = neoMap.getList(String.class, "a");
+        // [a, b, c]
+        show(integerList);
+    }
+
+    /**
+     * 不是原类型也是可以的
+     */
+    @Test
+    public void getListTest2(){
+        List<Integer> dataList = new ArrayList<>();
+        dataList.add(1);
+        dataList.add(2);
+        dataList.add(3);
+        NeoMap neoMap = NeoMap.of("a", dataList);
+
+        List<String> integerList = neoMap.getList(String.class, "a");
+        //[1, 2, 3]
+        show(integerList);
+    }
+
+    @Test
+    public void getSetTest(){
+        Set<String> dataSet = new HashSet<>();
+        dataSet.add("1");
+        dataSet.add("2");
+        dataSet.add("3");
+        NeoMap neoMap = NeoMap.of("a", dataSet);
+        Set<Integer> stringSet = neoMap.getSet(Integer.class, "a");
+        show(stringSet);
+    }
+
+    @Test
+    public void getNeoMapTest1(){
+        NeoMap param = NeoMap.of("a", 1, "b", 2);
+        NeoMap data = NeoMap.of("a", param);
+
+        show(data.getNeoMap("a"));
+    }
+
+    /**
+     * getNeoMap除了返回值可以为NeoMap之外，还可以是普通对象
+     */
+    @Test
+    public void getNeoMapTest2(){
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setName("name").setId(12L).setUserName("user");
+        NeoMap data = NeoMap.of("a", demoEntity);
+
+        show(data.getNeoMap("a"));
+    }
+
+    @Test
+    public void appendTest1(){
+        NeoMap neoMap = NeoMap.of();
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("a", "1");
+        dataMap.put("b", "2");
+        dataMap.put("c", "3");
+        show(neoMap.append(dataMap));
+    }
+
+    @Test
+    public void getClassTest1(){
+        NeoMap neoMap = NeoMap.of("a", "1", "b", "2");
+        Integer result = neoMap.get(Integer.class, "a");
+        show(result);
     }
 }

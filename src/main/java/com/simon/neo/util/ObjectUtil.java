@@ -272,6 +272,7 @@ public class ObjectUtil {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public NeoMap toNeoMap(Object value){
         if(null == value){
             return null;
@@ -279,6 +280,10 @@ public class ObjectUtil {
 
         if(value instanceof NeoMap){
             return NeoMap.class.cast(value);
+        }
+
+        if(value instanceof Map){
+            return NeoMap.of().append(Map.class.cast(value));
         }
 
         return NeoMap.from(value);

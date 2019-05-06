@@ -3,6 +3,7 @@ package com.simon.neo.db;
 import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
+import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -505,6 +507,88 @@ public class NeoTable {
      */
     public NeoJoiner outerJoinExceptInner(String rightTableName){
         return neo.outerJoinExceptInner(tableName, rightTableName);
+    }
+
+    /**
+     * 批量插入NeoMap列表数据
+     * @param dataMapList 设置数据和对应的搜索map的映射集合
+     * @return 插入的数据个数：0或者all
+     */
+    public Integer batchInsert(List<NeoMap> dataMapList) {
+        return neo.batchInsert(tableName, dataMapList);
+    }
+
+    /**
+     * 批量插入实体列表
+     * @param dataList 数据列表
+     * @param namingChg 命名转换
+     * @param <T> 目标类型
+     * @return 插入的数据个数：0或者all
+     */
+    public <T> Integer batchInsertEntity(List<T> dataList, NamingChg namingChg){
+        return neo.batchInsertEntity(tableName, NeoMap.fromArray(dataList, namingChg));
+    }
+
+    /**
+     * 批量插入实体列表
+     * @param dataList 数据列表
+     * @param <T> 目标类型
+     * @return 插入的数据个数：0或者all
+     */
+    public <T> Integer batchInsertEntity(List<T> dataList){
+        return neo.batchInsertEntity(tableName, NeoMap.fromArray(dataList));
+    }
+
+    /**
+     * 批量更新，默认根据主键进行更新
+     * @param dataList 待更新的数据
+     * @return 批量更新的个数：0或者all
+     */
+    public Integer batchUpdate(List<NeoMap> dataList){
+        return neo.batchUpdate(tableName, dataList);
+    }
+
+    /**
+     * 批量更新，指定搜索的哪些列
+     * @param dataList 待更新的数据
+     * @param columns where搜索条件用到的前面待更新的数据的列
+     * @return 批量更新的个数：0或者all
+     */
+    public Integer batchUpdate(List<NeoMap> dataList, Columns columns){
+        return neo.batchUpdate(tableName, dataList, columns);
+    }
+
+    /**
+     * 批量更新，默认根据主键进行更新
+     * @param dataList 待更新的数据
+     * @param <T> 目标类型
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(List<T> dataList){
+        return neo.batchUpdateEntity(tableName, dataList);
+    }
+
+    /**
+     * 批量执行更新，指定搜索的哪些列和命名转换方式
+     * @param dataList 数据列表
+     * @param columns 这里的列为对象的属性名字，记得这里不是对象转换到NeoMap之后的列
+     * @param namingChg 对象的命名转换，如果为null，则执行全局的，默认的全局为不转换
+     * @param <T> 目标类型
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns, NamingChg namingChg){
+        return neo.batchUpdateEntity(tableName, dataList, columns, namingChg);
+    }
+
+    /**
+     * 批量执行更新，指定搜索的哪些列
+     * @param dataList 数据列表
+     * @param columns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
+     * @param <T> 目标类型
+     * @return 批量更新的个数：0或者all
+     */
+    public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns){
+        return neo.batchUpdateEntity(tableName, dataList, columns);
     }
 
     public void initIndex(ResultSet resultSet){

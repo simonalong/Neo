@@ -5,12 +5,14 @@ import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
@@ -221,11 +223,19 @@ public class NeoMap implements Map<String, Object> {
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
 
+    public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {
+        NeoMap targetMap = NeoMap.of();
+        sourceMap.stream().forEach(c -> {
+            targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
+        });
+        return targetMap;
+    }
+
     /**
-     * 判断对象是否是普通对象，若是枚举、数组、集合和Map则返回false
+     * 判断对象是否是普通对象，若是枚举、数组、集合和Map则返回具体的文案，否则返回null
      *
      * @param value 待检查的值
-     * @return true：value是普通对象，false：非普通对象
+     * @return null：普通对象；文本：非普通对象
      */
     @SuppressWarnings("unchecked")
     private static String valueCheck(Object value){
@@ -274,20 +284,20 @@ public class NeoMap implements Map<String, Object> {
         return neoMap;
     }
 
-    public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {
-        NeoMap targetMap = NeoMap.of();
-        sourceMap.stream().forEach(c -> {
-            targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
-        });
-        return targetMap;
-    }
-
     public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass) {
         if (null == neoMaps || neoMaps.isEmpty()) {
             return new ArrayList<>();
         }
 
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass, NamingChg namingChg) {
+        if (null == neoMaps || neoMaps.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return neoMaps.stream().map(m -> m.as(tClass, namingChg)).collect(Collectors.toList());
     }
 
     public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, NamingChg namingChg) {
@@ -338,7 +348,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public static boolean isEmpty(Collection<NeoMap> neoMaps) {
-        return neoMaps == null || neoMaps.isEmpty();
+        return neoMaps == null || neoMaps.isEmpty() || neoMaps.stream().allMatch(Map::isEmpty);
     }
 
     /**
@@ -437,6 +447,11 @@ public class NeoMap implements Map<String, Object> {
             }
         });
         return neoMap;
+    }
+
+    public NeoMap append(Map<String, ?> neoMap) {
+        this.putAll(neoMap);
+        return this;
     }
 
     public NeoMap append(NeoMap neoMap) {
@@ -588,6 +603,33 @@ public class NeoMap implements Map<String, Object> {
     public Float getFloat(String key, Float defaultValue) {
         Float result = getFloat(key);
         return (null == result) ? defaultValue : result;
+    }
+
+    /**
+     * 获取value并转换为指定的类型的list
+     *
+     * @param tClass 目标对象的类，对于有些类型不是这个类的，只要能转换到这个类也是可以的，比如原先存的是{@code List<String>}，取的时候只要String可以转为Integer，那么这个tClass可以为Integer.class
+     * @param key 目标值对应NeoMap中的key
+     * @param <T> 目标对象类型
+     * @return 集合类型
+     */
+    public <T> List<T> getList(Class<T> tClass, String key){
+        return ObjectUtil.toList(get(key)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toList());
+    }
+
+    public <T> Set<T> getSet(Class<T> tClass, String key){
+        return ObjectUtil.toSet(get(key)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
+    }
+
+    /**
+     * 将值获取为NeoMap，对于value为普通对象的也可以用该方法
+     *
+     * 注意：只有value为普通对象的时候才会获取成功，对于枚举，集合，数组这些都会转换失败
+     * @param key key值
+     * @return 返回转换的NeoMap
+     */
+    public NeoMap getNeoMap(String key){
+        return ObjectUtil.toNeoMap(get(key));
     }
 
     /**

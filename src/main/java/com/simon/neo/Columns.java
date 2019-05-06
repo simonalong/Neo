@@ -7,8 +7,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 
 /**
@@ -30,7 +32,7 @@ public class Columns {
 
     public static Columns of(String... fields) {
         Columns columns = new Columns();
-        if (null == fields || 0 == fields.length) {
+        if (null == fields || 0 == fields.length || Stream.of(fields).allMatch(Objects::isNull)) {
             return columns;
         }
         return columns.and(DEFAULT_TABLE, fields);

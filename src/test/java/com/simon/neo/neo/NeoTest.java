@@ -148,7 +148,6 @@ public class NeoTest extends NeoBaseTest{
     @SneakyThrows
     public void testUpdate61(){
         // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
-        // todo 这里有点问题，继续修复和修改
         show(neo.update("neo_table4", NeoMap.of("id", 2, "group", "group222", "name", "name2")));
     }
 
@@ -226,6 +225,14 @@ public class NeoTest extends NeoBaseTest{
         NeoMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
         show("****");
         show(sql.get("Create Table"));
+    }
+
+    @Test
+    public void testExecute7(){
+        show(neo.tx(()->{
+            neo.update("neo_table1", NeoMap.of("group", "12"), NeoMap.of("id", 11));
+            return neo.value("neo_table1", "group", NeoMap.of("id", 11));
+        }));
     }
 
     /****************************** 查询 ******************************/
