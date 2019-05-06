@@ -3,7 +3,6 @@ package com.simon.neo.neo;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import java.sql.SQLException;
-import java.util.Arrays;
 import org.junit.Test;
 
 /**
@@ -172,7 +171,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String tailSql = "order by sort desc";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, "*"), tailSql, NeoMap.of("group", "group1", "id", 11).keyPre(table1+".")));
+            .one(Columns.table(table1, "*"), tailSql, NeoMap.of("group", "group1", "id", 11).setKeyPre(table1+".")));
     }
 
     /**
@@ -294,6 +293,6 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("name", "name")
             .one(Columns.table(table1, "id", "name", "group").and(table2, "id", "name", "group"),
-                NeoMap.of("group", "ok", "name", "haode").keyPre(table1 + "."), NeoMap.of("name", "ceshi").keyPre(table2 + ".")));
+                NeoMap.of("group", "ok", "name", "haode").setKeyPre(table1 + "."), NeoMap.of("name", "ceshi").setKeyPre(table2 + ".")));
     }
 }

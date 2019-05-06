@@ -2,6 +2,7 @@ package com.simon.neo;
 
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
+import com.simon.neo.entity.EnumEntity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -249,7 +250,7 @@ public class NeoMapTest extends BaseTest{
     public void setPreTest(){
         NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
         // {t1.a=ok, t1.b=name}
-        show(neoMap.keyPre("t1."));
+        show(neoMap.setKeyPre("t1."));
     }
 
     @Test
@@ -401,7 +402,7 @@ public class NeoMapTest extends BaseTest{
         demoEntity.setName("name").setId(12L).setUserName("user");
         NeoMap data = NeoMap.of("a", demoEntity);
 
-        show(data.getNeoMap("a"));
+        Assert.assertEquals(demoEntity, data.get("a"));
     }
 
     @Test
@@ -418,6 +419,35 @@ public class NeoMapTest extends BaseTest{
     public void getClassTest1(){
         NeoMap neoMap = NeoMap.of("a", "1", "b", "2");
         Integer result = neoMap.get(Integer.class, "a");
-        show(result);
+        Assert.assertTrue(result.equals(1));
+    }
+
+    @Test
+    public void keyChgToOtherTest(){
+        NeoMap neoMap = NeoMap.of("dataBaseUser", "a", "userName", "b");
+        // {DataBaseUser=a, UserName=b}
+        show(neoMap.keyChgFromSmallCamelTo(NamingChg.BIGCAMEL));
+    }
+
+    @Test
+    public void camelChgTest2(){
+        NeoMap neoMap = NeoMap.of("data_user_base", "a", "user_name", "b");
+        // {DataBaseUser=a, UserName=b}
+        show(neoMap.keyChgToSmallCamelFrom(NamingChg.UNDERLINE));
+    }
+
+    @Test
+    public void getEnumTest1(){
+        NeoMap neoMap = NeoMap.of("enum", EnumEntity.A1);
+        Assert.assertEquals(EnumEntity.A1, neoMap.get("enum"));
+    }
+
+    /**
+     * 对于枚举类型，原值为String也可以获取到枚举类型
+     */
+    @Test
+    public void getEnumTest2(){
+        NeoMap neoMap = NeoMap.of("enum", "A1");
+        Assert.assertEquals(EnumEntity.A1, neoMap.get(EnumEntity.class, "enum"));
     }
 }

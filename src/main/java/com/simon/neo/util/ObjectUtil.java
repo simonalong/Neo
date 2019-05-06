@@ -120,6 +120,22 @@ public class ObjectUtil {
             if (value instanceof Number) {
                 return Number.class.cast(value).longValue();
             }
+
+            if (value instanceof java.sql.Date) {
+                return java.sql.Date.class.cast(value).getTime();
+            }
+
+            if (value instanceof java.sql.Time) {
+                return java.sql.Time.class.cast(value).getTime();
+            }
+
+            if (value instanceof java.sql.Timestamp) {
+                return java.sql.Timestamp.class.cast(value).getTime();
+            }
+
+            if (value instanceof java.util.Date){
+                return java.util.Date.class.cast(value).getTime();
+            }
             return Long.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
             e.printStackTrace();

@@ -122,10 +122,10 @@ public class SqlMonitor {
 
         String buildCost(Long costTime){
             if (null != sql) {
-                return "[耗时: " + TimeStrUtil.parseTime(costTime) + costTime + " ] [sql => " + getSql()
+                return "[耗时: " + TimeStrUtil.parseTime(costTime) + "] [sql => " + getSql()
                     + "], {params => " + getParamsList() + " }";
             } else {
-                return "[耗时: " + TimeStrUtil.parseTime(costTime) + costTime + " ]";
+                return "[耗时: " + TimeStrUtil.parseTime(costTime) + "]";
             }
         }
     }

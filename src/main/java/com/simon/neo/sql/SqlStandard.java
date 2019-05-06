@@ -140,7 +140,7 @@ public class SqlStandard {
         private Standard standard;
     }
 
-    enum LogType{
+    public enum LogType{
 
         /**
          * 默认

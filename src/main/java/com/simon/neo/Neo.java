@@ -9,6 +9,7 @@ import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.exception.UidGeneratorNotInitException;
+import com.simon.neo.sql.SqlStandard.LogType;
 import com.simon.neo.uid.UidGenerator;
 import com.simon.neo.db.TableIndex.Index;
 import com.simon.neo.db.NeoDb;
@@ -152,6 +153,17 @@ public class Neo {
 
         // 初始化所有表信息
         getAllTables().forEach(this::initTable);
+    }
+
+    /**
+     * 添加自定义规范
+     *
+     * @param regex 正则表达式
+     * @param desc 命中之后
+     * @param logType 日志级别
+     */
+    public void addStandard(String regex, String desc, LogType logType){
+        standard.addStandard(regex, desc, logType);
     }
 
     /**
@@ -590,6 +602,10 @@ public class Neo {
         return values(String.class, tableName, field, entity, null);
     }
 
+    public List<String> values(String tableName, String field) {
+        return values(String.class, tableName, field, NeoMap.of(), null);
+    }
+
     /**
      * 分组数据
      * @param tableName 表名
@@ -1001,6 +1017,52 @@ public class Neo {
      */
     public <T> T tx(Supplier<T> supplier) {
         return tx(null, null, supplier);
+    }
+
+    /**
+     * 事务的执行
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param readOnly 事务的只读属性，默认为false
+     * @param runnable 待执行的任务
+     */
+    public void tx(Boolean readOnly, Runnable runnable) {
+        tx(null, readOnly, ()->{
+            runnable.run();
+            return null;
+        });
+    }
+
+    /**
+     * 事务的执行
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param readOnly 事务的只读属性，默认为false
+     * @param supplier 待执行的任务
+     */
+    public <T> T tx(Boolean readOnly, Supplier<T> supplier) {
+        return tx(null, readOnly, supplier);
+    }
+
+    /**
+     * 事务的执行
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
+     * @param runnable 待执行的任务
+     */
+    public void tx(TxIsolationEnum isolationEnum, Runnable runnable) {
+        tx(isolationEnum, false, ()->{
+            runnable.run();
+            return null;
+        });
+    }
+
+    /**
+     * 事务的执行
+     * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
+     * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
+     * @param supplier 待执行的任务
+     */
+    public <T> T tx(TxIsolationEnum isolationEnum, Supplier<T> supplier) {
+        return tx(isolationEnum, false, supplier);
     }
 
     /**

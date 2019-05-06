@@ -54,7 +54,7 @@ public class SqlBuilderTest extends NeoBaseTest {
 
     @Test
     public void buildConditionTest2(){
-        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1").keyPre("table1.");
+        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1").setKeyPre("table1.");
         // table1.`group` =  ? and table1.`name` =  ?
         show(searchMap);
         show(buildCondition(searchMap));
@@ -104,7 +104,7 @@ public class SqlBuilderTest extends NeoBaseTest {
     @Test
     public void buildJoinTailTest(){
         String table = "table1";
-        NeoMap neoMap = NeoMap.of("name", "ok").keyPre(table+".");
+        NeoMap neoMap = NeoMap.of("name", "ok").setKeyPre(table+".");
         String tailSql = "order by sort";
         String sqlCondition = "table2.id is null";
         //  where (table2.id is null) and `table1.name` = 'ok' order by sort

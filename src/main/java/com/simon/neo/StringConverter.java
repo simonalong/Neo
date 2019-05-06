@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * @author zhouzhenyong
  * @since 2019/3/18 下午10:03
  */
-public class NamingConverter {
+public class StringConverter {
 
     /**
      * 大驼峰到小驼峰：首字母变成小写

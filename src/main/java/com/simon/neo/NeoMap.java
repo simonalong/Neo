@@ -5,14 +5,12 @@ import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
@@ -352,12 +350,36 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * key的命名风格从其他转到小驼峰
+     *
+     * @param namingChg 转换类型
+     * @return 转换后的类型
+     */
+    public NeoMap keyChgToSmallCamelFrom(NamingChg namingChg){
+        NeoMap neoMap = NeoMap.of();
+        stream().forEach(e -> neoMap.put(namingChg.otherToSmallCamel(e.getKey()), e.getValue()));
+        return neoMap;
+    }
+
+    /**
+     * key的命名风格从小驼峰转到其他
+     *
+     * @param namingChg 转换类型
+     * @return 转换后的类型
+     */
+    public NeoMap keyChgFromSmallCamelTo(NamingChg namingChg){
+        NeoMap neoMap = NeoMap.of();
+        stream().forEach(e -> neoMap.put(namingChg.smallCamelToOther(e.getKey()), e.getValue()));
+        return neoMap;
+    }
+
+    /**
      * 给所有的key设置前缀
      *
      * @param preFix 前缀
      * @return 所有的key替换之后的NeoMap
      */
-    public NeoMap keyPre(String preFix) {
+    public NeoMap setKeyPre(String preFix) {
         NeoMap neoMap = NeoMap.of();
         stream().forEach(e -> neoMap.put(preFix + e.getKey(), e.getValue()));
         return neoMap;
@@ -654,35 +676,35 @@ public class NeoMap implements Map<String, Object> {
         /**
          * 小驼峰到大驼峰 {@code dataBaseUser <------> DateBaseUser }
          */
-        BIGCAMEL(NamingConverter::bigCamel, NamingConverter::bigCamelToSmallCamel),
+        BIGCAMEL(StringConverter::bigCamel, StringConverter::bigCamelToSmallCamel),
         /**
          * 小驼峰到下划线 {@code dataBaseUser <------> data_base_user }
          */
-        UNDERLINE(NamingConverter::underLine, NamingConverter::underLineToSmallCamel),
+        UNDERLINE(StringConverter::underLine, StringConverter::underLineToSmallCamel),
         /**
          * 小驼峰到前下划线 {@code dataBaseUser <------> _data_base_user }
          */
-        PREUNDER(NamingConverter::preUnder, NamingConverter::underLineToSmallCamel),
+        PREUNDER(StringConverter::preUnder, StringConverter::underLineToSmallCamel),
         /**
-         * 小驼峰到前下划线 {@code dataBaseUser <------> data_base_user_ }
+         * 小驼峰到后下划线 {@code dataBaseUser <------> data_base_user_ }
          */
-        POSTUNDER(NamingConverter::postUnder, NamingConverter::underLineToSmallCamel),
+        POSTUNDER(StringConverter::postUnder, StringConverter::underLineToSmallCamel),
         /**
          * 小驼峰到前后下划线 {@code dataBaseUser <------> _data_base_user_ }
          */
-        PREPOSTUNDER(NamingConverter::prePostUnder, NamingConverter::underLineToSmallCamel),
+        PREPOSTUNDER(StringConverter::prePostUnder, StringConverter::underLineToSmallCamel),
         /**
          * 小驼峰到中划线 {@code dataBaseUser <------> data-base-user }
          */
-        MIDDLELINE(NamingConverter::middleLine, NamingConverter::middleLineToSmallCamel),
+        MIDDLELINE(StringConverter::middleLine, StringConverter::middleLineToSmallCamel),
         /**
          * 小驼峰到大写下划线 {@code dataBaseUser <------> DATA_BASE_USER }
          */
-        UPPERUNER(NamingConverter::upperUnder, NamingConverter::upperUnderToSmallCamel),
+        UPPERUNER(StringConverter::upperUnder, StringConverter::upperUnderToSmallCamel),
         /**
          * 小驼峰到大写中划线 {@code dataBaseUser <------> DATA-BASE-USER }
          */
-        UPPERMIDDLE(NamingConverter::upperUnderMiddle, NamingConverter::upperUnderMiddleToSmallCamel);
+        UPPERMIDDLE(StringConverter::upperUnderMiddle, StringConverter::upperUnderMiddleToSmallCamel);
 
         /**
          * 用于名字的转换
