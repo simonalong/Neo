@@ -27,11 +27,11 @@ public class CodeGenTest {
         codeGen.setEntityPath("com.simon.neo.entity");
 
         // 设置表前缀过滤
-        codeGen.setPreFix("xx_");
+        codeGen.setPreFix("neo_");
         // 设置要排除的表
         //codeGen.setExcludes("xx_test");
         // 设置只要的表
-         codeGen.setIncludes("xx_test5");
+         codeGen.setIncludes("neo_table3", "neo_table4");
 
         // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
         codeGen.setFieldNamingChg(NamingChg.UNDERLINE);

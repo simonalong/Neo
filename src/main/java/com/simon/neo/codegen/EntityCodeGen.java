@@ -117,7 +117,8 @@ public class EntityCodeGen {
                 dataMap.put("tableName", tableName);
                 dataMap.put("tableRemark", neo.getTable(t).getTableMata().getRemarks());
                 dataMap.put("tableNamePost", entityPostFix);
-                dataMap.put("fieldList", getFieldInfoList(neo, t));
+                List<NeoMap> list = getFieldInfoList(neo, t);
+                dataMap.put("fieldList", list);
 
                 // 生成对应的枚举数据
                 generateEnum(neo, t, dataMap);
@@ -245,12 +246,12 @@ public class EntityCodeGen {
         return null;
     }
 
-    private List<FieldInfo> getFieldInfoList(Neo neo, String tableName) {
+    private List<NeoMap> getFieldInfoList(Neo neo, String tableName) {
         return neo.getColumnList(tableName).stream()
-            .map(c -> new FieldInfo()
+            .map(c -> NeoMap.from(new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getColumnMeta().getRemarks())
-                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName())))
+                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))))
             .collect(Collectors.toList());
     }
 
