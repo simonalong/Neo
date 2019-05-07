@@ -20,14 +20,14 @@ import lombok.experimental.Accessors;
  * @author zhouzhenyong
  * @since 2019/3/28 下午11:04
  */
-public class EnumInfo {
+class EnumInfo {
 
     private String tableName;
     @Getter
     private Map<String, EnumInner> enumInnerMap;
     private EnumInfo(){}
 
-    public static EnumInfo build(String tableName, String tableCreateSql){
+    static EnumInfo build(String tableName, String tableCreateSql){
         EnumInfo info = new EnumInfo();
         info.tableName = tableName;
         info.enumInnerMap = info.buildEnumMap(tableCreateSql);

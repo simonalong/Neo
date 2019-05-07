@@ -28,7 +28,7 @@ import lombok.Getter;
 public class ${tableName}${tableNamePost} {
 
 <#list fieldList! as field>
-<#if field.fieldRemark == "">
+<#if field.fieldRemark??>
 <#else >
     /**
      * ${field.fieldRemark}

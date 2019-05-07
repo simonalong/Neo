@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class FieldInfo {
+class FieldInfo {
 
     /**
      * 属性的类的类型
