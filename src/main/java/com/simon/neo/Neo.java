@@ -9,6 +9,7 @@ import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
 import com.simon.neo.exception.UidGeneratorNotInitException;
+import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlStandard.LogType;
 import com.simon.neo.uid.UidGenerator;
 import com.simon.neo.db.TableIndex.Index;
@@ -1589,10 +1590,7 @@ public class Neo {
     }
 
     private List<Object> generateValueList(NeoMap searchMap) {
-        if (NeoMap.isEmpty(searchMap)) {
-            return Collections.emptyList();
-        }
-        return new ArrayList<>(searchMap.values());
+        return SqlBuilder.buildValueList(searchMap);
     }
 
     /**

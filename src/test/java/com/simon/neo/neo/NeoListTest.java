@@ -186,6 +186,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList9(){
+        // todo 这里有点问题
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< name")));
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< 'name'")));
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "<= name'")));
@@ -201,7 +202,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList10(){
+        // todo 这里有点问题
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like group")));
-        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like gr")));
     }
 }

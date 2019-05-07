@@ -10,6 +10,8 @@ import com.simon.neo.NeoMap;
 import com.simon.neo.db.NeoTable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -354,7 +356,7 @@ public class SqlBuilder {
     }
 
     private List<String> buildConditionMeta(NeoMap searchMap) {
-        return toDbField(searchMap).stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+        return searchMap.stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
     }
 
     /**
@@ -379,13 +381,44 @@ public class SqlBuilder {
         return resultMap;
     }
 
+    /**
+     * 生成值列表，对于特殊的值：含有like和比较符进行处理
+     *
+     * @param searchMap 搜索的值map
+     * @return 值结果
+     */
+    public List<Object> buildValueList(NeoMap searchMap) {
+        if (NeoMap.isEmpty(searchMap)) {
+            return Collections.emptyList();
+        }
+
+        return searchMap.values().stream().map(v->{
+            if (v instanceof String) {
+                String valueStr = String.class.cast(v);
+
+                // 处理模糊搜索，like
+                if (valueStr.startsWith(LIKE_PRE)) {
+                    return valueStr.substring(LIKE_PRE.length());
+                }
+
+                // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
+                if (haveThanPre(valueStr)) {
+                    return getSymbolAndValue(valueStr).getValue();
+                }
+            }
+            return v;
+        }).collect(Collectors.toList());
+    }
+
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
         Object value = entry.getValue();
         if (value instanceof String) {
             String valueStr = String.class.cast(value);
-            // 设置模糊搜索
+
+            // 处理模糊搜索，like
             if (valueStr.startsWith(LIKE_PRE)) {
                 searchMap.put(entry.getKey(), getLikeValue(valueStr));
+                toDbField(searchMap);
                 return entry.getKey() + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "?");
             }
 
@@ -423,6 +456,12 @@ public class SqlBuilder {
         return likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length()) + "%";
     }
 
+    /**
+     * 获取值的比较符和数据值
+     *
+     * @param valueStr 带有比较符的参数
+     * @return key为比较符，value为字符数据
+     */
     @SuppressWarnings("all")
     private Pair<String, String> getSymbolAndValue(String valueStr) {
         valueStr = valueStr.trim();
