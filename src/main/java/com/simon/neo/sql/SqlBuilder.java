@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
@@ -398,7 +399,7 @@ public class SqlBuilder {
 
                 // 处理模糊搜索，like
                 if (valueStr.startsWith(LIKE_PRE)) {
-                    return valueStr.substring(LIKE_PRE.length());
+                    return null;
                 }
 
                 // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
@@ -407,30 +408,29 @@ public class SqlBuilder {
                 }
             }
             return v;
-        }).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
         Object value = entry.getValue();
+        String key = toDbField(entry.getKey());
         if (value instanceof String) {
             String valueStr = String.class.cast(value);
 
             // 处理模糊搜索，like
             if (valueStr.startsWith(LIKE_PRE)) {
-                searchMap.put(entry.getKey(), getLikeValue(valueStr));
-                toDbField(searchMap);
-                return entry.getKey() + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "?");
+                return key + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "'" + getLikeValue(valueStr) + "'");
             }
 
             // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
             if (haveThanPre(valueStr)) {
                 Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
-                searchMap.put(entry.getKey(), symbolAndValue.getValue());
-                return entry.getKey() + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+                searchMap.put(entry.getKey(), symbolAndValue.getValue().trim());
+                return key + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
             }
-            return entry.getKey() + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+            return key + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
         }
-        return entry.getKey() + " = " + ((withValueFlag.get() ? value : " ?"));
+        return key + " = " + ((withValueFlag.get() ? value : " ?"));
     }
 
     /**

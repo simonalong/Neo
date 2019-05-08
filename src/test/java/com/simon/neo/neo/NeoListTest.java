@@ -186,23 +186,32 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList9(){
-        // todo 这里有点问题
+        // select `group`, `name` from neo_table1 where `name` < ? ], {params => [name]
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< name")));
+        // select `group`, `name` from neo_table1 where `name` < ? ], {params => ['name']
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "< 'name'")));
+        // select `group`, `name` from neo_table1 where `name` <= ? ], {params => [name']
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "<= name'")));
+        // select `group`, `name` from neo_table1 where `name` > ? ], {params => ['name']
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", "> 'name'")));
+        // select `group`, `name` from neo_table1 where `name` >= ? ], {params => ['name']
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("name", ">= 'name'")));
     }
 
     /**
      * 查询大小匹配的查询
      * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from neo_table1 where `name` < 'name' limit 1
+     * 相当于：select `group`, `name` from neo_table1 where `group` like 'group%'
      */
     @Test
     @SneakyThrows
     public void testList10(){
-        // todo 这里有点问题
+        // select `group`, `name` from neo_table1 where `group` like 'group%'
         show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like group")));
+    }
+
+    @Test
+    public void test(){
+        show(neo.execute("select `group`, `name` from neo_table1 where `name` < ? ", "'name'"));
     }
 }

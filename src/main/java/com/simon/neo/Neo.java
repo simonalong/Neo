@@ -1174,7 +1174,7 @@ public class Neo {
      * 开启全局id生成器
      */
     public void openUidGenerator(){
-        uidGenerator = UidGenerator.getInstance(this, 10000, 0.12f);
+        uidGenerator = UidGenerator.getInstance(this, 10000, 0.2f);
     }
 
     /**
@@ -1535,7 +1535,13 @@ public class Neo {
      */
     private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters, Boolean single){
         Pair<List<Object>, List<Object>> pair = replaceHolderParameters(sqlOrigin, parameters);
-        String sql = String.format(sqlOrigin, pair.getKey().toArray());
+        List<Object> keys = pair.getKey();
+        String sql = sqlOrigin;
+
+        if (null != keys && !keys.isEmpty()) {
+            sql = String.format(sqlOrigin, keys.toArray());
+        }
+
         if (null != single && single) {
             sql += limitOne();
         }
