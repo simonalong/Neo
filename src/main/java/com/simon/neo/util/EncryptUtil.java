@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import lombok.experimental.UtilityClass;
 
 /**
+ * 文本压缩加密
+ *
  * @author zhouzhenyong
  * @since 2019/2/22 上午11:20
  */

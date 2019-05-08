@@ -1,7 +1,6 @@
 package com.simon.neo.sql;
 
-import com.simon.neo.Neo;
-import com.simon.neo.util.TimeStrUtil;
+import com.simon.neo.util.TimeRangeStrUtil;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -122,10 +121,10 @@ public class SqlMonitor {
 
         String buildCost(Long costTime){
             if (null != sql) {
-                return "[耗时: " + TimeStrUtil.parseTime(costTime) + "] [sql => " + getSql()
+                return "[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "] [sql => " + getSql()
                     + "], {params => " + getParamsList() + " }";
             } else {
-                return "[耗时: " + TimeStrUtil.parseTime(costTime) + "]";
+                return "[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "]";
             }
         }
     }

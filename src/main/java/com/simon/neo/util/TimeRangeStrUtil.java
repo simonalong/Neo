@@ -10,7 +10,7 @@ import lombok.experimental.UtilityClass;
  * @since 2019/2/27 下午4:12
  */
 @UtilityClass
-public class TimeStrUtil {
+public class TimeRangeStrUtil {
 
     /**
      * 我们这里最小的单位是毫秒
