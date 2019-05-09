@@ -370,7 +370,13 @@ public class ObjectUtil {
         if (Collection.class.isAssignableFrom(tClass)) {
             return (T) toCollection(value);
         }
-        return castStr(tClass, String.valueOf(value));
+
+        // 如果是基本类型，则按照基本类型处理
+        if (value.getClass().isPrimitive()) {
+            return castStr(tClass, String.valueOf(value));
+        }
+
+        return NeoMap.from(value).as(tClass);
     }
 
     /**

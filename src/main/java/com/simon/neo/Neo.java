@@ -608,6 +608,27 @@ public class Neo {
     }
 
     /**
+     * 执行分页数据查询
+     *
+     * @param sql 对应的sql，里面可以包含limit也可以不包含，都兼容，如果不包含，则会追加，如果包含，则会根据是否需要填充，进行填充参数或者直接执行
+     * @param startIndex 分页起始
+     * @param pageSize 分页大小
+     * @param parameters 参数
+     * @return 分页对应的数据
+     */
+    public List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters){
+        if (startWithSelect(sql)) {
+            return execute(true, () -> generateExePageSqlPair(sql, Arrays.asList(parameters), startIndex, pageSize),
+                this::executeList);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters){
+        return exePage(sql, neoPage.getStartIndex(), neoPage.getPageSize(), parameters);
+    }
+
+    /**
      * 分组数据
      * @param tableName 表名
      * @param columns   列的属性
@@ -636,19 +657,19 @@ public class Neo {
     }
 
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(tableName, columns, searchMap, tailSql, page.startIndex(), page.pageSize());
+        return page(tableName, columns, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(String tableName, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(tableName, null, searchMap, tailSql, page.startIndex(), page.pageSize());
+        return page(tableName, null, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page){
-        return page(tableName, columns, searchMap, null, page.startIndex(), page.pageSize());
+        return page(tableName, columns, searchMap, null, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){
-        return page(tableName, null, searchMap, page.startIndex(), page.pageSize());
+        return page(tableName, null, searchMap, page.getStartIndex(), page.getPageSize());
     }
 
     @SuppressWarnings("unchecked")
@@ -690,7 +711,7 @@ public class Neo {
     }
 
     public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, NeoPage page){
-        return page(tableName, columns, entity, tailSql, page.startIndex(), page.pageSize());
+        return page(tableName, columns, entity, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     /**
@@ -703,11 +724,11 @@ public class Neo {
      * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, String tailSql, NeoPage page){
-        return page(tableName, null, entity, tailSql, page.startIndex(), page.pageSize());
+        return page(tableName, null, entity, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){
-        return page(tableName, columns, entity, null, page.startIndex(), page.pageSize());
+        return page(tableName, columns, entity, null, page.getStartIndex(), page.getPageSize());
     }
 
     /**
@@ -719,7 +740,7 @@ public class Neo {
      * @return 目标列表
      */
     public <T> List<T> page(String tableName, T entity, NeoPage page){
-        return page(tableName, null, entity, page.startIndex(), page.pageSize());
+        return page(tableName, null, entity, page.getStartIndex(), page.getPageSize());
     }
 
     /**
@@ -1499,8 +1520,8 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
-        String tailSql, Integer pageIndex, Integer pageSize) {
-        return new Pair<>(buildPageList(tableName, columns, searchMap, tailSql, pageIndex, pageSize), generateValueList(searchMap));
+        String tailSql, Integer startIndex, Integer pageSize) {
+        return new Pair<>(buildPageList(tableName, columns, searchMap, tailSql, startIndex, pageSize), generateValueList(searchMap));
     }
 
     /**
@@ -1546,6 +1567,17 @@ public class Neo {
             sql += limitOne();
         }
         return new Pair<>(sql, pair.getValue());
+    }
+
+    /**
+     * 通过原始sql和分页，进行拼接执行
+     */
+    private Pair<String, List<Object>> generateExePageSqlPair(String sqlOrigin, List<Object> parameters,
+        Integer startIndex, Integer pageSize) {
+        if(!sqlOrigin.contains("limit")){
+            sqlOrigin += " limit " + startIndex + ", " + pageSize;
+        }
+        return generateExeSqlPair(sqlOrigin, parameters, false);
     }
 
     /**

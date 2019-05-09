@@ -156,9 +156,9 @@ public class SqlBuilder {
      * @param tailSql 尾部sql
      * @param pageIndex 分页
      * @param pageSize 分页大小
-     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, pageSize
+     * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, getPageSize
      */
-    public String buildPageList(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer pageIndex, Integer pageSize){
+    public String buildPageList(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
         StringBuilder sqlAppender = new StringBuilder("select ");
         if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());
@@ -169,7 +169,7 @@ public class SqlBuilder {
         if(null != tailSql){
             sqlAppender.append(" ").append(tailSql);
         }
-        sqlAppender.append(" limit ").append(pageIndex).append(", ").append(pageSize);
+        sqlAppender.append(" limit ").append(startIndex).append(", ").append(pageSize);
         return sqlAppender.toString();
     }
 
@@ -486,6 +486,9 @@ public class SqlBuilder {
      * @return 转换后的列名，比如name 到 `name`
      */
     private String toDbField(String column){
+        if (column.contains("`")) {
+            return column;
+        }
         return "`" + column + "`";
     }
 }

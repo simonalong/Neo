@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * 数据库的DO实体映射生成器
@@ -30,6 +31,7 @@ import lombok.Setter;
  * @since 2019/3/23 下午10:48
  */
 @Setter
+@Accessors(chain = true)
 public class EntityCodeGen {
 
     /**
@@ -88,20 +90,29 @@ public class EntityCodeGen {
         configuration.setCacheStorage(NullCacheStorage.INSTANCE);
     }
 
+    public EntityCodeGen setDb(String userName, String password, String url){
+        this.userName = userName;
+        this.password = password;
+        this.url = url;
+        return this;
+    }
+
     /**
      * 设置那些只输出的表
      * @param tables 数据库中的表名
      */
-    public void setIncludes(String ...tables){
+    public EntityCodeGen setIncludes(String ...tables){
         includeTables.addAll(Arrays.asList(tables));
+        return this;
     }
 
     /**
      * 设置排除的表
      * @param tables 数据库中的表名
      */
-    public void setExcludes(String ...tables){
+    public EntityCodeGen setExcludes(String ...tables){
         excludeTables.addAll(Arrays.asList(tables));
+        return this;
     }
 
     public void generate(){

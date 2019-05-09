@@ -398,11 +398,24 @@ public class NeoMapTest extends BaseTest{
      */
     @Test
     public void getNeoMapTest2(){
-        DemoEntity demoEntity = new DemoEntity();
-        demoEntity.setName("name").setId(12L).setUserName("user");
+        DemoEntity demoEntity = new DemoEntity().setName("name").setId(12L).setUserName("user");
+
+        NeoMap data = NeoMap.of("a", NeoMap.of("name", "name", "id", 12L, "userName", "user"));
+
+        Assert.assertTrue(demoEntity.equals(data.get(DemoEntity.class, "a")));
+    }
+
+    /**
+     * getNeoMap除了返回值可以为实体对象外，还可以是NeoMap
+     */
+    @Test
+    public void getNeoMapTest3(){
+        DemoEntity demoEntity = new DemoEntity().setName("name").setId(12L).setUserName("user");
+
         NeoMap data = NeoMap.of("a", demoEntity);
 
-        Assert.assertEquals(demoEntity, data.get("a"));
+        NeoMap result = NeoMap.of("name", "name", "id", 12L, "userName", "user");
+        Assert.assertTrue(result.equals(data.get(NeoMap.class, "a")));
     }
 
     @Test
@@ -449,5 +462,24 @@ public class NeoMapTest extends BaseTest{
     public void getEnumTest2(){
         NeoMap neoMap = NeoMap.of("enum", "A1");
         Assert.assertEquals(EnumEntity.A1, neoMap.get(EnumEntity.class, "enum"));
+    }
+
+    @Test
+    public void andTest(){
+        String table1 = "table1";
+        String table2 = "table2";
+        String table3 = "table3";
+
+        NeoMap result = NeoMap.table(table1).cs("name", "a", "age", 123)
+            .and(table2).cs("group", "g1")
+            .and(table3).cs("name", "k");
+
+        // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
+        show(result);
+    }
+
+    @Test
+    public void test11(){
+        NeoMap.of("table1.`name`", "a", "table1.`age`", 123, "table2.`group`", "g1", "table3.`name`", "k");
     }
 }

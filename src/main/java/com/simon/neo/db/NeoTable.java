@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -358,19 +357,19 @@ public class NeoTable {
     }
 
     public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(columns, searchMap, tailSql, page.startIndex(), page.pageSize());
+        return page(columns, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(NeoMap searchMap, String tailSql, NeoPage page){
-        return page(null, searchMap, tailSql, page.startIndex(), page.pageSize());
+        return page(null, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
-        return page(columns, searchMap, null, page.startIndex(), page.pageSize());
+        return page(columns, searchMap, null, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(NeoMap searchMap, NeoPage page){
-        return page(null, searchMap, page.startIndex(), page.pageSize());
+        return page(null, searchMap, page.getStartIndex(), page.getPageSize());
     }
 
     @SuppressWarnings("unchecked")
@@ -392,19 +391,19 @@ public class NeoTable {
     }
 
     public <T> List<T> page(Columns columns, T entity, String tailSql, NeoPage page){
-        return page(columns, entity, tailSql, page.startIndex(), page.pageSize());
+        return page(columns, entity, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public <T> List<T> page(T entity, String tailSql, NeoPage page){
-        return page(null, entity, tailSql, page.startIndex(), page.pageSize());
+        return page(null, entity, tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public <T> List<T> page(Columns columns, T entity, NeoPage page){
-        return page(columns, entity, null, page.startIndex(), page.pageSize());
+        return page(columns, entity, null, page.getStartIndex(), page.getPageSize());
     }
 
     public <T> List<T> page(T entity, NeoPage page){
-        return page(null, entity, page.startIndex(), page.pageSize());
+        return page(null, entity, page.getStartIndex(), page.getPageSize());
     }
 
     /**

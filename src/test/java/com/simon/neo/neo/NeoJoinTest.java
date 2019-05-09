@@ -2,6 +2,7 @@ package com.simon.neo.neo;
 
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
+import com.simon.neo.db.NeoPage;
 import java.sql.SQLException;
 import org.junit.Test;
 
@@ -175,6 +176,23 @@ public class NeoJoinTest extends NeoBaseTest {
     }
 
     /**
+     * 测试多条件
+     *
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * where neo_table1.`group` = 'group1' and neo_table1.`id` = 11 and neo_table2.`group` = 'group1' order by sort desc limit 1
+     */
+    @Test
+    public void joinOneTest9() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String tailSql = "order by sort desc";
+        // {group1=group3, id=13, name=name1, user_name=user_name1}
+        show(neo.join(table1, table2).on("id", "n_id")
+            .one(Columns.table(table1, "*"), tailSql, NeoMap.table(table1).cs("group", "group1", "id", 11).and(table2).cs("group", "group1")));
+    }
+
+    /**
      * join 采用的是innerJoin
      *
      * select neo_table1.`group`
@@ -245,7 +263,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String tailSql = "order by sort desc";
         // [group3, group1, group2]
         show(neo.leftJoin(table1, table2).on("id", "n_id")
-            .values(table1, "group", tailSql));
+            .values(table1, "group", tailSql, NeoMap.of("group", "jj")));
     }
 
     /**
@@ -294,5 +312,40 @@ public class NeoJoinTest extends NeoBaseTest {
         show(neo.join(table1, table2).on("name", "name")
             .one(Columns.table(table1, "id", "name", "group").and(table2, "id", "name", "group"),
                 NeoMap.of("group", "ok", "name", "haode").setKeyPre(table1 + "."), NeoMap.of("name", "ceshi").setKeyPre(table2 + ".")));
+    }
+
+    /**
+     * left join except inner
+     *
+     * 该处理的时候会自动增加一个条件，就是设置右表的主键为null，其实就是取的一个左表减去和右表公共的部分
+     *
+     * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
+     * from neo_table1 left join neo_table2 on neo_table1.`name`=neo_table2.`name`
+     * where (neo_table2.id is null)  limit 1
+     */
+    @Test
+    public void leftJoinExceptInnerTest(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        show(neo.leftJoinExceptInner(table1, table2).on("name", "name")
+            .one(Columns.table(table1, "id", "name", "group").and(table2, "id", "name", "group"))
+        );
+    }
+
+    /**
+     * join的分页查询
+     *
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by sort desc
+     * limit 0, 12
+     */
+    @Test
+    public void pageTest(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String tailSql = "order by sort desc";
+        show(neo.join(table1, table2).on("id", "n_id")
+            .page(Columns.table(table1, "*"), tailSql, NeoPage.of(1, 12)));
     }
 }

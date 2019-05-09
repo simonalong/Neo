@@ -142,8 +142,7 @@ public class UidGenerator {
         return "create table `" + UUID_TABLE + "` (\n"
             + "  `id` int(11) not null,\n"
             + "  `uuid` bigint(20) not null default 0,\n"
-            + "  primary key (`id`),\n"
-            + "  unique key `id` (`id`)\n"
+            + "  primary key (`id`)\n"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
     }
 }

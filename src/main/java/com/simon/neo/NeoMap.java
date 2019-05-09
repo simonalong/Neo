@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,6 +42,12 @@ public class NeoMap implements Map<String, Object> {
      */
     @Setter
     private NamingChg localNaming;
+    /**
+     * 针对存储表和表对应的字段的时候，table名字和columnsName可能一起设定，这里就是tableName
+     */
+    @Setter
+    @Accessors(chain = true)
+    private String keyPreTableName;
 
     private NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
@@ -207,6 +214,7 @@ public class NeoMap implements Map<String, Object> {
      * @param exFieldList 排除的属性
      * @return 转换之后的NeoMap
      */
+    @SuppressWarnings("unchecked")
     public static NeoMap from(Object object, NamingChg naming, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of();
         if (null == object) {
@@ -216,6 +224,10 @@ public class NeoMap implements Map<String, Object> {
         String valueResult = valueCheck(object);
         if (null != valueResult) {
             throw new NeoMapChgException("object 不是普通对象，转换失败：" + valueResult);
+        }
+
+        if (Map.class.isAssignableFrom(object.getClass())) {
+            return neoMap.append(Map.class.cast(object));
         }
         neoMap.setLocalNaming(naming);
         return innerFrom(neoMap, object, inFieldList, exFieldList);
@@ -227,6 +239,10 @@ public class NeoMap implements Map<String, Object> {
             targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
         });
         return targetMap;
+    }
+
+    public static NeoMap table(String tableName){
+        return NeoMap.of().setKeyPreTableName(tableName);
     }
 
     /**
@@ -250,9 +266,6 @@ public class NeoMap implements Map<String, Object> {
             return "对象是集合类型";
         }
 
-        if (Map.class.isAssignableFrom(vClass)) {
-            return "对象是map类型";
-        }
         return null;
     }
 
@@ -350,6 +363,42 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * 拼接表的多个列名columns和对应的值
+     *
+     * @param kvs key-value-key-value-...
+     * @return 拼接字段之后的数据
+     */
+    public NeoMap cs(Object... kvs) {
+        if (kvs.length % 2 != 0) {
+            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
+        }
+
+        for (int i = 0; i < kvs.length; i += 2) {
+            if (null == kvs[i]) {
+                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
+            }
+            put(toColumnStr((String) kvs[i]), kvs[i + 1]);
+        }
+        return this;
+    }
+
+    public NeoMap and(String tableName){
+        return setKeyPreTableName(tableName);
+    }
+
+    /**
+     * 将字段转变为sql中的字段名，即添加前后的引号``
+     * @param key 表的列名
+     * @return sql中对应的表的字段名
+     */
+    private String toColumnStr(String key){
+        if (null != keyPreTableName && !"".equals(keyPreTableName)) {
+            return keyPreTableName + ".`" + key + "`";
+        }
+        return "`" + key + "`";
+    }
+
+    /**
      * key的命名风格从其他转到小驼峰
      *
      * @param namingChg 转换类型
@@ -404,9 +453,14 @@ public class NeoMap implements Map<String, Object> {
      * @param <T> 目标类的类型
      * @return 目标类的实体对象
      */
+    @SuppressWarnings("unchecked")
     public <T> T as(Class<T> tClass, NamingChg naming) {
         if (dataMap.isEmpty()) {
             return null;
+        }
+
+        if (NeoMap.class.isAssignableFrom(tClass)) {
+            return (T) this;
         }
         T t = null;
         try {
@@ -803,6 +857,14 @@ public class NeoMap implements Map<String, Object> {
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return dataMap.entrySet();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof NeoMap) {
+            return dataMap.equals(NeoMap.class.cast(object).getDataMap());
+        }
+        return false;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.simon.neo.db.NeoPage;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
+import lombok.ToString.Exclude;
 import org.junit.Test;
 
 /**
@@ -204,5 +205,46 @@ public class NeoPageTest extends NeoBaseTest{
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
         show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc", NeoPage.of(1, 20)));
+    }
+
+    /**
+     * 普通的分页处理
+     * select * from neo_table1 limit 0, 20
+     */
+    @Test
+    public void testExePage1(){
+        String table1 = "neo_table1";
+        neo.exePage("select * from %s", 0, 20, table1);
+    }
+
+    /**
+     * 对于sql中包含limit 的处理，这里其实跟list已经没有什么区别了，而且还多出了中间两个参数，不建议这样使用
+     *
+     * [select * from neo_table1 limit ?, ?], {params => [0, 12]}
+     */
+    @Test
+    public void testExePage2(){
+        String table1 = "neo_table1";
+        neo.exePage("select * from %s limit ?, ?", 0, 20, table1, 0, 12);
+    }
+
+    /**
+     * 添加参数的分页处理
+     * [select * from neo_table1 where id < ? limit 12, 20], {params => [1000]}
+     */
+    @Test
+    public void testExePage3(){
+        String table1 = "neo_table1";
+        neo.exePage("select * from %s where id < ?", 12, 20, table1, 1000);
+    }
+
+    /**
+     * 指定分页的页面位置
+     * [sql => select * from neo_table1 where id < ? limit 0, 20], {params => [1000] }
+     */
+    @Test
+    public void testExePage4(){
+        String table1 = "neo_table1";
+        neo.exePage("select * from %s where id < ?", NeoPage.of(1, 20), table1, 1000);
     }
 }

@@ -11,6 +11,12 @@ public class NeoPage {
 
     private NeoPage() {}
 
+    /**
+     * 创建
+     * @param pageIndex 分页页码
+     * @param pageSize 分页大小
+     * @return 分页对象
+     */
     public static NeoPage of(Integer pageIndex, Integer pageSize) {
         return new NeoPage().setPageIndex(pageIndex).setPageSize(pageSize);
     }
@@ -25,14 +31,14 @@ public class NeoPage {
         return this;
     }
 
-    public Integer startIndex() {
+    public Integer getStartIndex() {
         if (pageIndex > 0) {
             return (pageIndex - 1) * pageSize;
         }
         return 0;
     }
 
-    public Integer pageSize() {
+    public Integer getPageSize() {
         return pageSize;
     }
 }

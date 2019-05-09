@@ -5,8 +5,10 @@ import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
 import com.simon.neo.sql.JoinType;
+import com.simon.neo.sql.SqlBuilder;
 import java.util.Arrays;
 import java.util.List;
+import javafx.util.Pair;
 
 /**
  * @author zhouzhenyong
@@ -219,6 +221,27 @@ public class NeoJoiner {
         return list(columns, "", searchMapList);
     }
 
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize) {
+        String sql = buildPageSql(columns, searchMap, tailSql, startIndex, pageSize);
+        return neo.exePage(sql, startIndex, pageSize, SqlBuilder.buildValueList(searchMap));
+    }
+
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
+        return page(columns, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
+    }
+
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
+        return page(columns, searchMap, "", page);
+    }
+
+    public List<NeoMap> page(Columns columns, String tailSql, NeoPage page){
+        return page(columns, NeoMap.of(), tailSql, page.getStartIndex(), page.getPageSize());
+    }
+
+    public List<NeoMap> page(Columns columns, NeoPage page){
+        return page(columns, NeoMap.of(), page);
+    }
+
     /**
      * join核查中的查询一个数据
      *
@@ -307,5 +330,22 @@ public class NeoJoiner {
         }else {
             return joinHeadSql + " " + joinTailSql;
         }
+    }
+
+    /**
+     * 构造join的执行的sql和对应的参数
+     *
+     * @param columns 要展示的列
+     * @param searchMap 搜索条件
+     * @param tailSql 尾部sql
+     * @return Pair对象：key为拼接的含有占位符的原始sql， value为对应的填充参数
+     */
+    private String buildPageSql(Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
+        String sqlOrigin = buildSql(columns, tailSql, searchMap);
+        if (!sqlOrigin.contains("limit")){
+            sqlOrigin += " limit " + startIndex + ", " + pageSize;
+        }
+
+        return sqlOrigin;
     }
 }
