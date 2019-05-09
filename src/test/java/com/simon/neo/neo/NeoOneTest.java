@@ -68,11 +68,11 @@ public class NeoOneTest extends NeoBaseTest{
         show(neo.exeOne("explain select * from neo_table1 where name like '%s'", "na%"));
     }
 
-    @Test
-    public void testExeOne6(){
-        NeoMap search = NeoMap.of("group", "ok", "name", "haode");
-        show(neo.exeOne(DemoEntity.class, "select * from %s %s", "neo_table1", SqlBuilder.buildWhereWithValue(search)));
-    }
+//    @Test
+//    public void testExeOne6(){
+//        NeoMap search = NeoMap.of("group", "ok", "name", "haode");
+//        show(neo.exeOne(DemoEntity.class, "select * from %s %s", "neo_table1", SqlBuilder.buildWhereWithValue(search)));
+//    }
 
     /**
      * 查询一行数据

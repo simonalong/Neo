@@ -189,8 +189,8 @@ public class NeoTest extends NeoBaseTest{
      */
     @Test
     public void testExecute2(){
-        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
-        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
+//        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
+        show(neo.execute("select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`   where neo_table1.`group` =  ? and neo_table1.`id` =  ? order by sort desc", "group121", 11));
     }
 
     @Test

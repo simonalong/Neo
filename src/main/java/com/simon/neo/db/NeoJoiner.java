@@ -193,16 +193,24 @@ public class NeoJoiner {
      * {@code select xxx from a inner join b on a.xxxxxx=b.yyy where x=? and y=? and a.m=? and b.n=? order by xx }
      *
      * @param columns 所有表的列名
-     * @param searchMapList 搜索条件
+     * @param searchMap 搜索条件
      * @param tailSql sql的尾部语句
      * @return join执行后的结果
      */
-    public NeoMap one(Columns columns, String tailSql, NeoMap... searchMapList){
-        return neo.exeOne(buildSql(columns, tailSql, searchMapList));
+    public NeoMap one(Columns columns, String tailSql, NeoMap searchMap){
+        return neo.exeOne(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
     }
 
-    public NeoMap one(Columns columns, NeoMap... searchMapList){
-        return one(columns, "", searchMapList);
+    public NeoMap one(Columns columns, NeoMap searchMap){
+        return one(columns, "", searchMap);
+    }
+
+    public NeoMap one(Columns columns, String tailSql){
+        return one(columns, tailSql, NeoMap.of());
+    }
+
+    public NeoMap one(Columns columns){
+        return one(columns, "", NeoMap.of());
     }
 
     /**
@@ -210,20 +218,20 @@ public class NeoJoiner {
      *
      * @param columns 左表的列名
      * @param tailSql sql的尾部语句
-     * @param searchMapList sql的尾部语句
+     * @param searchMap 搜索条件
      * @return join执行后的结果
      */
-    public List<NeoMap> list(Columns columns, String tailSql, NeoMap... searchMapList){
-        return neo.exeList(buildSql(columns, tailSql, searchMapList));
+    public List<NeoMap> list(Columns columns, String tailSql, NeoMap searchMap){
+        return neo.exeList(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
     }
 
-    public List<NeoMap> list(Columns columns, NeoMap... searchMapList){
-        return list(columns, "", searchMapList);
+    public List<NeoMap> list(Columns columns, NeoMap searchMap){
+        return list(columns, "", searchMap);
     }
 
     public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize) {
         String sql = buildPageSql(columns, searchMap, tailSql, startIndex, pageSize);
-        return neo.exePage(sql, startIndex, pageSize, SqlBuilder.buildValueList(searchMap));
+        return neo.exePage(sql, startIndex, pageSize, buildValueList(searchMap).toArray());
     }
 
     public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
@@ -247,11 +255,11 @@ public class NeoJoiner {
      *
      * @param columns 左表的列名
      * @param tailSql sql的尾部语句
-     * @param searchMapList sql的尾部语句
+     * @param searchMap sql的尾部语句
      * @return join执行后的结果
      */
-    public Integer count(Columns columns, String tailSql, NeoMap... searchMapList){
-        return neo.exeCount(buildSql(columns, tailSql, searchMapList));
+    public Integer count(Columns columns, String tailSql, NeoMap searchMap){
+        return neo.exeCount(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
     }
 
     /**
@@ -259,29 +267,29 @@ public class NeoJoiner {
      * @param tClass 目标类型
      * @param columnName 列名
      * @param tailSql 尾部sql，比如order by xxx
-     * @param searchMapList 搜索映射列表
+     * @param searchMap 搜索条件
      * @param <T> 返回值类型
      * @return 返回的指定类型的值
      */
-    public <T> T value(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap... searchMapList){
-        String joinTailSql = buildJoinTail(sqlCondition, Arrays.asList(searchMapList), tailSql);
+    public <T> T value(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap searchMap){
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
         return neo.exeValue(tClass, "select " + tableName + ".`" + columnName + "` " + joinSql + " " + joinTailSql);
     }
 
-    public <T> T value(Class<T> tClass, String tableName, String columnName, NeoMap... searchMapList){
-        return value(tClass, tableName, columnName, "", searchMapList);
+    public <T> T value(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){
+        return value(tClass, tableName, columnName, "", searchMap);
     }
 
     public <T> T value(Class<T> tClass, String tableName, String columnName){
         return value(tClass, tableName, columnName, NeoMap.of());
     }
 
-    public String value(String tableName, String columnName, String tailSql, NeoMap... searchMapList){
-        return value(String.class, tableName, columnName, tailSql, searchMapList);
+    public String value(String tableName, String columnName, String tailSql, NeoMap searchMap){
+        return value(String.class, tableName, columnName, tailSql, searchMap);
     }
 
-    public String value(String tableName, String columnName, NeoMap... searchMapList){
-        return value(tableName, columnName, "", searchMapList);
+    public String value(String tableName, String columnName, NeoMap searchMap){
+        return value(tableName, columnName, "", searchMap);
     }
 
     public String value(String tableName, String columnName){
@@ -293,38 +301,38 @@ public class NeoJoiner {
      * @param tClass 目标类型
      * @param columnName 列名
      * @param tailSql 尾部sql，比如order by xxx
-     * @param searchMapList 搜索映射列表
+     * @param searchMap 搜索条件
      * @param <T> 返回值类型
      * @return 返回的指定类型的值
      */
-    public <T> List<T> values(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap... searchMapList){
-        String joinTailSql = buildJoinTail(sqlCondition, Arrays.asList(searchMapList), tailSql);
+    public <T> List<T> values(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap searchMap){
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
         return neo.exeValues(tClass, "select " + tableName + ".`" + columnName + "` " + joinSql + " " + joinTailSql);
     }
 
-    public <T> List<T> values(Class<T> tClass, String tableName, String columnName, NeoMap... searchMapList){
-        return values(tClass, tableName, columnName, "", searchMapList);
+    public <T> List<T> values(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){
+        return values(tClass, tableName, columnName, "", searchMap);
     }
 
     public <T> List<T> values(Class<T> tClass, String tableName, String columnName){
         return values(tClass, tableName, columnName, NeoMap.of());
     }
 
-    public List<String> values(String tableName, String columnName, String tailSql, NeoMap... searchMapList){
-        return values(String.class, tableName, columnName, tailSql, searchMapList);
+    public List<String> values(String tableName, String columnName, String tailSql, NeoMap searchMap){
+        return values(String.class, tableName, columnName, tailSql, searchMap);
     }
 
-    public List<String> values(String tableName, String columnName, NeoMap... searchMapList){
-        return values(tableName, columnName, "", searchMapList);
+    public List<String> values(String tableName, String columnName, NeoMap searchMap){
+        return values(tableName, columnName, "", searchMap);
     }
 
     public List<String> values(String tableName, String columnName){
         return values(tableName, columnName, NeoMap.of());
     }
 
-    private String buildSql(Columns columns, String tailSql, NeoMap... searchMapList){
+    private String buildSql(Columns columns, String tailSql, NeoMap searchMap){
         String joinHeadSql = buildJoinHead(neo, columns);
-        String joinTailSql = buildJoinTail(sqlCondition, Arrays.asList(searchMapList), tailSql);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
         if(null != joinSql && !"".equals(joinSql)){
             return joinHeadSql + " " + joinSql + " " + joinTailSql;
         }else {

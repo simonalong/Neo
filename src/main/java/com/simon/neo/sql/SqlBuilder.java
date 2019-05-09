@@ -52,15 +52,6 @@ public class SqlBuilder {
         return "";
     }
 
-    public String buildWhereWithValue(NeoMap searchMap) {
-        try {
-            withValueFlag.set(true);
-            return buildWhere(searchMap);
-        }finally {
-            withValueFlag.set(false);
-        }
-    }
-
     /**
      * 值为占位符的条件拼接
      * @param searchMap 搜索条件map
@@ -74,33 +65,6 @@ public class SqlBuilder {
                 .toString();
         }
         return stringBuilder.toString();
-    }
-
-    /**
-     * 带值的搜索拼接
-     * @param searchMap 搜索条件map
-     * @return 比如：`group` = 'group1' and `name` = 'name1'
-     */
-    public String buildConditionWithValue(NeoMap searchMap){
-        try {
-            withValueFlag.set(true);
-            return buildCondition(searchMap);
-        }finally {
-            withValueFlag.set(false);
-        }
-    }
-
-    public String buildConditionWithValue(List<NeoMap> searchMapList) {
-        try {
-            withValueFlag.set(true);
-            List<String> metaList = new ArrayList<>();
-            if (!NeoMap.isEmpty(searchMapList)) {
-                searchMapList.forEach(s -> metaList.add(buildCondition(s)));
-            }
-            return String.join(" and ", metaList);
-        } finally {
-            withValueFlag.set(false);
-        }
     }
 
     /**
@@ -154,7 +118,7 @@ public class SqlBuilder {
      * @param columns 列信息
      * @param searchMap 搜索条件
      * @param tailSql 尾部sql
-     * @param pageIndex 分页
+     * @param startIndex 分页
      * @param pageSize 分页大小
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, getPageSize
      */
@@ -323,14 +287,14 @@ public class SqlBuilder {
      * 生成拼接的join的条件{@code where x=? and y=? and a.m=? and b.n=?}
      *
      * @param sqlCondition 对于join_except类型需要用的一些排除条件
-     * @param searchMapList 搜索条件map列表
+     * @param searchMap 搜索条件map
      * @param tail 尾部sql
      * @return 返回拼接的sql
      */
-    public String buildJoinTail(String sqlCondition, List<NeoMap> searchMapList, String tail) {
+    public String buildJoinTail(String sqlCondition, NeoMap searchMap, String tail) {
         StringBuilder sb = new StringBuilder();
         Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
-        Boolean searchMapsNotEmpty = !NeoMap.isEmpty(searchMapList);
+        Boolean searchMapsNotEmpty = !NeoMap.isEmpty(searchMap);
         if (sqlConditionNotEmpty || searchMapsNotEmpty) {
             sb.append(" where ");
         }
@@ -344,7 +308,7 @@ public class SqlBuilder {
         }
 
         if (searchMapsNotEmpty) {
-            sb.append(buildConditionWithValue(searchMapList));
+            sb.append(buildCondition(searchMap));
         }
 
         sb.append(" ").append(tail);
