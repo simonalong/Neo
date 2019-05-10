@@ -176,6 +176,7 @@ public <T> T insert(String tableName, T entity, NamingChg naming) {}
 - `tableName`：表名
 - `valueMap`：是表中要插入的数据，其中`NeoMap`是自定义的`Map<String, Object>`结构，可实现多种常见的功能，详见下面的NeoMap介绍
 - `NamingChg`：是实体`entity`的属性名字和`NeoMap`中`key`字段名字的相互映射，转换类型详见下面的介绍
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -222,6 +223,7 @@ public Integer delete(String tableName, NeoMap searchMap) {}
 public <T> Integer delete(String tableName, T entity) {}
 public <T> Integer delete(String tableName, T entity, NamingChg naming) {}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -406,6 +408,7 @@ public <T> T one(String tableName, T entity, String tailSql){}
 public NeoMap one(String tableName, Columns columns, NeoMap searchMap, String tailSql) {}
 public <T> T one(String tableName, Columns columns, T entity, String tailSql){}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -448,6 +451,7 @@ public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage pag
 public <T> List<T> page(String tableName, T entity, NeoPage page){}
 public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize) {}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -487,6 +491,7 @@ public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searc
 public <T> T value(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {}
 public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql) {}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tClass | Class | 返回值的Class类型 |
@@ -735,6 +740,7 @@ public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {}
 public <T> Integer batchInsertEntity(String tableName, List<T> dataList){}
 public <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg){}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -753,6 +759,7 @@ public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){}
 public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg){}
 public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns){}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | tableName | String | 表名 |
@@ -1257,6 +1264,7 @@ public <T> T tx(TxIsolationEnum isolationEnum, Supplier<T> supplier) {}
 public void tx(TxIsolationEnum isolationEnum, Boolean readOnly, Runnable runnable) {}
 public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier){}
 ```
+
 | 参数 | 类型 | 详解 |
 | --- | --- | --- |
 | runnable | Runnable | 无返回值的执行 |
