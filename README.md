@@ -477,7 +477,7 @@ public Integer count(String tableName) {}
 
 <a name="nekuR"></a>
 
-<h3 id="单个查询value">e.单个查询value</h3>
+<h3 id="单值查询value">e.单值查询value</h3>
 
 针对这个查询，其实就是查询某一行中的某个列的值
 
