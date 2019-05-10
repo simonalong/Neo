@@ -112,7 +112,6 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest5() {
-        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -132,7 +131,6 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest6() {
-        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -152,7 +150,6 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest7() {
-        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -269,21 +266,20 @@ public class NeoJoinTest extends NeoBaseTest {
             .values(table1, "group", tailSql, NeoMap.of("group", "jj")));
     }
 
-    /**
-     * 请注意，mysql 不支持 full join
-     *
-     * select neo_table2.`id`, neo_table1.`group` from neo_table2 outer join neo_table1 on neo_table2.`n_id`=neo_table1.`id` order by sort desc
-     */
-    @Test
-    public void outerJoinTest() {
-        // todo
-        String table1 = "neo_table1";
-        String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
-        // [group3, group1, group2]
-        show(neo.outerJoin(table1, table2).on("id", "n_id")
-            .values(table1, "group", tailSql, NeoMap.of()));
-    }
+//    /**
+//     * 请注意，mysql 不支持 full join
+//     *
+//     * select neo_table2.`id`, neo_table1.`group` from neo_table2 outer join neo_table1 on neo_table2.`n_id`=neo_table1.`id` order by sort desc
+//     */
+//    @Test
+//    public void outerJoinTest() {
+//        String table1 = "neo_table1";
+//        String table2 = "neo_table2";
+//        String tailSql = "order by sort desc";
+//        // [group3, group1, group2]
+//        show(neo.outerJoin(table1, table2).on("id", "n_id")
+//            .values(table1, "group", tailSql, NeoMap.of()));
+//    }
 
     /**
      * 多表join

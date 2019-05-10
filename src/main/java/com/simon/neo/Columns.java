@@ -212,17 +212,6 @@ public final class Columns {
             } else {
                 fieldSet.add(filterColumnToFinal(f));
             }
-//            String metaField = filterColumnToMeta(f);
-//            if (columnMap.containsKey(metaField)) {
-//                fieldSet.add(columnMap.get(metaField));
-//            } else {
-//                if (!f.contains(asStr)) {
-//                    fieldSet.add(filterColumnToFinal(f));
-////                } else {
-////                    Integer index = f.indexOf(asStr);
-////                    fieldSet.add(filterColumnToFinal(f.substring(0, index)) + f.substring(index + 1));
-//                }
-//            }
         });
         return fieldSet;
     }
@@ -319,7 +308,7 @@ public final class Columns {
      * @return 列的别名
      */
     private String columnAlias(String fieldStr){
-        String asStr = "as";
+        String asStr = " as ";
         String spaceStr = " ";
         fieldStr = fieldStr.trim();
         if(fieldStr.contains(asStr)){

@@ -53,7 +53,6 @@ public class NeoTxTest extends NeoBaseTest {
      */
     @Test
     public void test3(){
-        // todo
         DemoEntity entity = null;
         neo.tx(()->{
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group31"));

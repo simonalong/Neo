@@ -197,6 +197,14 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     @Test
+    public void tableCsTest7() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        show(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"));
+    }
+
+
+    @Test
     public void removeTest() {
         Columns columns = Columns.of("c1", "c2");
         columns.remove("c2");
