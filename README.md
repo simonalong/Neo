@@ -583,6 +583,14 @@ public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters){}
 ```
 <a name="rg4VA"></a>
 
+<h4 id="执行获取分页">执行获取分页</h4>
+
+```java
+public List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters){}
+public List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters){}
+```
+<a name="32o96"></a>
+
 <h4 id="执行获取个数">执行获取个数</h4>
 
 ```java
@@ -610,6 +618,7 @@ public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) 
 <h2 id="其他查询">5.其他查询</h>
 
 除了常见的查询之外，这里还提供了如下的查询：
+
 <a name="74ZqM"></a>
 
 <h3 id="其他查询">a.表单独查询(*)</h3>
