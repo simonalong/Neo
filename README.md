@@ -31,13 +31,13 @@ Neo是一个基于JDBC开发的，采用Hikaricp作为连接池的Orm框架。�
             * [执行获取单个值](#执行获取单个值)
             * [执行获取单列多值](#执行获取单列多值)
     * 5.[其他查询](#其他查询)
-        * [表单独查询](#表单独查询)
+        * [表单独查询(*)](#表单独查询)
         * [In查询](#In查询)
 * 三、[结构信息](#结构信息)
-    * 1.[表信息](#表信息)
+    * 1.[表信息(*)](#表信息)
     * 2.[列信息](#列信息)
-    * 2.[索引信息](#索引信息)
-    * 2.[表创建的sql](#表创建的sql)
+    * 3.[索引信息](#索引信息)
+    * 4.[表创建的sql(*)](#表创建的sql)
 * 四、[批量功能](#批量功能)
     * 1.[批量插入](#批量功能)
     * 2.[批量更新](#批量更新)
@@ -66,31 +66,33 @@ Neo是一个基于JDBC开发的，采用Hikaricp作为连接池的Orm框架。�
 * 八、[单机事务](#单机事务)
     * 1.[事务只读](#事务只读)
     * 2.[事务隔离](#事务隔离)
-* 九、[sql监控](#sql监控)
+* 九、[sql监控(*)](#sql监控)
     * 1.[sql耗时监控](#sql耗时监控)
     * 2.[sql规范化监控](#sql规范化监控)
     * 3.[sql语句优化监控](#sql语句优化监控)
-* 十、[主从](#主从)
+* 十、[主从（待验证）](#主从)
     * 1.[mysql主从](#mysql主从)
 * 十一、[join](#join)
     * [两表join](#两表join)
     * [多表join](#多表join)
     * [join类型](#join类型)
-* 十二、[实体代码生成器](#实体代码生成器)
+* 十二、[实体代码生成器(*)](#实体代码生成器)
     * 1.[生成实体](#生成实体)
     * 2.[抽离公共枚举](#抽离公共枚举)
-* 十三、[sql特殊处理](#sql特殊处理)
+* 十三、[sql特殊处理(*)](#sql特殊处理)
     * 1.[sql模糊查询](#sql模糊查询)
-    * 1.[sql大小比较查询](#sql大小比较查询)
+    * 2.[sql大小比较查询](#sql大小比较查询)
 * 十四、[分布式](#分布式)
     * 1.[全局id](#全局id)
-    * 2.[分布式锁](#分布式锁)
-* 十五、[动态分库分表](#动态分库分表)
+        * [表结构](#表结构)
+        * [用法](#用法)
+    * 2.[分布式锁（待开发）](#分布式锁)
+* 十五、[动态分库分表（待开发）](#动态分库分表)
     * 1.[水平分表](#水平分表)
     * 2.[垂直分表](#垂直分表)
     * 3.[分库](#分库)
-* 十六、[分布式事务](#分布式事务)
-* 十七、[多数据源](#多数据源)
+* 十六、[分布式事务（待开发）](#分布式事务)
+* 十七、[多数据源（待开发）](#多数据源)
     * 1.[mysql](#mysql)
     * 2.[sqlLite](#sqlLite)
     * 3.[PostGresql](#PostGresql)
@@ -621,7 +623,7 @@ public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) 
 
 <a name="74ZqM"></a>
 
-<h3 id="其他查询">a.表单独查询(*)</h3>
+<h3 id="表单独查询">a.表单独查询(*)</h3>
 
 前面所有的查询都是通过传入一个表名，进而查询一个表的对应的信息，这里可以先获取一个表信息，然后就不需要再传入表名了，获取表对象的函数为
 
@@ -1111,7 +1113,7 @@ public static void setDefaultNamingChg(NamingChg namingChg) {}
 **注意：**<br />一旦设置了，所有的NeoMap到实体的转换都是用这个转换方式了
 <a name="5XOvN"></a>
 
-<h1 id="Columns">七、Columns</h1>
+<h1 id="Columns类">七、Columns类</h1>
 
 在代码内部这个类比较常见，就单独讲解一下，该类主要是用于对列进行处理并将普通的字符转换为sql所需要的格式。<br />普通的列名经过这里处理之后是要变成这样的格式：
 
@@ -1361,7 +1363,9 @@ public void test6(){
 
 该框架是支持对于手写sql的，而手写sql很多时候无法保证sql的性能和规范化，因此这里增加一层监控，用于对sql进行监控和规范化告警。
 <a name="1bdde129"></a>
-### 1.sql耗时监控
+
+<h3 id="sql耗时监控">1.sql耗时监控</h3>
+
 这个是默认开启的，比如每个sql都会打印如下的debug日志
 
 ```sql
@@ -1430,7 +1434,7 @@ explain打印的字段如下，我们只关注type<br />![image.png](https://cdn
 
 <a name="3gUjl"></a>
 
-<h1 id="主从">十一、join</h1>
+<h1 id="join">十一、join</h1>
 
 对于表join有如下这么几种类型<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/126182/1557391855029-fcd5edb6-1a0f-486d-b60f-06a5c5c76aa6.png#align=left&display=inline&height=587&name=image.png&originHeight=760&originWidth=966&size=485473&status=done&width=746)
 
@@ -1473,7 +1477,6 @@ public List<String> values(String tableName, String columnName){}
 ```
 
 <a name="7b1e8b49"></a>
-### 两表join
 
 <h3 id="两表join">两表join</h3>
 
@@ -2006,7 +2009,7 @@ public Long getUid() {}
 
 <a name="YaeCo"></a>
 
-<h3 id="用法">2.分布式锁（待开发）</h3>
+<h3 id="分布式锁">2.分布式锁（待开发）</h3>
 
 <a name="oE9mJ"></a>
 
@@ -2033,15 +2036,15 @@ public Long getUid() {}
 
 <a name="1.mysql"></a>
 
-<h3 id="分库">1.mysql</h3>
+<h3 id="mysql">1.mysql</h3>
 
 <a name="2.sqlLite"></a>
 
-<h3 id="分库">2.sqlLite</h3>
+<h3 id="sqlLite">2.sqlLite</h3>
 
 <a name="3.PostGresql"></a>
 
-<h3 id="分库">3.PostGresql</h3>
+<h3 id="mysql">3.PostGresql</h3>
 
 
 
