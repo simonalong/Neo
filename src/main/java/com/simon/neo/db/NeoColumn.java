@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class NeoColumn {
+public final class NeoColumn {
 
     /**
      * 数据库中的列名

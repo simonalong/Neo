@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
-public class NeoDb {
+public final class NeoDb {
 
     private Neo neo;
     /**

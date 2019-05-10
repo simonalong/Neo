@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * @since 2019/3/17 下午2:42
  */
 @Data
-public class TableIndex {
+public final class TableIndex {
 
     private static final String TABLE_CAT = "TABLE_CAT";
     private static final String TABLE_SCHEM = "TABLE_SCHEM";

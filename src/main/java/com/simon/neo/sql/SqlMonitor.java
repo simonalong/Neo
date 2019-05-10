@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/22 下午1:38
  */
 @Slf4j
-public class SqlMonitor {
+public final class SqlMonitor {
 
     private static final String PRE_LOG = "[Neo-monitor] ";
     private static final Integer ONE_MILLION = 1;

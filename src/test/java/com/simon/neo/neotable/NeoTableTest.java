@@ -16,6 +16,7 @@ public class NeoTableTest extends BaseNeoTableTest {
 
     @Test
     public void testInsert(){
+        // todo
         show(tinaTest.insert(NeoMap.of("group", "table1")));
     }
 

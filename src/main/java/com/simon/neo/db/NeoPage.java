@@ -4,7 +4,7 @@ package com.simon.neo.db;
  * @author zhouzhenyong
  * @since 2019/3/15 下午3:31
  */
-public class NeoPage {
+public final class NeoPage {
 
     private Integer pageIndex;
     private Integer pageSize;

@@ -65,7 +65,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("*"), tailSql));
+            .one(Columns.table(table1, neo).cs("*"), tailSql));
     }
 
     /**
@@ -112,6 +112,7 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest5() {
+        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -131,6 +132,7 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest6() {
+        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -150,6 +152,7 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void joinOneTest7() {
+        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";
@@ -222,7 +225,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // [{group1=group1, group2=group1, id=11, name=}, {group1=group1, group2=group2, id=11, name=}, {group1=group2, group2=group3, id=12, name=haode}, {group1=group3, group2=group4, id=13, name=name1, user_name=user_name1}]
         show(neo.join(table1, table2).on("id", "n_id")
-            .list(Columns.table(table1).cs("*", "group as group1").and(table2).cs("group as group2"), NeoMap.of()));
+            .list(Columns.table(table1, neo).cs("*", "group as group1").and(table2).cs("group as group2"), NeoMap.of()));
     }
 
     /**
@@ -273,6 +276,7 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void outerJoinTest() {
+        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String tailSql = "order by sort desc";

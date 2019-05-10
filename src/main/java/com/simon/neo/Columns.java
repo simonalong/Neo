@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
  * @author zhouzhenyong
  * @since 2019/3/16 下午9:18
  */
-public class Columns {
+public final class Columns {
 
     private static final String DEFAULT_TABLE = "";
     private static final String ALL_COLUMN_NAME = "*";

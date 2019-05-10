@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Accessors(chain = true)
-class FieldInfo {
+final class FieldInfo {
 
     /**
      * 属性的类的类型

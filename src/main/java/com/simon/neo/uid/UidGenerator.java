@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author zhouzhenyong
  * @since 2019/5/1 下午10:22
  */
-public class UidGenerator {
+public final class UidGenerator {
 
     private Neo neo;
     /**

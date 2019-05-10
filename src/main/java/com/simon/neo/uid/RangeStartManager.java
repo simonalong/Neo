@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/5/2 上午9:59
  */
 @Slf4j
-public class RangeStartManager {
+public final class RangeStartManager {
 
     private Neo neo;
     /**

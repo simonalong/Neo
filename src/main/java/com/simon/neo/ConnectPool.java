@@ -12,7 +12,7 @@ import javax.sql.DataSource;
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
-public class ConnectPool {
+public final class ConnectPool {
 
     private final Neo neo;
     private final DataSource dataSource;

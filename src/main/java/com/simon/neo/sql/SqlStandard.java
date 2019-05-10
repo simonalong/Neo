@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/21 上午8:16
  */
 @Slf4j
-public class SqlStandard {
+public final class SqlStandard {
 
     private static final String PRE_LOG = "[Neo-standard] ";
     /**

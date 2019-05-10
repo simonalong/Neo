@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
  * @author zhouzhenyong
  * @since 2019/3/26 下午8:44
  */
-public class ReusableConnection implements Connection {
+public final class ReusableConnection implements Connection {
 
     private Connection connection;
 

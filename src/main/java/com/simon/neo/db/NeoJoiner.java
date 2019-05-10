@@ -5,16 +5,13 @@ import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
 import com.simon.neo.sql.JoinType;
-import com.simon.neo.sql.SqlBuilder;
-import java.util.Arrays;
 import java.util.List;
-import javafx.util.Pair;
 
 /**
  * @author zhouzhenyong
  * @since 2019/4/20 下午9:46
  */
-public class NeoJoiner {
+public final class NeoJoiner {
 
     private Neo neo;
     /**

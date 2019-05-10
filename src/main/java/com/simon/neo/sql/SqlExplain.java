@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/22 下午8:26
  */
 @Slf4j
-public class SqlExplain {
+public final class SqlExplain {
 
     private static final String PRE_LOG = "[Neo-explain]";
     private static final String ALL = "all";
