@@ -212,7 +212,7 @@ public class SqlBuilder {
      * @return join对应的head，比如：select xxx,xxx
      */
     public String buildJoinHead(Neo neo, Columns columns) {
-        return "select " + columns.extend(neo).buildFields();
+        return "select " + columns.setNeo(neo).buildFields();
     }
 
     /**
