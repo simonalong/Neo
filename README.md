@@ -615,7 +615,7 @@ public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) 
 
 <a name="vpj88"></a>
 
-<h2 id="其他查询">5.其他查询</h>
+<h2 id="其他查询">5.其他查询</h2>
 
 除了常见的查询之外，这里还提供了如下的查询：
 
