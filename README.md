@@ -2,10 +2,104 @@
 
 Neo是一个基于JDBC开发的，采用Hikaricp作为连接池的Orm框架。开发源头，源于几个原因，一个是之前几个公司采用的都是各自单独开发的Orm框架，这些框架不是开源，如果想自己使用，很多时候不方便，也不合适。另外一个是mybatis确实感觉不是很好用，把很多简单的东西设计的很复杂。最后是由于自己有很多想法，比如sql的规范落入到框架中、sql耗时统计和sql优化监控等等很多特性，且在之前接触的一些Orm框架中都没有。因此就有想法设计一个符合自己想法的Orm框架，下面的一些设计和各种特性有有借鉴之前接触到的一些优秀思想，也有在秉承着大道至简的原则进行的设计，框架刚起步，希望有兴趣的同学，一起添砖加瓦，共同成长。<br />下面介绍下框架的功能和一些用法，其中后面有（*）的部分是该框架亮点部分，也算特有部分。
 <a name="SOWXF"></a>
-# 一、数据库连接
+
+# 目录：
+
+* 一、[数据库连接](#数据库连接)
+    * 1.[账号密码链接](#账号密码链接)
+    * 2.[配置路径连接](#配置路径连接)
+    * 3.[Datasource连接](#Datasource连接)
+* ​二、[基本功能](#基本功能)
+    * 1.[增加](#增加)
+            * [参数详解](#参数详解)
+        *[自增属性支持](#自增属性支持 )
+    * 2.[删除](#删除)
+    * 3.[修改](#修改)
+    * 4.[查询](#查询)
+        * a.[单行查询one](#单行查询one)
+        * b.[多行查询list](#多行查询list)
+        * c.[分页查询page](#分页查询page)
+        * d.[个数查询count](#个数查询count)
+        * e.[单值查询value](#单值查询value)
+        * f.[单列多值查询values](#单列多值查询values)
+        * f.[直接执行sql](#直接执行sql)
+            * [直接执行](#直接执行)
+            * [执行获取单行](#执行获取单行)
+            * [执行获取多行](#执行获取多行)
+            * [执行获取分页](#执行获取分页)
+            * [执行获取个数](#执行获取个数)
+            * [执行获取单个值](#执行获取单个值)
+            * [执行获取单列多值](#执行获取单列多值)
+    * 5.[其他查询](#其他查询)
+        * [表单独查询](#表单独查询)
+        * [In查询](#In查询)
+* 三、[结构信息](#结构信息)
+    * 1.[表信息](#表信息)
+    * 2.[列信息](#列信息)
+    * 2.[索引信息](#索引信息)
+    * 2.[表创建的sql](#表创建的sql)
+* 四、[批量功能](#批量功能)
+    * 1.[批量插入](#批量功能)
+    * 2.[批量更新](#批量更新)
+* 五、[NeoMap类](#NeoMap类)
+    * 1.[NeoMap初始化](#NeoMap初始化)
+    * 2.[NeoMap和JavaBean转换](#NeoMap和JavaBean转换)
+        * 1.[对象转换](#对象转换)
+        * 2.[集合转换](#集合转换)
+    * 3.[NeoMap和NeoMap转换](#NeoMap和NeoMap转换)
+    * 4.[其他功能](#其他功能)
+        * 1.[合并更多数据](#合并更多数据)
+        * 2.[NeoMap获取固定列](#NeoMap获取固定列)
+        * 3.[NeoMap列添加前缀](#NeoMap列添加前缀)
+        * 4.[NeoMap列转换](#NeoMap列转换)
+        * 5.[判空](#判空)
+        * 6.[获取不同的列值类型](#获取不同的列值类型)
+        * 7.[多表的列使用](#多表的列使用)
+* 六、[命名转换](#命名转换)
+    * 1.[转换风格](#转换风格)
+    * 2.[NeoMap设置](#NeoMap设置)
+* 七、[Columns类](#Columns类)
+    * 1.[初始化](#初始化)
+    * 2.[多表的处理](#多表的处理)
+    * 3.[表所有列处理](#表所有列处理)
+    * 4.[列别名处理](#列别名处理)
+* 八、[单机事务](#单机事务)
+    * 1.[事务只读](#事务只读)
+    * 2.[事务隔离](#事务隔离)
+* 九、[sql监控](#sql监控)
+    * 1.[sql耗时监控](#sql耗时监控)
+    * 2.[sql规范化监控](#sql规范化监控)
+    * 3.[sql语句优化监控](#sql语句优化监控)
+* 十、[主从](#主从)
+    * 1.[mysql主从](#mysql主从)
+* 十一、[join](#join)
+    * [两表join](#两表join)
+    * [多表join](#多表join)
+    * [join类型](#join类型)
+* 十二、[实体代码生成器](#实体代码生成器)
+    * 1.[生成实体](#生成实体)
+    * 2.[抽离公共枚举](#抽离公共枚举)
+* 十三、[sql特殊处理](#sql特殊处理)
+    * 1.[sql模糊查询](#sql模糊查询)
+    * 1.[sql大小比较查询](#sql大小比较查询)
+* 十四、[分布式](#分布式)
+    * 1.[全局id](#全局id)
+    * 2.[分布式锁](#分布式锁)
+* 十五、[动态分库分表](#动态分库分表)
+    * 1.[水平分表](#水平分表)
+    * 2.[垂直分表](#垂直分表)
+    * 3.[分库](#分库)
+* 十六、[分布式事务](#分布式事务)
+* 十七、[多数据源](#多数据源)
+    * 1.[mysql](#mysql)
+    * 2.[sqlLite](#sqlLite)
+    * 3.[PostGresql](#PostGresql)
+
+<h1 id="数据库连接">一、数据库连接：</h1>
+
 针对数据库连接，这里支持多种连接方式
 <a name="ZGBXc"></a>
-### 1.账号密码连接
+<h3 id="账号密码连接">1.账号密码连接：</h3>
 连接也是支持普通的密码账户连接
 ```java
 String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -15,9 +109,9 @@ Neo neo = Neo.connect(url, user, password);
 ```
 
 <a name="KQWul"></a>
-### 2.配置路径连接
+<h3 id="配置路径连接">2.配置路径连接：</h3>
 其中路径是class的配置文件路径
-```java
+```
 Neo neo = Neo.connect("/config/db.properties");
 ```
 其中配置文件可以有如下这么几种：
@@ -51,25 +145,26 @@ minimumIdle=10
 ```
 
 <a name="IffMd"></a>
-### 3.Datasource连接
+<h3 id="Datasource连接">3.Datasource连接：</h3>
 也支持Datasource的连接方式
-```java
+```
 Neo neo = Neo.connect(dataSource);
 ```
 
 <a name="7WV5F"></a>
-# 二、基本功能
+<h1 id="基本功能">二、基本功能</h1>
+
 <a name="FXZXz"></a>
-## 1.增加
+<h2 id="增加">1.增加</h2>
 增加数据这里有如下这么几种方式
-```java
+```
 public NeoMap insert(String tableName, NeoMap valueMap) {}
 public <T> T insert(String tableName, T entity) {}
 public <T> T insert(String tableName, T entity, NamingChg naming) {}
 ```
 
 <a name="mT4y2"></a>
-#### 参数详解：
+<h4 id="参数详解">参数详解</h4>
 
 - `tableName`：表名
 - `valueMap`：是表中要插入的数据，其中`NeoMap`是自定义的`Map<String, Object>`结构，可实现多种常见的功能，详见下面的NeoMap介绍
@@ -83,7 +178,8 @@ public <T> T insert(String tableName, T entity, NamingChg naming) {}
 
 **注意：**<br />其中`NeoMap`作为参数和`T entity`作为参数是一样的，下面的所有函数都是一样，`T entity`可以跟`NeoMap`相互转换，其中转换方式是`namingChg`，对于默认情况下，是`key`和`entity`的属性是完全对应的。
 <a name="OzfgX"></a>
-### a.自增属性支持
+<h4 id="自增属性支持">自增属性支持</h4>
+
 对于自增属性的支持，这里是默认支持，如果对应的表格的字段是主键且是自增字段，则插入之后，返回的值是含有生成的id的。<br />**比如：**
 ```sql
 CREATE TABLE `neo_table1` (
@@ -97,6 +193,7 @@ CREATE TABLE `neo_table1` (
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
 **测试插入：**
+
 ```java
 @Test
 @SneakyThrows
@@ -108,7 +205,7 @@ public void testInsert1(){
 ```
 
 <a name="Z6khJ"></a>
-## 2.删除
+<h2 id="删除">2.删除</h2>
 删除这里也有多种处理
 ```java
 public Integer delete(String tableName, Long id) {}
@@ -124,7 +221,7 @@ public <T> Integer delete(String tableName, T entity, NamingChg naming) {}
 | namingChg | NamingChg | 待插入的数据，通过该字符转换可以跟数据库字段对应上 |
 
 <a name="AT7RL"></a>
-## 3.修改
+<h2 id="修改">3.修改</h2>
 对数据库中的数据进行修改
 ```java
 /**
@@ -267,7 +364,7 @@ public void testUpdate7(){
 ```
 
 <a name="ojz36"></a>
-## 4.查询
+<h2 id="查询">4.查询</h2>
 在查询这里，增加了这么几类函数（有部分是借鉴别的框架）：
 
 - 单行查询one
@@ -284,7 +381,9 @@ public void testUpdate7(){
   - 执行获取单个值
   - 执行获取单列多值
 <a name="IwMpH"></a>
-### a.单行查询one
+
+<h3 id="单行查询one">a.单行查询one</h3>
+
 ```java
 public NeoMap one(String tableName, NeoMap searchMap){}
 public <T> T one(String tableName, T entity){}
@@ -305,7 +404,9 @@ public <T> T one(String tableName, Columns columns, T entity, String tailSql){}
 
 **注意：**<br />one执行的时候会自动在sql语句最后添加`limit 1`
 <a name="mkT1Z"></a>
-### b.多行查询list
+
+<h3 id="多行查询list">b.多行查询list</h3>
+
 多行查询函数的参数跟单行查询的函数是相同的
 ```java
 public List<NeoMap> list(String tableName, NeoMap searchMap){}
@@ -319,7 +420,8 @@ public <T> List<T> list(String tableName, Columns columns, T entity, String tail
 ```
 参数同`one`
 <a name="XziYV"></a>
-### c.分页查询page
+
+<h3 id="分页查询page">c.分页查询page</h3>
 
 ```java
 
@@ -345,7 +447,9 @@ public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, St
 | pageSize | Integer | limit 中的分页大小 |
 
 <a name="Pyv0m"></a>
-### d.个数查询count
+
+<h3 id="个数查询count">d.个数查询count</h3>
+
 针对个数的查询有下面这个几个函数
 ```java
 public Integer count(String tableName, NeoMap searchMap) {}
@@ -354,7 +458,9 @@ public Integer count(String tableName) {}
 ```
 
 <a name="nekuR"></a>
-### e.单个查询value
+
+<h3 id="单个查询value">e.单个查询value</h3>
+
 针对这个查询，其实就是查询某一行中的某个列的值
 ```java
 public String value(String tableName, String field, Object entity) {}
@@ -376,13 +482,19 @@ public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searc
 | tailSql | String | sql后面的拼接语句，放在where的条件后面，比如order by xxx |
 
 <a name="w9ebU"></a>
-### f.单列多值查询values
+
+<h3 id="单列多值查询values">f.单列多值查询values</h3>
+
 单列多值的函数为`values`，对应的参数和上面介绍的`value`相同
 <a name="ieNE8"></a>
-### g.直接执行sql
+
+<h3 id="直接执行sql">g.直接执行sql</h3>
+
 直接执行这里面除了直接执行数据之外，还可以执行获取单列，单值，多列，个数等
 <a name="jkBKk"></a>
-#### 直接执行
+
+<h4 id="直接执行">直接执行</h4>
+
 ```java
 public List<List<NeoMap>> execute(String sql, Object... parameters) {}
 ```
@@ -430,41 +542,55 @@ public void testExecute5(){
 
 
 <a name="cF726"></a>
-#### 执行获取单行
+
+<h4 id="执行获取单行">执行获取单行</h4>
+
 执行单行其实就是在sql的最后添加limit 1，并返回唯一一个结果实体
 ```java
 public NeoMap exeOne(String sql, Object... parameters) {}
 public <T> T exeOne(Class<T> tClass, String sql, Object... parameters){}
 ```
 <a name="JJOwD"></a>
-#### 执行获取多行
+
+<h4 id="执行获取多行">执行获取多行</h4>
+
 ```java
 public List<NeoMap> exeList(String sql, Object... parameters) {}
 public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters){}
 ```
 <a name="rg4VA"></a>
-#### 执行获取个数
+
+<h4 id="执行获取个数">执行获取个数</h4>
+
 ```java
 public Integer exeCount(String sql, Object... parameters) {}
 ```
 <a name="tU5Lh"></a>
-#### 执行获取单个值
+
+<h4 id="执行获取单个值">执行获取单个值</h4>
+
 ```java
 public String exeValue(String sql, Object... parameters){}
 public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {}
 ```
 <a name="GAzwT"></a>
-#### 执行获取单列多值
+
+<h4 id="执行获取单列多值">执行获取单列多值</h4>
+
 ```java
 public List<String> exeValues(String sql, Object... parameters){}
 public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {}
 ```
 
 <a name="vpj88"></a>
-## 5.其他查询
+
+<h2 id="其他查询">5.其他查询</h>
+
 除了常见的查询之外，这里还提供了如下的查询：
 <a name="74ZqM"></a>
-### a.表单独查询（*）
+
+<h3 id="其他查询">a.表单独查询(*)</h3>
+
 前面所有的查询都是通过传入一个表名，进而查询一个表的对应的信息，这里可以先获取一个表信息，然后就不需要再传入表名了，获取表对象的函数为
 ```java
 public NeoTable getTable(String tableName){}
@@ -490,7 +616,9 @@ public NeoMap one(Columns columns, NeoMap searchMap, String tailSql) {}
 - 批量插入batchInsert（下面会介绍）
 - 批量更新batchUpdate（下面会介绍）
 <a name="41ana"></a>
-### b.In查询
+
+<h3 id="In查询">b.In查询</h3>
+
 针对常见的in的查询，这里也提供了一个专门构造sql的类SqlBuilder，里面有一个构造in语句的方法in()
 ```java
 public <T> String in(List<T> values) {}
@@ -513,17 +641,23 @@ public void testExeList6(){
 ```
 
 <a name="AO5Ly"></a>
-# 三、结构信息
+
+<h1 id="结构信息">三、结构信息</h1>
+
 除了常见的查询之外，这里还提供了对于库的表结构的查询：
 <a name="f8ada07a"></a>
-### 1.表信息
+
+<h3 id="表信息">1.表信息</h3>
+
 查询库中表列表：
 ```java
 public List<String> getAllTableNameList(){}
 ```
 
 <a name="47061b39"></a>
-### 2.列信息
+
+<h3 id="列信息">2.列信息</h3>
+
 表的所有列名：
 ```java
 public Set<String> getColumnNameList(String tableName){}
@@ -531,7 +665,9 @@ public List<NeoColumn> getColumnList(String tableName){}
 ```
 
 <a name="e46328b9"></a>
-### 3.索引信息
+
+<h3 id="索引信息">3.索引信息</h3>
+
 表的所有索引信息：
 ```java
 public List<Index> getIndexList(String tableName){}
@@ -539,7 +675,9 @@ public List<String> getIndexNameList(String tableName){}
 ```
 
 <a name="c21b6bee"></a>
-### 4.表创建的sql（*）
+
+<h3 id="表创建的sql">4.表创建的sql(*)</h3>
+
 表的创建语句：
 ```java
 /**
@@ -559,10 +697,14 @@ public String getTableCreate(String tableName){
 ```
 该功能是一个很不错的功能，在进行动态化分表的时候，获取原表的创建语句，修改表名，然后再配合execute执行创建表语句，则可以创建新的表，即可以实现动态的分库分表（其中动态化是利用自己开发的分布式配置中心的配置热启动功能，该分布式配置中心请见[这里](https://www.yuque.com/simonalong/xiangmu/pxg5a8)）。
 <a name="xrGjL"></a>
-# 四、批量功能
+
+<h3 id="批量功能">四、批量功能</h3>
+
 对于批量功能，这里提供了批量更新和批量插入
 <a name="151c1be6"></a>
-### 1.批量插入
+
+<h3 id="批量插入">1.批量插入</h3>
+
 ```java
 public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {}
 public <T> Integer batchInsertEntity(String tableName, List<T> dataList){}
@@ -576,7 +718,9 @@ public <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingC
 | namingChg | NamingChg | 实体跟NeoMap（或者叫跟DB）字段映射 |
 
 <a name="c0d24f84"></a>
-### 2.批量更新
+
+<h3 id="批量更新">2.批量更新</h3>
+
 ```java
 public Integer batchUpdate(String tableName, List<NeoMap> dataList){}
 public Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns){}
@@ -593,10 +737,14 @@ public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns
 
 提示：<br />上面的批量更新和批量插入，在NeoTable中也都是支持的，少了一个tableName参数，使用起来会更加方便
 <a name="xR3E0"></a>
-# 五、NeoMap类
+
+<h1 id="NeoMap类">五、NeoMap类</h1>
+
 NeoMap类借鉴之前Orm框架中的一个Map类，除了借鉴一些功能和思想之外，这里又增加了一些其他的功能。该类是该框架中一个比较重要且最常见的类，在框架中NeoMap就是默认跟实体对象等价的，NeoMap是直接继承自Map<String, Object>的一个线程安全的Map类，内部采用有序的线程安全类ConcurrentSkipLinkedMap进行存储。该类除了具备基本的Map的一些功能外，还增加了很多额外的功能，基本功能不在介绍，这里主要介绍额外的功能，功能和用法列举下。
 <a name="jlB3l"></a>
-## 1.NeoMap初始化
+
+<h2 id="NeoMap初始化">1.NeoMap初始化</h2>
+
 NeoMap初始化方式很多，使得Map的使用更加的方便
 ```java
 // 根据key-value-key-value...这种初始化，key为String
@@ -634,9 +782,13 @@ public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {}
 ```
 
 <a name="AHP1F"></a>
-## 2.NeoMap和JavaBean转换
+
+<h2 id="NeoMap和JavaBean转换">2.NeoMap和JavaBean转换</h2>
+
 <a name="ZADGY"></a>
-### 1.对象转换
+
+<h3 id="对象转换">1.对象转换</h3>
+
 ```java
 // Neo转到指定的实体，默认风格转换器就是不转换
 public <T> T as(Class<T> tClass) {}
@@ -646,7 +798,10 @@ public <T> T as(Class<T> tClass, NamingChg naming) {}
 ```
 
 <a name="XY2EP"></a>
-### 2.集合转换
+
+<h3 id="集合转换">2.集合转换</h3>
+
+
 ```java
 // List<NeoMap>转换到集合List<T>
 public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass) {}
@@ -668,7 +823,9 @@ public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, Nami
 ```
 
 <a name="wasZ4"></a>
-## 3.NeoMap和NeoMap转换
+
+<h3 id="NeoMap和NeoMap转换">3.NeoMap和NeoMap转换</h3>
+
 这里转换我们只添加了key的风格转换，这里分两种，小驼峰风格到其他风格和其他风格到小驼峰风格
 ```java
 // key风格从小驼峰到其他
@@ -679,9 +836,13 @@ public NeoMap keyChgToSmallCamelFrom(NamingChg namingChg){}
 ```
 
 <a name="TRL0m"></a>
-## 4.其他功能
+
+<h2 id="其他功能">4.其他功能</h2>
+
 <a name="nfTIP"></a>
-### 1.合并更多数据
+
+<h3 id="合并更多数据">1.合并更多数据</h3>
+
 ```java
 // 关联另外的NeoMap跟putAll一样
 public NeoMap append(NeoMap neoMap) {}
@@ -694,14 +855,18 @@ public NeoMap putAll(NeoMap sourceMap, NamingChg namingChg) {}
 ```
 
 <a name="itpW6"></a>
-### 2.NeoMap获取固定列
+
+<h3 id="NeoMap获取固定列">2.NeoMap获取固定列</h3>
+
 ```java
 // 这是一个NeoMap只保留指定的列，并生成一个新的NeoMap
 public NeoMap assign(Columns columns) {}
 ```
 
 <a name="aDjIj"></a>
-### 3.NeoMap列添加前缀
+
+<h3 id="NeoMap列添加前缀">3.NeoMap列添加前缀</h3>
+
 有些时候我们需要给NaoMap中的列添加一些前缀
 ```java
 // 给所有的key添加前缀，比如给所有的列添加"x_"
@@ -709,7 +874,9 @@ public NeoMap setKeyPre(String preFix) {}
 ```
 
 <a name="piU9k"></a>
-### 4.NeoMap列转换
+
+<h3 id="NeoMap列转换">4.NeoMap列转换</h3>
+
 key进行转换
 ```java
 // 对NeoMap中的key进行转换，keys：oldKey-newKey-oldKey-newKey-...
@@ -717,7 +884,9 @@ public NeoMap keyConvert(String... keys) {}
 ```
 
 <a name="WWfQm"></a>
-### 5.判空
+
+<h3 id="判空">5.判空</h3>
+
 判空这里可以对NeoMap判空也可以对集合判空
 ```java
 // 集合判空
@@ -732,7 +901,9 @@ public static boolean isEmpty(NeoMap neoMap) {
 ```
 
 <a name="NInFl"></a>
-### 6.获取不同的列值类型
+
+<h3 id="获取不同的列值类型">6.获取不同的列值类型</h3>
+
 由于NeoMap的value是Object类型，因此获取值之后还是要进行转换，这里借鉴之前的Orm框架，对数据进行转换
 
 ```java
@@ -823,7 +994,9 @@ public void getEnumTest2(){
 | java.sql.Date,<br />java.sql.Time,<br />java.sql.TimeStamp, <br />java.utl.Date | Long | 对应函数：get(Long.class, String key)和getLong(String key) |
 
 <a name="mraxd"></a>
-### 7.多表的列使用
+
+<h3 id="多表的列使用">7.多表的列使用</h3>
+
 在下面介绍的join中有种场景是多表关联，而多表关联，则需要用到多个表的搜索条件，那么多表的搜索条件应该如何使用，如果按照上面的通常情况下，那么就可能会像这样使用。
 
 ```java
@@ -844,10 +1017,14 @@ public NeoMap and(String tableName){}
 ```
 
 <a name="6r6XH"></a>
-# 六、命名转换
+
+<h1 id="命名转换">六、命名转换</h1>
+
 针对数据库的命名字段风格和系统内部的命名风格不一样，这里增加了风格转换（有借鉴其他框架思想，具体实现不同）。其中风格转换主要就是基于NeoMap进行风格转换，NeoMap默认就是跟DB中的字段保持一致的，而转换到具体的实体中，则需要进行转换
 <a name="lE9n5"></a>
-## 1.转换风格
+
+<h2 id="转换风格">1.转换风格</h2>
+
 项目中设定的风格为如下基本这些，而更多的转换，则可以将相互的风格再嵌套即可扩展更多
 
 | 转换类型 | 风格1 | 风格2 |
@@ -863,13 +1040,19 @@ public NeoMap and(String tableName){}
 | UPPERMIDDLE | 小驼峰（dataBaseUser） | 大写中划线（DATA-BASE-USER） |
 
 <a name="ifeWS"></a>
-## 2.NeoMap设置
+
+<h2 id="NeoMap设置">2.NeoMap设置</h2>
+
 对于NeoMap和实体转换时候需要设定风格，可以每次都在函数中添加转换，也可以设定全局转换
 <a name="39hoz"></a>
-#### 单独设置
+
+<h4 id="单独设置">单独设置</h4>
+
 在实体entity作为参数的时候，一般情况下后面都会有一个参数是namingChg，这个参数是用于entity向NeoMap转换。<br />**注意：**<br />其中转换函数有两个：一个是风格1向风格2转换，一个是风格2向风格1转换，对于实体向NeoMap则是采用风格1向风格2转换函数，而NeoMap向entity转换也是用到风格1向风格2的函数，只是用该函数获取字段，然后对字段赋值而已，只有特殊情况下才会用到风格2向风格1的转换。这些都不需要使用者关心，只需要知道一下即可。
 <a name="L2Phd"></a>
-#### 全局设置
+
+<h4 id="全局设置">全局设置</h4>
+
 如果我们不想每次都那么麻烦的转换，则可以对NeoMap设置全局转换
 ```java
 public static void setDefaultNamingChg(NamingChg namingChg) {}
@@ -877,7 +1060,9 @@ public static void setDefaultNamingChg(NamingChg namingChg) {}
 
 **注意：**<br />一旦设置了，所有的NeoMap到实体的转换都是用这个转换方式了
 <a name="5XOvN"></a>
-# 七、Columns
+
+<h1 id="Columns">七、Columns</h1>
+
 在代码内部这个类比较常见，就单独讲解一下，该类主要是用于对列进行处理并将普通的字符转换为sql所需要的格式。<br />普通的列名经过这里处理之后是要变成这样的格式：
 
 ```
@@ -889,7 +1074,9 @@ table.name as n -> table.`name` as n
 ```
 
 <a name="doqyv"></a>
-### 1.初始化
+
+<h3 id="初始化">1.初始化</h3>
+
 ```java
 public static Columns of(String... fields) {}
 public static Columns of(List<Field> fieldList) {}
@@ -907,7 +1094,9 @@ public static Columns table(String tableName, Neo neo){}
 ```
 
 <a name="aA4HO"></a>
-### 2.多表的处理
+
+<h3 id="多表的处理">2.多表的处理</h3>
+
 在使用多表的时候，我们可以直接使用of函数，将所有的列放进去，不过也可以使用下面的方式
 ```java
 public static Columns table(String tableName){}
@@ -944,7 +1133,9 @@ public void tableCsTest3() {
 ```
 
 <a name="SV7db"></a>
-### 3.表所有列处理
+
+<h3 id="表所有列处理">3.表所有列处理</h3>
+
 针对需要表的所有列的时候，平常是用"*"，但是sql规范中是不建议使用"*"，我们可能需要手写，而手写又太多了，那么我们这里增加这样的写法，在使用符号“*”的时候要传入库对象Neo，否则会报异常。
 
 ```java
@@ -982,7 +1173,9 @@ public void allColumnTest3() {
 ```
 
 <a name="8jZmx"></a>
-### 4.列别名处理
+
+<h3 id="列别名处理">4.列别名处理</h3>
+
 针对别名处理的时候，我们这里支持这么两种方式：as 方式和空格方式
 ```java
 @Test
@@ -1013,7 +1206,9 @@ public void aliasTest4(){
 别名中，我们会将有别名的列和对应的列认为是相同的列
 
 <a name="rmc4l"></a>
-# 八、单机事务
+
+<h1 id="单机事务">八、单机事务</h1>
+
 针对单机事务，这里一些特性借鉴了spring的`@Transactional`注解，事务有很多特性：只读性，隔离性，传播性，我们这里只暴露只读和隔离，其中传播性默认为如果事务不存在，则创建，否则加入到已经存在的事务中。针对事务，这里增加这么个函数（函数名有借鉴）
 ```java
 public void tx(Runnable runnable) {}
@@ -1033,7 +1228,9 @@ public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> sup
 | readOnly | Boolean | true：表示该事务是只读事务，false：表示为普通事务 |
 
 <a name="eae7edbd"></a>
-### 1.事务只读
+
+<h3 id="事务只读">1.事务只读</h3>
+
 对于事务中有多个读操作的这种，我们可以对事务添加只读，那么为什么添加只读事务，网上说了很多是在一个事务中有多个读操作，为了前后读取的一致性，才添加只读事务的。我的理解不是这样，我觉得mysql事务的默认隔离级别是不可重复，其实就是在一个事务中，前后读取就是保持一致的。那么什么时候添加只读呢，由于在事务中，根据事务中的读写，增加了各种隔离级别，随着级别越来越高，则耗费的数据库资源也越多，很多都是根据写操作设置的，但是如果我们事务中只有读，则没有必要再耗费那么多资源，因此可以开启只读按钮，用于优化事务。<br />**示例：**
 ```java
 /**
@@ -1056,7 +1253,9 @@ public void test5(){
 ```
 
 <a name="8ff349b1"></a>
-### 2.事务隔离
+
+<h3 id="事务隔离">2.事务隔离</h3>
+
 事务的隔离级别，这里设置了枚举添加了自定义的枚举
 
 ```java
@@ -1101,7 +1300,9 @@ public void test6(){
 ```
 
 <a name="NNiEv"></a>
-# 九、sql监控（*）
+
+<h1 id="sql监控">九、sql监控（*）</h1>
+
 该框架是支持对于手写sql的，而手写sql很多时候无法保证sql的性能和规范化，因此这里增加一层监控，用于对sql进行监控和规范化告警。
 <a name="1bdde129"></a>
 ### 1.sql耗时监控
@@ -1111,7 +1312,9 @@ public void test6(){
 ```
 这里系统设置：默认打印debug日志，一旦超过3秒，则打印info日志，超过10秒，打印warn日志，超过1分钟，则打印error日志。
 <a name="fb978020"></a>
-### 2.sql规范化监控
+
+<h3 id="sql规范化监控">2.sql规范化监控</h3>
+
 默认开启<br />对于sql规范化参考自阿里巴巴的规范化手册中的sql部分和网上部分，然后对其中可以落地的进行的规范进行落地汇总。
 
 | 名字 | 描述 | 告警类别 |
@@ -1137,7 +1340,9 @@ public void addStandard(String regex, String desc, LogType logType){
 ```
 
 <a name="586bd541"></a>
-### 3.sql语句优化监控
+
+<h3 id="sql语句优化监控">3.sql语句优化监控</h3>
+
 sql语句监控是利用的mysql的校验特性，即在每个sql前面添加explain关键字，在sql执行前先执行一次explain（我们的所有sql都是含有占位符的，执行一次之后，就将该sql保存起来，后面每次执行只打印第一次的测量结果），然后根据测量的结果进行打印出来，目前打印告警有三种：
 
 - sql走了全表扫描：warn日志
@@ -1158,10 +1363,17 @@ explain打印的字段如下，我们只关注type<br />![image.png](https://cdn
 
 <a name="0oqZs"></a>
 # 十、主从（待验证）
+
+<h1 id="主从">十、主从</h1>
+
 <a name="E8ubD"></a>
-### 1.mysql主从
+
+<h3 id="mysql主从">1.mysql主从</h3>
+
 <a name="3gUjl"></a>
-# 十一、join
+
+<h1 id="主从">十一、join</h1>
+
 对于表join有如下这么几种类型<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/126182/1557391855029-fcd5edb6-1a0f-486d-b60f-06a5c5c76aa6.png#align=left&display=inline&height=587&name=image.png&originHeight=760&originWidth=966&size=485473&status=done&width=746)
 
 根据以上对于join的处理，这里新增了一个NeoJoiner类用于链式的拼接sql处理。以下为类Neo中的函数
@@ -1201,6 +1413,9 @@ public List<String> values(String tableName, String columnName){}
 
 <a name="7b1e8b49"></a>
 ### 两表join
+
+<h3 id="两表join">两表join</h3>
+
 基于以上的函数，我们这里简单列举 下简单的实例
 
 ```java
@@ -1289,7 +1504,9 @@ public void pageTest(){
 ```
 
 <a name="b52f20a1"></a>
-### 多表join
+
+<h3 id="多表join">多表join</h3>
+
 其实多表和两表是一样的，只是在on之后又多拼接了一个，举例如下
 ```java
 /**
@@ -1310,7 +1527,9 @@ public void multiJoinTest() {
 }
 ```
 <a name="Mdn2a"></a>
-### join类型
+
+<h3 id="join类型">join类型</h3>
+
 前面简单列举了，下面我们列举下对应的一些join
 
 - join（在这里等价于left join）
@@ -1343,7 +1562,9 @@ public void leftJoinExceptInnerTest(){
 ```
 
 <a name="pWtK7"></a>
-# 十二、实体代码生成器（*）
+
+<h1 id="实体代码生成器">实体代码生成器（*）</h1>
+
 这里借鉴mybatis的实体生成器想法，根据jdbc中数据库字段和java类的映射，来生成对应的实体，我们这里有别于mybatis，对一些枚举类型做了特殊处理，对于公共的一些枚举类型，这里及进行抽离了出来。我们首先看下怎么生成实体。
 ```java
 @Test
@@ -1370,7 +1591,9 @@ public void test1(){
 ```
 
 <a name="c2762ca4"></a>
-### 1.生成实体
+
+<h1 id="生成实体">1.生成实体</h1>
+
 根据上面的配置即可在对应的位置生成对应的实体结构。比如包含所有字段的表如下
 ```sql
 CREATE TABLE `xx_test5` (
@@ -1503,7 +1726,9 @@ public class Test5DO {
 ```
 
 <a name="186b049c"></a>
-### 2.抽离公共枚举
+
+<h2 id="抽离公共枚举">2.抽离公共枚举</h2>
+
 对于表中有枚举类型的话，则会先看是否已经有对应的枚举类了，如果有，则不生成，如果有同名的枚举类，但是枚举类型又不同，则会生成内部的枚举类。<br />表1：（关注其中的枚举类型）
 ```sql
 CREATE TABLE `neo_table3` (
@@ -1615,10 +1840,14 @@ public class Table4DO {
 
 其中描述和后面分隔采用冒号，中文的":"和英文"："的均可，类型之间用分号"；"和";"都可以
 <a name="IE1is"></a>
-# 十三、sql特殊处理（*）
+
+<h1 id="sql特殊处理">十三、sql特殊处理（*）</h1>
+
 对于sql里面增加了一些特殊处理，模糊搜索和大小比较。
 <a name="e3769034"></a>
-### 1.sql 模糊查询
+
+<h3 id="sql模糊查询">1.sql模糊查询</h3>
+
 在值中前面添加"like "即可，比如
 ```java
 /**
@@ -1635,7 +1864,9 @@ public void testList10(){
 ```
 
 <a name="eb7b789a"></a>
-### 2.sql 大小比较查询
+
+<h3 id="sql大小比较查询">2.sql大小比较查询</h3>
+
 在值中前面添加比较符号即可，比如
 ```java
 /**
@@ -1660,9 +1891,13 @@ public void testList9(){
 ```
 
 <a name="MwiYy"></a>
-# 十四、分布式
+
+<h1 id="分布式">十四、分布式</h1>
+
 <a name="ec6732a4"></a>
-### 1.全局id
+
+<h3 id="全局id">1.全局id</h3>
+
 对于分布式的全局id，这里并没有采用常见的雪花算法，而是在当前版本用到了全部的64big位，数据持久化部分是基于数据库，内存部分采用双buffer的方式进行数据刷新。对外仅提供两个参数进行buffer刷新速度和buffer大小调整。<br />默认情况下是不启用全局id的，如果要启用全局，则需要先进行开启，并设置buffer刷新比率和大小。开启后，则会在对应的库中创建一个全局id表：neo_id_generator。
 ```java
 /**
@@ -1677,7 +1912,9 @@ public void openUidGenerator(Integer stepSize, Float refreshRatio){}
 | refreshRatio | 刷新二级buffer的比率，在第一级buffer达到这个比率之后，就派一个线程异步获取数据，填充第二buffer |
 
 <a name="flupG"></a>
-#### 表结构
+
+<h4 id="表结构">表结构</h4>
+
 ```sql
 CREATE TABLE `neo_id_generator` (
   `id` int(11) NOT NULL,
@@ -1687,32 +1924,52 @@ CREATE TABLE `neo_id_generator` (
 ```
 
 <a name="IN6DT"></a>
-#### 用法
+
+<h4 id="用法">用法</h4>
+
 直接调用如下diamante即可获取分布式全局唯一id
 ```java
 public Long getUid() {}
 ```
 
-
 <a name="YaeCo"></a>
-### 2.分布式锁（待开发）
+
+<h3 id="用法">2.分布式锁（待开发）</h3>
+
 <a name="oE9mJ"></a>
-# 十五、动态分库分表   （待开发）
+
+<h1 id="动态分库分表">十五、动态分库分表（待开发）</h1>
+
 <a name="d2027c8d"></a>
-### 1.水平分表
+<h3 id="水平分表">1.水平分表</h3>
+
 <a name="5e814c20"></a>
-### 2.垂直分表
+
+<h3 id="垂直分表">2.垂直分表</h3>
+
 <a name="ebe15985"></a>
-### 3.分库
+
+<h3 id="分库">3.分库</h3>
+
 <a name="35FtJ"></a>
-# 十六、分布式事务（待开发）
+
+<h1 id="分布式事务">十六、分布式事务（待开发）</h1>
+
 <a name="F4ZX5"></a>
-# 十七、多数据源（待开发）
+
+<h1 id="多数据源">十七、多数据源（待开发）</h1>
+
 <a name="1.mysql"></a>
-### 1.mysql
+
+<h3 id="分库">1.mysql</h3>
+
 <a name="2.sqlLite"></a>
-### 2.sqlLite
+
+<h3 id="分库">2.sqlLite</h3>
+
 <a name="3.PostGresql"></a>
-### 3.PostGresql
+
+<h3 id="分库">3.PostGresql</h3>
+
 
 
