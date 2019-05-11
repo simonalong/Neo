@@ -138,4 +138,25 @@ public class NeoValuesTest extends NeoBaseTest {
         search.setGroup("group2");
         show(neo.values(String.class, TABLE_NAME, "group", search, "order by 'group'"));
     }
+
+    /**
+     * 测试order by
+     */
+    @Test
+    public void testOrderBy1(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc
+        show(neo.values(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name desc")));
+    }
+
+    @Test
+    public void testOrderBy2(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc
+        show(neo.values(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name desc, group asc")));
+    }
+
+    @Test
+    public void testOrderBy3(){
+        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc
+        show(neo.values(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+    }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
@@ -53,6 +54,49 @@ public class SqlBuilder {
     }
 
     /**
+     * 提取order by数据
+     *
+     * @param searchMap 搜索条件
+     * @return 返回 order by `xxx` 或者 order by `xxx` desc
+     */
+    public String buildOrderBy(NeoMap searchMap) {
+        String orderByStr = "order by";
+        if (!NeoMap.isEmpty(searchMap)) {
+            AtomicReference<String> orderByValue = new AtomicReference<>();
+            searchMap.stream().filter(r -> r.getKey().trim().equals(orderByStr)).forEach(r -> {
+                orderByValue.set(orderByStr + " " + orderByStr(String.valueOf(r.getValue())));
+            });
+            return " " + orderByValue.get() + " ";
+        }
+        return "";
+    }
+
+    /**
+     * order by 后面的字符转换为数据库字样，比如 {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
+     * @param orderByValueStr order by后面的字符
+     * @return 转换后的字符
+     */
+    private String orderByStr(String orderByValueStr){
+        if (null == orderByValueStr) {
+            return "";
+        }
+        String descStr = "desc";
+        String ascStr = "asc";
+        List<String> values = Arrays.asList(orderByValueStr.split(","));
+        List<String> valueList = new ArrayList<>();
+        values.forEach(v -> {
+            v = v.trim();
+            if (v.contains(descStr) || v.contains(ascStr)) {
+                Integer index = v.indexOf(" ");
+                valueList.add(toDbField(v.substring(0, index)) + " " + v.substring(index + 1));
+            } else {
+                valueList.add(toDbField(v));
+            }
+        });
+        return String.join(", ", valueList);
+    }
+
+    /**
      * 值为占位符的条件拼接
      * @param searchMap 搜索条件map
      * @return 比如：`group` = ? and `name` = ?
@@ -77,18 +121,16 @@ public class SqlBuilder {
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
      */
     public String buildOne(Neo neo, String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!Columns.isEmpty(columns)) {
-            sqlAppender.append(columns.buildFields());
-        } else {
-            sqlAppender.append(Columns.from(neo, tableName).buildFields());
-        }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
-        if (null != tailSql) {
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(limitOne());
-        return sqlAppender.toString();
+//        StringBuilder sqlAppender = new StringBuilder("select ");
+//        if (!Columns.isEmpty(columns)) {
+//            sqlAppender.append(columns.buildFields());
+//        } else {
+//            sqlAppender.append(Columns.from(neo, tableName).buildFields());
+//        }
+//        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
+//        sqlAppender.append(limitOne());
+
+        return buildList(neo, tableName, columns, searchMap, tailSql) + limitOne();
     }
 
     /**
@@ -106,10 +148,7 @@ public class SqlBuilder {
         }else{
             sqlAppender.append(Columns.from(neo, tableName).buildFields());
         }
-        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(" ");
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
+        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
         return sqlAppender.toString();
     }
 
@@ -124,18 +163,18 @@ public class SqlBuilder {
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, getPageSize
      */
     public String buildPageList(Neo neo, String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
-        StringBuilder sqlAppender = new StringBuilder("select ");
-        if (!Columns.isEmpty(columns)){
-            sqlAppender.append(columns.buildFields());
-        }else{
-            sqlAppender.append(Columns.from(neo, tableName).buildFields());
-        }
-        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(" limit ").append(startIndex).append(", ").append(pageSize);
-        return sqlAppender.toString();
+//        StringBuilder sqlAppender = new StringBuilder("select ");
+//        if (!Columns.isEmpty(columns)){
+//            sqlAppender.append(columns.buildFields());
+//        }else{
+//            sqlAppender.append(Columns.from(neo, tableName).buildFields());
+//        }
+//        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
+//        if(null != tailSql){
+//            sqlAppender.append(" ").append(tailSql);
+//        }
+//        sqlAppender.append(" limit ").append(startIndex).append(", ").append(pageSize);
+        return buildList(neo, tableName, columns, searchMap, tailSql) + " limit " + startIndex + ", " + pageSize;
     }
 
     /**
@@ -157,13 +196,7 @@ public class SqlBuilder {
      * @return 比如：select `xxx` from yyy where a=? and b=? order by `xx` limit 1
      */
     public String buildValue(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select ").append(toDbField(field)).append(" from ").append(tableName)
-            .append(SqlBuilder.buildWhere(searchMap));
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        sqlAppender.append(limitOne());
-        return sqlAppender.toString();
+        return buildValues(tableName, field, searchMap, tailSql) + limitOne();
     }
 
     /**
@@ -175,12 +208,7 @@ public class SqlBuilder {
      * @return select `xxx` from yyy where a=? and b=? order by `xx`
      */
     public String buildValues(String tableName, String field, NeoMap searchMap, String tailSql){
-        StringBuilder sqlAppender = new StringBuilder("select ").append(toDbField(field)).append(" from ").append(tableName)
-            .append(SqlBuilder.buildWhere(searchMap));
-        if(null != tailSql){
-            sqlAppender.append(" ").append(tailSql);
-        }
-        return sqlAppender.toString();
+        return "select " + toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + buildOrderBy(searchMap);
     }
 
     public String buildValues(Set<String> fieldList){
@@ -321,7 +349,8 @@ public class SqlBuilder {
     }
 
     private List<String> buildConditionMeta(NeoMap searchMap) {
-        return searchMap.stream().map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+        String orderByStr = "order by";
+        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e)).collect(Collectors.toList());
     }
 
     /**
@@ -357,7 +386,9 @@ public class SqlBuilder {
             return Collections.emptyList();
         }
 
-        return searchMap.values().stream().map(v->{
+        String orderByStr = "order by";
+        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(o->{
+            Object v = o.getValue();
             if (v instanceof String) {
                 String valueStr = String.class.cast(v);
 

@@ -217,4 +217,25 @@ public class NeoListTest extends NeoBaseTest{
     public void test(){
         show(neo.execute("select `group`, `name` from neo_table1 where `name` < ? ", "'name'"));
     }
+
+    /**
+     * 测试order by
+     */
+    @Test
+    public void testOrderBy1(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc
+        show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc")));
+    }
+
+    @Test
+    public void testOrderBy2(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
+        show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc")));
+    }
+
+    @Test
+    public void testOrderBy3(){
+        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
+        show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+    }
 }

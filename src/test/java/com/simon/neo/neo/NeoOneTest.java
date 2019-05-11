@@ -171,4 +171,25 @@ public class NeoOneTest extends NeoBaseTest{
         search.setGroup("group2");
         show(neo.one(TABLE_NAME, Columns.of("group", "name"), search, "order by `group` desc"));
     }
+
+    /**
+     * 测试order by
+     */
+    @Test
+    public void testOrderBy1(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc  limit 1
+        show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc")));
+    }
+
+    @Test
+    public void testOrderBy2(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
+        show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc")));
+    }
+
+    @Test
+    public void testOrderBy3(){
+        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
+        show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+    }
 }

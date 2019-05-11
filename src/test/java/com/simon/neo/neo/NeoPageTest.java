@@ -253,4 +253,25 @@ public class NeoPageTest extends NeoBaseTest{
         String table1 = "neo_table1";
         neo.exePage("select * from %s where id < ?", NeoPage.of(1, 20), table1, 1000);
     }
+
+    /**
+     * 测试order by
+     */
+    @Test
+    public void testOrderBy1(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc  limit 1
+        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc"), NeoPage.of(1, 12)));
+    }
+
+    @Test
+    public void testOrderBy2(){
+        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
+        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc"), NeoPage.of(1, 12)));
+    }
+
+    @Test
+    public void testOrderBy3(){
+        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
+        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc"), NeoPage.of(1, 12)));
+    }
 }
