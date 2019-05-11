@@ -15,15 +15,27 @@ public final class NeoJoiner {
 
     private Neo neo;
     /**
-     * 左表表名
+     * 左表表名，原始表名
+     */
+    private String leftTableNameOrigin;
+    /**
+     * 左表表名，如果有别名，则为别名
      */
     private String leftTableName;
     /**
-     * join时候左表表名
+     * join时候左表表名，原始表名
+     */
+    private String joinLeftTableNameOrigin;
+    /**
+     * join时候左表表名，如果有别名，则为别名
      */
     private String joinLeftTableName;
     /**
-     * 右表表名
+     * 右表表名，原始表名
+     */
+    private String rightTableNameOrigin;
+    /**
+     * 右表表名，如果有别名，则为别名
      */
     private String rightTableName;
     /**
@@ -39,11 +51,16 @@ public final class NeoJoiner {
      */
     private String sqlCondition;
 
-    public NeoJoiner(Neo neo, String tableLeft, String tableRight) {
+    public NeoJoiner(Neo neo, String leftTableName, String rightTableName) {
         this.neo = neo;
-        this.leftTableName = tableLeft;
-        this.joinLeftTableName = tableLeft;
-        this.rightTableName = tableRight;
+        this.leftTableName = parseAlias(leftTableName);
+        this.joinLeftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.joinLeftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
     }
 
     public NeoJoiner setJoin(JoinType joinType){
@@ -61,9 +78,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner join(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.INNER_JOIN;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -76,9 +97,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner leftJoin(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.LEFT_JOIN;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -91,9 +116,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner rightJoin(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.RIGHT_JOIN;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -106,9 +135,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner innerJoin(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.INNER_JOIN;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -121,9 +154,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner outerJoin(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.OUTER_JOIN;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -136,9 +173,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.LEFT_JOIN_EXCEPT_INNER;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -151,9 +192,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.RIGHT_JOIN_EXCEPT_INNER;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -166,9 +211,13 @@ public final class NeoJoiner {
      */
     public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
         this.joinLeftTableName = null;
-        this.leftTableName = leftTableName;
-        this.rightTableName = rightTableName;
+        this.leftTableName = parseAlias(leftTableName);
+        this.rightTableName = parseAlias(rightTableName);
         this.joinType = JoinType.OUTER_JOIN_EXCEPT_INNER;
+
+        // 原始表名设置
+        this.leftTableNameOrigin = leftTableName;
+        this.rightTableNameOrigin = rightTableName;
         return this;
     }
 
@@ -180,8 +229,18 @@ public final class NeoJoiner {
      * @return 返回关联之后的Joiner
      */
     public NeoJoiner on(String leftColumnName, String rightColumnName){
-        this.joinSql += buildJoin(joinLeftTableName, leftTableName, leftColumnName, rightTableName, rightColumnName, joinType);
+        this.joinSql += buildJoin(leftColumnName, rightColumnName);
         return this;
+    }
+
+    private String buildJoin(String leftColumnName, String rightColumnName) {
+        if(null != joinLeftTableNameOrigin){
+            return joinLeftTableNameOrigin + " " + joinType.getSql() + " " + rightTableNameOrigin
+                + " on " + leftTableName + "." + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName);
+        }else{
+            return " " + joinType.getSql() + " " + rightTableNameOrigin
+                + " on " + leftTableName + "." + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName);
+        }
     }
 
     /**
@@ -191,56 +250,36 @@ public final class NeoJoiner {
      *
      * @param columns 所有表的列名
      * @param searchMap 搜索条件
-     * @param tailSql sql的尾部语句
      * @return join执行后的结果
      */
-    public NeoMap one(Columns columns, String tailSql, NeoMap searchMap){
-        return neo.exeOne(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
-    }
-
     public NeoMap one(Columns columns, NeoMap searchMap){
-        return one(columns, "", searchMap);
-    }
-
-    public NeoMap one(Columns columns, String tailSql){
-        return one(columns, tailSql, NeoMap.of());
+        return neo.exeOne(generateSql(columns, searchMap), buildValueList(searchMap).toArray());
     }
 
     public NeoMap one(Columns columns){
-        return one(columns, "", NeoMap.of());
+        return one(columns, NeoMap.of());
     }
 
     /**
      * join核查中的查询一个数据
      *
      * @param columns 左表的列名
-     * @param tailSql sql的尾部语句
      * @param searchMap 搜索条件
      * @return join执行后的结果
      */
-    public List<NeoMap> list(Columns columns, String tailSql, NeoMap searchMap){
-        return neo.exeList(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
-    }
-
     public List<NeoMap> list(Columns columns, NeoMap searchMap){
-        return list(columns, "", searchMap);
+        return neo.exeList(generateSql(columns, searchMap), buildValueList(searchMap).toArray());
     }
 
-    public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize) {
-        String sql = buildPageSql(columns, searchMap, tailSql, startIndex, pageSize);
+    public List<NeoMap> list(Columns columns){
+        return list(columns, NeoMap.of());
+    }
+
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage neoPage) {
+        Integer startIndex = neoPage.getStartIndex();
+        Integer pageSize = neoPage.getPageSize();
+        String sql = generatePageSql(columns, searchMap,  startIndex, pageSize);
         return neo.exePage(sql, startIndex, pageSize, buildValueList(searchMap).toArray());
-    }
-
-    public List<NeoMap> page(Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(columns, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
-    }
-
-    public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
-        return page(columns, searchMap, "", page);
-    }
-
-    public List<NeoMap> page(Columns columns, String tailSql, NeoPage page){
-        return page(columns, NeoMap.of(), tailSql, page.getStartIndex(), page.getPageSize());
     }
 
     public List<NeoMap> page(Columns columns, NeoPage page){
@@ -251,42 +290,33 @@ public final class NeoJoiner {
      * join核查中的查询一个数据
      *
      * @param columns 左表的列名
-     * @param tailSql sql的尾部语句
      * @param searchMap sql的尾部语句
      * @return join执行后的结果
      */
-    public Integer count(Columns columns, String tailSql, NeoMap searchMap){
-        return neo.exeCount(buildSql(columns, tailSql, searchMap), buildValueList(searchMap).toArray());
+    public Integer count(Columns columns, NeoMap searchMap){
+        return neo.exeCount(generateSql(columns, searchMap), buildValueList(searchMap).toArray());
     }
 
     /**
      * join核查中的查询一个数据
      * @param tClass 目标类型
      * @param columnName 列名
-     * @param tailSql 尾部sql，比如order by xxx
      * @param searchMap 搜索条件
      * @param <T> 返回值类型
      * @return 返回的指定类型的值
      */
-    public <T> T value(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap searchMap){
-        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
-        return neo.exeValue(tClass, "select " + tableName + ".`" + columnName + "` " + joinSql + " " + joinTailSql);
-    }
-
     public <T> T value(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){
-        return value(tClass, tableName, columnName, "", searchMap);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap);
+        String originSql = generateValueSql(tableName, columnName, joinTailSql);
+        return neo.exeValue(tClass, originSql, buildValueList(searchMap).toArray());
     }
 
     public <T> T value(Class<T> tClass, String tableName, String columnName){
         return value(tClass, tableName, columnName, NeoMap.of());
     }
 
-    public String value(String tableName, String columnName, String tailSql, NeoMap searchMap){
-        return value(String.class, tableName, columnName, tailSql, searchMap);
-    }
-
     public String value(String tableName, String columnName, NeoMap searchMap){
-        return value(tableName, columnName, "", searchMap);
+        return value(String.class, tableName, columnName, searchMap);
     }
 
     public String value(String tableName, String columnName){
@@ -297,39 +327,31 @@ public final class NeoJoiner {
      * join核查中的查询一个数据
      * @param tClass 目标类型
      * @param columnName 列名
-     * @param tailSql 尾部sql，比如order by xxx
      * @param searchMap 搜索条件
      * @param <T> 返回值类型
      * @return 返回的指定类型的值
      */
-    public <T> List<T> values(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap searchMap){
-        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
-        return neo.exeValues(tClass, "select " + tableName + ".`" + columnName + "` " + joinSql + " " + joinTailSql);
-    }
-
     public <T> List<T> values(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){
-        return values(tClass, tableName, columnName, "", searchMap);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap);
+        String originSql = generateValueSql(tableName, columnName, joinTailSql);
+        return neo.exeValues(tClass, originSql, buildValueList(searchMap).toArray());
     }
 
     public <T> List<T> values(Class<T> tClass, String tableName, String columnName){
         return values(tClass, tableName, columnName, NeoMap.of());
     }
 
-    public List<String> values(String tableName, String columnName, String tailSql, NeoMap searchMap){
-        return values(String.class, tableName, columnName, tailSql, searchMap);
-    }
-
     public List<String> values(String tableName, String columnName, NeoMap searchMap){
-        return values(tableName, columnName, "", searchMap);
+        return values(String.class, tableName, columnName, searchMap);
     }
 
     public List<String> values(String tableName, String columnName){
         return values(tableName, columnName, NeoMap.of());
     }
 
-    private String buildSql(Columns columns, String tailSql, NeoMap searchMap){
+    private String generateSql(Columns columns, NeoMap searchMap){
         String joinHeadSql = buildJoinHead(neo, columns);
-        String joinTailSql = buildJoinTail(sqlCondition, searchMap, tailSql);
+        String joinTailSql = buildJoinTail(sqlCondition, searchMap);
         if(null != joinSql && !"".equals(joinSql)){
             return joinHeadSql + " " + joinSql + " " + joinTailSql;
         }else {
@@ -342,15 +364,31 @@ public final class NeoJoiner {
      *
      * @param columns 要展示的列
      * @param searchMap 搜索条件
-     * @param tailSql 尾部sql
      * @return Pair对象：key为拼接的含有占位符的原始sql， value为对应的填充参数
      */
-    private String buildPageSql(Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
-        String sqlOrigin = buildSql(columns, tailSql, searchMap);
+    private String generatePageSql(Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
+        String sqlOrigin = generateSql(columns, searchMap);
         if (!sqlOrigin.contains("limit")){
             sqlOrigin += " limit " + startIndex + ", " + pageSize;
         }
-
         return sqlOrigin;
+    }
+
+    private String generateValueSql(String tableName, String columnName, String joinTailSql){
+        return "select " + tableName + "." + toDbField(columnName) + " " + joinSql + " " + joinTailSql;
+    }
+
+    /**
+     * 解析别名：{@code table1 as t1 --> t1}
+     *
+     * @param asAliasStr 带有别名的数据
+     * @return 返回别名
+     */
+    private String parseAlias(String asAliasStr){
+        String asStr = " as ";
+        if (asAliasStr.contains(asStr)) {
+            return asAliasStr.substring(asAliasStr.indexOf(asStr) + asStr.length());
+        }
+        return asAliasStr;
     }
 }

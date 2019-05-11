@@ -46,6 +46,12 @@ public class SqlBuilder {
         return "('" + String.join("','", strList) + "')";
     }
 
+    /**
+     * 构造where 对应的sql语句
+     *
+     * @param searchMap 搜索条件
+     * @return 返回where对应的语句
+     */
     public String buildWhere(NeoMap searchMap) {
         if(!NeoMap.isEmpty(searchMap)) {
             return " where " + buildCondition(searchMap);
@@ -61,18 +67,16 @@ public class SqlBuilder {
      */
     public String buildOrderBy(NeoMap searchMap) {
         String orderByStr = "order by";
-        if (!NeoMap.isEmpty(searchMap)) {
-            AtomicReference<String> orderByValue = new AtomicReference<>();
-            searchMap.stream().filter(r -> r.getKey().trim().equals(orderByStr)).forEach(r -> {
-                orderByValue.set(orderByStr + " " + orderByStr(String.valueOf(r.getValue())));
-            });
-            return " " + orderByValue.get() + " ";
+        if (!NeoMap.isEmpty(searchMap) && searchMap.containsKey(orderByStr)) {
+            return " " + orderByStr + " " + orderByStr(searchMap.getStr(orderByStr));
         }
         return "";
     }
 
     /**
-     * order by 后面的字符转换为数据库字样，比如 {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
+     * order by 后面的字符转换为数据库字样，比如
+     * {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
+     * {@code table.group desc, table.name asc --> table.`group` desc, table.`name` asc}
      * @param orderByValueStr order by后面的字符
      * @return 转换后的字符
      */
@@ -104,9 +108,10 @@ public class SqlBuilder {
     public String buildCondition(NeoMap searchMap){
         StringBuilder stringBuilder = new StringBuilder();
         if (!NeoMap.isEmpty(searchMap)) {
-            return stringBuilder
+            String result = stringBuilder
                 .append(String.join(" and ", buildConditionMeta(searchMap)))
                 .toString();
+            return result;
         }
         return stringBuilder.toString();
     }
@@ -240,14 +245,14 @@ public class SqlBuilder {
      * @param joinType join的类型
      * @return join对应的部分sql，比如：from leftTableName xxJoin rightTableName on leftTableName.`leftColumnName` = rightTableName.`rightColumnName`
      */
-    public String buildJoin(String joinLeftTableName, String leftTableName, String leftColumnName,
+    private String buildJoin(String joinLeftTableName, String leftTableName, String leftColumnName,
         String rightTableName, String rightColumnName, JoinType joinType) {
         if(null != joinLeftTableName){
-            return joinLeftTableName + " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + "."
-                + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName) + " ";
+            return joinLeftTableName + " " + joinType.getSql() + " " + rightTableName
+                + " on " + leftTableName + "." + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName);
         }else{
-            return " " + joinType.getSql() + " " + rightTableName + " on " + leftTableName + "."
-                + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName) + " ";
+            return " " + joinType.getSql() + " " + rightTableName
+                + " on " + leftTableName + "." + toDbField(leftColumnName) + "=" + rightTableName + "." + toDbField(rightColumnName);
         }
     }
 
@@ -292,13 +297,12 @@ public class SqlBuilder {
      *
      * @param sqlCondition 对于join_except类型需要用的一些排除条件
      * @param searchMap 搜索条件map
-     * @param tail 尾部sql
      * @return 返回拼接的sql
      */
-    public String buildJoinTail(String sqlCondition, NeoMap searchMap, String tail) {
+    public String buildJoinTail(String sqlCondition, NeoMap searchMap) {
         StringBuilder sb = new StringBuilder();
         Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
-        Boolean searchMapsNotEmpty = !NeoMap.isEmpty(searchMap);
+        Boolean searchMapsNotEmpty = !isEmptyExceptOrderBy(searchMap);
         if (sqlConditionNotEmpty || searchMapsNotEmpty) {
             sb.append(" where ");
         }
@@ -312,10 +316,10 @@ public class SqlBuilder {
         }
 
         if (searchMapsNotEmpty) {
-            sb.append(buildCondition(searchMap));
+            sb.append(buildCondition(searchMap)).append(buildOrderBy(searchMap));
+        }else{
+            sb.append(buildOrderBy(searchMap));
         }
-
-        sb.append(" ").append(tail);
         return sb.toString();
     }
 
@@ -323,9 +327,21 @@ public class SqlBuilder {
         return " limit 1";
     }
 
+    /**
+     * 不算order by来判断搜索条件是否为空
+     *
+     * @param searchMap 搜索条件
+     * @return true：空，false：不空
+     */
+    private Boolean isEmptyExceptOrderBy(NeoMap searchMap){
+        String orderByStr = "order by";
+        return null == searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).findAny().orElse(null);
+    }
+
     private List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e)).collect(Collectors.toList());
+        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -336,18 +352,27 @@ public class SqlBuilder {
      */
     public NeoMap toDbField(NeoMap neoMap) {
         NeoMap resultMap = NeoMap.of();
-        String point = ".";
-        neoMap.stream().forEach(e -> {
-            String key = e.getKey();
-            Object value = e.getValue();
-            if (key.contains(point)) {
-                Integer index = key.indexOf(".");
-                resultMap.put(key.substring(0, index + 1) + toDbField(key.substring(index + 1)), value);
-            } else {
-                resultMap.put(toDbField(key), value);
-            }
-        });
+        neoMap.stream().forEach(e -> resultMap.put(toDbField(e.getKey()), e.getValue()));
         return resultMap;
+    }
+
+    /**
+     * 将普通的列名转换为sql语句中的列，{@code group --> `group`} {@code table.name --> table.`name`}
+     * @param column 原列名
+     * @return 转换后的列名，比如name 到 `name`
+     */
+    public String toDbField(String column) {
+        String point = ".";
+        String dom = "`";
+        if (column.contains(point)) {
+            Integer index = column.indexOf(".") + 1;
+            return column.substring(0, index) + toDbField(column.substring(index));
+        } else {
+            if (column.startsWith(dom) && column.endsWith(dom)) {
+                return column;
+            }
+            return "`" + column + "`";
+        }
     }
 
     /**
@@ -449,17 +474,5 @@ public class SqlBuilder {
             }
         }
         return new Pair<>("=", valueStr);
-    }
-
-    /**
-     * 将普通的列名转换为sql语句中的列，其实就是在列的前后添加`
-     * @param column 原列名
-     * @return 转换后的列名，比如name 到 `name`
-     */
-    private String toDbField(String column){
-        if (column.contains("`")) {
-            return column;
-        }
-        return "`" + column + "`";
     }
 }

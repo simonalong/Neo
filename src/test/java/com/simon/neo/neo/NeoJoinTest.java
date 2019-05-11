@@ -41,15 +41,14 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`id` from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * select neo_table1.`id`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest1() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
-        show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("id"), tailSql));
+        show(neo.join(table1, table2).on("id", "id")
+            .one(Columns.table(table1).cs("id"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -57,48 +56,45 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 搜索字段为一个表的所有
      * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest2() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
-        show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*"), tailSql));
+        show(neo.join(table1, table2).on("id", "id")
+            .one(Columns.table(table1, neo).cs("*"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
      * join 采用的是innerJoin
      *
      * 搜索字段为多个表中的字段
-     * select neo_table2.`id`, neo_table1.`group` from neo_table2 inner join neo_table1 on neo_table2.`n_id`=neo_table1.`id` order by sort desc limit 1
+     * select neo_table1.`id`, neo_table2.`group`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest3() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("id").and(table2).cs("group"), tailSql));
+            .one(Columns.table(table1).cs("id").and(table2).cs("group"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
      * join 采用的是innerJoin
      *
      * 搜索字段为多个表中的所有
-     * select neo_table1.`group`, neo_table2.`age`, neo_table1.`user_name`, neo_table2.`user_name`, neo_table2.`n_id`,
-     * neo_table2.`sort`, neo_table1.`age`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`,
-     * neo_table2.`id`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * select neo_table1.`group`, neo_table2.`age`, neo_table1.`user_name`, neo_table2.`user_name`, neo_table2.`sort`,
+     * neo_table1.`age`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest4() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*").and(table2).cs("*"), tailSql));
+            .one(Columns.table(table1, neo).cs("*").and(table2).cs("*"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -106,18 +102,16 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 针对列的别名方式使用
      *
-     * select neo_table2.`group` as group2, neo_table1.`group` as group1
-     * from neo_table1
-     * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * select neo_table2.`group` as group2, neo_table1.`group` as group1  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest5() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // {group1=group3, group2=group4}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"), tailSql));
+            .one(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -125,18 +119,16 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 针对列的别名方式使用：在已有其他列情况下，别名会覆盖原列
      *
-     * select neo_table1.`group` as group1
-     * from neo_table1
-     * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * select neo_table1.`group` as group1  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest6() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // {group1=group3}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("group", "group as group1"), tailSql));
+            .one(Columns.table(table1).cs("group", "group as group1"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -145,34 +137,31 @@ public class NeoJoinTest extends NeoBaseTest {
      * 针对列的别名方式使用：在已有其他列情况下，别名的覆盖，对于*的覆盖
      *
      * select neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`group` as group1, neo_table1.`name`
-     * from neo_table1
-     * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc limit 1
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest7() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*", "group as group1"), tailSql));
+            .one(Columns.table(table1, neo).cs("*", "group as group1"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
      * 针对有搜索条件情况下的使用
      *
-     * select neo_table1.`group`
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * where neo_table1.`group` = 'group1' order by sort desc limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`id` =  ? null limit 1
      */
     @Test
     public void joinOneTest8() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*"), tailSql, NeoMap.table(table1).cs("group", "group1", "id", 11)));
+            .one(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("group", "group1", "id", 11)));
     }
 
     /**
@@ -180,24 +169,22 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * where neo_table1.`group` = 'group1' and neo_table1.`id` = 11 and neo_table2.`group` = 'group1' order by sort desc limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`id` =  ? and neo_table2.`group` =  ? order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest9() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*"), tailSql, NeoMap.table(table1).cs("group", "group1", "id", 11).and(table2).cs("group", "group1")));
+            .one(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("group", "group1", "id", 11)
+                .and(table2).cs("group", "group1").append("order by", "sort desc")));
     }
 
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`group`
-     * from neo_table1
-     * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * select neo_table1.`group`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
      */
     @Test
     public void joinListTest1() {
@@ -211,18 +198,16 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`user_name`, neo_table2.`group` as group2, neo_table1.`age`, neo_table1.`id`,
-     * neo_table1.`group` as group1, neo_table1.`name`
-     * from neo_table1
-     * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * select neo_table1.`user_name`, neo_table2.`group` as group2, neo_table1.`age`, neo_table1.`id`, neo_table1.`group` as group1, neo_table1.`name`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
      */
     @Test
     public void joinListTest2() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         // [{group1=group1, group2=group1, id=11, name=}, {group1=group1, group2=group2, id=11, name=}, {group1=group2, group2=group3, id=12, name=haode}, {group1=group3, group2=group4, id=13, name=name1, user_name=user_name1}]
-        show(neo.join(table1, table2).on("id", "n_id")
-            .list(Columns.table(table1, neo).cs("*", "group as group1").and(table2).cs("group as group2"), NeoMap.of()));
+        show(neo.join(table1, table2).on("id", "id")
+            .list(Columns.table(table1, neo).cs("*", "group as group1").and(table2).cs("group as group2")));
     }
 
     /**
@@ -234,38 +219,102 @@ public class NeoJoinTest extends NeoBaseTest {
     public void leftJoinListTest1() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // [{id=13}, {id=11}, {id=11}, {id=12}]
-        show(neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.table(table1).cs("id"), tailSql, NeoMap.of()));
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .list(Columns.table(table1).cs("id"),  NeoMap.of("order by", "sort desc")));
     }
 
     /**
-     * select neo_table2.`group`
-     * from neo_table2 right
-     * join neo_table1 on neo_table2.`n_id`=neo_table1.`id`  order by sort desc limit 1
+     * select neo_table1.`group`
+     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
      */
     @Test
     public void leftJoinListTest2() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         show(neo.rightJoin(table1, table2).on("id", "n_id")
-            .value(table1, "group", tailSql, NeoMap.of()));
+            .value(table1, "group", NeoMap.of("order by", "sort desc")));
     }
 
     /**
-     * select neo_table1.`group` from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc
+     * order by的放置，可以放到table里面，这样，其中order by后面的属性就是当前表的
+     *
+     * select neo_table1.`group`
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * where neo_table2.`group` =  ? order by neo_table2.`sort` desc
      */
     @Test
-    public void leftJoinListTest3() {
+    public void leftJoinOrderByTest1() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
         // [group3, group1, group2]
-        show(neo.leftJoin(table1, table2).on("id", "n_id")
-            .values(table1, "group", tailSql, NeoMap.of("group", "jj")));
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .values(table1, "group", NeoMap.table(table2).cs("group", "jj", "order by", "sort desc")));
     }
 
+    /**
+     * order by的放置，里面可以放置多个参数
+     *
+     * select neo_table1.`group`  from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * order by neo_table1.`name` desc, neo_table1.`group` asc
+     */
+    @Test
+    public void leftJoinOrderByTest2() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        // [group3, group1, group2]
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .values(table1, "group", NeoMap.table(table1).cs("order by", "name desc, group asc")));
+    }
+
+    /**
+     * order by的放置，如果放到里面，也可以指定对应的表名
+     *
+     * select neo_table1.`group`
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * where neo_table1.`group` =  ? order by neo_table2.`sort` desc
+     */
+    @Test
+    public void leftJoinOrderByTest3() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        // [group3, group1, group2]
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .values(table1, "group", NeoMap.table(table1).cs("group", "jj", "order by", "neo_table2.sort desc")));
+    }
+
+    /**
+     * select neo_table1.`group`
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * where neo_table2.`group` =  ? order by neo_table1.`group` desc
+     */
+    @Test
+    public void leftJoinOrderByTest4() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        // [group3, group1, group2]
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .values(table1, "group",
+                NeoMap.table(table2).cs("group", "jj").append("order by", "neo_table1.group desc")));
+    }
+
+    /**
+     * order by可以多个表之间的排序进行关联
+     *
+     * select neo_table1.`group`
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * where neo_table1.`name` =  ? and neo_table2.`group` =  ?
+     * order by neo_table2.`sort` desc, neo_table1.`group` asc
+     */
+    @Test
+    public void leftJoinOrderByTest5() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        // [group3, group1, group2]
+        show(neo.leftJoin(table1, table2).on("id", "id")
+            .values(table1, "group", NeoMap.table(table2).cs("group", "jj", "order by", "sort desc")
+                    .and(table1).cs("name", "22", "order by", "group asc")));
+    }
 //    /**
 //     * 请注意，mysql 不支持 full join
 //     *
@@ -285,15 +334,15 @@ public class NeoJoinTest extends NeoBaseTest {
      * 多表join
      *
      * select neo_table1.`group`, neo_table1.`id`, neo_table2.`name`
-     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * right join neo_table3 on neo_table2.`name`=neo_table3.`name`    limit 1
+     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * right join neo_table3 on neo_table2.`name`=neo_table3.`name`  limit 1
      */
     @Test
     public void multiJoinTest() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String table3 = "neo_table3";
-        show(neo.rightJoin(table1, table2).on("id", "n_id")
+        show(neo.rightJoin(table1, table2).on("id", "id")
             .rightJoin(table2, table3).on("name", "name")
             .one(Columns.table(table1).cs("id", "group").and(table2).cs("name")));
     }
@@ -301,7 +350,7 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
      * from neo_table1 inner join neo_table2 on neo_table1.`name`=neo_table2.`name`
-     * where neo_table1.`group` = 'ok' and neo_table1.`name` = 'haode' and neo_table2.`name` = 'ceshi'  limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`name` =  ? and neo_table2.`name` =  ? limit 1
      */
     @Test
     public void oneTest(){
@@ -321,7 +370,7 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
      * from neo_table1 left join neo_table2 on neo_table1.`name`=neo_table2.`name`
-     * where (neo_table2.id is null)  limit 1
+     * where (neo_table2.id is null) limit 1
      */
     @Test
     public void leftJoinExceptInnerTest(){
@@ -336,16 +385,39 @@ public class NeoJoinTest extends NeoBaseTest {
      * join的分页查询
      *
      * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * order by sort desc
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * order by neo_table1.`group` desc
      * limit 0, 12
      */
     @Test
     public void pageTest(){
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String tailSql = "order by sort desc";
-        show(neo.join(table1, table2).on("id", "n_id")
-            .page(Columns.table(table1, neo).cs("*"), tailSql, NeoPage.of(1, 12)));
+        show(neo.join(table1, table2).on("id", "id")
+            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("order by", "group desc"),
+                NeoPage.of(1, 12)));
+    }
+
+    /**
+     * 表的别名
+     */
+    @Test
+    public void tableAsTest1(){
+        // todo
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        show(neo.join(table1 +" as t1", table2 +" as t2").on("id", "id")
+            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("order by", "id desc"),
+                NeoPage.of(1, 12)));
+    }
+
+    /**
+     * 自己和自己
+     */
+    @Test
+    public void joinSelfTest1(){
+        // todo
+        String table = "neo_table3";
+        neo.leftJoin(table + "as t1", table + " as t2").on("id", "n_id").list(Columns.table(table, neo).cs("*"));
     }
 }

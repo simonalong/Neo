@@ -60,20 +60,6 @@ public class SqlBuilderTest extends NeoBaseTest {
         show(buildCondition(searchMap));
     }
 
-//    @Test
-//    public void buildWhereWithValueTest(){
-//        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-//        //  where `group` = 'group1' and `name` = 'name1'
-//        show(buildWhereWithValue(searchMap));
-//    }
-
-//    @Test
-//    public void buildConditionWithValueTest(){
-//        NeoMap searchMap = NeoMap.of("group", 1, "name", "name1");
-//        // `group` = 1 and `name` = 'name1'
-//        show(buildConditionWithValue(searchMap));
-//    }
-
     @Test
     public void buildJoinHeadTest1(){
         String table1 = "table1";
@@ -92,23 +78,12 @@ public class SqlBuilderTest extends NeoBaseTest {
     }
 
     @Test
-    public void buildJoinTest(){
-        String table1 = "table1";
-        String table2 = "table2";
-        String c1 = "tId";
-        String c2 = "id";
-        // from table1 left join table2 on table1.`tId`=table2.`id`
-        show(buildJoin(table1, table1, c1, table2, c2, JoinType.LEFT_JOIN));
-    }
-
-    @Test
     public void buildJoinTailTest(){
         String table = "table1";
         NeoMap neoMap = NeoMap.of("name", "ok").setKeyPre(table+".");
-        String tailSql = "order by sort";
         String sqlCondition = "table2.id is null";
         //  where (table2.id is null) and `table1.name` = 'ok' order by sort
-        show(buildJoinTail(sqlCondition, neoMap, tailSql));
+        show(buildJoinTail(sqlCondition, neoMap));
     }
 
     @Test

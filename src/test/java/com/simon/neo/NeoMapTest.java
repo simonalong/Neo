@@ -477,9 +477,4 @@ public class NeoMapTest extends BaseTest{
         // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
         show(result);
     }
-
-    @Test
-    public void test11(){
-        NeoMap.of("table1.`name`", "a", "table1.`age`", 123, "table2.`group`", "g1", "table3.`name`", "k");
-    }
 }

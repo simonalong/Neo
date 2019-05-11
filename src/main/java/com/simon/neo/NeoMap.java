@@ -373,11 +373,26 @@ public class NeoMap implements Map<String, Object> {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
         }
 
+        String orderByStr = "order by";
         for (int i = 0; i < kvs.length; i += 2) {
             if (null == kvs[i]) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
-            put(toColumnStr((String) kvs[i]), kvs[i + 1]);
+            String key = (String) kvs[i];
+            Object valueObj = kvs[i + 1];
+            if (key.trim().equals(orderByStr) && valueObj instanceof String) {
+                String filterValue = toOrderByValueStr(String.class.cast(valueObj));
+                // 不包含order by对应的value，则设置转换的
+                if (!containsKey(key)) {
+                    put(key, filterValue);
+                } else {
+                    // 已经包含过，则合并新的
+                    String orderByValue = String.class.cast(get(key));
+                    put(key, orderByValue + ", " + filterValue);
+                }
+            } else {
+                put(toColumnStr((String) kvs[i]), kvs[i + 1]);
+            }
         }
         return this;
     }
@@ -393,9 +408,34 @@ public class NeoMap implements Map<String, Object> {
      */
     private String toColumnStr(String key){
         if (null != keyPreTableName && !"".equals(keyPreTableName)) {
-            return keyPreTableName + ".`" + key + "`";
+            return keyPreTableName + "." + key + "";
         }
         return "`" + key + "`";
+    }
+
+    /**
+     * 对order by后面的字段添加表前缀，比如：{@code name desc --> table1.name desc}
+     * {@code name desc, group asc --> table.name desc, table.group asc}
+     *
+     * @param value order by 后面的字段
+     * @return 添加表前缀
+     */
+    private String toOrderByValueStr(String value){
+        String comma = ",";
+        String dom = ".";
+        if(value.contains(comma)){
+            return String.join(comma + " ", Stream.of(value.split(comma)).map(v->{
+                v = v.trim();
+                if (!v.startsWith(keyPreTableName) && !v.contains(dom)) {
+                    return keyPreTableName + "." + v;
+                }
+                return v;
+            }).collect(Collectors.toList()));
+        }
+        if (!value.startsWith(keyPreTableName) && !value.contains(dom)) {
+            return keyPreTableName + "." + value;
+        }
+        return value;
     }
 
     /**
