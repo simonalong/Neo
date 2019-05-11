@@ -117,20 +117,10 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param columns 列名
      * @param searchMap 查询条件
-     * @param tailSql 尾部sql
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit 1
      */
-    public String buildOne(Neo neo, String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-//        StringBuilder sqlAppender = new StringBuilder("select ");
-//        if (!Columns.isEmpty(columns)) {
-//            sqlAppender.append(columns.buildFields());
-//        } else {
-//            sqlAppender.append(Columns.from(neo, tableName).buildFields());
-//        }
-//        sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
-//        sqlAppender.append(limitOne());
-
-        return buildList(neo, tableName, columns, searchMap, tailSql) + limitOne();
+    public String buildOne(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
+        return buildList(neo, tableName, columns, searchMap) + limitOne();
     }
 
     /**
@@ -138,10 +128,9 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param columns 列信息
      * @param searchMap 搜索条件
-     * @param tailSql 尾部sql
      * @return 返回拼接的sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
-    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap, String tailSql){
+    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap){
         StringBuilder sqlAppender = new StringBuilder("select ");
         if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());
@@ -157,24 +146,12 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param columns 列信息
      * @param searchMap 搜索条件
-     * @param tailSql 尾部sql
      * @param startIndex 分页
      * @param pageSize 分页大小
      * @return 返回sql，比如：select * from xxx where a=? and b=? order by `xxx` desc limit pageIndex, getPageSize
      */
-    public String buildPageList(Neo neo, String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
-//        StringBuilder sqlAppender = new StringBuilder("select ");
-//        if (!Columns.isEmpty(columns)){
-//            sqlAppender.append(columns.buildFields());
-//        }else{
-//            sqlAppender.append(Columns.from(neo, tableName).buildFields());
-//        }
-//        sqlAppender.append(" from ").append(tableName).append(SqlBuilder.buildWhere(searchMap)).append(" ");
-//        if(null != tailSql){
-//            sqlAppender.append(" ").append(tailSql);
-//        }
-//        sqlAppender.append(" limit ").append(startIndex).append(", ").append(pageSize);
-        return buildList(neo, tableName, columns, searchMap, tailSql) + " limit " + startIndex + ", " + pageSize;
+    public String buildPageList(Neo neo, String tableName, Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
+        return buildList(neo, tableName, columns, searchMap) + " limit " + startIndex + ", " + pageSize;
     }
 
     /**
@@ -192,11 +169,10 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param field 要查询的字段
      * @param searchMap 查询参数
-     * @param tailSql 尾部sql
      * @return 比如：select `xxx` from yyy where a=? and b=? order by `xx` limit 1
      */
-    public String buildValue(String tableName, String field, NeoMap searchMap, String tailSql){
-        return buildValues(tableName, field, searchMap, tailSql) + limitOne();
+    public String buildValue(String tableName, String field, NeoMap searchMap){
+        return buildValues(tableName, field, searchMap) + limitOne();
     }
 
     /**
@@ -204,10 +180,9 @@ public class SqlBuilder {
      * @param tableName 表名
      * @param field 要查询的字段
      * @param searchMap 查询参数
-     * @param tailSql 尾部sql
      * @return select `xxx` from yyy where a=? and b=? order by `xx`
      */
-    public String buildValues(String tableName, String field, NeoMap searchMap, String tailSql){
+    public String buildValues(String tableName, String field, NeoMap searchMap){
         return "select " + toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + buildOrderBy(searchMap);
     }
 

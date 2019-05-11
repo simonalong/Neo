@@ -77,7 +77,7 @@ public class NeoValuesTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testValues3(){
-        show(neo.values(TABLE_NAME, "age", NeoMap.of("group", "group2"), "order by age desc"));
+        show(neo.values(TABLE_NAME, "age", NeoMap.of("group", "group2", "order by", "age desc")));
     }
 
     /**
@@ -88,7 +88,7 @@ public class NeoValuesTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testValues4(){
-        show(neo.values(Integer.class, TABLE_NAME, "age", NeoMap.of("group", "group2"), "order by age desc"));
+        show(neo.values(Integer.class, TABLE_NAME, "age", NeoMap.of("group", "group2", "order by", "age desc")));
     }
 
     /**
@@ -124,7 +124,7 @@ public class NeoValuesTest extends NeoBaseTest {
     public void testValues7(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.values(TABLE_NAME, "name", search, "order by `group`"));
+        show(neo.values(TABLE_NAME, "name", search));
     }
 
     /**
@@ -136,7 +136,7 @@ public class NeoValuesTest extends NeoBaseTest {
     public void testValues8(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.values(String.class, TABLE_NAME, "group", search, "order by 'group'"));
+        show(neo.values(String.class, TABLE_NAME, "group", search));
     }
 
     /**

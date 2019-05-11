@@ -103,8 +103,8 @@ public class NeoListTest extends NeoBaseTest{
      */
     @Test
     @SneakyThrows
-    public void testList2(){
-        show(neo.list(TABLE_NAME, NeoMap.of("group", "ok"), "order by `age`"));
+    public void testList2() {
+        show(neo.list(TABLE_NAME, NeoMap.of("group", "ok", "order by", "age")));
     }
 
     /**
@@ -130,7 +130,7 @@ public class NeoListTest extends NeoBaseTest{
     public void testList4(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.list(TABLE_NAME, search, "order by `group`"));
+        show(neo.list(TABLE_NAME, search));
     }
 
     /**
@@ -152,7 +152,7 @@ public class NeoListTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testList6(){
-        show(neo.list(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc"));
+        show(neo.list(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1", "order by", "age desc")));
     }
 
     /**
@@ -178,7 +178,7 @@ public class NeoListTest extends NeoBaseTest{
     public void testList8(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.list(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc"));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), search));
     }
 
     /**

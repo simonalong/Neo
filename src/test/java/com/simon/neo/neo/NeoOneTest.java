@@ -3,7 +3,6 @@ package com.simon.neo.neo;
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
-import com.simon.neo.sql.SqlBuilder;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -95,7 +94,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testOne2(){
-        show(neo.one(TABLE_NAME, NeoMap.of("group", "nihao1"), "order by `group`"));
+        show(neo.one(TABLE_NAME, NeoMap.of("group", "nihao1", "order by", "group")));
     }
 
     /**
@@ -121,7 +120,7 @@ public class NeoOneTest extends NeoBaseTest{
     public void testOne4(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.one(TABLE_NAME, search, "order by `group`"));
+        show(neo.one(TABLE_NAME, search));
     }
 
     /**
@@ -143,7 +142,7 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testOne6(){
-        show(neo.one(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), "order by age desc"));
+        show(neo.one(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1", "order by", "age desc")));
     }
 
     /**
@@ -167,9 +166,8 @@ public class NeoOneTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testOne8(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.one(TABLE_NAME, Columns.of("group", "name"), search, "order by `group` desc"));
+        DemoEntity search = new DemoEntity().setGroup("group2");
+        show(neo.one(TABLE_NAME, Columns.of("group", "name"), search));
     }
 
     /**

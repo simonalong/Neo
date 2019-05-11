@@ -334,16 +334,15 @@ public class Neo {
      * @param tableName 表名
      * @param columns 列名
      * @param searchMap 搜索条件
-     * @param tailSql sql尾部后缀
      * @return 返回一个实体的Map影射
      */
-    public NeoMap one(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        return execute(false, () -> generateOneSqlPair(tableName, columns, searchMap, tailSql), this::executeOne);
+    public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
+        return execute(false, () -> generateOneSqlPair(tableName, columns, searchMap), this::executeOne);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T one(String tableName, Columns columns, T entity, String tailSql){
-        NeoMap neoMap = one(tableName, columns, NeoMap.from(entity), tailSql);
+    public <T> T one(String tableName, Columns columns, T entity){
+        NeoMap neoMap = one(tableName, columns, NeoMap.from(entity));
         if (!NeoMap.isEmpty(neoMap)) {
             return neoMap.as((Class<T>) entity.getClass());
         }
@@ -354,52 +353,21 @@ public class Neo {
      * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
      * @param tableName 表名
      * @param searchMap 搜索的数据
-     * @param tailSql sql的尾部sql填充
      * @return NeoMap对象
      */
-    public NeoMap one(String tableName, NeoMap searchMap, String tailSql){
-        return one(tableName, null, searchMap, tailSql);
+    public NeoMap one(String tableName, NeoMap searchMap){
+        return one(tableName, Columns.table(tableName, this), searchMap);
     }
 
     /**
      * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
      * @param tableName 表名
      * @param entity 搜索的实体类型数据
-     * @param tailSql sql的尾部sql填充
      * @param <T> 插入的对象类型
      * @return 插入的对象类型
      */
-    public <T> T one(String tableName, T entity, String tailSql){
-        return one(tableName, null, entity, tailSql);
-    }
-
-    public NeoMap one(String tableName, Columns columns, NeoMap searchMap){
-        return one(tableName, columns, searchMap, null);
-    }
-
-    public <T> T one(String tableName, Columns columns, T entity){
-        return one(tableName, columns, entity, null);
-    }
-
-    /**
-     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
-     * @param tableName 表名
-     * @param searchMap 搜索的映射
-     * @return NeoMap对象
-     */
-    public NeoMap one(String tableName, NeoMap searchMap){
-        return one(tableName, null, searchMap);
-    }
-
-    /**
-     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
-     * @param tableName 表名
-     * @param entity 查询的实体数据
-     * @param <T> 实体的类型映射
-     * @return 实体的类型
-     */
     public <T> T one(String tableName, T entity){
-        return one(tableName, null, entity);
+        return one(tableName, Columns.from(this, tableName), entity);
     }
 
     /**
@@ -424,40 +392,23 @@ public class Neo {
      * @param tableName 表名
      * @param columns 列数据
      * @param searchMap 搜索条件
-     * @param tailSql 尾部sql
      * @return 返回一列数据
      */
-    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap, String tailSql) {
-        return execute(true, () -> generateListSqlPair(tableName, columns, searchMap, tailSql), this::executeList);
+    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
+        return execute(true, () -> generateListSqlPair(tableName, columns, searchMap), this::executeList);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> list(String tableName, Columns columns, T entity, String tailSql){
-        return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity), tailSql), (Class<T>) entity.getClass());
-    }
-
-    public List<NeoMap> list(String tableName, NeoMap searchMap, String tailSql){
-        return list(tableName, null, searchMap, tailSql);
-    }
-
-    public <T> List<T> list(String tableName, T entity, String tailSql){
-        return list(tableName, null, entity, tailSql);
-    }
-
-    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap){
-        return list(tableName, columns, searchMap, null);
-    }
-
     public <T> List<T> list(String tableName, Columns columns, T entity){
-        return list(tableName, columns, entity, null);
+        return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity)), (Class<T>) entity.getClass());
     }
 
     public List<NeoMap> list(String tableName, NeoMap searchMap){
-        return list(tableName, searchMap, null);
+        return list(tableName, null, searchMap);
     }
 
     public <T> List<T> list(String tableName, T entity){
-        return list(tableName, entity, null);
+        return list(tableName, null, entity);
     }
 
     /**
@@ -487,13 +438,12 @@ public class Neo {
      * @param tClass 返回值的类型
      * @param field 某个属性的名字
      * @param searchMap 搜索条件
-     * @param tailSql 尾部sql，比如：order by `xxx`
      * @param <T> 目标类型
      * @return 指定的数据值
      */
-    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql) {
+    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
-            NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap, tailSql), this::executeOne);
+            NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap), this::executeOne);
             if (null != result) {
                 Iterator<Object> it = result.values().iterator();
                 return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
@@ -502,32 +452,16 @@ public class Neo {
         return null;
     }
 
-    public <T> T value(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {
-        return value(tClass, tableName, field, NeoMap.from(entity), tailSql);
-    }
-
-    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
-        return value(tClass, tableName, field, searchMap, null);
-    }
-
     public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
-        return value(tClass, tableName, field, entity, null);
+        return value(tClass, tableName, field, NeoMap.from(entity));
     }
 
-    public String value(String tableName, String field, NeoMap searchMap, String tailSql){
-        return value(String.class, tableName, field, searchMap, tailSql);
+    public String value(String tableName, String field, NeoMap searchMap){
+        return value(String.class, tableName, field, searchMap);
     }
 
-    public String value(String tableName, String field, Object entity, String tailSql) {
-        return value(String.class, tableName, field, entity, tailSql);
-    }
-
-    public String value(String tableName, String field, NeoMap searchMap) {
-        return value(tableName, field, searchMap, null);
-    }
-
-    public String value(String tableName, String field, Object entity) {
-        return value(tableName, field, entity, null);
+    public <T> String value(String tableName, String field, Object entity) {
+        return value(String.class, tableName, field, NeoMap.from(entity));
     }
 
     /**
@@ -559,12 +493,11 @@ public class Neo {
      * @param tClass 实体类的类
      * @param field 列名
      * @param searchMap 搜索条件
-     * @param tailSql sql尾部，比如order by `xxx`
      * @param <T> 目标类型
      * @return 一列值
      */
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql){
-        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMap, tailSql), this::executeList);
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap){
+        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMap), this::executeList);
 
         if(null != resultList && !resultList.isEmpty()){
             return resultList.stream()
@@ -575,24 +508,8 @@ public class Neo {
         return null;
     }
 
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {
-        return values(tClass, tableName, field, NeoMap.from(entity), tailSql);
-    }
-
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
-        return values(tClass, tableName, field, searchMap, null);
-    }
-
     public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
-        return values(tClass, tableName, field, entity, null);
-    }
-
-    public List<String> values(String tableName, String field, NeoMap searchMap, String tailSql) {
-        return values(String.class, tableName, field, searchMap, tailSql);
-    }
-
-    public List<String> values(String tableName, String field, Object entity, String tailSql) {
-        return values(String.class, tableName, field, entity, tailSql);
+        return values(tClass, tableName, field, NeoMap.from(entity));
     }
 
     public List<String> values(String tableName, String field, NeoMap searchMap) {
@@ -600,11 +517,11 @@ public class Neo {
     }
 
     public List<String> values(String tableName, String field, Object entity) {
-        return values(String.class, tableName, field, entity, null);
+        return values(String.class, tableName, field, NeoMap.from(entity));
     }
 
     public List<String> values(String tableName, String field) {
-        return values(String.class, tableName, field, NeoMap.of(), null);
+        return values(String.class, tableName, field, NeoMap.of());
     }
 
     /**
@@ -633,114 +550,34 @@ public class Neo {
      * @param tableName 表名
      * @param columns   列的属性
      * @param searchMap 搜索条件
-     * @param tailSql   sql后缀，比如：order by `xxx`
-     * @param startIndex 分页起始
-     * @param pageSize  分页大小
+     * @param page  分页
      * @return 分页对应的数据
      */
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex,
-        Integer pageSize) {
-        return execute(true, () -> generatePageSqlPair(tableName, columns, searchMap, tailSql, startIndex, pageSize),
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return execute(true, () -> generatePageSqlPair(tableName, columns, searchMap, page.getStartIndex(), page.getPageSize()),
             this::executeList);
     }
 
-    public List<NeoMap> page(String tableName, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize){
-        return page(tableName, null, searchMap, tailSql, startIndex, pageSize);
-    }
-
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
-        return page(tableName, columns, searchMap, null, startIndex, pageSize);
-    }
-
-    public List<NeoMap> page(String tableName, NeoMap searchMap, Integer startIndex, Integer pageSize){
-        return page(tableName, null, searchMap, startIndex, pageSize);
-    }
-
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(tableName, columns, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
-    }
-
-    public List<NeoMap> page(String tableName, NeoMap searchMap, String tailSql, NeoPage page){
-        return page(tableName, null, searchMap, tailSql, page.getStartIndex(), page.getPageSize());
-    }
-
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page){
-        return page(tableName, columns, searchMap, null, page.getStartIndex(), page.getPageSize());
-    }
-
-    public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){
-        return page(tableName, null, searchMap, page.getStartIndex(), page.getPageSize());
-    }
-
     @SuppressWarnings("unchecked")
-    public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, Integer startIndex,
-        Integer pageSize) {
-        return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity), tailSql, startIndex, pageSize),
+    public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){
+        return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity), page),
             (Class<T>) entity.getClass());
     }
 
-    /**
-     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx，请使用指明具体的列名的函数
-     * @param tableName 表名
-     * @param entity 搜索的实体数据
-     * @param tailSql where条件之后拼接的sql
-     * @param startIndex 分页的起始位置
-     * @param pageSize 分页的大小
-     * @param <T> 目标类型
-     * @return 目标列表
-     */
-    public <T> List<T> page(String tableName, T entity, String tailSql, Integer startIndex, Integer pageSize){
-        return page(tableName, null, entity, tailSql, startIndex, pageSize);
+    public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){
+        return page(tableName, Columns.from(this, tableName), searchMap, page);
     }
 
-    public <T> List<T> page(String tableName, Columns columns, T entity, Integer startIndex, Integer pageSize){
-        return page(tableName, columns, entity, null, startIndex, pageSize);
-    }
-
-    /**
-     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx
-     * @param tableName 表名
-     * @param entity 搜索的实体数据
-     * @param startIndex 分页的起始位置
-     * @param pageSize 分页的大小
-     * @param <T> 目标类型
-     * @return 目标列表
-     */
-    public <T> List<T> page(String tableName, T entity, Integer startIndex, Integer pageSize){
-        return page(tableName, null, entity, startIndex, pageSize);
-    }
-
-    public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, NeoPage page){
-        return page(tableName, columns, entity, tailSql, page.getStartIndex(), page.getPageSize());
-    }
-
-    /**
-     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx，请使用指明具体的列名的函数
-     * @param tableName 表名
-     * @param entity 搜索的实体数据
-     * @param tailSql sql的尾部sql
-     * @param page 分页的实体
-     * @param <T> 目标类型
-     * @return 目标列表
-     */
-    public <T> List<T> page(String tableName, T entity, String tailSql, NeoPage page){
-        return page(tableName, null, entity, tailSql, page.getStartIndex(), page.getPageSize());
-    }
-
-    public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){
-        return page(tableName, columns, entity, null, page.getStartIndex(), page.getPageSize());
-    }
-
-    /**
-     * 查询页面对应的数据，请尽量不要使用该函数，select * from xxxx，请使用指明具体的列名的函数
-     * @param tableName 表名
-     * @param entity 搜索的实体数据
-     * @param page 分页的实体
-     * @param <T> 目标类型
-     * @return 目标列表
-     */
     public <T> List<T> page(String tableName, T entity, NeoPage page){
-        return page(tableName, null, entity, page.getStartIndex(), page.getPageSize());
+        return page(tableName, Columns.from(this, tableName), entity, page);
+    }
+
+    public List<NeoMap> page(String tableName, Columns columns, NeoPage page){
+        return page(tableName, columns, NeoMap.of(), page);
+    }
+
+    public List<NeoMap> page(String tableName, NeoPage page){
+        return page(tableName, Columns.from(this, tableName), NeoMap.of(), page);
     }
 
     /**
@@ -1501,8 +1338,8 @@ public class Neo {
      * key: select xxx
      * value: 对应的参数
      */
-    private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildOne(this, tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+    private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap){
+        return new Pair<>(buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1510,8 +1347,8 @@ public class Neo {
      * key: select xxx
      * value: 对应的参数
      */
-    private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildList(this, tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+    private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap){
+        return new Pair<>(buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1520,8 +1357,8 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
-        String tailSql, Integer startIndex, Integer pageSize) {
-        return new Pair<>(buildPageList(this, tableName, columns, searchMap, tailSql, startIndex, pageSize), generateValueList(searchMap));
+        Integer startIndex, Integer pageSize) {
+        return new Pair<>(buildPageList(this, tableName, columns, searchMap, startIndex, pageSize), generateValueList(searchMap));
     }
 
     /**
@@ -1538,8 +1375,8 @@ public class Neo {
      * key: select xxx
      * value: 对应的参数
      */
-    private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildValue(tableName, field, searchMap, tailSql), generateValueList(searchMap));
+    private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap){
+        return new Pair<>(buildValue(tableName, field, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1547,8 +1384,8 @@ public class Neo {
      * key: select xxx
      * value: 对应的参数
      */
-    private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildValues(tableName, field, searchMap, tailSql), generateValueList(searchMap));
+    private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap){
+        return new Pair<>(buildValues(tableName, field, searchMap), generateValueList(searchMap));
     }
 
     /**

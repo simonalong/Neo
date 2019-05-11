@@ -66,7 +66,7 @@ public class NeoTableTest extends BaseNeoTableTest {
 
     @Test
     public void page(){
-        show(tinaTest.page(Columns.of("group", "name"), NeoMap.of("group", "ok2"), 0, 10));
+        show(tinaTest.page(Columns.of("group", "name"), NeoMap.of("group", "ok2"), NeoPage.of(1, 10)));
     }
 
     @Test

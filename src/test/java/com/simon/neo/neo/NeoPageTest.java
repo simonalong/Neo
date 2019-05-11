@@ -26,7 +26,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage1(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), 0, 20));
+        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -50,7 +50,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage3(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), "order by `age`", 0, 20));
+        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1", "order by", "age"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -62,7 +62,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage4(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), "order by `age`", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1", "order by", "age"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -74,7 +74,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage5(){
         DemoEntity search = new DemoEntity();
         search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, search, 0, 20));
+        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -100,7 +100,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage7(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, search, "order by `group`", 0, 20));
+        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -114,7 +114,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage8(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, search, "order by `group`", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -125,7 +125,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage9(){
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -147,7 +147,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage11(){
-        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1", "order by", "age desc"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -158,7 +158,7 @@ public class NeoPageTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testPage12(){
-        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1"), "order by `age` desc", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1", "order by", "age desc"), NeoPage.of(1, 20)));
     }
 
     /**
@@ -171,7 +171,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage13(){
         DemoEntity search = new DemoEntity();
         search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -197,7 +197,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage15(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc", 0, 20));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
     }
 
     /**
@@ -210,7 +210,7 @@ public class NeoPageTest extends NeoBaseTest{
     public void testPage16(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, "order by `age` desc", NeoPage.of(1, 20)));
+        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
     }
 
     /**
