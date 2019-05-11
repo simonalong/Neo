@@ -400,24 +400,28 @@ public class NeoJoinTest extends NeoBaseTest {
 
     /**
      * 表的别名
+     *
+     * 这里要通过在表的前头直接填写即可
      */
     @Test
     public void tableAsTest1(){
         // todo
-        String table1 = "neo_table1";
-        String table2 = "neo_table2";
-        show(neo.join(table1 +" as t1", table2 +" as t2").on("id", "id")
-            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("order by", "id desc"),
+        String table1 = "neo_table1 as t1";
+        String table2 = "neo_table2 as t2";
+        show(neo.join(table1, table2).on("id", "id")
+            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table2).cs("order by", "id desc"),
                 NeoPage.of(1, 12)));
     }
 
     /**
      * 自己和自己
+     *
+     * 需要利用到别名系统才行
      */
     @Test
     public void joinSelfTest1(){
-        // todo
-        String table = "neo_table3";
-        neo.leftJoin(table + "as t1", table + " as t2").on("id", "n_id").list(Columns.table(table, neo).cs("*"));
+        String table1 = "neo_table3 as t1";
+        String table2 = "neo_table3 as t2";
+        neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.table(table2, neo).cs("*"));
     }
 }

@@ -7,6 +7,7 @@ import static com.simon.neo.sql.JoinType.RIGHT_JOIN_EXCEPT_INNER;
 import com.simon.neo.Columns;
 import com.simon.neo.Neo;
 import com.simon.neo.NeoMap;
+import com.simon.neo.db.AliasParser;
 import com.simon.neo.db.NeoTable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -366,7 +367,7 @@ public class SqlBuilder {
         String dom = "`";
         if (column.contains(point)) {
             Integer index = column.indexOf(".") + 1;
-            return column.substring(0, index) + toDbField(column.substring(index));
+            return AliasParser.getAlias(column.substring(0, index)) + toDbField(column.substring(index));
         } else {
             if (column.startsWith(dom) && column.endsWith(dom)) {
                 return column;

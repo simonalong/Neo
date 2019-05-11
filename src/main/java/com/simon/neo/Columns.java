@@ -1,6 +1,11 @@
 package com.simon.neo;
 
+import static com.simon.neo.db.AliasParser.getAlias;
+import static com.simon.neo.db.AliasParser.haveAlias;
+import static com.simon.neo.db.AliasParser.metaData;
+
 import com.simon.neo.NeoMap.NamingChg;
+import com.simon.neo.db.AliasParser;
 import com.simon.neo.db.ColumnParseException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -25,8 +30,13 @@ public final class Columns {
 
     private static final String DEFAULT_TABLE = "";
     private static final String ALL_COLUMN_NAME = "*";
-    @Setter
-    @Accessors(chain = true)
+    /**
+     * 表的原始名
+     */
+    private String tableNameOrigin;
+    /**
+     * 表的别名
+     */
     private String tableName;
     @Setter
     @Accessors(chain = true)
@@ -91,6 +101,12 @@ public final class Columns {
         return null == columnsList || columnsList.isEmpty();
     }
 
+    public Columns setTableName(String tableName){
+        this.tableNameOrigin = metaData(tableName);
+        this.tableName = getAlias(tableName);
+        return this;
+    }
+
     public Columns and(String tableName){
         return this.setTableName(tableName);
     }
@@ -124,7 +140,7 @@ public final class Columns {
             tableFieldsMap.forEach((tableName, f) -> {
                 if (!tableName.equals(DEFAULT_TABLE)) {
                     if (f.contains(ALL_COLUMN_NAME)) {
-                        f.addAll(neo.getColumnNameList(tableName));
+                        f.addAll(neo.getColumnNameList(tableNameOrigin));
                     }
                 }
             });
@@ -193,19 +209,18 @@ public final class Columns {
      * 注意：还有一种是有列为*，展开后会有很多列，然后再在列后面添加对应的列转换，则这里会进行覆盖和替换，对于这样的一种情况：group, group as group1 -> `group` as group1
      */
     private Set<String> columnToDbField(Set<String> fieldSets) {
-//        String asStr = " as ";
         Set<String> fieldSet = new HashSet<>();
 
         // key: group, value: `group` as group1
         Map<String, String> columnMap = fieldSets.stream()
-            .filter(this::haveAlias)
+            .filter(AliasParser::haveAlias)
             // 对于含有table.group的情况和table.`group`和`group`这种情况进行考虑
-            .collect(Collectors.toMap(f -> filterColumnToMeta(fieldMetaAfterAlias(f)),
-                f -> filterColumnToFinal(fieldMetaAfterAlias(f)) + " " + columnAlias(f)));
+            .collect(Collectors.toMap(f -> filterColumnToMeta(metaData(f)),
+                f -> filterColumnToFinal(metaData(f)) + " " + getAlias(f)));
 
         fieldSets.forEach(f -> {
             if (haveAlias(f) || columnMap.containsKey(filterColumnToMeta(f))){
-                String meta = filterColumnToMeta(fieldMetaAfterAlias(f));
+                String meta = filterColumnToMeta(metaData(f));
                 if (columnMap.containsKey(meta)) {
                     fieldSet.add(columnMap.get(meta));
                 }
@@ -266,59 +281,6 @@ public final class Columns {
             }
             return toDbField(fieldName);
         }
-    }
-
-    /**
-     * 判断列是否有别名
-     * @param fieldStr 列名
-     * @return true 有别名，false：没有别名
-     */
-    private Boolean haveAlias(String fieldStr){
-        String asStr = " as ";
-        String spaceStr = " ";
-        fieldStr = fieldStr.trim();
-        if (fieldStr.contains(asStr) || fieldStr.contains(spaceStr)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 去除as 字段之后的字段：{@code table.name as n --> table.name} {@code table.name n}
-     * @param fieldStr 字段列
-     * @return 去除别名后的名字
-     */
-    private String fieldMetaAfterAlias(String fieldStr){
-        String asStr = "as";
-        String spaceStr = " ";
-        if(fieldStr.contains(asStr)){
-            return fieldStr.substring(0, fieldStr.indexOf(asStr)).trim();
-        }
-
-        if (fieldStr.contains(spaceStr)){
-            return fieldStr.substring(0, fieldStr.indexOf(spaceStr)).trim();
-        }
-        return fieldStr;
-    }
-
-    /**
-     * 获取列的别名
-     *
-     * @param fieldStr 字段列
-     * @return 列的别名
-     */
-    private String columnAlias(String fieldStr){
-        String asStr = " as ";
-        String spaceStr = " ";
-        fieldStr = fieldStr.trim();
-        if(fieldStr.contains(asStr)){
-            return fieldStr.substring(fieldStr.indexOf(asStr) + 1);
-        }
-
-        if (fieldStr.contains(spaceStr)){
-            return fieldStr.substring(fieldStr.indexOf(spaceStr) + 1);
-        }
-        return fieldStr;
     }
 
     private String toDbField(String field){

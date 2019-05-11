@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
+@Slf4j
 public final class NeoDb {
 
     private Neo neo;
@@ -140,11 +142,15 @@ public final class NeoDb {
 
     public NeoTable getTable(String schemaName, String tableName){
         schemaName = base(schemaName);
-        if(schemaToTableMap.containsKey(schemaName)) {
-            return schemaToTableMap.get(schemaName).values().stream().filter(t -> t.getTableName().equals(tableName))
+        NeoTable table = null;
+        if (schemaToTableMap.containsKey(schemaName)) {
+            table = schemaToTableMap.get(schemaName).values().stream().filter(t -> t.getTableName().equals(tableName))
                 .findFirst().orElse(null);
         }
-        return null;
+        if (null == table) {
+            log.warn("表" + tableName + "没有找到");
+        }
+        return table;
     }
 
     public NeoTable getTable(String tableName){

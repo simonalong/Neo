@@ -1,8 +1,7 @@
-package com.simon.neo.neotable;
+package com.simon.neo.db;
 
 import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
-import com.simon.neo.db.NeoPage;
 import java.sql.SQLException;
 import org.junit.Test;
 

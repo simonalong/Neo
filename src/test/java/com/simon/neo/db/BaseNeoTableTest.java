@@ -1,8 +1,7 @@
-package com.simon.neo.neotable;
+package com.simon.neo.db;
 
 import com.simon.neo.BaseTest;
 import com.simon.neo.Neo;
-import com.simon.neo.db.NeoTable;
 import java.sql.SQLException;
 import org.junit.BeforeClass;
 

@@ -1115,7 +1115,11 @@ public class Neo {
             ResultSet rs = dbMeta.getIndexInfo(con.getCatalog(), con.getSchema(), tableName, false, true);
             while (rs.next()) {
                 NeoTable table = db.getTable(tableName);
-                table.initIndex(rs);
+                if(null == table) {
+                    log.warn("表" + tableName + "没有找到");
+                }else{
+                    table.initIndex(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

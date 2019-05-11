@@ -1,5 +1,6 @@
 package com.simon.neo;
 
+import com.simon.neo.db.AliasParser;
 import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
@@ -242,7 +243,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     public static NeoMap table(String tableName){
-        return NeoMap.of().setKeyPreTableName(tableName);
+        return NeoMap.of().setKeyPreTableName(AliasParser.getAlias(tableName));
     }
 
     /**
