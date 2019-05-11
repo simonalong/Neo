@@ -528,8 +528,8 @@ sql是包含java的String的格式化转换符和JDBC的占位符"?"的，比如
 neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121)
 ```
 
-
 **占位符：**<br />java的转换符：
+
 | 转换符 | 说明 | 示例i |
 | --- | --- | --- |
 | %s | 字符串类型 | "mingrisoft" |

@@ -1502,7 +1502,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildOne(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildOne(this, tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1511,7 +1511,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap, String tailSql){
-        return new Pair<>(buildList(tableName, columns, searchMap, tailSql), generateValueList(searchMap));
+        return new Pair<>(buildList(this, tableName, columns, searchMap, tailSql), generateValueList(searchMap));
     }
 
     /**
@@ -1521,7 +1521,7 @@ public class Neo {
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         String tailSql, Integer startIndex, Integer pageSize) {
-        return new Pair<>(buildPageList(tableName, columns, searchMap, tailSql, startIndex, pageSize), generateValueList(searchMap));
+        return new Pair<>(buildPageList(this, tableName, columns, searchMap, tailSql, startIndex, pageSize), generateValueList(searchMap));
     }
 
     /**
