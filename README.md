@@ -1263,7 +1263,38 @@ public void aliasTest4(){
 别名中，我们会将有别名的列和对应的列认为是相同的列
 
 <a name="rmc4l"></a>
+### 4.表别名处理
+针对别名处理的时候，我们这里支持这么两种方式：as 方式和空格方式
 
+```java
+@Test
+public void aliasTest1(){
+  // `c1` s c11, `c2`, `c3`
+  show(Columns.of("`c1` as c11", "`c2`", "`c3`"));
+}
+
+@Test
+public void aliasTest2(){
+  // `c1` c11, `c2`, `c3`
+  show(Columns.of("c1 c11", "`c2`", "`c3`"));
+}
+
+@Test
+public void aliasTest3(){
+  // `c1`  c11, `c3`
+  show(Columns.of("c1  c11", "`c1`", "`c3`").buildFields());
+}
+
+@Test
+public void aliasTest4(){
+  // table.`c1`  c11, `c3`
+  show(Columns.of("table.c1  c11", "`c1`", "`c3`").buildFields());
+}
+```
+
+别名中，我们会将有别名的列和对应的列认为是相同的列
+
+<a name="rmc4l"></a>
 <h1 id="单机事务">八、单机事务</h1>
 
 针对单机事务，这里一些特性借鉴了spring的`@Transactional`注解，事务有很多特性：只读性，隔离性，传播性，我们这里只暴露只读和隔离，其中传播性默认为如果事务不存在，则创建，否则加入到已经存在的事务中。针对事务，这里增加这么个函数（函数名有借鉴）
@@ -1635,6 +1666,46 @@ public void leftJoinExceptInnerTest(){
   show(neo.leftJoinExceptInner(table1, table2).on("name", "name")
        .one(Columns.table(table1, "id", "name", "group").and(table2, "id", "name", "group"))
       );
+}
+```
+
+<a name="pWtK7"></a>
+
+### 表别名处理
+在单表时候查询数据时候还用不到表别名，但是对于多表join的时候，如果里面有表之间相互别名的时候，就需要用到别名了，那么别名怎么使用呢，这里涉及了这样的方式，直接将表名设置成“tablename as t1”，然后将这个直接作为表名进行查询即可。
+
+```java
+/**
+ * 表的别名
+ *
+ * 这里要通过在表的前头直接填写即可
+ *
+ * select t1.`name`, t1.`id`, t1.`user_name`, t1.`group`, t1.`age`
+ * from neo_table1 as t1 inner join neo_table2 as t2 on t1.`id`=t2.`id`
+ * order by t2.`id` desc limit 0, 12
+ */
+@Test
+public void tableAsTest1(){
+  String table1 = "neo_table1 as t1";
+  String table2 = "neo_table2 as t2";
+  show(neo.join(table1, table2).on("id", "id")
+       .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table2).cs("order by", "id desc"),
+             NeoPage.of(1, 12)));
+}
+
+/**
+* 自己和自己
+*
+* select t2.`n_id`, t2.`age`, t2.`sort`, t2.`user_name`, t2.`name`, t2.`group`, t2.`enum1`, t2.`id`
+* from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
+*
+* 需要利用到别名系统才行
+*/
+@Test
+public void joinSelfTest1(){
+  String table1 = "neo_table3 as t1";
+  String table2 = "neo_table3 as t2";
+  neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.table(table2, neo).cs("*"));
 }
 ```
 
