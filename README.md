@@ -403,12 +403,8 @@ public void testUpdate7(){
 ```java
 public NeoMap one(String tableName, NeoMap searchMap){}
 public <T> T one(String tableName, T entity){}
-public NeoMap one(String tableName, Columns columns, NeoMap searchMap){}
+public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {}
 public <T> T one(String tableName, Columns columns, T entity){}
-public NeoMap one(String tableName, NeoMap searchMap, String tailSql){}
-public <T> T one(String tableName, T entity, String tailSql){}
-public NeoMap one(String tableName, Columns columns, NeoMap searchMap, String tailSql) {}
-public <T> T one(String tableName, Columns columns, T entity, String tailSql){}
 ```
 
 | 参数 | 类型 | 详解 |
@@ -417,9 +413,32 @@ public <T> T one(String tableName, Columns columns, T entity, String tailSql){}
 | searchMap | NeoMap | where条件后面的搜索条件 |
 | entity | T | where条件后面的搜索条件，实体形式 |
 | columns | Columns | 返回结果中指定的列 |
-| tailSql | String | sql后面的拼接语句，放在where的条件后面，比如order by xxx |
 
-**注意：**<br />one执行的时候会自动在sql语句最后添加`limit 1`
+**注意：**<br />1.one执行的时候会自动在sql语句最后添加`limit 1`<br />2.（重要）在搜索条件中对于排序可以放到搜索条件中，如下，其中排序适用于后面所有的查询
+
+```java
+/**
+ * 测试order by
+ */
+@Test
+public void testOrderBy1(){
+  // select `name` from neo_table1 where `group` =  ? order by `name` desc
+  show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc")));
+}
+
+@Test
+public void testOrderBy2(){
+  // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
+  show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc")));
+}
+
+@Test
+public void testOrderBy3(){
+  // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
+  show(neo.list(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+}
+```
+
 <a name="mkT1Z"></a>
 
 <h3 id="多行查询list">b.多行查询list</h3>
@@ -427,14 +446,10 @@ public <T> T one(String tableName, Columns columns, T entity, String tailSql){}
 多行查询函数的参数跟单行查询的函数是相同的
 
 ```java
-public List<NeoMap> list(String tableName, NeoMap searchMap){}
 public <T> List<T> list(String tableName, T entity){}
+public List<NeoMap> list(String tableName, NeoMap searchMap){}
 public <T> List<T> list(String tableName, Columns columns, T entity){}
-public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap){}
-public List<NeoMap> list(String tableName, NeoMap searchMap, String tailSql){}
-public <T> List<T> list(String tableName, T entity, String tailSql){}
-public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap, String tailSql) {}
-public <T> List<T> list(String tableName, Columns columns, T entity, String tailSql){}
+public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {}
 ```
 参数同`one`
 <a name="XziYV"></a>
@@ -442,16 +457,12 @@ public <T> List<T> list(String tableName, Columns columns, T entity, String tail
 <h3 id="分页查询page">c.分页查询page</h3>
 
 ```java
-
-public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){}
-public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page){}
-
-public <T> List<T> page(String tableName, T entity, Integer startIndex, Integer pageSize){}
-public <T> List<T> page(String tableName, Columns columns, T entity, String tailSql, NeoPage page){}
-public <T> List<T> page(String tableName, T entity, String tailSql, NeoPage page){}
+public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {}
 public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){}
+public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){}
 public <T> List<T> page(String tableName, T entity, NeoPage page){}
-public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, String tailSql, Integer startIndex, Integer pageSize) {}
+public List<NeoMap> page(String tableName, Columns columns, NeoPage page){}
+public List<NeoMap> page(String tableName, NeoPage page){}
 ```
 
 | 参数 | 类型 | 详解 |
@@ -460,10 +471,7 @@ public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, St
 | searchMap | NeoMap | where条件后面的搜索条件 |
 | entity | T | where条件后面的搜索条件，实体形式 |
 | columns | Columns | 返回结果中指定的列 |
-| tailSql | String | sql后面的拼接语句，放在where的条件后面，比如order by xxx |
 | page | NeoPage | 内部包含pageIndex, pageSize, pageNo |
-| startIndex | Integer | limit 中的起始位置 |
-| pageSize | Integer | limit 中的分页大小 |
 
 <a name="Pyv0m"></a>
 
@@ -485,13 +493,9 @@ public Integer count(String tableName) {}
 
 ```java
 public String value(String tableName, String field, Object entity) {}
-public String value(String tableName, String field, NeoMap searchMap) {}
-public String value(String tableName, String field, Object entity, String tailSql) {}
-public String value(String tableName, String field, NeoMap searchMap, String tailSql){}
-public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {}
+public String value(String tableName, String field, NeoMap searchMap){}
 public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {}
-public <T> T value(Class<T> tClass, String tableName, String field, Object entity, String tailSql) {}
-public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap, String tailSql) {}
+public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {}
 ```
 
 | 参数 | 类型 | 详解 |
@@ -501,7 +505,6 @@ public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searc
 | field | String | 要查询的列名 |
 | entity | T | where条件后面的搜索条件，实体形式 |
 | searchMap | NeoMap | where条件后面的搜索条件 |
-| tailSql | String | sql后面的拼接语句，放在where的条件后面，比如order by xxx |
 
 <a name="w9ebU"></a>
 
@@ -635,9 +638,9 @@ public NeoTable getTable(String tableName){}
 ```java
 // 不指定列，则查询所有的列
 public NeoMap one(NeoMap searchMap){}
+public <T> T one(T entity){}
 public NeoMap one(Columns columns, NeoMap searchMap){}
 public <T> T one(Columns columns, T entity){}
-public NeoMap one(Columns columns, NeoMap searchMap, String tailSql) {}
 ```
 其中所有的函数跟Neo的都是一样的唯一的区别就是这里少了一个表名参数<br />以及其他的：
 
@@ -1459,20 +1462,25 @@ public NeoJoiner on(String leftColumnName, String rightColumnName){}
 此外还有对数据的查询查询处理（还有更多处理）：
 
 ```java
-public NeoMap one(Columns columns, String tailSql, NeoMap... searchMapList){}
-public NeoMap one(Columns columns, NeoMap... searchMapList){}
+public NeoMap one(Columns columns, NeoMap searchMap){}
+public NeoMap one(Columns columns){}
 
-public List<NeoMap> list(Columns columns, String tailSql, NeoMap... searchMapList){}
-public List<NeoMap> list(Columns columns, NeoMap... searchMapList){}
+public List<NeoMap> list(Columns columns, NeoMap searchMap){}
+public List<NeoMap> list(Columns columns){}
 
-public List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters){}
-public List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters){}
+public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage neoPage) {}
+public List<NeoMap> page(Columns columns, NeoPage page){}
 
-public Integer count(Columns columns, String tailSql, NeoMap... searchMapList){}
+public Integer count(Columns columns, NeoMap searchMap){}
 
-public <T> T value(Class<T> tClass, String tableName, String columnName, String tailSql, NeoMap... searchMapList){}
+public <T> T value(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){}
+public <T> T value(Class<T> tClass, String tableName, String columnName){}
+public String value(String tableName, String columnName, NeoMap searchMap){}
 public String value(String tableName, String columnName){}
 
+public <T> List<T> values(Class<T> tClass, String tableName, String columnName, NeoMap searchMap){}
+public <T> List<T> values(Class<T> tClass, String tableName, String columnName){}
+public List<String> values(String tableName, String columnName, NeoMap searchMap){}
 public List<String> values(String tableName, String columnName){}
 ```
 
@@ -1490,13 +1498,18 @@ public List<String> values(String tableName, String columnName){}
  * inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id` 
  * order by sort desc limit 1
  */
+/**
+ * join 采用的是innerJoin
+ *
+ * select neo_table1.`id`  
+ * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
+ */
 @Test
 public void joinOneTest1() {
   String table1 = "neo_table1";
   String table2 = "neo_table2";
-  String tailSql = "order by sort desc";
-  show(neo.join(table1, table2).on("id", "n_id")
-       .one(Columns.table(table1, "id"), tailSql));
+  show(neo.join(table1, table2).on("id", "id")
+       .one(Columns.table(table1).cs("id"), NeoMap.of("order by", "sort desc")));
 }
 
 /**
@@ -1526,44 +1539,43 @@ public void joinListTest1() {
 public void outerJoinTest() {
   String table1 = "neo_table1";
   String table2 = "neo_table2";
-  String tailSql = "order by sort desc";
   // [group3, group1, group2]
   show(neo.outerJoin(table1, table2).on("id", "n_id")
-       .values(table1, "group", tailSql));
+       .values(table1, "group", NeoMap.of("order by", "sort desc")));
 }
 
 /**
  * 测试多条件
- * 
- * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`  
- * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`   
- * where neo_table1.`group` = 'group1' and neo_table1.`id` = 11 and neo_table2.`group` = 'group1' order by sort desc limit 1
+ *
+ * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+ * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+ * where neo_table1.`group` =  ? and neo_table1.`id` =  ? and neo_table2.`group` =  ? order by `sort` desc limit 1
  */
 @Test
 public void joinOneTest9() {
   String table1 = "neo_table1";
   String table2 = "neo_table2";
-  String tailSql = "order by sort desc";
   // {group1=group3, id=13, name=name1, user_name=user_name1}
   show(neo.join(table1, table2).on("id", "n_id")
-       .one(Columns.table(table1, "*"), tailSql, NeoMap.table(table1).cs("group", "group1", "id", 11).and(table2).cs("group", "group1")));
+       .one(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("group", "group1", "id", 11)
+            .and(table2).cs("group", "group1").append("order by", "sort desc")));
 }
 
 /**
  * join的分页查询
  *
  * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
- * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
- * order by sort desc 
+ * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
+ * order by neo_table1.`group` desc
  * limit 0, 12
  */
 @Test
 public void pageTest(){
   String table1 = "neo_table1";
   String table2 = "neo_table2";
-  String tailSql = "order by sort desc";
-  show(neo.join(table1, table2).on("id", "n_id")
-       .page(Columns.table(table1, "*"), tailSql, NeoPage.of(1, 12)));
+  show(neo.join(table1, table2).on("id", "id")
+       .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("order by", "group desc"),
+             NeoPage.of(1, 12)));
 }
 ```
 

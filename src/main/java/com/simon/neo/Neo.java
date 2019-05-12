@@ -460,7 +460,7 @@ public class Neo {
         return value(String.class, tableName, field, searchMap);
     }
 
-    public <T> String value(String tableName, String field, Object entity) {
+    public String value(String tableName, String field, Object entity) {
         return value(String.class, tableName, field, NeoMap.from(entity));
     }
 

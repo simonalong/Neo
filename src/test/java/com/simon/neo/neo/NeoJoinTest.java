@@ -41,7 +41,8 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`id`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
+     * select neo_table1.`id`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
      */
     @Test
     public void joinOneTest1() {
@@ -324,10 +325,9 @@ public class NeoJoinTest extends NeoBaseTest {
 //    public void outerJoinTest() {
 //        String table1 = "neo_table1";
 //        String table2 = "neo_table2";
-//        String tailSql = "order by sort desc";
 //        // [group3, group1, group2]
 //        show(neo.outerJoin(table1, table2).on("id", "n_id")
-//            .values(table1, "group", tailSql, NeoMap.of()));
+//            .values(table1, "group", tailSql, NeoMap.of("order by", "sort desc")));
 //    }
 
     /**
@@ -402,10 +402,13 @@ public class NeoJoinTest extends NeoBaseTest {
      * 表的别名
      *
      * 这里要通过在表的前头直接填写即可
+     *
+     * select t1.`name`, t1.`id`, t1.`user_name`, t1.`group`, t1.`age`
+     * from neo_table1 as t1 inner join neo_table2 as t2 on t1.`id`=t2.`id`
+     * order by t2.`id` desc limit 0, 12
      */
     @Test
     public void tableAsTest1(){
-        // todo
         String table1 = "neo_table1 as t1";
         String table2 = "neo_table2 as t2";
         show(neo.join(table1, table2).on("id", "id")
@@ -415,6 +418,9 @@ public class NeoJoinTest extends NeoBaseTest {
 
     /**
      * 自己和自己
+     *
+     * select t2.`n_id`, t2.`age`, t2.`sort`, t2.`user_name`, t2.`name`, t2.`group`, t2.`enum1`, t2.`id`
+     * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
      *
      * 需要利用到别名系统才行
      */
