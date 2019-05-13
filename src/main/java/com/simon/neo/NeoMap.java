@@ -852,6 +852,15 @@ public class NeoMap implements Map<String, Object> {
         return dataMap.containsKey(key);
     }
 
+    /**
+     * 包含所有的key
+     * @param keys keys的列表
+     * @return true： 包含所有的值，false，没有包含全部的key
+     */
+    public boolean containsKeys(String... keys){
+        return Stream.of(keys).allMatch(this::containsKey);
+    }
+
     @Override
     public boolean containsValue(Object value) {
         return dataMap.containsValue(value);

@@ -371,6 +371,21 @@ public class Neo {
     }
 
     /**
+     * 通过id获取数据，则默认会将该数据认为是主键
+     * @param tableName 表名
+     * @param id 主键id数据
+     * @return 查询到的数据
+     */
+    public NeoMap one(String tableName, Long id){
+        String primaryKey = db.getPrimaryName(tableName);
+        NeoMap neoMap = NeoMap.of();
+        if(null != primaryKey){
+            return one(tableName, NeoMap.of(primaryKey, id));
+        }
+        return neoMap;
+    }
+
+    /**
      * 查询一行的数据
      * @param sql 只接收select 方式
      * @param parameters 参数
@@ -462,6 +477,21 @@ public class Neo {
 
     public String value(String tableName, String field, Object entity) {
         return value(String.class, tableName, field, NeoMap.from(entity));
+    }
+
+    /**
+     * 根据主键查询值
+     * @param tableName 表名
+     * @param field 待查询的属性
+     * @param id 主键值
+     * @return 查询到的列的值
+     */
+    public String value(String tableName, String field, Long id){
+        String primaryKey = db.getPrimaryName(tableName);
+        if (null != primaryKey && !"".equals(primaryKey)) {
+            return value(String.class, tableName, field, NeoMap.of(primaryKey, id));
+        }
+        return null;
     }
 
     /**

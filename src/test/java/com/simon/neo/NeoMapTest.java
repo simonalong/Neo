@@ -477,4 +477,10 @@ public class NeoMapTest extends BaseTest{
         // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
         show(result);
     }
+
+    @Test
+    public void containsKeysTest(){
+        Assert.assertTrue(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "b"));
+        Assert.assertFalse(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "d"));
+    }
 }
