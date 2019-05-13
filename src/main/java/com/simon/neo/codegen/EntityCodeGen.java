@@ -100,6 +100,7 @@ public class EntityCodeGen {
     /**
      * 设置那些只输出的表
      * @param tables 数据库中的表名
+     * @return 实体生成器
      */
     public EntityCodeGen setIncludes(String ...tables){
         includeTables.addAll(Arrays.asList(tables));
@@ -109,6 +110,7 @@ public class EntityCodeGen {
     /**
      * 设置排除的表
      * @param tables 数据库中的表名
+     * @return 实体生成器
      */
     public EntityCodeGen setExcludes(String ...tables){
         excludeTables.addAll(Arrays.asList(tables));

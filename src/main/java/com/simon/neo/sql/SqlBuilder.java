@@ -131,6 +131,7 @@ public class SqlBuilder {
 
     /**
      * 返回拼接的sql
+     * @param neo 库对象
      * @param tableName 表名
      * @param columns 列信息
      * @param searchMap 搜索条件
@@ -149,6 +150,7 @@ public class SqlBuilder {
 
     /**
      * 返回拼接的包含分页的sql
+     * @param neo 库对象
      * @param tableName 表名
      * @param columns 列信息
      * @param searchMap 搜索条件
@@ -164,7 +166,7 @@ public class SqlBuilder {
      * 返回拼接的sql
      * @param tableName 表名
      * @param searchMap 查询参数
-     * @return select `xxx` from yyy where a=? and b=? limit 1
+     * @return 返回sql，select `xxx` from yyy where a=? and b=? limit 1
      */
     public String buildCount(String tableName, NeoMap searchMap){
         return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap) + limitOne();

@@ -1,8 +1,6 @@
 package com.simon.neo;
 
-import static com.simon.neo.db.AliasParser.getAlias;
-import static com.simon.neo.db.AliasParser.haveAlias;
-import static com.simon.neo.db.AliasParser.metaData;
+import static com.simon.neo.db.AliasParser.*;
 
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.db.AliasParser;

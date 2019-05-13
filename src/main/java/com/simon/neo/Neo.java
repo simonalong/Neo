@@ -896,6 +896,8 @@ public class Neo {
      * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
      * @param readOnly 事务的只读属性，默认为false
      * @param supplier 待执行的任务
+     * @param <T> 待返回值的类型
+     * @return 事务执行之后的返回值
      */
     public <T> T tx(Boolean readOnly, Supplier<T> supplier) {
         return tx(null, readOnly, supplier);
@@ -919,6 +921,8 @@ public class Neo {
      * 注意：这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交
      * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
      * @param supplier 待执行的任务
+     * @param <T> 待返回值的类型
+     * @return 事务执行之后的返回值
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Supplier<T> supplier) {
         return tx(isolationEnum, false, supplier);
@@ -1009,6 +1013,8 @@ public class Neo {
 
     /**
      * 判断对应的表名是否存在
+     * @param tableName 表名
+     * @return true：表存在，false：表不存在
      */
     public Boolean tableExist(String tableName){
         return null != getTable(tableName);

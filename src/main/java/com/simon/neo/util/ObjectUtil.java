@@ -383,6 +383,7 @@ public class ObjectUtil {
      * 将对象的数据，按照cls类型进行转换
      * @param cls 待转换的Class类型
      * @param data 数据
+     * @param <T> 返回类型
      * @return Class类型对应的对象
      */
     public <T> T castStr(Class<T> cls, String data){
