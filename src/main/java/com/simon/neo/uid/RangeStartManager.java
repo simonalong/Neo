@@ -50,6 +50,8 @@ public final class RangeStartManager {
 
     /**
      * 初始化buf起点
+     * @param rangeStart buff的其实位置
+     * @return 当前位置
      */
     public Long initBufStart(Long rangeStart){
         rangeStartOfBuf1 = rangeStart;
@@ -74,6 +76,8 @@ public final class RangeStartManager {
      * 获取新的buf范围
      *
      * 将其中不是当前的另外一个buf设置为新的buf
+     *
+     * @param rangeStart buf起始位置
      */
     public void refreshRangeStart(Long rangeStart){
         haveRefreshed = true;

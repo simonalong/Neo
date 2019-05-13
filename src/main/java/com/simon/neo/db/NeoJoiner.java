@@ -301,6 +301,7 @@ public final class NeoJoiner {
     /**
      * join核查中的查询一个数据
      * @param tClass 目标类型
+     * @param tableName 表名
      * @param columnName 列名
      * @param searchMap 搜索条件
      * @param <T> 返回值类型
@@ -327,6 +328,7 @@ public final class NeoJoiner {
     /**
      * join核查中的查询一个数据
      * @param tClass 目标类型
+     * @param tableName 表名
      * @param columnName 列名
      * @param searchMap 搜索条件
      * @param <T> 返回值类型
