@@ -83,12 +83,11 @@ public abstract class AbstractNeoService {
 
     /**
      * 查询具体的数据列表
-     * @param tableName 表名
      * @param columns 要展示的列
      * @param searchMap 搜索条件
      * @return 返回一列数据
      */
-    public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
+    public List<NeoMap> list(Columns columns, NeoMap searchMap) {
         return getNeo().list(getTableName(), columns, searchMap);
     }
 
@@ -97,7 +96,7 @@ public abstract class AbstractNeoService {
     }
 
     /**
-     * 分组数据
+     * 分页数据
      * @param columns   列的属性
      * @param searchMap 搜索条件
      * @param page  分页
@@ -105,6 +104,16 @@ public abstract class AbstractNeoService {
      */
     public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page) {
         return getNeo().page(getTableName(), columns, searchMap, page);
+    }
+
+    /**
+     * 分页数据
+     * @param columns 列信息
+     * @param searchMap 搜索条件，带有分页信息的搜索条件
+     * @return 分页对应的数据
+     */
+    public List<NeoMap> page(Columns columns, NeoMap searchMap) {
+        return getNeo().page(getTableName(), columns, searchMap);
     }
 
     /**
@@ -127,7 +136,47 @@ public abstract class AbstractNeoService {
         return getNeo().page(getTableName(), searchMap, NeoPage.of(pageNo, pageSize));
     }
 
+    public List getPage(NeoMap dataMap) {
+        return getNeo().page(getTableName(), dataMap);
+    }
+
     public Integer count(NeoMap searchMap) {
         return getNeo().count(getTableName(), searchMap);
+    }
+
+    /**
+     * 查询某行某列的值
+     * @param tClass 返回值的类型
+     * @param field 某个属性的名字
+     * @param searchMap 搜索条件
+     * @param <T> 目标类型
+     * @return 指定的数据值
+     */
+    public <T> T value(Class<T> tClass, String field, NeoMap searchMap) {
+        return getNeo().value(tClass, getTableName(), field, searchMap);
+    }
+
+    public String value(String field, NeoMap searchMap){
+        return getNeo().value(getTableName(), field, searchMap);
+    }
+
+    public String value(String field, Long id){
+        return getNeo().value(getTableName(), field, id);
+    }
+
+    public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap) {
+        return getNeo().values(tClass, getTableName(), field, searchMap);
+    }
+
+    public <T> List<T> values(Class<T> tClass, String field, Long id){
+        return getNeo().values(tClass, getTableName(), field, id);
+    }
+
+    public List<String> values(String field, NeoMap searchMap){
+        return getNeo().values(getTableName(), field, searchMap);
+    }
+
+    public List<String> values(String field, Long id){
+        return getNeo().values(getTableName(), field, id);
     }
 }

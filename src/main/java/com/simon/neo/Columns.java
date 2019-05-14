@@ -186,6 +186,14 @@ public final class Columns {
         return tableFieldsMap.isEmpty();
     }
 
+    public Stream<String> stream(String tableName){
+        return tableFieldsMap.get(tableName).stream();
+    }
+
+    public Stream<String> stream(){
+        return stream(DEFAULT_TABLE);
+    }
+
     @Override
     public String toString() {
         return buildFields();

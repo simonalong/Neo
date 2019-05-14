@@ -483,4 +483,9 @@ public class NeoMapTest extends BaseTest{
         Assert.assertTrue(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "b"));
         Assert.assertFalse(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "d"));
     }
+
+    @Test
+    public void assignExceptTest1(){
+        show(NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept("a"));
+    }
 }

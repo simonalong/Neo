@@ -532,17 +532,43 @@ public class NeoMap implements Map<String, Object> {
      * @return 新的map结构
      */
     public NeoMap assign(Columns columns) {
-        Set<String> fields = columns.getFieldSets();
-        if (null == fields || fields.isEmpty()) {
+        if (Columns.isEmpty(columns)) {
             return this;
         }
         NeoMap neoMap = NeoMap.of();
-        fields.forEach(f -> {
+        columns.stream().forEach(f -> {
             if (containsKey(f)) {
                 neoMap.put(f, get(f));
             }
         });
         return neoMap;
+    }
+
+    public NeoMap assign(String... keys){
+        return assign(Columns.of(keys));
+    }
+
+    public NeoMap assignExcept(Columns columns) {
+        if (Columns.isEmpty(columns)) {
+            return this;
+        }
+        NeoMap result = NeoMap.of();
+        this.stream().forEach(f -> {
+            if (!columns.contains(f.getKey())) {
+                result.put(f.getKey(), f.getValue());
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 排除固定的几个值
+     *
+     * @param keys 具体的列列表
+     * @return 新的map数据
+     */
+    public NeoMap assignExcept(String... keys){
+        return assignExcept(Columns.of(keys));
     }
 
     /**
@@ -578,6 +604,11 @@ public class NeoMap implements Map<String, Object> {
 
     public NeoMap append(String key, Object value) {
         this.put(key, value);
+        return this;
+    }
+
+    public NeoMap delete(String key){
+        this.remove(key);
         return this;
     }
 
