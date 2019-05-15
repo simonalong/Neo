@@ -13,17 +13,17 @@ public class CodeGenTest {
     public void test1(){
         EntityCodeGen codeGen = new EntityCodeGen()
             // 设置DB信息
-            .setDb("neo_test", "neo@Test123", "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false")
+            .setDb("neo_test", "neo@Test123", "jdbc:mysql://127.0.0.1:3306/tina?useUnicode=true&characterEncoding=UTF-8&useSSL=false")
             // 设置项目路径
             .setProjectPath("/Users/zhouzhenyong/project/private/Neo")
             // 设置实体生成的包路径
             .setEntityPath("com.simon.neo.entity")
             // 设置表前缀过滤
-            .setPreFix("neo_")
+            .setPreFix("t_")
             // 设置要排除的表
             //.setExcludes("xx_test")
             // 设置只要的表
-            .setIncludes("neo_table3", "neo_table4")
+            .setIncludes("t_config_item")
             // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
             .setFieldNamingChg(NamingChg.UNDERLINE);
 

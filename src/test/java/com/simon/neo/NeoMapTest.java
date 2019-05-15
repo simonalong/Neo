@@ -488,4 +488,26 @@ public class NeoMapTest extends BaseTest{
     public void assignExceptTest1(){
         show(NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept("a"));
     }
+
+    /**
+     * 测试克隆模式
+     */
+    @Test
+    public void cloneTest(){
+        NeoMap result = NeoMap.of("a", 1, "b", 2);
+        NeoMap cloneMap = (NeoMap)result.clone();
+        show(cloneMap);
+        result.remove("a");
+        show(result);
+        show(cloneMap);
+    }
+
+    @Test
+    public void fromMapTest(){
+        Map<String, Integer> dataMap = new HashMap<>();
+        dataMap.put("a", 1);
+        dataMap.put("b", 2);
+        dataMap.put("c", 3);
+        show(NeoMap.fromMap(dataMap));
+    }
 }

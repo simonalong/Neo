@@ -28,6 +28,8 @@ public class NeoBatchTest extends NeoBaseTest{
           NeoMap.of("group", "group5", "name", "name5", "user_name", "user_name5")
         );
         show(neo.batchInsert(TABLE_NAME, maps));
+
+        show(maps);
     }
 
     @Test
@@ -124,5 +126,18 @@ public class NeoBatchTest extends NeoBaseTest{
             new DemoEntity().setId(6L).setGroup("group16chg").setName("name16chg")
         );
         neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("id", "group"), NamingChg.UNDERLINE);
+    }
+
+    @Test
+    public void batchUpdateTest6() {
+        List<NeoMap> maps = Arrays.asList(
+            NeoMap.of("id", 1, "group", "group1", "name", "name1chg"),
+            NeoMap.of("id", 2, "group", "group2", "name", "name2chg"),
+            NeoMap.of("id", 3, "group", "group3", "name", "name3chg"),
+            NeoMap.of("id", 4, "group", "group4", "name", "name4chg"),
+            NeoMap.of("id", 5, "group", "group5", "name", "name5chg")
+        );
+        show(neo.batchUpdate(TABLE_NAME, maps));
+        show(maps);
     }
 }

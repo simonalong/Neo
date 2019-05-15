@@ -2063,6 +2063,7 @@ public void testList9(){
 public void openUidGenerator(){}
 public void openUidGenerator(Integer stepSize, Float refreshRatio){}
 ```
+
 | type | 说明 |
 | --- | --- |
 | stepSize | 双buffer，其中每一个内存buffer的大小 |

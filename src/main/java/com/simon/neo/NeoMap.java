@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
-public class NeoMap implements Map<String, Object> {
+public class NeoMap implements Map<String, Object>, Cloneable {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
@@ -73,6 +73,15 @@ public class NeoMap implements Map<String, Object> {
             neoMap.put((String) kvs[i], kvs[i + 1]);
         }
         return neoMap;
+    }
+
+    public static NeoMap fromMap(Map<String, ?> dataMap) {
+        NeoMap data = NeoMap.of();
+        if (null == dataMap) {
+            return data;
+        }
+        data.putAll(dataMap);
+        return data;
     }
 
     /**
@@ -951,5 +960,12 @@ public class NeoMap implements Map<String, Object> {
     @Override
     public String toString() {
         return dataMap.toString();
+    }
+
+    @Override
+    protected NeoMap clone(){
+        NeoMap neoMap = NeoMap.of();
+        neoMap.putAll(dataMap.clone());
+        return neoMap;
     }
 }

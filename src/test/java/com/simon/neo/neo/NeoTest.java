@@ -50,6 +50,15 @@ public class NeoTest extends NeoBaseTest{
         show(result);
     }
 
+    @Test
+    @SneakyThrows
+    public void testInsert4(){
+        NeoMap data = NeoMap.of("group", "ok");
+        NeoMap result = neo.insert(TABLE_NAME, data);
+        show(result);
+        show(data);
+    }
+
     /******************************删除******************************/
     @Test
     @SneakyThrows
@@ -176,6 +185,15 @@ public class NeoTest extends NeoBaseTest{
         search.setName("name333");
         search.setUserName("userName2222");
         show(neo.update(TABLE_NAME, search, Columns.of("userName"), NamingChg.UNDERLINE));
+    }
+
+    @Test
+    @SneakyThrows
+    public void testUpdate10(){
+        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
+        NeoMap dataMap = NeoMap.of("id", 11, "group", "group222", "name", "name2");
+        show(neo.update("neo_table1", dataMap));
+        show(dataMap);
     }
 
     /******************************直接执行******************************/

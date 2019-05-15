@@ -53,14 +53,11 @@ public class SqlBuilder {
      * @return 返回where对应的语句
      */
     public String buildWhere(NeoMap searchMap) {
-        if(NeoMap.isEmpty(searchMap)){
-            return "";
-        }else{
-            if (!searchMap.containsKey(ORDER_BY)){
-                return " where " + buildCondition(searchMap);
-            }
-            return buildCondition(searchMap);
+        NeoMap conditionMap = searchMap.assignExcept(ORDER_BY);
+        if (!NeoMap.isEmpty(conditionMap)) {
+            return " where " + buildCondition(searchMap);
         }
+        return "";
     }
 
     /**

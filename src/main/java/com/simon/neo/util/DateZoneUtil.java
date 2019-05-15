@@ -41,6 +41,8 @@ public class DateZoneUtil {
 
     /**
      * 解析带有时区时间为通用的时间
+     * @param dataMap 数据map
+     * @param timeKeys 待转换的keys
      */
     public void parseTimeUTC(NeoMap dataMap, String... timeKeys){
         parseTimeWithZone(dataMap, "UTC", timeKeys);
