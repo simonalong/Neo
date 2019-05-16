@@ -311,8 +311,8 @@ public class ObjectUtil {
             return null;
         }
 
-        // 对于是对应的实例，则直接转换，对于不是的，则进行额外特殊处理
-        if (tClass.isInstance(value)) {
+        // 对于是对应的实例，则直接转换，或者要抓换的是其父类，则也可以直接转换
+        if (tClass.isInstance(value) || tClass.isAssignableFrom(value.getClass())) {
             return (T) value;
         }
 

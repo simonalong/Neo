@@ -4,6 +4,7 @@ import com.simon.neo.Columns;
 import com.simon.neo.NeoMap;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
+import java.util.Date;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -174,20 +175,28 @@ public class NeoOneTest extends NeoBaseTest{
      * 测试order by
      */
     @Test
-    public void testOrderBy1(){
+    public void testOrderBy1() {
         // select `name` from neo_table1 where `group` =  ? order by `name` desc  limit 1
         show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc")));
     }
 
     @Test
-    public void testOrderBy2(){
+    public void testOrderBy2() {
         // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
         show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc")));
     }
 
     @Test
-    public void testOrderBy3(){
+    public void testOrderBy3() {
         // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
         show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+    }
+
+    @Test
+    public void testIII() {
+        Long time = new Date().getTime();
+        NeoMap neoMap = neo.insert("neo_table4",
+            NeoMap.of("id", 110, "create_time", time, "time", time, "year", time, "date", time, "datetime", time));
+        show(neoMap);
     }
 }

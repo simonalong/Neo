@@ -1,10 +1,12 @@
 package com.simon.neo;
 
 import com.simon.neo.db.AliasParser;
+import com.simon.neo.db.TimeDateConverter;
 import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
+import com.simon.neo.util.WrapperUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +22,7 @@ import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import sun.invoke.util.Wrapper;
 
 /**
  * @author zhouzhenyong
@@ -522,7 +525,12 @@ public class NeoMap implements Map<String, Object>, Cloneable {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        f.set(finalT, dataMap.get(namingChg(f.getName())));
+                        Class<?> fClass = WrapperUtil.primaryTypeToWrapper(f.getType());
+                        String key = namingChg(f.getName());
+                        // 对于基本类型，则需要判断是否有包含
+                        if (containsKey(key)) {
+                            f.set(finalT, toEntityValue(f, key));
+                        }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -532,6 +540,18 @@ public class NeoMap implements Map<String, Object>, Cloneable {
             e.printStackTrace();
         }
         return t;
+    }
+
+    /**
+     * NeoMap中的value向实体类型转换，先经过兼容类型转换，再经过时间类型转换
+     *
+     * @param field 属性类型
+     * @param keyName 类型转换后的名字
+     * @return 经过转换之后的实体中的值
+     */
+    private Object toEntityValue(Field field, String keyName) {
+        Class<?> fieldType = field.getType();
+        return TimeDateConverter.longToEntityTime(fieldType, get(fieldType, keyName));
     }
 
     /**

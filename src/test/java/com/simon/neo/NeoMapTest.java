@@ -5,11 +5,13 @@ import com.simon.neo.entity.DemoEntity;
 import com.simon.neo.entity.EnumEntity;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -90,6 +92,46 @@ public class NeoMapTest extends BaseTest{
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4);
+    }
+
+    /**
+     * 类型不同时候的兼容测试
+     *
+     * 其中id为integer, 但是实体中为Long，通常情况下回报异常，但是现在做了兼容
+     */
+    @Test
+    @SneakyThrows
+    public void testAs5() {
+        NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-base-name", TABLE_NAME);
+        // dataBaseUser -> data-base-user
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        show(demo4.toString());
+    }
+
+    @Test
+    @SneakyThrows
+    public void testAs6() {
+        Long a = 12L;
+        NeoMap map4 = NeoMap.of("user_name", "name", "sl", a);
+        // dataBaseUser -> data-base-user
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        show(demo4.toString());
+    }
+
+    // todo
+    @Test
+    @SneakyThrows
+    public void testAs7() {
+        Long time = new Date().getTime();
+        NeoMap map4 = NeoMap.of("date", time, "sql_date", time, "time", time, "timestamp", time);
+//        NeoMap map4 = NeoMap.of("a", 1);
+        // dataBaseUser -> data-base-user
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.UNDERLINE);
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        show(demo4.toString());
     }
 
     @Test

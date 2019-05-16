@@ -134,6 +134,7 @@ public final class UidGenerator {
     private void initTable() {
         if (!neo.tableExist(UUID_TABLE)) {
             neo.execute(uidTableCreateSql());
+            neo.initDb();
             neo.insert(UUID_TABLE, NeoMap.of("id", TABLE_ID, "uuid", 1));
         }
     }

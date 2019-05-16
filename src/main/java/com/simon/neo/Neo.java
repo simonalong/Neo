@@ -8,6 +8,7 @@ import com.simon.neo.db.NeoJoiner;
 import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
+import com.simon.neo.db.TimeDateConverter;
 import com.simon.neo.exception.UidGeneratorNotInitException;
 import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlStandard.LogType;
@@ -145,7 +146,7 @@ public class Neo {
         return neo;
     }
 
-    private void initDb(){
+    public void initDb(){
         try(Connection con = pool.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
@@ -1576,14 +1577,30 @@ public class Neo {
     }
 
     /**
-     * 过滤不是列名的key
+     * 过滤不是列名的key，并且对其中NeoMap中为Long类型的时间类型进行转换
+     *
+     * 注意：
+     * 由于mysql中时间类型year不支持{@link java.util.Date}这个类型直接传入（其他四个时间类型支持），因此需要单独处理
+     *
      * @param dataMap 待处理的数据
      * @return 处理后的数据
      */
-    private NeoMap filterNonDbColumn(String tableName, NeoMap dataMap){
-        Set<String> columns = getColumnNameList(tableName);
+    private NeoMap filterNonDbColumn(String tableName, NeoMap dataMap) {
+        // key为列名，value为：key为列的数据库类型名字，value为列对应的java中的类型
+        Map<String, Pair<String, Class<?>>> columnMap = getColumnList(tableName).stream()
+            .collect(Collectors.toMap(NeoColumn::getColumnName, r-> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
         NeoMap result = NeoMap.of();
-        dataMap.stream().filter(e->columns.contains(e.getKey()) || e.getKey().equals(ORDER_BY)).forEach(r-> result.put(r.getKey(), r.getValue()));
+        dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()) || e.getKey().equals(ORDER_BY))
+            .forEach(r -> {
+                String key = r.getKey();
+                Object value = r.getValue();
+                if (!key.equals(ORDER_BY)) {
+                    Pair<String, Class<?>> typeAndClass = columnMap.get(key);
+                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value));
+                } else {
+                    result.put(key, value);
+                }
+            });
         dataMap.clear();
         return result;
     }
@@ -1650,7 +1667,7 @@ public class Neo {
                     while (rs.next()) {
                         NeoMap data = NeoMap.of();
                         for (int i = 1; i <= meta.getColumnCount(); i++) {
-                            data.put(meta.getColumnLabel(i), rs.getObject(i));
+                            data.put(meta.getColumnLabel(i), TimeDateConverter.dbTimeToLong(rs.getObject(i)));
                         }
                         dataList.add(data);
                     }
@@ -1672,7 +1689,7 @@ public class Neo {
 
             if (rs.next()) {
                 for (int j = 1; j <= col; j++) {
-                    result.put(metaData.getColumnLabel(j), rs.getObject(j));
+                    result.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
                 }
             }
         } catch (SQLException e) {
@@ -1691,7 +1708,7 @@ public class Neo {
             while (rs.next()) {
                 NeoMap row = NeoMap.of();
                 for (int j = 1; j <= col; j++) {
-                    row.put(metaData.getColumnLabel(j), rs.getObject(j));
+                    row.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
                 }
                 result.add(row);
             }

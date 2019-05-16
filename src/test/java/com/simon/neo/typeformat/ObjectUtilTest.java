@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.simon.neo.BaseTest;
 import com.simon.neo.NeoMap;
 import com.simon.neo.util.ObjectUtil;
+import java.sql.Timestamp;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -170,5 +172,14 @@ public class ObjectUtilTest extends BaseTest {
     public void NeoMapTest2() {
         ObjectEntity objectEntity = new ObjectEntity().setName("word").setAge(12);
         show(ObjectUtil.toNeoMap(objectEntity));
+    }
+
+    /**
+     * 其中一半情况下，tClass都是给数据库生成的字段转换的，因此这里需要处理
+     */
+    @Test
+    public void DateTest1(){
+        Date time = new Date();
+        ObjectUtil.cast(Timestamp.class, time);
     }
 }

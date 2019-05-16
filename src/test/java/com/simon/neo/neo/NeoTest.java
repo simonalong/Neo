@@ -7,6 +7,7 @@ import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -370,5 +371,17 @@ public class NeoTest extends NeoBaseTest{
         show(neo.getUid());
         show(neo.getUid());
         show(neo.getUid());
+    }
+
+    // todo delete
+    @Test
+    @SneakyThrows
+    public void testInsert1111(){
+        Long time = new Date().getTime();
+        show(neo.insert("neo_table4", NeoMap.of("create_time", time, "id", 1119)));
+        show(neo.insert("neo_table4", NeoMap.of("time", time, "id", 1113)));
+//        show(neo.insert("neo_table4", NeoMap.of("year", new Date().getTime(), "id", 16114)));
+        show(neo.insert("neo_table4", NeoMap.of("date", time, "id", 1115)));
+        show(neo.insert("neo_table4", NeoMap.of("datetime", time, "id", 1116)));
     }
 }
