@@ -1596,9 +1596,9 @@ public class Neo {
                 Object value = r.getValue();
                 if (!key.equals(ORDER_BY)) {
                     Pair<String, Class<?>> typeAndClass = columnMap.get(key);
-                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value));
+                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value), false);
                 } else {
-                    result.put(key, value);
+                    result.put(key, value, false);
                 }
             });
         dataMap.clear();

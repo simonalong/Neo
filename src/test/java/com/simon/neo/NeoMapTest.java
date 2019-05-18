@@ -3,6 +3,8 @@ package com.simon.neo;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import com.simon.neo.entity.EnumEntity;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -128,9 +130,9 @@ public class NeoMapTest extends BaseTest{
         Long time = new Date().getTime();
         NeoMap map4 = NeoMap.of("date", time, "sql_date", time, "time", time, "timestamp", time);
 //        NeoMap map4 = NeoMap.of("a", 1);
-        // dataBaseUser -> data-base-user
+        // sqlDate -> sql_date
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.UNDERLINE);
-        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=1, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
         show(demo4.toString());
     }
 
@@ -242,6 +244,23 @@ public class NeoMapTest extends BaseTest{
 
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
+        // {group=group1, user_name=userName1}
+        show(neoMap);
+    }
+
+    /**
+     * 测试时间类型的转换
+     */
+    @Test
+    public void testFrom9(){
+        DemoEntity demoEntity = new DemoEntity()
+            .setSqlDate(new java.sql.Date(new Date().getTime()))
+            .setTime(new Time(new Date().getTime()))
+            .setTimestamp(new Timestamp(new Date().getTime()))
+            .setUtilDate(new Date());
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demoEntity, NamingChg.UNDERLINE);
         // {group=group1, user_name=userName1}
         show(neoMap);
     }
@@ -551,5 +570,20 @@ public class NeoMapTest extends BaseTest{
         dataMap.put("b", 2);
         dataMap.put("c", 3);
         show(NeoMap.fromMap(dataMap));
+    }
+
+    @Test
+    public void getDateTest(){
+        NeoMap neoMap = NeoMap.of("t", new Date().getTime());
+        show(neoMap.get(Date.class, "t"));
+    }
+
+    @Test
+    public void putTest(){
+        NeoMap neoMap = NeoMap.of();
+        neoMap.put("t", new Date());
+        show(neoMap.get("t"));
+        show(neoMap.getLong("t"));
+        show(neoMap.get(Date.class, "t"));
     }
 }

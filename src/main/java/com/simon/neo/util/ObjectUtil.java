@@ -1,6 +1,8 @@
 package com.simon.neo.util;
 
 import com.simon.neo.NeoMap;
+import com.simon.neo.db.TimeDateConverter;
+import com.simon.neo.exception.ValueCastClassException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
@@ -376,7 +378,12 @@ public class ObjectUtil {
             return castStr(tClass, String.valueOf(value));
         }
 
-        return NeoMap.from(value).as(tClass);
+        // 如果待转换的为时间类型，且值为数值类型，则可以进行转换
+        if (TimeDateConverter.isTimeType(tClass) && value instanceof Long){
+           return TimeDateConverter.longToEntityTime(tClass, Long.class.cast(value));
+        }
+
+        throw new ValueCastClassException("值 " + value + " 向类型 " + tClass.getName() + " 转换异常");
     }
 
     /**

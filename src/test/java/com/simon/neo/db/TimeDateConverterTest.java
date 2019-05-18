@@ -1,9 +1,7 @@
 package com.simon.neo.db;
 
 import com.simon.neo.BaseTest;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,9 +14,9 @@ public class TimeDateConverterTest extends BaseTest {
     @Test
     public void longToEntityTimeTest(){
         Long time = new Date().getTime();
-        Assert.assertEquals(java.sql.Date.class, TimeDateConverter.longToEntityTime(java.sql.Date.class, time).getClass());
+        Assert.assertEquals(java.sql.Date.class, TimeDateConverter.valueToEntityTime(java.sql.Date.class, time).getClass());
 
-        Assert.assertEquals(String.class, TimeDateConverter.longToEntityTime(String.class, "").getClass());
+        Assert.assertEquals(String.class, TimeDateConverter.valueToEntityTime(String.class, "").getClass());
     }
 
     @Test

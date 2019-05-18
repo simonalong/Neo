@@ -72,27 +72,40 @@ public class TimeDateConverter {
     }
 
     /**
-     * 根据实体将Long类型的时间转为对应的时间类型
+     * 根据实体类型转时间类型，对于time为Long的，且待转换的为时间类型的，则转换为时间类型
      * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
      * todo 后续将java8的时间类型转换也放进去
      * @param tClass 实体属性对应的类型
      * @param time 时间
      * @return 类型对应的值
      */
-    public Object longToEntityTime(Class<?> tClass, Object time){
+    public Object valueToEntityTime(Class<?> tClass, Object time){
         if (time instanceof Long){
-            Long timeLong = Long.class.cast(time);
-            if (java.sql.Date.class.isAssignableFrom(tClass)) {
-                return tClass.cast(new java.sql.Date(timeLong));
-            } else if(java.sql.Time.class.isAssignableFrom(tClass)) {
-                return tClass.cast(new java.sql.Time(timeLong));
-            } else if(java.sql.Timestamp.class.isAssignableFrom(tClass)) {
-                return tClass.cast(new java.sql.Timestamp(timeLong));
-            } else if(java.util.Date.class.isAssignableFrom(tClass)) {
-                return tClass.cast(new java.util.Date(timeLong));
-            }
+            return longToEntityTime(tClass, Long.class.cast(time));
         }
         return time;
+    }
+
+    /**
+     * 根据实体将Long类型的时间转为对应的时间类型
+     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
+     * todo 后续将java8的时间类型转换也放进去
+     * @param tClass 实体属性对应的类型
+     * @param time 时间
+     * @param <T> 时间类型
+     * @return 类型对应的值
+     */
+    public <T> T longToEntityTime(Class<T> tClass, Long time) {
+        if (java.sql.Date.class.isAssignableFrom(tClass)) {
+            return tClass.cast(new java.sql.Date(time));
+        } else if(java.sql.Time.class.isAssignableFrom(tClass)) {
+            return tClass.cast(new java.sql.Time(time));
+        } else if(java.sql.Timestamp.class.isAssignableFrom(tClass)) {
+            return tClass.cast(new java.sql.Timestamp(time));
+        } else if(java.util.Date.class.isAssignableFrom(tClass)) {
+            return tClass.cast(new java.util.Date(time));
+        }
+        return null;
     }
 
     /**
@@ -116,5 +129,18 @@ public class TimeDateConverter {
             return java.util.Date.class.cast(fieldTime).getTime();
         }
         return fieldTime;
+    }
+
+    /**
+     * 判断值是否是时间类型
+     *
+     * @param tClass 待校验的类型
+     * @return true:是时间类型，false：不是时间类型
+     */
+    public Boolean isTimeType(Class<?> tClass) {
+        return java.sql.Date.class.isAssignableFrom(tClass)
+            || java.sql.Time.class.isAssignableFrom(tClass)
+            || java.sql.Timestamp.class.isAssignableFrom(tClass)
+            || Date.class.isAssignableFrom(tClass);
     }
 }

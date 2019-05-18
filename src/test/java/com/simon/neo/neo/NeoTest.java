@@ -60,6 +60,19 @@ public class NeoTest extends NeoBaseTest{
         show(data);
     }
 
+    /**
+     * 测试插入时间类型，时间类型自动转换
+     */
+    @Test
+    @SneakyThrows
+    public void testInsert5(){
+        Long time = new Date().getTime();
+        NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
+        NeoMap result = neo.insert("neo_table4", data);
+        show(result);
+        show(data);
+    }
+
     /******************************删除******************************/
     @Test
     @SneakyThrows
@@ -371,17 +384,5 @@ public class NeoTest extends NeoBaseTest{
         show(neo.getUid());
         show(neo.getUid());
         show(neo.getUid());
-    }
-
-    // todo delete
-    @Test
-    @SneakyThrows
-    public void testInsert1111(){
-        Long time = new Date().getTime();
-        show(neo.insert("neo_table4", NeoMap.of("create_time", time, "id", 1119)));
-        show(neo.insert("neo_table4", NeoMap.of("time", time, "id", 1113)));
-//        show(neo.insert("neo_table4", NeoMap.of("year", new Date().getTime(), "id", 16114)));
-        show(neo.insert("neo_table4", NeoMap.of("date", time, "id", 1115)));
-        show(neo.insert("neo_table4", NeoMap.of("datetime", time, "id", 1116)));
     }
 }

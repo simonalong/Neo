@@ -6,7 +6,6 @@ import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
-import com.simon.neo.util.WrapperUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import sun.invoke.util.Wrapper;
 
 /**
  * @author zhouzhenyong
@@ -259,7 +257,7 @@ public class NeoMap implements Map<String, Object>, Cloneable {
     }
 
     /**
-     * 判断对象是否是普通对象，若是枚举、数组、集合和Map则返回具体的文案，否则返回null
+     * 判断对象是否是普通对象，若是枚举、数组和集合则返回具体的文案，否则返回null
      *
      * @param value 待检查的值
      * @return null：普通对象；文本：非普通对象
@@ -282,6 +280,15 @@ public class NeoMap implements Map<String, Object>, Cloneable {
         return null;
     }
 
+    /**
+     * 对象向NeoMap转换，排除一些属性，包含一些数据
+     *
+     * @param neoMap 待接收数据的NeoMap
+     * @param object 待转换的对象
+     * @param inFieldList 需要转换的属性列表
+     * @param exFieldList 不需要转换的属性列表
+     * @return 转换后的NeoMap
+     */
     private static NeoMap innerFrom(NeoMap neoMap, Object object, List<String> inFieldList, List<String> exFieldList) {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length != 0) {
@@ -296,7 +303,7 @@ public class NeoMap implements Map<String, Object>, Cloneable {
             }).forEach(f -> {
                 f.setAccessible(true);
                 try {
-                    Object value = f.getType().cast(f.get(object));
+                    Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
                         neoMap.putIfAbsent(neoMap.namingChg(f.getName()), value);
                     }
@@ -525,11 +532,12 @@ public class NeoMap implements Map<String, Object>, Cloneable {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        Class<?> fClass = WrapperUtil.primaryTypeToWrapper(f.getType());
                         String key = namingChg(f.getName());
-                        // 对于基本类型，则需要判断是否有包含
-                        if (containsKey(key)) {
-                            f.set(finalT, toEntityValue(f, key));
+                        Object value = toEntityValue(f, key);
+
+                        // NeoMap中包含对象的属性，且value不为空，则进行设置
+                        if (containsKey(key) && null != value) {
+                            f.set(finalT, value);
                         }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
@@ -543,15 +551,15 @@ public class NeoMap implements Map<String, Object>, Cloneable {
     }
 
     /**
-     * NeoMap中的value向实体类型转换，先经过兼容类型转换，再经过时间类型转换
+     * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为事件类型，对于非时间类型的，则保持，然后再经过兼容类型
      *
-     * @param field 属性类型
-     * @param keyName 类型转换后的名字
+     * @param f 属性
+     * @param key 类型转换后的名字
      * @return 经过转换之后的实体中的值
      */
-    private Object toEntityValue(Field field, String keyName) {
-        Class<?> fieldType = field.getType();
-        return TimeDateConverter.longToEntityTime(fieldType, get(fieldType, keyName));
+    private Object toEntityValue(Field f, String key) {
+        Class<?> fieldClass = f.getType();
+        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, get(key)));
     }
 
     /**
@@ -931,10 +939,31 @@ public class NeoMap implements Map<String, Object>, Cloneable {
         return dataMap.get(key);
     }
 
+    /**
+     * 对所有的放到NeoMap中的值，如果是时间类型，则就要进行转换成Long类型
+     * @param key key
+     * @param value value
+     * @return 原value
+     */
     @Override
     public Object put(String key, Object value) {
+        return put(key, value, true);
+    }
+
+    /**
+     * 是否进行时间类型到Long类型的转换来放置数据
+     * @param key key
+     * @param value value
+     * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
+     * @return
+     */
+    public Object put(String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {
-            dataMap.put(key, value);
+            if (timeTypeToLong) {
+                dataMap.put(key, TimeDateConverter.entityTimeToLong(value));
+            } else {
+                dataMap.put(key, value);
+            }
         }
         return value;
     }
@@ -946,7 +975,9 @@ public class NeoMap implements Map<String, Object>, Cloneable {
 
     @Override
     public void putAll(Map<? extends String, ?> m) {
-        dataMap.putAll(m);
+        if (null != m && !m.isEmpty()) {
+            m.forEach((key, value) -> put(key, TimeDateConverter.entityTimeToLong(value)));
+        }
     }
 
     @Override
