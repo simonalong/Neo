@@ -6,6 +6,7 @@ import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
-public class NeoMap implements Map<String, Object>, Cloneable {
+public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
@@ -51,7 +52,7 @@ public class NeoMap implements Map<String, Object>, Cloneable {
     @Accessors(chain = true)
     private String keyPreTableName;
 
-    private NeoMap() {
+    public NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
     }
 
@@ -905,9 +906,24 @@ public class NeoMap implements Map<String, Object>, Cloneable {
         return dataMap;
     }
 
+    /**
+     * 指定value值类型的情况下获取dataMap
+     * @param tClass value的目标类
+     * @param <T> 类型
+     * @return 转换后的类型
+     */
+    public <T> Map<String, T> getDataMapAssignValueType(Class<T> tClass){
+        return dataMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey, r->ObjectUtil.cast(tClass, r.getValue())));
+    }
+
     @Override
     public int size() {
         return dataMap.size();
+    }
+
+    @Override
+    public int hashCode(){
+        return dataMap.hashCode();
     }
 
     @Override
@@ -955,7 +971,7 @@ public class NeoMap implements Map<String, Object>, Cloneable {
      * @param key key
      * @param value value
      * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
-     * @return
+     * @return value的值
      */
     public Object put(String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {

@@ -586,4 +586,11 @@ public class NeoMapTest extends BaseTest{
         show(neoMap.getLong("t"));
         show(neoMap.get(Date.class, "t"));
     }
+
+    @Test
+    public void valueTypeTest(){
+        NeoMap dataMap = NeoMap.of("a", 1, "b", 2);
+        Map<String, Integer> integerMap = dataMap.getDataMapAssignValueType(Integer.class);
+        show(integerMap);
+    }
 }
