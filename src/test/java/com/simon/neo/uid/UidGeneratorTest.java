@@ -1,7 +1,6 @@
 package com.simon.neo.uid;
 
 import com.simon.neo.neo.NeoBaseTest;
-import com.simon.neo.uid.UidGenerator;
 import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Test;

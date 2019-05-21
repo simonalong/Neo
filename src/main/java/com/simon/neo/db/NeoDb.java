@@ -168,7 +168,7 @@ public final class NeoDb {
 
     public List<String> getTableNameList(String schema){
         List<NeoTable> tableList = getTableList(schema);
-        if (null != tableList && !tableList.isEmpty()){
+        if (!tableList.isEmpty()){
             return tableList.stream().map(NeoTable::getTableName).collect(Collectors.toList());
         }
         return new ArrayList<>();

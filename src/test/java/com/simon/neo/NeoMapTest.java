@@ -3,13 +3,17 @@ package com.simon.neo;
 import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import com.simon.neo.entity.EnumEntity;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -90,6 +94,46 @@ public class NeoMapTest extends BaseTest{
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4);
+    }
+
+    /**
+     * 类型不同时候的兼容测试
+     *
+     * 其中id为integer, 但是实体中为Long，通常情况下回报异常，但是现在做了兼容
+     */
+    @Test
+    @SneakyThrows
+    public void testAs5() {
+        NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-base-name", TABLE_NAME);
+        // dataBaseUser -> data-base-user
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        show(demo4.toString());
+    }
+
+    @Test
+    @SneakyThrows
+    public void testAs6() {
+        Long a = 12L;
+        NeoMap map4 = NeoMap.of("user_name", "name", "sl", a);
+        // dataBaseUser -> data-base-user
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        show(demo4.toString());
+    }
+
+    // todo
+    @Test
+    @SneakyThrows
+    public void testAs7() {
+        Long time = new Date().getTime();
+        NeoMap map4 = NeoMap.of("date", time, "sql_date", time, "time", time, "timestamp", time);
+//        NeoMap map4 = NeoMap.of("a", 1);
+        // sqlDate -> sql_date
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.UNDERLINE);
+        // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=1, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
+        show(demo4.toString());
     }
 
     @Test
@@ -200,6 +244,23 @@ public class NeoMapTest extends BaseTest{
 
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
+        // {group=group1, user_name=userName1}
+        show(neoMap);
+    }
+
+    /**
+     * 测试时间类型的转换
+     */
+    @Test
+    public void testFrom9(){
+        DemoEntity demoEntity = new DemoEntity()
+            .setSqlDate(new java.sql.Date(new Date().getTime()))
+            .setTime(new Time(new Date().getTime()))
+            .setTimestamp(new Timestamp(new Date().getTime()))
+            .setUtilDate(new Date());
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demoEntity, NamingChg.UNDERLINE);
         // {group=group1, user_name=userName1}
         show(neoMap);
     }
@@ -476,5 +537,60 @@ public class NeoMapTest extends BaseTest{
 
         // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
         show(result);
+    }
+
+    @Test
+    public void containsKeysTest(){
+        Assert.assertTrue(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "b"));
+        Assert.assertFalse(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "d"));
+    }
+
+    @Test
+    public void assignExceptTest1(){
+        show(NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept("a"));
+    }
+
+    /**
+     * 测试克隆模式
+     */
+    @Test
+    public void cloneTest(){
+        NeoMap result = NeoMap.of("a", 1, "b", 2);
+        NeoMap cloneMap = (NeoMap)result.clone();
+        show(cloneMap);
+        result.remove("a");
+        show(result);
+        show(cloneMap);
+    }
+
+    @Test
+    public void fromMapTest(){
+        Map<String, Integer> dataMap = new HashMap<>();
+        dataMap.put("a", 1);
+        dataMap.put("b", 2);
+        dataMap.put("c", 3);
+        show(NeoMap.fromMap(dataMap));
+    }
+
+    @Test
+    public void getDateTest(){
+        NeoMap neoMap = NeoMap.of("t", new Date().getTime());
+        show(neoMap.get(Date.class, "t"));
+    }
+
+    @Test
+    public void putTest(){
+        NeoMap neoMap = NeoMap.of();
+        neoMap.put("t", new Date());
+        show(neoMap.get("t"));
+        show(neoMap.getLong("t"));
+        show(neoMap.get(Date.class, "t"));
+    }
+
+    @Test
+    public void valueTypeTest(){
+        NeoMap dataMap = NeoMap.of("a", 1, "b", 2);
+        Map<String, Integer> integerMap = dataMap.getDataMapAssignValueType(Integer.class);
+        show(integerMap);
     }
 }

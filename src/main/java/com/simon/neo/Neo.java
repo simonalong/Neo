@@ -8,6 +8,7 @@ import com.simon.neo.db.NeoJoiner;
 import com.simon.neo.db.NeoPage;
 import com.simon.neo.db.NeoTable;
 import com.simon.neo.db.NeoTable.Table;
+import com.simon.neo.db.TimeDateConverter;
 import com.simon.neo.exception.UidGeneratorNotInitException;
 import com.simon.neo.sql.SqlBuilder;
 import com.simon.neo.sql.SqlStandard.LogType;
@@ -36,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -63,6 +65,7 @@ public class Neo {
     private NeoDb db;
     private ConnectPool pool;
     private static final String SELECT = "select";
+    private static final String ORDER_BY = "order by";
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
@@ -89,8 +92,6 @@ public class Neo {
      * 事务
      */
     private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
-
-    private Neo(){}
 
     public static Neo connect(String url, String username, String password, Properties properties) {
         Neo neo = new Neo();
@@ -145,7 +146,7 @@ public class Neo {
         return neo;
     }
 
-    private void initDb(){
+    public void initDb(){
         try(Connection con = pool.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
@@ -183,7 +184,8 @@ public class Neo {
      * @return 插入之后的返回值
      */
     public NeoMap insert(String tableName, NeoMap valueMap) {
-        Long id = execute(false, () -> generateInsertSqlPair(tableName, valueMap), this::executeInsert);
+        NeoMap valueMapTem = valueMap.clone();
+        Long id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
         String incrementKey = db.getPrimaryAndAutoIncName(tableName);
         if (null != incrementKey) {
             valueMap.put(incrementKey, id);
@@ -218,7 +220,8 @@ public class Neo {
      */
     public Integer delete(String tableName, NeoMap searchMap) {
         if (!NeoMap.isEmpty(searchMap)) {
-            return execute(false, () -> generateDeleteSqlPair(tableName, searchMap), this::executeUpdate);
+            NeoMap searchMapTem = searchMap.clone();
+            return execute(false, () -> generateDeleteSqlPair(tableName, searchMapTem), this::executeUpdate);
         }
         return 0;
     }
@@ -252,7 +255,9 @@ public class Neo {
      * @return 更新之后的返回值
      */
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        execute(false, () -> generateUpdateSqlPair(tableName, dataMap, searchMap), this::executeUpdate);
+        NeoMap dataMapTem = dataMap.clone();
+        NeoMap searchMapTem = searchMap.clone();
+        execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
         closeStandard();
         NeoMap result = one(tableName, NeoMap.of().append(searchMap).append(dataMap));
         openStandard();
@@ -337,7 +342,8 @@ public class Neo {
      * @return 返回一个实体的Map影射
      */
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
-        return execute(false, () -> generateOneSqlPair(tableName, columns, searchMap), this::executeOne);
+        NeoMap searchMapTem = searchMap.clone();
+        return execute(false, () -> generateOneSqlPair(tableName, columns, searchMapTem), this::executeOne);
     }
 
     @SuppressWarnings("unchecked")
@@ -371,6 +377,21 @@ public class Neo {
     }
 
     /**
+     * 通过id获取数据，则默认会将该数据认为是主键
+     * @param tableName 表名
+     * @param id 主键id数据
+     * @return 查询到的数据
+     */
+    public NeoMap one(String tableName, Long id){
+        String primaryKey = db.getPrimaryName(tableName);
+        NeoMap neoMap = NeoMap.of();
+        if(null != primaryKey){
+            return one(tableName, NeoMap.of(primaryKey, id));
+        }
+        return neoMap;
+    }
+
+    /**
      * 查询一行的数据
      * @param sql 只接收select 方式
      * @param parameters 参数
@@ -395,7 +416,8 @@ public class Neo {
      * @return 返回一列数据
      */
     public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
-        return execute(true, () -> generateListSqlPair(tableName, columns, searchMap), this::executeList);
+        NeoMap searchMapTem = searchMap.clone();
+        return execute(true, () -> generateListSqlPair(tableName, columns, searchMapTem), this::executeList);
     }
 
     @SuppressWarnings("unchecked")
@@ -443,7 +465,8 @@ public class Neo {
      */
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
-            NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMap), this::executeOne);
+            NeoMap searchMapTem = searchMap.clone();
+            NeoMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem), this::executeOne);
             if (null != result) {
                 Iterator<Object> it = result.values().iterator();
                 return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
@@ -453,6 +476,13 @@ public class Neo {
     }
 
     public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number){
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return value(tClass, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+            }
+        }
         return value(tClass, tableName, field, NeoMap.from(entity));
     }
 
@@ -460,7 +490,21 @@ public class Neo {
         return value(String.class, tableName, field, searchMap);
     }
 
+    /**
+     * 根据实体查询属性的值，若entity为数字类型，则认为是主键
+     * @param tableName 表名
+     * @param field 属性
+     * @param entity 实体
+     * @return 表某个属性的值
+     */
     public String value(String tableName, String field, Object entity) {
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number){
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return value(String.class, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+            }
+        }
         return value(String.class, tableName, field, NeoMap.from(entity));
     }
 
@@ -497,7 +541,8 @@ public class Neo {
      * @return 一列值
      */
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap){
-        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMap), this::executeList);
+        NeoMap searchMapTem = searchMap.clone();
+        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList);
 
         if(null != resultList && !resultList.isEmpty()){
             return resultList.stream()
@@ -509,6 +554,13 @@ public class Neo {
     }
 
     public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number) {
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return values(tClass, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+            }
+        }
         return values(tClass, tableName, field, NeoMap.from(entity));
     }
 
@@ -516,7 +568,21 @@ public class Neo {
         return values(String.class, tableName, field, searchMap);
     }
 
+    /**
+     * 通过实体查询一列的列表
+     * @param tableName 表名
+     * @param field 列名
+     * @param entity 实体数据
+     * @return 列对应的列表
+     */
     public List<String> values(String tableName, String field, Object entity) {
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number) {
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return values(String.class, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+            }
+        }
         return values(String.class, tableName, field, NeoMap.from(entity));
     }
 
@@ -554,8 +620,13 @@ public class Neo {
      * @return 分页对应的数据
      */
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return execute(true, () -> generatePageSqlPair(tableName, columns, searchMap, page.getStartIndex(), page.getPageSize()),
+        NeoMap searchMapTem = searchMap.clone();
+        return execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, page.getStartIndex(), page.getPageSize()),
             this::executeList);
+    }
+
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap) {
+        return page(tableName, columns, searchMap.delete("pager"), NeoPage.from(searchMap));
     }
 
     @SuppressWarnings("unchecked")
@@ -581,6 +652,16 @@ public class Neo {
     }
 
     /**
+     * 分页搜索
+     * @param tableName 表名
+     * @param searchMap 搜索条件，其中默认searchMap中包含key为：'pager'的数据，里面是pageNo和pageSize
+     * @return 分页数据
+     */
+    public List<NeoMap> page(String tableName, NeoMap searchMap){
+        return page(tableName, searchMap.assignExcept("pager"), NeoPage.from(searchMap));
+    }
+
+    /**
      * 执行个数数据的查询
      * @param sql 只接收select 方式
      * @param parameters 参数
@@ -596,6 +677,7 @@ public class Neo {
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
+        NeoMap searchMapTem = searchMap.clone();
         NeoMap result = execute(false, () -> generateCountSqlPair(tableName, searchMap), this::executeOne);
         if(null != result) {
             Iterator<Object> it = result.values().iterator();
@@ -752,7 +834,8 @@ public class Neo {
         if (null == dataMapList || dataMapList.isEmpty()) {
             return 0;
         }
-        return executeBatch(generateBatchInsertPair(tableName, dataMapList));
+        List<NeoMap> dataMapListTem = clone(dataMapList);
+        return executeBatch(generateBatchInsertPair(tableName, dataMapListTem));
     }
 
     /**
@@ -798,7 +881,8 @@ public class Neo {
      */
     public Integer batchUpdate(String tableName, List<NeoMap> dataList){
         Columns columns = Columns.of(db.getPrimaryName(tableName));
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(dataList, columns));
+        List<NeoMap> dataListTem = clone(dataList);
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(tableName, dataListTem, columns));
     }
 
     /**
@@ -809,7 +893,8 @@ public class Neo {
      * @return 批量更新的个数：0或者all
      */
     public Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns){
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(dataList, columns));
+        List<NeoMap> dataListTem = clone(dataList);
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(tableName, dataListTem, columns));
     }
 
     /**
@@ -1322,6 +1407,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap){
+        valueMap = filterNonDbColumn(tableName, valueMap);
         return new Pair<>(buildInsert(tableName, valueMap), new ArrayList<>(valueMap.values()));
     }
 
@@ -1331,6 +1417,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildDelete(tableName, searchMap), new ArrayList<>(searchMap.values()));
     }
 
@@ -1340,6 +1427,8 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
+        dataMap = filterNonDbColumn(tableName, dataMap);
         return new Pair<>(buildUpdate(tableName, dataMap, searchMap), NeoMap.values(dataMap, searchMap));
     }
 
@@ -1349,6 +1438,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
@@ -1358,6 +1448,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
@@ -1368,6 +1459,7 @@ public class Neo {
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         Integer startIndex, Integer pageSize) {
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildPageList(this, tableName, columns, searchMap, startIndex, pageSize), generateValueList(searchMap));
     }
 
@@ -1377,6 +1469,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildCount(tableName, searchMap), generateValueList(searchMap));
     }
 
@@ -1386,6 +1479,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildValue(tableName, field, searchMap), generateValueList(searchMap));
     }
 
@@ -1395,6 +1489,7 @@ public class Neo {
      * value: 对应的参数
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap){
+        searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(buildValues(tableName, field, searchMap), generateValueList(searchMap));
     }
 
@@ -1421,7 +1516,7 @@ public class Neo {
      */
     private Pair<String, List<Object>> generateExePageSqlPair(String sqlOrigin, List<Object> parameters,
         Integer startIndex, Integer pageSize) {
-        if(!sqlOrigin.contains("limit")){
+        if (!sqlOrigin.contains("limit")) {
             sqlOrigin += " limit " + startIndex + ", " + pageSize;
         }
         return generateExeSqlPair(sqlOrigin, parameters, false);
@@ -1432,7 +1527,8 @@ public class Neo {
      */
     private Pair<String, List<List<Object>>> generateBatchInsertPair(String tableName, List<NeoMap> parameters) {
         return new Pair<>(buildInsert(tableName, parameters.get(0)),
-            parameters.stream().map(this::generateValueList).collect(Collectors.toList()));
+            parameters.stream().map(r -> filterNonDbColumn(tableName, r)).map(this::generateValueList)
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -1446,15 +1542,17 @@ public class Neo {
     /**
      * 构建批次的value和where语句对的list
      *
+     * @param tableName 表名
      * @param dataList 全部的数据列表
      * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
      * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
      */
-    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(List<NeoMap> dataList, Columns columns) {
+    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(String tableName, List<NeoMap> dataList, Columns columns) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
-        return dataList.stream().map(m -> new Pair<>(m, m.assign(columns))).collect(Collectors.toList());
+        return dataList.stream().map(r -> filterNonDbColumn(tableName, r)).map(m -> new Pair<>(m, m.assign(columns)))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -1476,6 +1574,35 @@ public class Neo {
 
     private List<Object> generateValueList(NeoMap searchMap) {
         return SqlBuilder.buildValueList(searchMap);
+    }
+
+    /**
+     * 过滤不是列名的key，并且对其中NeoMap中为Long类型的时间类型进行转换
+     *
+     * 注意：
+     * 由于mysql中时间类型year不支持{@link java.util.Date}这个类型直接传入（其他四个时间类型支持），因此需要单独处理
+     *
+     * @param dataMap 待处理的数据
+     * @return 处理后的数据
+     */
+    private NeoMap filterNonDbColumn(String tableName, NeoMap dataMap) {
+        // key为列名，value为：key为列的数据库类型名字，value为列对应的java中的类型
+        Map<String, Pair<String, Class<?>>> columnMap = getColumnList(tableName).stream()
+            .collect(Collectors.toMap(NeoColumn::getColumnName, r-> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
+        NeoMap result = NeoMap.of();
+        dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()) || e.getKey().equals(ORDER_BY))
+            .forEach(r -> {
+                String key = r.getKey();
+                Object value = r.getValue();
+                if (!key.equals(ORDER_BY)) {
+                    Pair<String, Class<?>> typeAndClass = columnMap.get(key);
+                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value), false);
+                } else {
+                    result.put(key, value, false);
+                }
+            });
+        dataMap.clear();
+        return result;
     }
 
     /**
@@ -1540,7 +1667,7 @@ public class Neo {
                     while (rs.next()) {
                         NeoMap data = NeoMap.of();
                         for (int i = 1; i <= meta.getColumnCount(); i++) {
-                            data.put(meta.getColumnLabel(i), rs.getObject(i));
+                            data.put(meta.getColumnLabel(i), TimeDateConverter.dbTimeToLong(rs.getObject(i)));
                         }
                         dataList.add(data);
                     }
@@ -1562,7 +1689,7 @@ public class Neo {
 
             if (rs.next()) {
                 for (int j = 1; j <= col; j++) {
-                    result.put(metaData.getColumnLabel(j), rs.getObject(j));
+                    result.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
                 }
             }
         } catch (SQLException e) {
@@ -1581,7 +1708,7 @@ public class Neo {
             while (rs.next()) {
                 NeoMap row = NeoMap.of();
                 for (int j = 1; j <= col; j++) {
-                    row.put(metaData.getColumnLabel(j), rs.getObject(j));
+                    row.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
                 }
                 result.add(row);
             }
@@ -1589,5 +1716,16 @@ public class Neo {
             e.printStackTrace();
         }
         return result;
+    }
+
+    /**
+     * 克隆模式，做一个备份
+     * @param dataMapList 原搜索条件列表
+     * @return 克隆之后的条件列表
+     */
+    private List<NeoMap> clone(List<NeoMap> dataMapList){
+        List<NeoMap> dataMapTem = new ArrayList<>();
+        dataMapList.forEach(d-> dataMapTem.add(d.clone()));
+        return dataMapTem;
     }
 }

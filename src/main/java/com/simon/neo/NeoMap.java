@@ -1,10 +1,12 @@
 package com.simon.neo;
 
 import com.simon.neo.db.AliasParser;
+import com.simon.neo.db.TimeDateConverter;
 import com.simon.neo.exception.NeoMapChgException;
 import com.simon.neo.exception.NumberOfValueException;
 import com.simon.neo.exception.ParameterNullException;
 import com.simon.neo.util.ObjectUtil;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
-public class NeoMap implements Map<String, Object> {
+public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
@@ -50,7 +52,7 @@ public class NeoMap implements Map<String, Object> {
     @Accessors(chain = true)
     private String keyPreTableName;
 
-    private NeoMap() {
+    public NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
     }
 
@@ -73,6 +75,15 @@ public class NeoMap implements Map<String, Object> {
             neoMap.put((String) kvs[i], kvs[i + 1]);
         }
         return neoMap;
+    }
+
+    public static NeoMap fromMap(Map<String, ?> dataMap) {
+        NeoMap data = NeoMap.of();
+        if (null == dataMap) {
+            return data;
+        }
+        data.putAll(dataMap);
+        return data;
     }
 
     /**
@@ -247,7 +258,7 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
-     * 判断对象是否是普通对象，若是枚举、数组、集合和Map则返回具体的文案，否则返回null
+     * 判断对象是否是普通对象，若是枚举、数组和集合则返回具体的文案，否则返回null
      *
      * @param value 待检查的值
      * @return null：普通对象；文本：非普通对象
@@ -270,6 +281,15 @@ public class NeoMap implements Map<String, Object> {
         return null;
     }
 
+    /**
+     * 对象向NeoMap转换，排除一些属性，包含一些数据
+     *
+     * @param neoMap 待接收数据的NeoMap
+     * @param object 待转换的对象
+     * @param inFieldList 需要转换的属性列表
+     * @param exFieldList 不需要转换的属性列表
+     * @return 转换后的NeoMap
+     */
     private static NeoMap innerFrom(NeoMap neoMap, Object object, List<String> inFieldList, List<String> exFieldList) {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length != 0) {
@@ -284,7 +304,7 @@ public class NeoMap implements Map<String, Object> {
             }).forEach(f -> {
                 f.setAccessible(true);
                 try {
-                    Object value = f.getType().cast(f.get(object));
+                    Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
                         neoMap.putIfAbsent(neoMap.namingChg(f.getName()), value);
                     }
@@ -513,7 +533,13 @@ public class NeoMap implements Map<String, Object> {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        f.set(finalT, dataMap.get(namingChg(f.getName())));
+                        String key = namingChg(f.getName());
+                        Object value = toEntityValue(f, key);
+
+                        // NeoMap中包含对象的属性，且value不为空，则进行设置
+                        if (containsKey(key) && null != value) {
+                            f.set(finalT, value);
+                        }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -526,23 +552,61 @@ public class NeoMap implements Map<String, Object> {
     }
 
     /**
+     * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为事件类型，对于非时间类型的，则保持，然后再经过兼容类型
+     *
+     * @param f 属性
+     * @param key 类型转换后的名字
+     * @return 经过转换之后的实体中的值
+     */
+    private Object toEntityValue(Field f, String key) {
+        Class<?> fieldClass = f.getType();
+        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, get(key)));
+    }
+
+    /**
      * 只要固定的几个列值
      *
      * @param columns 具体的列
      * @return 新的map结构
      */
     public NeoMap assign(Columns columns) {
-        Set<String> fields = columns.getFieldSets();
-        if (null == fields || fields.isEmpty()) {
+        if (Columns.isEmpty(columns)) {
             return this;
         }
         NeoMap neoMap = NeoMap.of();
-        fields.forEach(f -> {
+        columns.stream().forEach(f -> {
             if (containsKey(f)) {
                 neoMap.put(f, get(f));
             }
         });
         return neoMap;
+    }
+
+    public NeoMap assign(String... keys){
+        return assign(Columns.of(keys));
+    }
+
+    public NeoMap assignExcept(Columns columns) {
+        if (Columns.isEmpty(columns)) {
+            return this;
+        }
+        NeoMap result = NeoMap.of();
+        this.stream().forEach(f -> {
+            if (!columns.contains(f.getKey())) {
+                result.put(f.getKey(), f.getValue());
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 排除固定的几个值
+     *
+     * @param keys 具体的列列表
+     * @return 新的map数据
+     */
+    public NeoMap assignExcept(String... keys){
+        return assignExcept(Columns.of(keys));
     }
 
     /**
@@ -578,6 +642,11 @@ public class NeoMap implements Map<String, Object> {
 
     public NeoMap append(String key, Object value) {
         this.put(key, value);
+        return this;
+    }
+
+    public NeoMap delete(String key){
+        this.remove(key);
         return this;
     }
 
@@ -837,9 +906,24 @@ public class NeoMap implements Map<String, Object> {
         return dataMap;
     }
 
+    /**
+     * 指定value值类型的情况下获取dataMap
+     * @param tClass value的目标类
+     * @param <T> 类型
+     * @return 转换后的类型
+     */
+    public <T> Map<String, T> getDataMapAssignValueType(Class<T> tClass){
+        return dataMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey, r->ObjectUtil.cast(tClass, r.getValue())));
+    }
+
     @Override
     public int size() {
         return dataMap.size();
+    }
+
+    @Override
+    public int hashCode(){
+        return dataMap.hashCode();
     }
 
     @Override
@@ -852,6 +936,15 @@ public class NeoMap implements Map<String, Object> {
         return dataMap.containsKey(key);
     }
 
+    /**
+     * 包含所有的key
+     * @param keys keys的列表
+     * @return true： 包含所有的值，false，没有包含全部的key
+     */
+    public boolean containsKeys(String... keys){
+        return Stream.of(keys).allMatch(this::containsKey);
+    }
+
     @Override
     public boolean containsValue(Object value) {
         return dataMap.containsValue(value);
@@ -862,10 +955,31 @@ public class NeoMap implements Map<String, Object> {
         return dataMap.get(key);
     }
 
+    /**
+     * 对所有的放到NeoMap中的值，如果是时间类型，则就要进行转换成Long类型
+     * @param key key
+     * @param value value
+     * @return 原value
+     */
     @Override
     public Object put(String key, Object value) {
+        return put(key, value, true);
+    }
+
+    /**
+     * 是否进行时间类型到Long类型的转换来放置数据
+     * @param key key
+     * @param value value
+     * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
+     * @return value的值
+     */
+    public Object put(String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {
-            dataMap.put(key, value);
+            if (timeTypeToLong) {
+                dataMap.put(key, TimeDateConverter.entityTimeToLong(value));
+            } else {
+                dataMap.put(key, value);
+            }
         }
         return value;
     }
@@ -877,7 +991,9 @@ public class NeoMap implements Map<String, Object> {
 
     @Override
     public void putAll(Map<? extends String, ?> m) {
-        dataMap.putAll(m);
+        if (null != m && !m.isEmpty()) {
+            m.forEach((key, value) -> put(key, TimeDateConverter.entityTimeToLong(value)));
+        }
     }
 
     @Override
@@ -911,5 +1027,12 @@ public class NeoMap implements Map<String, Object> {
     @Override
     public String toString() {
         return dataMap.toString();
+    }
+
+    @Override
+    protected NeoMap clone(){
+        NeoMap neoMap = NeoMap.of();
+        neoMap.putAll(dataMap.clone());
+        return neoMap;
     }
 }

@@ -6,10 +6,10 @@
 
     <groupId>com.simon.cloud</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
 
     <name>Neo</name>
-    <url>https://github.com/SimonAlong/Neo</url>
+    <url>git@github.com:SimonAlong/Neo.git</url>
     <description>Orm框架：数据库连接工具</description>
 
     <developers>

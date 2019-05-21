@@ -1,8 +1,7 @@
 package com.simon.neo.sql;
 
-import static com.simon.neo.sql.JoinType.LEFT_JOIN_EXCEPT_INNER;
-import static com.simon.neo.sql.JoinType.OUTER_JOIN_EXCEPT_INNER;
-import static com.simon.neo.sql.JoinType.RIGHT_JOIN_EXCEPT_INNER;
+import static com.simon.neo.NeoConstant.*;
+import static com.simon.neo.sql.JoinType.*;
 
 import com.simon.neo.Columns;
 import com.simon.neo.Neo;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
@@ -54,7 +52,8 @@ public class SqlBuilder {
      * @return 返回where对应的语句
      */
     public String buildWhere(NeoMap searchMap) {
-        if(!NeoMap.isEmpty(searchMap)) {
+        NeoMap conditionMap = searchMap.assignExcept(ORDER_BY);
+        if (!NeoMap.isEmpty(conditionMap)) {
             return " where " + buildCondition(searchMap);
         }
         return "";
@@ -67,9 +66,8 @@ public class SqlBuilder {
      * @return 返回 order by `xxx` 或者 order by `xxx` desc
      */
     public String buildOrderBy(NeoMap searchMap) {
-        String orderByStr = "order by";
-        if (!NeoMap.isEmpty(searchMap) && searchMap.containsKey(orderByStr)) {
-            return " " + orderByStr + " " + orderByStr(searchMap.getStr(orderByStr));
+        if (!NeoMap.isEmpty(searchMap) && searchMap.containsKey(ORDER_BY)) {
+            return " " + ORDER_BY + " " + orderByStr(searchMap.getStr(ORDER_BY));
         }
         return "";
     }
@@ -85,13 +83,11 @@ public class SqlBuilder {
         if (null == orderByValueStr) {
             return "";
         }
-        String descStr = "desc";
-        String ascStr = "asc";
         List<String> values = Arrays.asList(orderByValueStr.split(","));
         List<String> valueList = new ArrayList<>();
         values.forEach(v -> {
             v = v.trim();
-            if (v.contains(descStr) || v.contains(ascStr)) {
+            if (v.contains(DESC) || v.contains(ASC)) {
                 Integer index = v.indexOf(" ");
                 valueList.add(toDbField(v.substring(0, index)) + " " + v.substring(index + 1));
             } else {
@@ -109,10 +105,7 @@ public class SqlBuilder {
     public String buildCondition(NeoMap searchMap){
         StringBuilder stringBuilder = new StringBuilder();
         if (!NeoMap.isEmpty(searchMap)) {
-            String result = stringBuilder
-                .append(String.join(" and ", buildConditionMeta(searchMap)))
-                .toString();
-            return result;
+            return stringBuilder.append(String.join(" and ", buildConditionMeta(searchMap))).toString();
         }
         return stringBuilder.toString();
     }

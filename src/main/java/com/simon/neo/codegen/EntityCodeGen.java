@@ -156,7 +156,7 @@ public class EntityCodeGen {
         dataMap.put("importInnerEnum", 0);
         List<NeoMap> innerEnumList = new ArrayList<>();
         enumInfo.getEnumInnerMap().forEach((key, value) -> {
-            String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(key);
+            String bigCamelKey = NamingChg.BIGCAMEL.smallCamelToOther(NamingChg.UNDERLINE.otherToSmallCamel(key)) + "Enum";
             NeoMap enumDataMap = NeoMap.of("enumType", bigCamelKey, "enumRemark", value.getRemark(), "enumList", value.getMetaSet());
             if(!enumMap.containsKey(key)){
                 enumMap.put(key, value);

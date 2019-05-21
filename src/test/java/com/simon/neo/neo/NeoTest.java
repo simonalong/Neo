@@ -7,6 +7,7 @@ import com.simon.neo.NeoMap.NamingChg;
 import com.simon.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +49,28 @@ public class NeoTest extends NeoBaseTest{
         input.setUserName("user_name1");
         DemoEntity result = neo.insert(TABLE_NAME, input, NamingChg.UNDERLINE);
         show(result);
+    }
+
+    @Test
+    @SneakyThrows
+    public void testInsert4(){
+        NeoMap data = NeoMap.of("group", "ok");
+        NeoMap result = neo.insert(TABLE_NAME, data);
+        show(result);
+        show(data);
+    }
+
+    /**
+     * 测试插入时间类型，时间类型自动转换
+     */
+    @Test
+    @SneakyThrows
+    public void testInsert5(){
+        Long time = new Date().getTime();
+        NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
+        NeoMap result = neo.insert("neo_table4", data);
+        show(result);
+        show(data);
     }
 
     /******************************删除******************************/
@@ -176,6 +199,15 @@ public class NeoTest extends NeoBaseTest{
         search.setName("name333");
         search.setUserName("userName2222");
         show(neo.update(TABLE_NAME, search, Columns.of("userName"), NamingChg.UNDERLINE));
+    }
+
+    @Test
+    @SneakyThrows
+    public void testUpdate10(){
+        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
+        NeoMap dataMap = NeoMap.of("id", 11, "group", "group222", "name", "name2");
+        show(neo.update("neo_table1", dataMap));
+        show(dataMap);
     }
 
     /******************************直接执行******************************/
