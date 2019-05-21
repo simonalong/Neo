@@ -956,7 +956,7 @@ public static boolean isEmpty(NeoMap neoMap) {
 
 <h3 id="获取不同的列值类型">6.获取不同的列值类型</h3>
 
-由于NeoMap的value是Object类型，因此获取值之后还是要进行转换，这里借鉴之前的Orm框架，对数据进行转换
+由于NeoMap的value是Object类型，因此获取值之后还是要进行转换，这里借鉴之前的Orm框架，根据类型获取不同类型的值
 
 ```java
 // 根据指定的类型获取对应的数据
