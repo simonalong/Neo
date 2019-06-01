@@ -2099,6 +2099,7 @@ public Long getUid() {}
 
 <h1 id="动态分库分表">十五、动态分库分表（待开发）</h1>
 
+方式可以接入sharding-jdbc进行分库分表开发，其中动态化分库分表接入配置中心Tina，进行动态化通知，然后进行数据迁移和表的拆分
 <a name="d2027c8d"></a>
 <h3 id="水平分表">1.水平分表</h3>
 
@@ -2114,14 +2115,16 @@ public Long getUid() {}
 
 <h1 id="分布式事务">十六、分布式事务（待开发）</h1>
 
+可以采用rocketmq的分布式事务消息来做分布式事务
 <a name="F4ZX5"></a>
 
 <h1 id="多数据源">十七、多数据源（待开发）</h1>
 
+这个需要进行验证
 <a name="1.mysql"></a>
 
 <h3 id="mysql">1.mysql</h3>
-
+目前已经支持
 <a name="2.sqlLite"></a>
 
 <h3 id="sqlLite">2.sqlLite</h3>
