@@ -6,7 +6,7 @@
 
     <groupId>com.github.simonalong</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
 
     <name>Neo</name>
     <url>git@github.com:SimonAlong/Neo.git</url>
@@ -157,19 +157,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!--自动发布到中央仓库后自动执行-->
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>oss</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
             </plugin>
         </plugins>
     </build>

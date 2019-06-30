@@ -1733,7 +1733,7 @@ public void test1(){
     // 设置项目路径
     .setProjectPath("/Users/xxx/xxx/Neo")
     // 设置实体生成的包路径
-    .setEntityPath("com.github.simonalong.neo.entity")
+    .setEntityPath("com.simonalong.neo.entity")
     // 设置表前缀过滤
     .setPreFix("neo_")
     // 设置要排除的表
