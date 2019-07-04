@@ -30,8 +30,16 @@ public abstract class AbstractNeoService {
         return getNeo().insert(getTableName(), dataMap);
     }
 
+    public <T> T insert(T object){
+        return getNeo().insert(getTableName(), object);
+    }
+
     public Integer delete(NeoMap searchMap){
         return getNeo().delete(getTableName(), searchMap);
+    }
+
+    public <T> Integer delete(T object){
+        return getNeo().delete(getTableName(), object);
     }
 
     public Integer delete(Long id){
@@ -41,7 +49,7 @@ public abstract class AbstractNeoService {
     /**
      * 更新数据
      * @param dataMap 设置待更新的数据
-     * @param searchMap 搜索的数据
+     * @param searchMap 搜索的条件数据
      * @return 更新后的数据
      */
     public NeoMap update(NeoMap dataMap, NeoMap searchMap) {
@@ -67,8 +75,12 @@ public abstract class AbstractNeoService {
         return getNeo().update(getTableName(), dataMap);
     }
 
+    public <T> T update(T object) {
+        return getNeo().update(getTableName(), object);
+    }
+
     public NeoMap one(Long id){
-        return getNeo().one(getTableName(), NeoMap.of("id", id));
+        return getNeo().one(getTableName(), id);
     }
 
     /**
