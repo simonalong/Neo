@@ -1042,7 +1042,7 @@ public class Neo {
     }
 
     public CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters) {
-        return CompletableFuture.supplyAsync(()-exeCount(sql, parameters));
+        return CompletableFuture.supplyAsync(() -> exeCount(sql, parameters));
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
