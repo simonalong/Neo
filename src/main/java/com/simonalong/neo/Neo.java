@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -179,7 +180,7 @@ public class Neo {
      * 数据插入
      * @param tableName 表名
      * @param valueMap 待插入的数据
-     * @return 插入之后的返回值
+     * @return 插入之后返回的插入后的值
      */
     public NeoMap insert(String tableName, NeoMap valueMap) {
         NeoMap valueMapTem = valueMap.clone();
@@ -208,6 +209,27 @@ public class Neo {
             neoMap.as((Class<T>) entity.getClass());
         }
         return null;
+    }
+
+    /**
+     * 异步执行数据插入
+     *
+     * @param tableName 表明
+     * @param valueMap 待插入的数据
+     * @return 插入之后返回的插入后的值
+     */
+    public CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap valueMap){
+        return CompletableFuture.supplyAsync(()->insert(tableName, valueMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<T> insertAsync(String tableName, T entity, NamingChg naming) {
+        return CompletableFuture.supplyAsync(()->insert(tableName, entity, naming));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<T> insertAsync(String tableName, T entity) {
+        return CompletableFuture.supplyAsync(()->insert(tableName, entity));
     }
 
     /**
@@ -243,6 +265,28 @@ public class Neo {
             return delete(tableName, neoMap);
         }
         return 0;
+    }
+
+    /**
+     * 异步数据删除
+     * @param tableName 表名
+     * @param searchMap where 后面的条件数据
+     * @return 插入之后的返回值
+     */
+    public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->delete(tableName, searchMap));
+    }
+
+    public <T> CompletableFuture<Integer> deleteAsync(String tableName, T entity, NamingChg naming) {
+        return deleteAsync(tableName, NeoMap.from(entity, naming));
+    }
+
+    public <T> CompletableFuture<Integer> deleteAsync(String tableName, T entity) {
+        return CompletableFuture.supplyAsync(()->delete(tableName, entity));
+    }
+
+    public CompletableFuture<Integer> deleteAsync(String tableName, Long id) {
+        return CompletableFuture.supplyAsync(()->delete(tableName, id));
     }
 
     /**
@@ -319,6 +363,69 @@ public class Neo {
     }
 
     /**
+     * 数据异步更新
+     * @param tableName 表名
+     * @param dataMap set的更新的数据
+     * @param searchMap where后面的语句条件数据
+     * @return 更新之后的返回值
+     */
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->update(tableName, dataMap, searchMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
+        return CompletableFuture.supplyAsync(()->update(tableName, setEntity, searchMap, namingChg));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap) {
+        return updateAsync(tableName, setEntity, searchMap, NamingChg.DEFAULT);
+    }
+
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity) {
+        return updateAsync(tableName, setEntity, NeoMap.from(searchEntity));
+    }
+
+    /**
+     * 异步更新
+     * @param tableName 表名
+     * @param dataMap 待更新的数据
+     * @param columns 搜索条件，其中该列为 dataMap 中对应的key的名字
+     * @return map对象
+     */
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns) {
+        return updateAsync(tableName, dataMap, dataMap.assign(columns));
+    }
+
+    /**
+     * 异步更新
+     * @param tableName 表名
+     * @param entity 设置的实体数据
+     * @param columns 注意：该搜索条件中的列是entity实体中的属性的名字，跟作为NeoMap时候搜索是不一样的
+     * @param namingChg 命名转换方式
+     * @param <T> 命名转换方式
+     * @return 更新后的结果对象
+     */
+    public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, NamingChg namingChg) {
+        return updateAsync(tableName, entity, NeoMap.from(entity, columns, namingChg), namingChg);
+    }
+
+    public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns) {
+        return updateAsync(tableName, entity, NeoMap.from(entity, columns));
+    }
+
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap) {
+        Columns columns = Columns.of(db.getPrimaryName(tableName));
+        return updateAsync(tableName, dataMap, dataMap.assign(columns));
+    }
+
+    public <T> CompletableFuture<T> updateAsync(String tableName, T entity) {
+        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
+        return updateAsync(tableName, entity, NeoMap.from(entity, columns));
+    }
+
+    /**
      * 查询一行的数据
      * @param sql 只接收select 方式
      * @param parameters 参数
@@ -330,6 +437,20 @@ public class Neo {
 
     public <T> T exeOne(Class<T> tClass, String sql, Object... parameters){
         return exeOne(sql, parameters).as(tClass);
+    }
+
+    /**
+     * 查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map
+     */
+    public CompletableFuture<NeoMap> exeOneAsync(String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(() -> exeOne(sql, parameters));
+    }
+
+    public <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(()->exeOne(tClass, sql, parameters));
     }
 
     /**
@@ -345,7 +466,7 @@ public class Neo {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T one(String tableName, Columns columns, T entity){
+    public <T> T one(String tableName, Columns columns, T entity) {
         NeoMap neoMap = one(tableName, columns, NeoMap.from(entity));
         if (!NeoMap.isEmpty(neoMap)) {
             return neoMap.as((Class<T>) entity.getClass());
@@ -390,6 +511,54 @@ public class Neo {
     }
 
     /**
+     * 异步查询一行实体数据
+     * @param tableName 表名
+     * @param columns 列名
+     * @param searchMap 搜索条件
+     * @return 返回一个实体的Map影射
+     */
+    public CompletableFuture<NeoMap> oneAsync(String tableName, Columns columns, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->one(tableName, columns, searchMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<T> oneAsync(String tableName, Columns columns, T entity) {
+        return CompletableFuture.supplyAsync(()->one(tableName, columns, entity));
+    }
+
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param searchMap 搜索的数据
+     * @return NeoMap对象
+     */
+    public CompletableFuture<NeoMap> oneAsync(String tableName, NeoMap searchMap){
+        return oneAsync(tableName, Columns.table(tableName, this), searchMap);
+    }
+
+    /**
+     * 该函数查询是select * xxx，请尽量不要用，用具体的列即可
+     * @param tableName 表名
+     * @param entity 搜索的实体类型数据
+     * @param <T> 插入的对象类型
+     * @return 插入的对象类型
+     */
+    public <T> CompletableFuture<T> oneAsync(String tableName, T entity){
+        return oneAsync(tableName, Columns.from(this, tableName), entity);
+    }
+
+    /**
+     * 通过id获取数据，则默认会将该数据认为是主键
+     * @param tableName 表名
+     * @param id 主键id数据
+     * @return 查询到的数据
+     */
+    public CompletableFuture<NeoMap> oneAsync(String tableName, Long id){
+        return CompletableFuture.supplyAsync(()->one(tableName, id));
+    }
+
+
+    /**
      * 查询一行的数据
      * @param sql 只接收select 方式
      * @param parameters 参数
@@ -404,6 +573,20 @@ public class Neo {
 
     public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters){
         return NeoMap.asArray(exeList(sql, parameters), tClass);
+    }
+
+    /**
+     * 异步查询一行的数据
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @return 一个结果Map列表
+     */
+    public CompletableFuture<List<NeoMap>> exeListAsync(String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(()->exeList(sql, parameters));
+    }
+
+    public <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Object... parameters){
+        return CompletableFuture.supplyAsync(()->NeoMap.asArray(exeList(sql, parameters), tClass));
     }
 
     /**
@@ -432,6 +615,30 @@ public class Neo {
     }
 
     /**
+     * 异步查询具体的数据列表
+     * @param tableName 表名
+     * @param columns 列数据
+     * @param searchMap 搜索条件
+     * @return 返回一列数据
+     */
+    public CompletableFuture<List<NeoMap>> listAsync(String tableName, Columns columns, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(() -> list(tableName, columns, searchMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<List<T>> listAsync(String tableName, Columns columns, T entity) {
+        return CompletableFuture.supplyAsync(() -> list(tableName, columns, entity));
+    }
+
+    public CompletableFuture<List<NeoMap>> listAsync(String tableName, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(() -> list(tableName, null, searchMap));
+    }
+
+    public <T> CompletableFuture<List<T>> listAsync(String tableName, T entity) {
+        return listAsync(tableName, null, entity);
+    }
+
+    /**
      * 查询返回单个值
      * @param tClass 目标类的class
      * @param sql 只接收select 方式
@@ -450,6 +657,22 @@ public class Neo {
 
     public String exeValue(String sql, Object... parameters){
         return exeValue(String.class, sql, parameters);
+    }
+
+    /**
+     * 异步查询返回单个值
+     * @param tClass 目标类的class
+     * @param sql 只接收select 方式
+     * @param parameters 参数
+     * @param <T> 返回的目标类型
+     * @return 目标类的对象
+     */
+    public <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(() -> exeValue(tClass, sql, parameters));
+    }
+
+    public CompletableFuture<String> exeValueAsync(String sql, Object... parameters){
+        return exeValueAsync(String.class, sql, parameters);
     }
 
     /**
@@ -507,6 +730,31 @@ public class Neo {
     }
 
     /**
+     * 异步查询某行某列的值
+     * @param tableName 表名
+     * @param tClass 返回值的类型
+     * @param field 某个属性的名字
+     * @param searchMap 搜索条件
+     * @param <T> 目标类型
+     * @return 指定的数据值
+     */
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->value(tClass, tableName, field, searchMap));
+    }
+
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String tableName, String field, Object entity) {
+        return CompletableFuture.supplyAsync(()->value(tClass, tableName, field, entity));
+    }
+
+    public CompletableFuture<String> valueAsync(String tableName, String field, NeoMap searchMap){
+        return valueAsync(String.class, tableName, field, searchMap);
+    }
+
+    public CompletableFuture<String> valueAsync(String tableName, String field, Object entity) {
+        return CompletableFuture.supplyAsync(()->value(tableName, field, entity));
+    }
+
+    /**
      * 查询一行的数据
      * @param tClass 数据实体的类
      * @param sql 查询一行的sql
@@ -527,6 +775,22 @@ public class Neo {
 
     public List<String> exeValues(String sql, Object... parameters){
         return exeValues(String.class, sql, parameters);
+    }
+
+    /**
+     * 查询一行的数据
+     * @param tClass 数据实体的类
+     * @param sql 查询一行的sql
+     * @param parameters 查询的搜索参数
+     * @param <T> 数据实体的类型
+     * @return 查询到的数据实体，如果没有找到则返回null
+     */
+    public <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(() -> exeValues(tClass, sql, parameters));
+    }
+
+    public CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters){
+        return exeValuesAsync(String.class, sql, parameters);
     }
 
     /**
@@ -588,6 +852,44 @@ public class Neo {
         return values(String.class, tableName, field, NeoMap.of());
     }
 
+
+
+    /**
+     * 查询一列的值
+     * @param tableName 表名
+     * @param tClass 实体类的类
+     * @param field 列名
+     * @param searchMap 搜索条件
+     * @param <T> 目标类型
+     * @return 一列值
+     */
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap){
+        return CompletableFuture.supplyAsync(()->values(tClass, tableName, field, searchMap));
+    }
+
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Object entity) {
+        return CompletableFuture.supplyAsync(()->values(tClass, tableName, field, entity));
+    }
+
+    public CompletableFuture<List<String>> valuesAsync(String tableName, String field, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->values(tableName, field, searchMap));
+    }
+
+    /**
+     * 通过实体查询一列的列表
+     * @param tableName 表名
+     * @param field 列名
+     * @param entity 实体数据
+     * @return 列对应的列表
+     */
+    public CompletableFuture<List<String>> valuesAsync(String tableName, String field, Object entity) {
+        return CompletableFuture.supplyAsync(()->values(tableName, field, entity));
+    }
+
+    public CompletableFuture<List<String>> valuesAsync(String tableName, String field) {
+        return CompletableFuture.supplyAsync(()->values(tableName, field));
+    }
+
     /**
      * 执行分页数据查询
      *
@@ -607,6 +909,23 @@ public class Neo {
 
     public List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters){
         return exePage(sql, neoPage.getStartIndex(), neoPage.getPageSize(), parameters);
+    }
+
+    /**
+     * 执行分页数据查询
+     *
+     * @param sql 对应的sql，里面可以包含limit也可以不包含，都兼容，如果不包含，则会追加，如果包含，则会根据是否需要填充，进行填充参数或者直接执行
+     * @param startIndex 分页起始
+     * @param pageSize 分页大小
+     * @param parameters 参数
+     * @return 分页对应的数据
+     */
+    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters){
+        return CompletableFuture.supplyAsync(()->exePage(sql, startIndex, pageSize, parameters));
+    }
+
+    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters){
+        return CompletableFuture.supplyAsync(()->exePage(sql, neoPage, parameters));
     }
 
     /**
@@ -659,6 +978,54 @@ public class Neo {
         return page(tableName, searchMap.assignExcept("pager"), NeoPage.from(searchMap));
     }
 
+
+    /**
+     * 分组数据
+     * @param tableName 表名
+     * @param columns   列的属性
+     * @param searchMap 搜索条件
+     * @param page  分页
+     * @return 分页对应的数据
+     */
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return CompletableFuture.supplyAsync(()->page(tableName, columns, searchMap, page));
+    }
+
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->page(tableName, columns, searchMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page){
+        return CompletableFuture.supplyAsync(()->page(tableName, columns, entity, page));
+    }
+
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, NeoPage page){
+        return CompletableFuture.supplyAsync(()->page(tableName, searchMap, page));
+    }
+
+    public <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, NeoPage page){
+        return CompletableFuture.supplyAsync(()->page(tableName, entity, page));
+    }
+
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoPage page){
+        return CompletableFuture.supplyAsync(()->page(tableName, columns, page));
+    }
+
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page){
+        return CompletableFuture.supplyAsync(()->page(tableName, page));
+    }
+
+    /**
+     * 分页搜索
+     * @param tableName 表名
+     * @param searchMap 搜索条件，其中默认searchMap中包含key为：'pager'的数据，里面是pageNo和pageSize
+     * @return 分页数据
+     */
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap){
+        return CompletableFuture.supplyAsync(()->page(tableName, searchMap));
+    }
+
     /**
      * 执行个数数据的查询
      * @param sql 只接收select 方式
@@ -672,6 +1039,10 @@ public class Neo {
             return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
         }
         return null;
+    }
+
+    public CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(()-exeCount(sql, parameters));
     }
 
     public Integer count(String tableName, NeoMap searchMap) {
@@ -692,6 +1063,18 @@ public class Neo {
         return count(tableName, NeoMap.of());
     }
 
+    public CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap) {
+        return CompletableFuture.supplyAsync(()->count(tableName, searchMap));
+    }
+
+    public CompletableFuture<Integer> countAsync(String tableName, Object entity) {
+        return CompletableFuture.supplyAsync(()->count(tableName, entity));
+    }
+
+    public CompletableFuture<Integer> countAsync(String tableName) {
+        return CompletableFuture.supplyAsync(()->count(tableName));
+    }
+
     /**
      * 该函数用于执行sql，该函数支持多结果集
      * @param sql 待执行的sql
@@ -700,6 +1083,10 @@ public class Neo {
      */
     public List<List<NeoMap>> execute(String sql, Object... parameters) {
         return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::execute);
+    }
+
+    public CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Object... parameters) {
+        return CompletableFuture.supplyAsync(()->execute(sql, parameters));
     }
 
     public Set<String> getColumnNameList(String tableName){
