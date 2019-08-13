@@ -67,19 +67,19 @@ public final class UidGenerator {
         return instance;
     }
 
-    public Long getUid(){
+    public Long getUid() {
         Long uid = uuidIndex.getAndIncrement();
         // 到达刷新buf的位置则进行刷新二级缓存
-        if(rangeManager.readyRefresh(uid)){
-            synchronized (UidGenerator.class){
-                if(rangeManager.readyRefresh(uid)){
+        if (rangeManager.readyRefresh(uid)) {
+            synchronized (UidGenerator.class) {
+                if (rangeManager.readyRefresh(uid)) {
                     rangeManager.refreshRangeStart(allocStart());
                 }
             }
         }
 
         // 刚好到达末尾，则切换起点，对于没有来得及切换，增长超过范围的，则重新分配
-        Integer reachResult = rangeManager.reachBufEnd(uid);
+        int reachResult = rangeManager.reachBufEnd(uid);
         if (1 == reachResult) {
             uuidIndex.set(rangeManager.chgBufStart());
             return uid;
