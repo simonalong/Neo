@@ -20,7 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * 可重复使用的链接，用于将close方法不进行不关闭，进行手动关系
+ * 可重复使用的链接，用于将close方法不进行不关闭，进行手动关闭
  *
  * @author zhouzhenyong
  * @since 2019/3/26 下午8:44
@@ -41,7 +41,7 @@ public final class ReusableConnection implements Connection {
      * 手动进行关闭
      * @throws SQLException SQL异常
      */
-    public void handleClose() throws SQLException {
+    void handleClose() throws SQLException {
         connection.close();
     }
 
@@ -89,7 +89,7 @@ public final class ReusableConnection implements Connection {
      * 该方法不处理，使得该链接可以继续使用，用于在事务中进行循环使用
      */
     @Override
-    public void close() throws SQLException {
+    public void close() {
     }
 
     @Override

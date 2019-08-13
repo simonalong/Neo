@@ -451,13 +451,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         String comma = ",";
         String dom = ".";
         if(value.contains(comma)){
-            return String.join(comma + " ", Stream.of(value.split(comma)).map(v->{
+            return Stream.of(value.split(comma)).map(v->{
                 v = v.trim();
                 if (!v.startsWith(keyPreTableName) && !v.contains(dom)) {
                     return keyPreTableName + "." + v;
                 }
                 return v;
-            }).collect(Collectors.toList()));
+            }).collect(Collectors.joining(comma + " "));
         }
         if (!value.startsWith(keyPreTableName) && !value.contains(dom)) {
             return keyPreTableName + "." + value;
