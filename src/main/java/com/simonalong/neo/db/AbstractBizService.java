@@ -1,32 +1,20 @@
-package com.simonalong.neo.biz;
+package com.simonalong.neo.db;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.table.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 给业务方使用的，可以作为baseService使用
  *
  * @author zhouzhenyong
- * @since 2019/5/13 下午12:01
+ * @since 2019-08-17 16:21
  */
-public abstract class AbstractNeoService implements BaseNeoService{
+public abstract class AbstractBizService extends AbstractNeo {
 
-    /**
-     * 获取库数据
-     * @return 返回系统自定义的库
-     */
-    protected abstract Neo getNeo();
 
     /**
      * 返回当前使用的表名
@@ -51,7 +39,7 @@ public abstract class AbstractNeoService implements BaseNeoService{
      * @return 插入之后的数据返回
      */
     @Override
-    public CompletableFuture<NeoMap>insertAsync(NeoMap dataMap){
+    public CompletableFuture<NeoMap> insertAsync(NeoMap dataMap){
         return getNeo().insertAsync(getTableName(), dataMap, getExecutor());
     }
 
@@ -362,25 +350,5 @@ public abstract class AbstractNeoService implements BaseNeoService{
     @Override
     public CompletableFuture<List<String>> valuesAsync(String field, Long id){
         return getNeo().valuesAsync(getTableName(), field, id, getExecutor());
-    }
-
-    /**
-     * 创建默认的异步回调的线程池
-     *
-     * <p>创建核心线程池为单机本身可用的cpu个数，最大为2倍cpu个数，队列为100倍的cpu处理个数队列，拒绝策略采用直接运行方式
-     * <p>用户可以继承后并重写该线程池分配策略
-     */
-    @Override
-    public ExecutorService getExecutor(){
-        int processNum =  Runtime.getRuntime().availableProcessors();
-        return new ThreadPoolExecutor(processNum, processNum * 2, 0, TimeUnit.NANOSECONDS,
-            new LinkedBlockingQueue<>(processNum * 100),  new ThreadFactory() {
-            private AtomicInteger threadNum = new AtomicInteger(0);
-
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "Thread-Neo-async-Call-" + threadNum.getAndIncrement());
-            }
-        }, new CallerRunsPolicy());
     }
 }

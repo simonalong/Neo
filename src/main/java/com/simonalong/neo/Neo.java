@@ -1,18 +1,19 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.db.NeoColumn;
-import com.simonalong.neo.db.NeoColumn.Column;
+import com.simonalong.neo.db.AbstractNeo;
+import com.simonalong.neo.table.NeoColumn;
+import com.simonalong.neo.table.NeoColumn.Column;
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.db.NeoJoiner;
-import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.table.NeoJoiner;
+import com.simonalong.neo.table.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.db.NeoTable.Table;
-import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.uid.UidGenerator;
-import com.simonalong.neo.db.TableIndex.Index;
+import com.simonalong.neo.table.TableIndex.Index;
 import com.simonalong.neo.db.NeoDb;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlExplain;
@@ -57,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo {
+public class Neo extends AbstractNeo {
 
     private static final String PRE_LOG = "[Neo] ";
 
@@ -185,7 +186,7 @@ public class Neo {
      */
     public NeoMap insert(String tableName, NeoMap valueMap) {
         NeoMap valueMapTem = valueMap.clone();
-        Long id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
+        Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
         String incrementKey = db.getPrimaryAndAutoIncName(tableName);
         if (null != incrementKey) {
             valueMap.put(incrementKey, id);
@@ -248,22 +249,24 @@ public class Neo {
     }
 
     public <T> Integer delete(String tableName, T entity, NamingChg naming) {
+        if (entity.getClass().isPrimitive()){
+            log.error(PRE_LOG + "数据{}是基本类型", entity);
+            return 0;
+        }
         return delete(tableName, NeoMap.from(entity, naming));
     }
 
     public <T> Integer delete(String tableName, T entity) {
         if (entity instanceof Number){
-           return delete(tableName, ((Number) entity).longValue());
+           return delete(tableName, entity);
         }
         return delete(tableName, NeoMap.from(entity));
     }
 
-    public Integer delete(String tableName, Long id) {
+    public Integer delete(String tableName, Number id) {
         String primaryKey = db.getPrimaryName(tableName);
-        NeoMap neoMap = NeoMap.of();
         if(null != primaryKey){
-            neoMap.append(primaryKey, id);
-            return delete(tableName, neoMap);
+            return delete(tableName, NeoMap.of(primaryKey, id));
         }
         return 0;
     }
@@ -286,7 +289,7 @@ public class Neo {
         return CompletableFuture.supplyAsync(()->delete(tableName, entity), executor);
     }
 
-    public CompletableFuture<Integer> deleteAsync(String tableName, Long id, Executor executor){
+    public CompletableFuture<Integer> deleteAsync(String tableName, Number id, Executor executor){
         return CompletableFuture.supplyAsync(()->delete(tableName, id), executor);
     }
 
@@ -309,6 +312,10 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> T update(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
+        if (setEntity.getClass().isPrimitive()) {
+            log.error(PRE_LOG + "数据{}是基本类型", setEntity);
+            return setEntity;
+        }
         NeoMap neoMap = update(tableName, NeoMap.from(setEntity, namingChg), searchMap);
         if (!NeoMap.isEmpty(neoMap)){
             neoMap.as((Class<T>) setEntity.getClass());
@@ -321,6 +328,12 @@ public class Neo {
     }
 
     public <T> T update(String tableName, T setEntity, T searchEntity) {
+        if (searchEntity instanceof Number) {
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey) {
+                return update(tableName, setEntity, NeoMap.of(primaryKey, searchEntity));
+            }
+        }
         return update(tableName, setEntity, NeoMap.from(searchEntity));
     }
 
@@ -352,13 +365,41 @@ public class Neo {
         return update(tableName, entity, NeoMap.from(entity, columns));
     }
 
+    /**
+     * 直接实体对应数据传入更新，则需要包含主键对应的key才行
+     *
+     * @param tableName 表明
+     * @param dataMap 待更新的实体数据对应的map
+     * @return 更新之后的实体数据对应的map
+     */
     public NeoMap update(String tableName, NeoMap dataMap) {
         Columns columns = Columns.of(db.getPrimaryName(tableName));
+        NeoMap searchMap = dataMap.assign(columns);
+        // 若没有指定主键，则不进行DB更新
+        if (dataMap.equals(searchMap)) {
+            return dataMap;
+        }
         return update(tableName, dataMap, dataMap.assign(columns));
     }
 
+    /**
+     * 直接实体传入更新，则需要包含主键对应的key才行
+     *
+     * @param tableName 表明
+     * @param entity 待更新的实体数据对应的map
+     * @return 更新之后的实体数据对应的map
+     */
     public <T> T update(String tableName, T entity) {
+        if (entity.getClass().isPrimitive()) {
+            log.error(PRE_LOG + "参数{}是基本类型", entity);
+            return entity;
+        }
         Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
+        NeoMap searchMap = NeoMap.from(entity, columns);
+        // 若没有指定主键，则不进行DB更新
+        if (NeoMap.from(entity).equals(searchMap)) {
+            return entity;
+        }
         return update(tableName, entity, NeoMap.from(entity, columns));
     }
 
@@ -415,13 +456,11 @@ public class Neo {
     }
 
     public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Executor executor){
-        Columns columns = Columns.of(db.getPrimaryName(tableName));
-        return updateAsync(tableName, dataMap, dataMap.assign(columns), executor);
+        return CompletableFuture.supplyAsync(()->update(tableName, dataMap), executor);
     }
 
     public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Executor executor){
-        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
-        return updateAsync(tableName, entity, NeoMap.from(entity, columns), executor);
+        return CompletableFuture.supplyAsync(()->update(tableName, entity), executor);
     }
 
     /**
@@ -466,11 +505,23 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> T one(String tableName, Columns columns, T entity) {
+        if(entity instanceof Number){
+            return one(tableName, columns, (Number) entity).as((Class<T>) entity.getClass());
+        }
         NeoMap neoMap = one(tableName, columns, NeoMap.from(entity));
         if (!NeoMap.isEmpty(neoMap)) {
             return neoMap.as((Class<T>) entity.getClass());
         }
         return null;
+    }
+
+    public NeoMap one(String tableName, Columns columns, Number key) {
+        String primaryKey = db.getPrimaryName(tableName);
+        NeoMap neoMap = NeoMap.of();
+        if(null != primaryKey){
+            return one(tableName, columns, NeoMap.of(primaryKey, key));
+        }
+        return neoMap;
     }
 
     /**
@@ -500,7 +551,7 @@ public class Neo {
      * @param id 主键id数据
      * @return 查询到的数据
      */
-    public NeoMap one(String tableName, Long id){
+    public NeoMap one(String tableName, Number id){
         String primaryKey = db.getPrimaryName(tableName);
         NeoMap neoMap = NeoMap.of();
         if(null != primaryKey){
@@ -551,7 +602,7 @@ public class Neo {
      * @param id 主键id数据
      * @return 查询到的数据
      */
-    public CompletableFuture<NeoMap> oneAsync(String tableName, Long id, Executor executor){
+    public CompletableFuture<NeoMap> oneAsync(String tableName, Number id, Executor executor){
         return CompletableFuture.supplyAsync(()->one(tableName, id), executor);
     }
 
@@ -600,15 +651,19 @@ public class Neo {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> list(String tableName, Columns columns, T entity){
+    public <T> List<T> list(String tableName, Columns columns, T entity) {
+        if (entity.getClass().isPrimitive()) {
+            log.error(PRE_LOG + "参数{}是基本类型", entity);
+            return Collections.emptyList();
+        }
         return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity)), (Class<T>) entity.getClass());
     }
 
-    public List<NeoMap> list(String tableName, NeoMap searchMap){
+    public List<NeoMap> list(String tableName, NeoMap searchMap) {
         return list(tableName, null, searchMap);
     }
 
-    public <T> List<T> list(String tableName, T entity){
+    public <T> List<T> list(String tableName, T entity) {
         return list(tableName, null, entity);
     }
 
@@ -698,7 +753,7 @@ public class Neo {
         if (entity instanceof Number){
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return value(tClass, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+                return value(tClass, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
         return value(tClass, tableName, field, NeoMap.from(entity));
@@ -720,7 +775,7 @@ public class Neo {
         if (entity instanceof Number){
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return value(String.class, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+                return value(String.class, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
         return value(String.class, tableName, field, NeoMap.from(entity));
@@ -817,7 +872,7 @@ public class Neo {
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return values(tClass, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+                return values(tClass, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
         return values(tClass, tableName, field, NeoMap.from(entity));
@@ -839,7 +894,7 @@ public class Neo {
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return values(String.class, tableName, field, NeoMap.of(primaryKey, Number.class.cast(entity).longValue()));
+                return values(String.class, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
         return values(String.class, tableName, field, NeoMap.from(entity));
@@ -945,6 +1000,10 @@ public class Neo {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page){
+        if(entity.getClass().isPrimitive()){
+            log.error(PRE_LOG + "参数{}是基本类型");
+            return Collections.emptyList();
+        }
         return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity), page),
             (Class<T>) entity.getClass());
     }
@@ -1053,6 +1112,236 @@ public class Neo {
 
     public Integer count(String tableName, Object entity) {
         return count(tableName, NeoMap.from(entity));
+    }
+
+    @Override
+    public NeoMap insert(NeoMap dataMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T insert(T object) {
+        return null;
+    }
+
+    @Override
+    public <T> T insert(T object, NamingChg naming) {
+        return null;
+    }
+
+    @Override
+    public Integer delete(NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> Integer delete(T object) {
+        return null;
+    }
+
+    @Override
+    public <T> Integer delete(T object, NamingChg naming) {
+        return null;
+    }
+
+    @Override
+    public Integer delete(Number id) {
+        return null;
+    }
+
+    @Override
+    public NeoMap update(NeoMap dataMap, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T setEntity, NeoMap searchMap, NamingChg namingChg) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T setEntity, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T setEntity, T searchEntity) {
+        return null;
+    }
+
+    @Override
+    public NeoMap update(NeoMap dataMap, Columns columns) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T entity, Columns columns, NamingChg namingChg) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T entity, Columns columns) {
+        return null;
+    }
+
+    @Override
+    public NeoMap update(NeoMap dataMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T update(T entity) {
+        return null;
+    }
+
+    @Override
+    public NeoMap one(Columns columns, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T one(Columns columns, T entity) {
+        return null;
+    }
+
+    @Override
+    public NeoMap one(Columns columns, Number key) {
+        return null;
+    }
+
+    @Override
+    public NeoMap one(NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T one(T entity) {
+        return null;
+    }
+
+    @Override
+    public NeoMap one(Number id) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> list(Columns columns, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> list(Columns columns, T entity) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> list(NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> list(T entity) {
+        return null;
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String field, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String field, Object entity) {
+        return null;
+    }
+
+    @Override
+    public String value(String field, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public String value(String field, Object entity) {
+        return null;
+    }
+
+    @Override
+    public String value(String field, Number entity) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> values(Class<T> tClass, String field, Object entity) {
+        return null;
+    }
+
+    @Override
+    public List<String> values(String field, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public List<String> values(String field, Object entity) {
+        return null;
+    }
+
+    @Override
+    public List<String> values(String field) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(Columns columns, NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> page(Columns columns, T entity, NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(NeoMap searchMap, NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public <T> List<T> page(T entity, NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(Columns columns, NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(NeoPage page) {
+        return null;
+    }
+
+    @Override
+    public List<NeoMap> page(NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public Integer count(NeoMap searchMap) {
+        return null;
+    }
+
+    @Override
+    public Integer count(Object entity) {
+        return null;
     }
 
     public Integer count(String tableName) {
@@ -2011,7 +2300,7 @@ public class Neo {
         return new Pair<>(replaceOperatorList, placeHolderList);
     }
 
-    private Long executeInsert(PreparedStatement statement) {
+    private Number executeInsert(PreparedStatement statement) {
         try {
             statement.executeUpdate();
             // 返回主键
@@ -2108,5 +2397,232 @@ public class Neo {
         List<NeoMap> dataMapTem = new ArrayList<>();
         dataMapList.forEach(d-> dataMapTem.add(d.clone()));
         return dataMapTem;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> insertAsync(NeoMap dataMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> insertAsync(T object, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> insertAsync(T object, NamingChg naming, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAsync(NeoMap dataMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<Integer> deleteAsync(T object, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<Integer> deleteAsync(T entity, NamingChg naming, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAsync(Number id, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, NamingChg namingChg, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T setEntity, T searchEntity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Columns columns, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T entity, Columns columns, NamingChg namingChg, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T entity, Columns columns, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(T entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> oneAsync(Columns columns, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Columns columns, T entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> oneAsync(NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(T entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> oneAsync(Number id, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> listAsync(Columns columns, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Columns columns, T entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> listAsync(NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(T entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, NeoMap searchMap,
+        Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, Object entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesAsync(String field, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesAsync(String field, Object entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesAsync(String field, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> valueAsync(String field, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> valueAsync(String field, Object entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, NeoPage page,
+        Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, NeoPage page, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(T entity, NeoPage page, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoPage page, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(NeoPage page, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Integer> countAsync(NeoMap searchMap, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Integer> countAsync(Object entity, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Integer> countAsync(Executor executor) {
+        return null;
     }
 }

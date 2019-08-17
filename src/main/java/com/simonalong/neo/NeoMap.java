@@ -1,13 +1,7 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.db.AliasParser;
-import com.simonalong.neo.db.TimeDateConverter;
-import com.simonalong.neo.exception.NeoMapChgException;
-import com.simonalong.neo.exception.NumberOfValueException;
-import com.simonalong.neo.exception.ParameterNullException;
-import com.simonalong.neo.util.ObjectUtil;
-import com.simonalong.neo.db.AliasParser;
-import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.table.AliasParser;
+import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
@@ -864,7 +858,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
          */
         PREPOSTUNDER(StringConverter::prePostUnder, StringConverter::underLineToSmallCamel),
         /**
-         * 小驼峰到中划线 {@code dataBaseUser <------> data-base-user }
+         * 小驼峰到中划线 {@code dataBaseUser <------> data-db-user }
          */
         MIDDLELINE(StringConverter::middleLine, StringConverter::middleLineToSmallCamel),
         /**

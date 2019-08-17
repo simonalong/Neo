@@ -187,7 +187,7 @@ public final class StringConverter {
     }
 
     /**
-     * 中划线到小驼峰：{@code data-base-user -> dataBaseUser}
+     * 中划线到小驼峰：{@code data-db-user -> dataBaseUser}
      * <p>
      * @param word 源字符
      * @return 目标字符
@@ -201,7 +201,7 @@ public final class StringConverter {
     }
 
     /**
-     * 小驼峰到中划线：{@code dataBaseUser -> data-base-user}
+     * 小驼峰到中划线：{@code dataBaseUser -> data-db-user}
      * <p>
      * @param word 源字符
      * @return 目标字符
@@ -273,7 +273,7 @@ public final class StringConverter {
     }
 
     /**
-     * 中划线到大驼峰：{@code data-base-user -> DataBaseUser}
+     * 中划线到大驼峰：{@code data-db-user -> DataBaseUser}
      * <p>
      * @param word 源字符
      * @return 目标字符
@@ -283,7 +283,7 @@ public final class StringConverter {
     }
 
     /**
-     * 大驼峰到中划线：{@code DataBaseUser -> data-base-user}
+     * 大驼峰到中划线：{@code DataBaseUser -> data-db-user}
      * <p>
      * @param word 源字符
      * @return 目标字符

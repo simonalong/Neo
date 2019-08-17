@@ -19,7 +19,7 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 /**
- * 测试，其中待测试的表结构请见文件 /db/test.sql
+ * 测试，其中待测试的表结构请见文件 /table/test.sql
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:47
  */

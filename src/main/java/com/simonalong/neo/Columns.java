@@ -1,8 +1,8 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.db.AliasParser;
-import com.simonalong.neo.db.ColumnParseException;
+import com.simonalong.neo.table.AliasParser;
+import com.simonalong.neo.table.ColumnParseException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;

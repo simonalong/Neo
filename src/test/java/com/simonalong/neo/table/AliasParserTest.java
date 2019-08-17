@@ -1,6 +1,6 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
-import static com.simonalong.neo.db.AliasParser.*;
+import static com.simonalong.neo.table.AliasParser.*;
 import org.junit.Assert;
 import org.junit.Test;
 

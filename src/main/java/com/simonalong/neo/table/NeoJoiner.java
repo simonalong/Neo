@@ -1,12 +1,9 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
-import static com.simonalong.neo.sql.SqlBuilder.*;
-import static com.simonalong.neo.db.AliasParser.*;
+import static com.simonalong.neo.table.AliasParser.*;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.sql.JoinType;
-import com.simonalong.neo.Columns;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlBuilder;
 import java.util.List;

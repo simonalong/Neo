@@ -93,8 +93,8 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void testAs4() {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
-        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-base-name", TABLE_NAME);
-        // dataBaseUser -> data-base-user
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-db-name", TABLE_NAME);
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4);
@@ -109,8 +109,8 @@ public class NeoMapTest extends BaseTest {
     @SneakyThrows
     public void testAs5() {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
-        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-base-name", TABLE_NAME);
-        // dataBaseUser -> data-base-user
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-db-name", TABLE_NAME);
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4.toString());
@@ -121,7 +121,7 @@ public class NeoMapTest extends BaseTest {
     public void testAs6() {
         Long a = 12L;
         NeoMap map4 = NeoMap.of("user_name", "name", "sl", a);
-        // dataBaseUser -> data-base-user
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4.toString());

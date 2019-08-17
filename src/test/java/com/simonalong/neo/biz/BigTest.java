@@ -2,6 +2,7 @@ package com.simonalong.neo.biz;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.db.AbstractNeo;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -10,9 +11,9 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019-08-17 13:24
  */
-public class BigServiceTest extends AbstractNeoService {
+public class BigTest extends AbstractNeo {
 
-    public BigServiceTest() throws SQLException {}
+    public BigTest() throws SQLException {}
 
     @Override
     protected Neo getNeo() {

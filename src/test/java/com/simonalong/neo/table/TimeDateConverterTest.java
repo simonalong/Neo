@@ -1,4 +1,4 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
 import com.simonalong.neo.BaseTest;
 import java.util.Date;

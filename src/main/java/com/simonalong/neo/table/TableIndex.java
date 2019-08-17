@@ -1,4 +1,4 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

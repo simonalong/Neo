@@ -1,4 +1,4 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
 import java.util.Calendar;
 import java.util.Date;

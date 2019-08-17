@@ -4,9 +4,11 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.db.TableIndex.Index;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.db.TableIndex.Index;
+import com.simonalong.neo.table.NeoColumn;
+import com.simonalong.neo.table.NeoJoiner;
+import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.table.TableIndex;
+import com.simonalong.neo.table.TableIndex.Index;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -22,7 +24,7 @@ import lombok.experimental.Accessors;
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
-public class NeoTable {
+public class NeoTable extends AbstractExecutorNeo implements BaseTableNeo{
 
     /**
      * 实际获取数据的对象
@@ -107,6 +109,14 @@ public class NeoTable {
 
     public <T> NeoMap update(NeoMap setMap, T searchEntity) {
         return update(setMap, NeoMap.from(searchEntity));
+    }
+
+    public NeoMap update(NeoMap entityMap){
+        return neo.update(tableName, entityMap);
+    }
+
+    public <T> T update(T entity){
+        return neo.update(tableName, entity);
     }
 
     /**

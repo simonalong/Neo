@@ -43,12 +43,12 @@ public class StringConverterTest {
 
     @Test
     public void middleLineToSmallCamelTest(){
-        Assert.assertEquals("dataBaseUser", StringConverter.middleLineToSmallCamel("data-base-user"));
+        Assert.assertEquals("dataBaseUser", StringConverter.middleLineToSmallCamel("data-db-user"));
     }
 
     @Test
     public void smallCamelToMiddleLineTest(){
-        Assert.assertEquals("data-base-user", StringConverter.middleLine("dataBaseUser"));
+        Assert.assertEquals("data-db-user", StringConverter.middleLine("dataBaseUser"));
     }
 
     @Test
@@ -93,12 +93,12 @@ public class StringConverterTest {
 
     @Test
     public void middleLineToBigCamelTest(){
-        Assert.assertEquals("DataBaseUser", StringConverter.middleLineToBigCamel("data-base-user"));
+        Assert.assertEquals("DataBaseUser", StringConverter.middleLineToBigCamel("data-db-user"));
     }
 
     @Test
     public void bigCamelToMiddleLineTest(){
-        Assert.assertEquals("data-base-user", StringConverter.bigCamelToMiddleLine("DataBaseUser"));
+        Assert.assertEquals("data-db-user", StringConverter.bigCamelToMiddleLine("DataBaseUser"));
     }
 
     @Test

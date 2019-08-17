@@ -1,7 +1,7 @@
 package com.simonalong.neo.util;
 
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.ValueCastClassException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
