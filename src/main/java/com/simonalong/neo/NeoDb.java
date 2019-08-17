@@ -1,6 +1,6 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.config.AbstractBaseDb;
+import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.NeoTable.Table;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.TableIndex.Index;

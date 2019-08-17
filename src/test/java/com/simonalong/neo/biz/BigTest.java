@@ -2,7 +2,7 @@ package com.simonalong.neo.biz;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.config.AbstractBizService;
+import com.simonalong.neo.core.AbstractBizService;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;

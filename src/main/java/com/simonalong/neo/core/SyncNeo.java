@@ -1,4 +1,4 @@
-package com.simonalong.neo.config;
+package com.simonalong.neo.core;
 
 /**
  * @author zhouzhenyong

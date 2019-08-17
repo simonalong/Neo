@@ -1,7 +1,7 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.config.AbstractTableNeo;
+import com.simonalong.neo.core.AbstractTableNeo;
 import com.simonalong.neo.db.BaseTableNeo;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.NeoJoiner;
