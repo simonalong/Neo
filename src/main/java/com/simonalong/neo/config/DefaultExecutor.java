@@ -12,7 +12,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author zhouzhenyong
  * @since 2019-08-17 17:16
  */
-public abstract class AbstractAsyncNeo implements AsyncNeo{
+public class DefaultExecutor implements AsyncNeo{
+
+    private static volatile DefaultExecutor instance = null;
+
+    private DefaultExecutor(){}
+
+    public static DefaultExecutor getInstance(){
+        if(null == instance){
+            synchronized (DefaultExecutor.class){
+                if(null == instance){
+                    instance = new DefaultExecutor();
+                }
+            }
+        }
+        return instance;
+    }
 
     /**
      * 创建默认的异步回调的线程池

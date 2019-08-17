@@ -2,7 +2,7 @@ package com.simonalong.neo.biz;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.AbstractNeo;
+import com.simonalong.neo.config.AbstractBizService;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -11,12 +11,12 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019-08-17 13:24
  */
-public class BigTest extends AbstractNeo {
+public class BigTest extends AbstractBizService {
 
     public BigTest() throws SQLException {}
 
     @Override
-    protected Neo getNeo() {
+    public Neo getAbsNeo() {
         String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
         String user = "neo_test";
         String password = "neo@Test123";
@@ -24,7 +24,7 @@ public class BigTest extends AbstractNeo {
     }
 
     @Override
-    protected String getTableName() {
+    public String getTableName() {
         return "neo_table1";
     }
 

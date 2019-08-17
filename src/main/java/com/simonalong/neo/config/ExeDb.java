@@ -1,4 +1,4 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.config;
 
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.table.NeoPage;
@@ -7,12 +7,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * 包含执行器的执行接口
- *
  * @author zhouzhenyong
- * @since 2019-08-17 16:37
+ * @since 2019-08-17 17:17
  */
-public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
+public interface ExeDb extends DbSync{
 
     NeoMap exeOne(String sql, Object... parameters);
 
@@ -20,7 +18,11 @@ public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
 
     CompletableFuture<NeoMap> exeOneAsync(String sql, Executor executor, Object... parameters);
 
+    CompletableFuture<NeoMap> exeOneAsync(String sql, Object... parameters);
+
     <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters);
 
     List<NeoMap> exeList(String sql, Object... parameters);
 
@@ -28,7 +30,11 @@ public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
 
     CompletableFuture<List<NeoMap>> exeListAsync(String sql, Executor executor, Object... parameters);
 
+    CompletableFuture<List<NeoMap>> exeListAsync(String sql, Object... parameters);
+
     <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Object... parameters);
 
     <T> T exeValue(Class<T> tClass, String sql, Object... parameters);
 
@@ -36,7 +42,11 @@ public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
 
     <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
 
+    <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Object... parameters);
+
     CompletableFuture<String> exeValueAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<String> exeValueAsync(String sql, Object... parameters);
 
     <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters);
 
@@ -44,7 +54,11 @@ public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
 
     <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
 
+    <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Object... parameters);
+
     CompletableFuture<List<String>> exeValuesAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters);
 
     List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
 
@@ -52,13 +66,21 @@ public interface ExecuteDbNeo extends SyncNeo, AsyncNeo {
 
     CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters);
 
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+
     CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters);
+
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
 
     Integer exeCount(String sql, Object... parameters);
 
     CompletableFuture<Integer> exeCountAsync(String sql, Executor executor, Object... parameters);
 
+    CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters);
+
     List<List<NeoMap>> execute(String sql, Object... parameters);
 
     CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Object... parameters);
 }
