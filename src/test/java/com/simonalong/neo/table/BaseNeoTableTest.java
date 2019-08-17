@@ -2,7 +2,7 @@ package com.simonalong.neo.table;
 
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.db.NeoTable;
+import com.simonalong.neo.NeoTable;
 import java.sql.SQLException;
 import org.junit.BeforeClass;
 

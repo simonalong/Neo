@@ -1,20 +1,18 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.db.AbstractNeo;
+import com.simonalong.neo.config.AbstractBaseDb;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.NeoColumn.Column;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.table.NeoJoiner;
 import com.simonalong.neo.table.NeoPage;
-import com.simonalong.neo.db.NeoTable;
-import com.simonalong.neo.db.NeoTable.Table;
+import com.simonalong.neo.NeoTable.Table;
 import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.uid.UidGenerator;
 import com.simonalong.neo.table.TableIndex.Index;
-import com.simonalong.neo.db.NeoDb;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlExplain;
 import com.simonalong.neo.sql.SqlMonitor;
@@ -58,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo extends AbstractNeo {
+public class Neo extends AbstractBaseDb {
 
     private static final String PRE_LOG = "[Neo] ";
 
@@ -184,6 +182,7 @@ public class Neo extends AbstractNeo {
      * @param valueMap 待插入的数据
      * @return 插入之后返回的插入后的值
      */
+    @Override
     public NeoMap insert(String tableName, NeoMap valueMap) {
         NeoMap valueMapTem = valueMap.clone();
         Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
@@ -196,6 +195,7 @@ public class Neo extends AbstractNeo {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T insert(String tableName, T entity, NamingChg naming) {
         NeoMap neoMap = insert(tableName, NeoMap.from(entity, naming));
         if(!NeoMap.isEmpty(neoMap)){
@@ -205,6 +205,7 @@ public class Neo extends AbstractNeo {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T insert(String tableName, T entity) {
         NeoMap neoMap = insert(tableName, NeoMap.from(entity));
         if(!NeoMap.isEmpty(neoMap)){

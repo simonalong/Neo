@@ -1,9 +1,8 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo;
 
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
+import com.simonalong.neo.config.AbstractTableNeo;
+import com.simonalong.neo.db.BaseTableNeo;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.NeoJoiner;
 import com.simonalong.neo.table.NeoPage;
@@ -24,7 +23,7 @@ import lombok.experimental.Accessors;
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
-public class NeoTable extends AbstractExecutorNeo implements BaseTableNeo{
+public class NeoTable extends AbstractTableNeo {
 
     /**
      * 实际获取数据的对象

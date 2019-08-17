@@ -1,4 +1,4 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.config;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author zhouzhenyong
- * @since 2019-08-17 16:05
+ * @since 2019-08-17 17:16
  */
-public abstract class AbstractExecutorNeo implements BaseNeo, AsyncBaseNeo {
+public abstract class AbstractAsyncNeo implements AsyncNeo{
 
     /**
      * 创建默认的异步回调的线程池

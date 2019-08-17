@@ -1,7 +1,7 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo;
 
-import com.simonalong.neo.Neo;
-import com.simonalong.neo.db.NeoTable.Table;
+import com.simonalong.neo.config.AbstractBaseDb;
+import com.simonalong.neo.NeoTable.Table;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.TableIndex.Index;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
-public final class NeoDb extends AbstractNeo{
+public final class NeoDb extends AbstractBaseDb {
 
     private Neo neo;
     /**
