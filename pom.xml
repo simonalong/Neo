@@ -6,7 +6,7 @@
 
     <groupId>com.github.simonalong</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.3.2</version>
+    <version>0.4.0</version>
 
     <name>Neo</name>
     <url>git@github.com:SimonAlong/Neo.git</url>
