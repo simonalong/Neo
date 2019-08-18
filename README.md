@@ -14,6 +14,7 @@ Neo是一个基于JDBC开发的至简化框架。开发源头，源于几个原�
 ```
 
 ### 快速入门
+一个DB对应的一个对象Neo，操作表，则填入对应的表名即可
 ```java
 public void testDemo1() {
     String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -69,7 +70,7 @@ public void testDemo1() {
 }
 
 /**
- * 指定表的话，就更简单
+ * 指定表的话，就更简单，一个表对应一个对象NeoTable
  */
 public void testDemo2() {
     String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
