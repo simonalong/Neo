@@ -201,4 +201,93 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<Integer> countAsync(String tableName, Executor executor);
 
     CompletableFuture<Integer> countAsync(String tableName);
+
+
+    CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList);
+
+    CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList, Executor executor);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, NamingChg namingChg);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, NamingChg namingChg, Executor executor);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, Executor executor);
+
+
+    CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList);
+
+    CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList, Executor executor);
+
+    CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList, Columns columns);
+
+    CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList, Columns columns, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, NamingChg namingChg);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, NamingChg namingChg, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, Executor executor);
+
+
+    CompletableFuture<NeoMap> exeOneAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<NeoMap> exeOneAsync(String sql, Object... parameters);
+
+    <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters);
+
+
+    CompletableFuture<List<NeoMap>> exeListAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<List<NeoMap>> exeListAsync(String sql, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Object... parameters);
+
+
+    <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Object... parameters);
+
+    CompletableFuture<String> exeValueAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<String> exeValueAsync(String sql, Object... parameters);
+
+
+    <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Object... parameters);
+
+    CompletableFuture<List<String>> exeValuesAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters);
+
+
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters);
+
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters);
+
+    CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
+
+
+    CompletableFuture<Integer> exeCountAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters);
+
+
+    CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Executor executor, Object... parameters);
+
+    CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Object... parameters);
 }

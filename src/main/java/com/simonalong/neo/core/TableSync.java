@@ -38,6 +38,8 @@ public interface TableSync extends SyncNeo{
 
     NeoMap update(NeoMap dataMap, Columns columns);
 
+    <T> NeoMap update(NeoMap setMap, T searchEntity);
+
     <T> T update(T entity, Columns columns, NamingChg namingChg);
 
     <T> T update(T entity, Columns columns);
@@ -68,6 +70,8 @@ public interface TableSync extends SyncNeo{
 
     <T> List<T> list(T entity);
 
+    List<NeoMap> list(Columns columns);
+
 
     <T> T value(Class<T> tClass, String field, NeoMap searchMap);
 
@@ -78,7 +82,6 @@ public interface TableSync extends SyncNeo{
     String value(String field, Object entity);
 
     String value(String field, Number entity);
-
 
     <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap);
 
@@ -112,5 +115,23 @@ public interface TableSync extends SyncNeo{
 
     Integer count(Object entity);
 
-    Integer count(String tableName);
+    Integer count();
+
+
+    Integer batchInsert(List<NeoMap> dataMapList);
+
+    <T> Integer batchInsertEntity(List<T> dataList, NamingChg namingChg);
+
+    <T> Integer batchInsertEntity(List<T> dataList);
+
+
+    Integer batchUpdate(List<NeoMap> dataList);
+
+    Integer batchUpdate(List<NeoMap> dataList, Columns columns);
+
+    <T> Integer batchUpdateEntity(List<T> dataList);
+
+    <T> Integer batchUpdateEntity(List<T> dataList, Columns columns, NamingChg namingChg);
+
+    <T> Integer batchUpdateEntity(List<T> dataList, Columns columns);
 }

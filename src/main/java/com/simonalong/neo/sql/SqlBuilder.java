@@ -7,7 +7,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.table.AliasParser;
-import com.simonalong.neo.NeoTable;
+import com.simonalong.neo.table.NeoTable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

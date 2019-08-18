@@ -201,4 +201,39 @@ public interface TableAsync extends AsyncNeo{
     CompletableFuture<Integer> countAsync(Executor executor);
 
     CompletableFuture<Integer> countAsync();
+
+
+
+    CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList);
+
+    CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList, Executor executor);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg, Executor executor);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList);
+
+    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, Executor executor);
+
+
+    CompletableFuture<Integer> batchUpdateAsync(List<NeoMap> dataList);
+
+    CompletableFuture<Integer> batchUpdateAsync(List<NeoMap> dataList, Executor executor);
+
+    CompletableFuture<Integer> batchUpdateAsync(List<NeoMap> dataList, Columns columns);
+
+    CompletableFuture<Integer> batchUpdateAsync(List<NeoMap> dataList, Columns columns, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, NamingChg namingChg);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, NamingChg namingChg, Executor executor);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns);
+
+    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, Executor executor);
 }

@@ -3,6 +3,7 @@ package com.simonalong.neo.biz;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBizService;
+import com.simonalong.neo.core.DbSync;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class BigTest extends AbstractBizService {
     public BigTest() throws SQLException {}
 
     @Override
-    public Neo getAbsNeo() {
+    public DbSync getDb() {
         String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
         String user = "neo_test";
         String password = "neo@Test123";

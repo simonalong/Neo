@@ -5,6 +5,8 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.table.NeoPage;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @author zhouzhenyong
@@ -35,6 +37,8 @@ public interface DbSync extends SyncNeo{
     <T> T update(String tableName, T setEntity, NeoMap searchMap);
 
     <T> T update(String tableName, T setEntity, T searchEntity);
+
+    <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity);
 
     NeoMap update(String tableName, NeoMap dataMap, Columns columns);
 
@@ -67,6 +71,8 @@ public interface DbSync extends SyncNeo{
     List<NeoMap> list(String tableName, NeoMap searchMap);
 
     <T> List<T> list(String tableName, T entity);
+
+    List<NeoMap> list(String tableName, Columns columns);
 
 
     <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap);
@@ -113,4 +119,47 @@ public interface DbSync extends SyncNeo{
     Integer count(String tableName, Object entity);
 
     Integer count(String tableName);
+
+
+    Integer batchInsert(String tableName, List<NeoMap> dataMapList);
+
+    <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg);
+
+    <T> Integer batchInsertEntity(String tableName, List<T> dataList);
+
+
+    Integer batchUpdate(String tableName, List<NeoMap> dataList);
+
+    Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns);
+
+    <T> Integer batchUpdateEntity(String tableName, List<T> dataList);
+
+    <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg);
+
+    <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns);
+
+
+    NeoMap exeOne(String sql, Object... parameters);
+
+    <T> T exeOne(Class<T> tClass, String sql, Object... parameters);
+
+    List<NeoMap> exeList(String sql, Object... parameters);
+
+    <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters);
+
+    <T> T exeValue(Class<T> tClass, String sql, Object... parameters);
+
+    String exeValue(String sql, Object... parameters);
+
+    <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters);
+
+    List<String> exeValues(String sql, Object... parameters);
+
+    List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+
+    List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters);
+
+    Integer exeCount(String sql, Object... parameters);
+
+    List<List<NeoMap>> execute(String sql, Object... parameters);
 }

@@ -111,7 +111,7 @@ public final class UidGenerator {
      */
     private Long allocStart() {
         return neo.tx(() -> {
-            Long value = neo.value(Long.class, UUID_TABLE, "uuid", NeoMap.of("id", TABLE_ID));
+            Long value = neo.value(UUID_TABLE, Long.class, "uuid", NeoMap.of("id", TABLE_ID));
             neo.execute("update %s set `uuid` = `uuid` + ? where `id` = ?", UUID_TABLE, stepSize, TABLE_ID);
             return value;
         });

@@ -1,6 +1,7 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.table.NeoTable;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
