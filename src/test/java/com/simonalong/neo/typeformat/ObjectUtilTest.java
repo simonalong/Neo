@@ -3,9 +3,7 @@ package com.simonalong.neo.typeformat;
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.util.ObjectUtil;
-import com.simonalong.neo.BaseTest;
-import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.exception.ValueCastClassException;
 import com.simonalong.neo.util.ObjectUtil;
 import java.sql.Timestamp;
 import java.util.ArrayDeque;
@@ -66,7 +64,7 @@ public class ObjectUtilTest extends BaseTest {
         // -57
         show(ObjectUtil.cast(Byte.class, 199));
         // null
-        show(ObjectUtil.cast(Byte.class, "ok"));
+//        show(ObjectUtil.cast(Byte.class, "ok"));
     }
 
     @Test
@@ -74,7 +72,7 @@ public class ObjectUtilTest extends BaseTest {
         Short s = 1;
         show(ObjectUtil.cast(Short.class, s));
         show(ObjectUtil.cast(short.class, s));
-        show(ObjectUtil.cast(Short.class, "s"));
+//        show(ObjectUtil.cast(Short.class, "s"));
     }
 
     @Test
@@ -82,7 +80,7 @@ public class ObjectUtilTest extends BaseTest {
         Integer s = 1;
         show(ObjectUtil.cast(Integer.class, s));
         show(ObjectUtil.cast(int.class, s));
-        show(ObjectUtil.cast(Integer.class, "s"));
+//        show(ObjectUtil.cast(Integer.class, "s"));
     }
 
     @Test
@@ -98,7 +96,7 @@ public class ObjectUtilTest extends BaseTest {
         Double s = 1D;
         show(ObjectUtil.cast(Long.class, s));
         show(ObjectUtil.cast(long.class, s));
-        show(ObjectUtil.cast(Long.class, "s"));
+//        show(ObjectUtil.cast(Long.class, "s"));
     }
 
     @Test
@@ -139,7 +137,7 @@ public class ObjectUtilTest extends BaseTest {
 
     @Test
     public void QueueTest() {
-        ArrayDeque<Integer> arrayDeque = new ArrayDeque();
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<>();
         arrayDeque.add(1);
         arrayDeque.add(4);
         arrayDeque.add(12);
@@ -180,7 +178,7 @@ public class ObjectUtilTest extends BaseTest {
     /**
      * 其中一半情况下，tClass都是给数据库生成的字段转换的，因此这里需要处理
      */
-    @Test
+    @Test(expected = ValueCastClassException.class)
     public void DateTest1(){
         Date time = new Date();
         ObjectUtil.cast(Timestamp.class, time);

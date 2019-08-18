@@ -307,6 +307,13 @@ public class ObjectUtil {
         return NeoMap.from(value);
     }
 
+    /**
+     * 将对象按照目标类型进行转换
+     * @param tClass 要转出的类型
+     * @param value 待转换的值
+     * @param <T> 类型
+     * @return 转换后的值
+     */
     @SuppressWarnings("unchecked")
     public <T> T cast(Class<? extends T> tClass, Object value) {
         if (null == tClass || null == value) {

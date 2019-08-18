@@ -65,7 +65,7 @@ public class NeoTest extends NeoBaseTest{
     }
 
     /**
-     * 测试插入时间类型，时间类型自动转换
+     * 测试插入时间类型，时间类型自动转换，多次插入有主键冲突，忽略就好
      */
     @Test
     @SneakyThrows

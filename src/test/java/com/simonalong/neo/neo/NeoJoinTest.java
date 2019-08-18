@@ -339,7 +339,6 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void multiJoinTest() {
-        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String table3 = "neo_table3";
