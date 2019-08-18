@@ -4,6 +4,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBizService;
 import com.simonalong.neo.core.DbSync;
+import com.simonalong.neo.entity.TestEntity;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -12,9 +13,10 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019-08-17 13:24
  */
-public class BigTest extends AbstractBizService {
+public class BizServiceTest extends AbstractBizService {
 
-    public BigTest() throws SQLException {}
+    public BizServiceTest() throws SQLException {
+    }
 
     @Override
     public DbSync getDb() {
@@ -30,9 +32,14 @@ public class BigTest extends AbstractBizService {
     }
 
     @Test
-    public void testInsert(){
-        System.out.println(insert(NeoMap.of("group", "ok")));
+    public void testInsert() {
+        TestEntity entity = new TestEntity()
+            .setGroup("ok")
+            .setUserName("me")
+            .setName("hello");
+        insert(entity);
     }
+}
 
     @Test
     @SneakyThrows

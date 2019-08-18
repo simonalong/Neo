@@ -116,8 +116,37 @@ public void testDemo2() {
 }
 ```
 
+### 业务接入
+针对业务接入，可以直接继承类`AbstractBizService`即可具备一个表的常见的所有功能，只需要实现如下两个方法即可
+```java
+public class BizServiceTest extends AbstractBizService {
 
+    public BizServiceTest() throws SQLException {
+    }
 
+    @Override
+    public DbSync getDb() {
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
+        return Neo.connect(url, user, password);
+    }
+
+    @Override
+    public String getTableName() {
+        return "neo_table1";
+    }
+
+    @Test
+    public void testInsert() {
+        TestEntity entity = new TestEntity()
+            .setGroup("ok")
+            .setUserName("me")
+            .setName("hello");
+        insert(entity);
+    }
+}
+```
 
 #### 更多功能
 - 数据库连接
