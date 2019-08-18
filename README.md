@@ -116,8 +116,8 @@ public void testDemo2() {
 }
 ```
 
-### 业务接入
-针对业务接入，可以直接继承类`AbstractBizService`即可具备一个表的常见的所有功能，只需要实现如下两个方法即可
+### 其他使用
+也可以继承使用，针对业务接入，可以直接继承类`AbstractBizService`即可具备一个表的常见的所有功能，只需要实现如下两个方法即可
 ```java
 public class BizServiceTest extends AbstractBizService {
 
