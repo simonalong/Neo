@@ -32,9 +32,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
-     * 全局的命名转换，默认不转换
+     * 全局的命名转换，默认为小驼峰和下划线
      */
-    private static NamingChg globalNaming = NamingChg.DEFAULT;
+    private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
      * 用于自定义的转换器，key为变量名，value为dataMap的key映射，结构为：{@code Map<String, String>}
      */

@@ -37,9 +37,8 @@ public class BizServiceTest extends AbstractBizService {
             .setGroup("ok")
             .setUserName("me")
             .setName("hello");
-        insert(entity);
+        System.out.println(insert(entity));
     }
-}
 
     @Test
     @SneakyThrows

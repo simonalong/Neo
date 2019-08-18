@@ -201,7 +201,7 @@ public class Neo extends AbstractBaseDb {
     public <T> T insert(String tableName, T entity, NamingChg naming) {
         NeoMap neoMap = insert(tableName, NeoMap.from(entity, naming));
         if(!NeoMap.isEmpty(neoMap)){
-            neoMap.as((Class<T>) entity.getClass());
+            return neoMap.as((Class<T>) entity.getClass());
         }
         return null;
     }
@@ -211,7 +211,7 @@ public class Neo extends AbstractBaseDb {
     public <T> T insert(String tableName, T entity) {
         NeoMap neoMap = insert(tableName, NeoMap.from(entity));
         if(!NeoMap.isEmpty(neoMap)){
-            neoMap.as((Class<T>) entity.getClass());
+            return neoMap.as((Class<T>) entity.getClass());
         }
         return null;
     }
@@ -284,7 +284,7 @@ public class Neo extends AbstractBaseDb {
         }
         NeoMap neoMap = update(tableName, NeoMap.from(setEntity, namingChg), searchMap);
         if (!NeoMap.isEmpty(neoMap)){
-            neoMap.as((Class<T>) setEntity.getClass());
+            return neoMap.as((Class<T>) setEntity.getClass());
         }
         return null;
     }

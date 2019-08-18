@@ -44,287 +44,287 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     @Override
     public NeoMap insert(NeoMap dataMap) {
-        return getDbSync().insert(getTableName(), dataMap);
+        return getDbInner().insert(getTableName(), dataMap);
     }
 
     @Override
     public <T> T insert(T object) {
-        return getDbSync().insert(getTableName(), object);
+        return getDbInner().insert(getTableName(), object);
     }
 
     @Override
     public <T> T insert(T object, NamingChg naming) {
-        return getDbSync().insert(getTableName(), object, naming);
+        return getDbInner().insert(getTableName(), object, naming);
     }
 
     @Override
     public Integer delete(NeoMap searchMap){
-        return getDbSync().delete(getTableName(), searchMap);
+        return getDbInner().delete(getTableName(), searchMap);
     }
 
     @Override
     public <T> Integer delete(T object){
-        return getDbSync().delete(getTableName(), object);
+        return getDbInner().delete(getTableName(), object);
     }
 
     @Override
     public <T> Integer delete(T object, NamingChg naming){
-        return getDbSync().delete(getTableName(), object, naming);
+        return getDbInner().delete(getTableName(), object, naming);
     }
 
     @Override
     public Integer delete(Number id){
-        return getDbSync().delete(getTableName(), id);
+        return getDbInner().delete(getTableName(), id);
     }
 
     @Override
     public NeoMap update(NeoMap dataMap, NeoMap searchMap){
-        return getDbSync().update(getTableName(), dataMap, searchMap);
+        return getDbInner().update(getTableName(), dataMap, searchMap);
     }
 
     @Override
     public <T> T update(T setEntity, NeoMap searchMap, NamingChg namingChg){
-        return getDbSync().update(getTableName(), setEntity, searchMap, namingChg);
+        return getDbInner().update(getTableName(), setEntity, searchMap, namingChg);
     }
 
     @Override
     public <T> T update(T setEntity, NeoMap searchMap){
-        return getDbSync().update(getTableName(), setEntity, searchMap);
+        return getDbInner().update(getTableName(), setEntity, searchMap);
     }
 
     @Override
     public <T> T update(T setEntity, T searchEntity){
-        return getDbSync().update(getTableName(), setEntity, searchEntity);
+        return getDbInner().update(getTableName(), setEntity, searchEntity);
     }
 
     @Override
     public NeoMap update(NeoMap dataMap, Columns columns){
-        return getDbSync().update(getTableName(), dataMap, columns);
+        return getDbInner().update(getTableName(), dataMap, columns);
     }
 
     @Override
     public <T> T update(T entity, Columns columns, NamingChg namingChg){
-        return getDbSync().update(getTableName(), entity, columns, namingChg);
+        return getDbInner().update(getTableName(), entity, columns, namingChg);
     }
 
     @Override
     public <T> NeoMap update(NeoMap setMap, T searchEntity){
-        return getDbSync().update(getTableName(), setMap, searchEntity);
+        return getDbInner().update(getTableName(), setMap, searchEntity);
     }
 
     @Override
     public <T> T update(T entity, Columns columns){
-        return getDbSync().update(getTableName(), entity, columns);
+        return getDbInner().update(getTableName(), entity, columns);
     }
 
     @Override
     public NeoMap update(NeoMap dataMap){
-        return getDbSync().update(getTableName(), dataMap);
+        return getDbInner().update(getTableName(), dataMap);
     }
 
     @Override
     public <T> T update(T entity){
-        return getDbSync().update(getTableName(), entity);
+        return getDbInner().update(getTableName(), entity);
     }
 
     @Override
     public NeoMap one(Columns columns, NeoMap searchMap){
-        return getDbSync().one(getTableName(), columns, searchMap);
+        return getDbInner().one(getTableName(), columns, searchMap);
     }
 
     @Override
     public <T> T one(Columns columns, T entity){
-        return getDbSync().one(getTableName(), columns, entity);
+        return getDbInner().one(getTableName(), columns, entity);
     }
 
     @Override
     public NeoMap one(Columns columns, Number key){
-        return getDbSync().one(getTableName(), columns, key);
+        return getDbInner().one(getTableName(), columns, key);
     }
 
     @Override
     public NeoMap one(NeoMap searchMap){
-        return getDbSync().one(getTableName(), searchMap);
+        return getDbInner().one(getTableName(), searchMap);
     }
 
     @Override
     public <T> T one(T entity){
-        return getDbSync().one(getTableName(), entity);
+        return getDbInner().one(getTableName(), entity);
     }
 
     @Override
     public NeoMap one(Number id){
-        return getDbSync().one(getTableName(), id);
+        return getDbInner().one(getTableName(), id);
     }
 
     @Override
     public List<NeoMap> list(Columns columns, NeoMap searchMap){
-        return getDbSync().list(getTableName(), columns, searchMap);
+        return getDbInner().list(getTableName(), columns, searchMap);
     }
 
     @Override
     public <T> List<T> list(Columns columns, T entity){
-        return getDbSync().list(getTableName(), columns, entity);
+        return getDbInner().list(getTableName(), columns, entity);
     }
 
     @Override
     public List<NeoMap> list(NeoMap searchMap){
-        return getDbSync().list(getTableName(), searchMap);
+        return getDbInner().list(getTableName(), searchMap);
     }
 
     @Override
     public <T> List<T> list(T entity){
-        return getDbSync().list(getTableName(), entity);
+        return getDbInner().list(getTableName(), entity);
     }
 
     @Override
     public List<NeoMap> list(Columns columns){
-        return getDbSync().list(getTableName(), columns);
+        return getDbInner().list(getTableName(), columns);
     }
 
     @Override
     public <T> T value(Class<T> tClass, String field, NeoMap searchMap){
-        return getDbSync().value(getTableName(), tClass, field, searchMap);
+        return getDbInner().value(getTableName(), tClass, field, searchMap);
     }
 
     @Override
     public <T> T value(Class<T> tClass, String field, Object entity){
-        return getDbSync().value(getTableName(), tClass, field, entity);
+        return getDbInner().value(getTableName(), tClass, field, entity);
     }
 
     @Override
     public String value(String field, NeoMap searchMap){
-        return getDbSync().value(getTableName(), field, searchMap);
+        return getDbInner().value(getTableName(), field, searchMap);
     }
 
     @Override
     public String value(String field, Object entity){
-        return getDbSync().value(getTableName(), field, entity);
+        return getDbInner().value(getTableName(), field, entity);
     }
 
     @Override
     public String value(String field, Number entity){
-        return getDbSync().value(getTableName(), field, entity);
+        return getDbInner().value(getTableName(), field, entity);
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap){
-        return getDbSync().values(getTableName(), tClass, field, searchMap);
+        return getDbInner().values(getTableName(), tClass, field, searchMap);
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String field, Object entity){
-        return getDbSync().values(getTableName(), tClass, field, entity);
+        return getDbInner().values(getTableName(), tClass, field, entity);
     }
 
     @Override
     public List<String> values(String field, NeoMap searchMap){
-        return getDbSync().values(getTableName(), field, searchMap);
+        return getDbInner().values(getTableName(), field, searchMap);
     }
 
     @Override
     public List<String> values(String field, Object entity){
-        return getDbSync().values(getTableName(), field, entity);
+        return getDbInner().values(getTableName(), field, entity);
     }
 
     @Override
     public List<String> values(String field){
-        return getDbSync().values(getTableName(), field);
+        return getDbInner().values(getTableName(), field);
     }
 
     @Override
     public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
-        return getDbSync().page(getTableName(), columns, searchMap, page);
+        return getDbInner().page(getTableName(), columns, searchMap, page);
     }
 
     @Override
     public List<NeoMap> page(Columns columns, NeoMap searchMap){
-        return getDbSync().page(getTableName(), columns, searchMap);
+        return getDbInner().page(getTableName(), columns, searchMap);
     }
 
     @Override
     public <T> List<T> page(Columns columns, T entity, NeoPage page){
-        return getDbSync().page(getTableName(), columns, entity, page);
+        return getDbInner().page(getTableName(), columns, entity, page);
     }
 
     @Override
     public List<NeoMap> page(NeoMap searchMap, NeoPage page){
-        return getDbSync().page(getTableName(), searchMap, page);
+        return getDbInner().page(getTableName(), searchMap, page);
     }
 
     @Override
     public <T> List<T> page(T entity, NeoPage page){
-        return getDbSync().page(getTableName(), entity, page);
+        return getDbInner().page(getTableName(), entity, page);
     }
 
     @Override
     public List<NeoMap> page(Columns columns, NeoPage page){
-        return getDbSync().page(getTableName(), columns, page);
+        return getDbInner().page(getTableName(), columns, page);
     }
 
     @Override
     public List<NeoMap> page(NeoPage page){
-        return getDbSync().page(getTableName(), page);
+        return getDbInner().page(getTableName(), page);
     }
 
     @Override
     public List<NeoMap> page(NeoMap searchMap){
-        return getDbSync().page(getTableName(), searchMap);
+        return getDbInner().page(getTableName(), searchMap);
     }
 
     @Override
     public Integer count(NeoMap searchMap){
-        return getDbSync().count(getTableName(), searchMap);
+        return getDbInner().count(getTableName(), searchMap);
     }
 
     @Override
     public Integer count(Object entity){
-        return getDbSync().count(getTableName(), entity);
+        return getDbInner().count(getTableName(), entity);
     }
 
     @Override
     public Integer count(){
-        return getDbSync().count(getTableName());
+        return getDbInner().count(getTableName());
     }
 
     @Override
     public Integer batchInsert(List<NeoMap> dataMapList){
-        return getDbSync().batchInsert(getTableName(), dataMapList);
+        return getDbInner().batchInsert(getTableName(), dataMapList);
     }
 
     @Override
     public <T> Integer batchInsertEntity(List<T> dataList, NamingChg namingChg) {
-        return getDbSync().batchInsertEntity(getTableName(), dataList, namingChg);
+        return getDbInner().batchInsertEntity(getTableName(), dataList, namingChg);
     }
 
     @Override
     public <T> Integer batchInsertEntity(List<T> dataList) {
-        return getDbSync().batchInsertEntity(getTableName(), dataList);
+        return getDbInner().batchInsertEntity(getTableName(), dataList);
     }
 
     @Override
     public Integer batchUpdate(List<NeoMap> dataList) {
-        return getDbSync().batchUpdate(getTableName(), dataList);
+        return getDbInner().batchUpdate(getTableName(), dataList);
     }
 
     @Override
     public Integer batchUpdate(List<NeoMap> dataList, Columns columns) {
-        return getDbSync().batchUpdate(getTableName(), dataList, columns);
+        return getDbInner().batchUpdate(getTableName(), dataList, columns);
     }
 
     @Override
     public <T> Integer batchUpdateEntity(List<T> dataList) {
-        return getDbSync().batchUpdateEntity(getTableName(), dataList);
+        return getDbInner().batchUpdateEntity(getTableName(), dataList);
     }
 
     @Override
     public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns, NamingChg namingChg) {
-        return getDbSync().batchUpdateEntity(getTableName(), dataList, columns, namingChg);
+        return getDbInner().batchUpdateEntity(getTableName(), dataList, columns, namingChg);
     }
 
     @Override
     public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns) {
-        return getDbSync().batchUpdateEntity(getTableName(), dataList, columns);
+        return getDbInner().batchUpdateEntity(getTableName(), dataList, columns);
     }
 
 
@@ -597,7 +597,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return CompletableFuture.supplyAsync(() -> batchUpdateEntity(dataList, columns), executor);
     }
 
-    private DbSync getDbSync() {
+    private DbSync getDbInner() {
         DbSync db = getDb();
         if (null == db) {
             log.error("DB not set");
