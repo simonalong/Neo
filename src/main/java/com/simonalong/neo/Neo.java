@@ -1,5 +1,7 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.LIMIT;
+
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.table.NeoColumn.Column;
@@ -1664,7 +1666,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateExePageSqlPair(String sqlOrigin, List<Object> parameters,
         Integer startIndex, Integer pageSize) {
-        if (!sqlOrigin.contains("limit")) {
+        if (!sqlOrigin.contains(LIMIT)) {
             sqlOrigin += " limit " + startIndex + ", " + pageSize;
         }
         return generateExeSqlPair(sqlOrigin, parameters, false);
