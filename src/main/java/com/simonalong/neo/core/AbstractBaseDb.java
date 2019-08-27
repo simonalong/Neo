@@ -10,9 +10,9 @@ import java.util.concurrent.Executor;
 
 /**
  * <ul>
- * <li>1.提供默认的线程池<li/>
- * <li>2.异步接口实现，通过调用同步函数完成<li/>
- *<ul/>
+ * <li>1.提供默认的线程池</li>
+ * <li>2.异步接口实现，通过调用同步函数完成</li>
+ *</ul>
  *
  * @author zhouzhenyong
  * @since 2019-08-17 17:17
