@@ -6,10 +6,10 @@
 
     <groupId>com.github.simonalong</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.3.2</version>
+    <version>0.4.0</version>
 
     <name>Neo</name>
-    <url>git@github.com:SimonAlong/Neo.git</url>
+    <url>https://github.com/SimonAlong/Neo</url>
     <description>Orm框架：数据库连接工具</description>
 
     <licenses>
@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:git@github.com:SimonAlong/Neo.git</connection>
         <developerConnection>scm:git:git@github.com:SimonAlong/Neo.git</developerConnection>
-        <url>git@github.com:SimonAlong/Neo.git</url>
+        <url>https://github.com/SimonAlong/Neo</url>
     </scm>
 
     <properties>

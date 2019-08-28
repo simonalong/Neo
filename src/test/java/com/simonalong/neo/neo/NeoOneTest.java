@@ -192,11 +192,14 @@ public class NeoOneTest extends NeoBaseTest{
         show(neo.one(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
     }
 
+    /**
+     * 用于插入，其中主键多次插入有异常，可以忽略
+     */
     @Test
     public void testIII() {
         Long time = new Date().getTime();
         NeoMap neoMap = neo.insert("neo_table4",
-            NeoMap.of("id", 110, "create_time", time, "time", time, "year", time, "date", time, "datetime", time));
+            NeoMap.of("id", 11000, "create_time", time, "time", time, "year", time, "date", time, "datetime", time));
         show(neoMap);
     }
 }

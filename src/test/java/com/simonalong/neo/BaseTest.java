@@ -15,4 +15,13 @@ public class BaseTest {
         }
         Optional.of(object).ifPresent(objects1 -> System.out.println(objects1.toString()));
     }
+
+    public void sleep(Integer seconds){
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

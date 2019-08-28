@@ -93,8 +93,8 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void testAs4() {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
-        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-base-name", TABLE_NAME);
-        // dataBaseUser -> data-base-user
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-db-name", TABLE_NAME);
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4);
@@ -109,8 +109,8 @@ public class NeoMapTest extends BaseTest {
     @SneakyThrows
     public void testAs5() {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
-        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-base-name", TABLE_NAME);
-        // dataBaseUser -> data-base-user
+        NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-db-name", TABLE_NAME);
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4.toString());
@@ -121,13 +121,12 @@ public class NeoMapTest extends BaseTest {
     public void testAs6() {
         Long a = 12L;
         NeoMap map4 = NeoMap.of("user_name", "name", "sl", a);
-        // dataBaseUser -> data-base-user
+        // dataBaseUser -> data-db-user
         DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4.toString());
     }
 
-    // todo
     @Test
     @SneakyThrows
     public void testAs7() {
@@ -335,72 +334,83 @@ public class NeoMapTest extends BaseTest {
 
     @Test
     public void getCharacterTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getCharacter("flag"));
-        show(neoMap.getCharacter("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+//        show(neoMap.getCharacter("flag"));
+//        show(neoMap.getCharacter("test"));
         show(neoMap.getCharacter("test2"));
         show(neoMap.getCharacter("t"));
     }
 
     @Test
     public void getByteTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getByte("flag"));
-        show(neoMap.getByte("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+        // 异常
+//        show(neoMap.getByte("flag"));
+        // 异常
+//        show(neoMap.getByte("test"));
         show(neoMap.getByte("test2"));
+        // 异常
         show(neoMap.getByte("t"));
     }
 
     @Test
     public void getShortTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getShort("flag"));
-        show(neoMap.getShort("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+//        show(neoMap.getShort("flag"));
+//        show(neoMap.getShort("test"));
         show(neoMap.getShort("test2"));
         show(neoMap.getShort("t"));
     }
 
     @Test
     public void getIntegerTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getInteger("flag"));
-        show(neoMap.getInteger("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+        // 异常
+//        show(neoMap.getInteger("flag"));
+        // 异常
+//        show(neoMap.getInteger("test"));
         show(neoMap.getInteger("test2"));
+        // 异常
         show(neoMap.getInteger("t"));
     }
 
     @Test
     public void getLongTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getLong("flag"));
-        show(neoMap.getLong("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+        // 异常
+//        show(neoMap.getLong("flag"));
+        // 异常
+//        show(neoMap.getLong("test"));
         show(neoMap.getLong("test2"));
+        // 异常
         show(neoMap.getLong("t"));
     }
 
     @Test
     public void getFloatTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getFloat("flag"));
-        show(neoMap.getFloat("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+        // 异常
+//        show(neoMap.getFloat("flag"));
+        // 异常
+//        show(neoMap.getFloat("test"));
         show(neoMap.getFloat("test2"));
         show(neoMap.getFloat("t"));
     }
 
     @Test
     public void getDoubleTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.getDouble("flag"));
-        show(neoMap.getDouble("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+//        show(neoMap.getDouble("flag"));
+//        show(neoMap.getDouble("test"));
         show(neoMap.getDouble("test2"));
         show(neoMap.getDouble("t"));
     }
 
     @Test
     public void getTest(){
-        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
-        show(neoMap.get("flag"));
-        show(neoMap.get("test"));
+        NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
+//        show(neoMap.get("flag"));
+//        show(neoMap.get("test"));
         show(neoMap.get("test2"));
         show(neoMap.get("t"));
     }
@@ -409,7 +419,7 @@ public class NeoMapTest extends BaseTest {
     public void getObjectTest(){
         NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", "");
         show(neoMap.get(Integer.class, "flag", 12));
-        show(neoMap.get(String.class, "test", "de"));
+//        show(neoMap.get(String.class, "test", "de"));
         show(neoMap.get(Long.class, "test2", 0L));
         show(neoMap.get(Double.class, "t", 0.1));
     }

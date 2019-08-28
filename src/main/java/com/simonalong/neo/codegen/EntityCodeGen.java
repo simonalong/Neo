@@ -2,7 +2,7 @@ package com.simonalong.neo.codegen;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.codegen.EnumInfo.EnumInner;
-import com.simonalong.neo.db.NeoColumn;
+import com.simonalong.neo.table.NeoColumn;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.StringConverter;

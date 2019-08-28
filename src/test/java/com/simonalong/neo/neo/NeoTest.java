@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,11 +19,13 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 /**
- * 测试，其中待测试的表结构请见文件 /db/test.sql
+ * 测试，其中待测试的表结构请见文件 /table/test.sql
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:47
  */
 public class NeoTest extends NeoBaseTest{
+
+    private ExecutorService pool = Executors.newCachedThreadPool();
 
     public NeoTest() throws SQLException {}
 
@@ -60,7 +65,7 @@ public class NeoTest extends NeoBaseTest{
     }
 
     /**
-     * 测试插入时间类型，时间类型自动转换
+     * 测试插入时间类型，时间类型自动转换，多次插入有主键冲突，忽略就好
      */
     @Test
     @SneakyThrows
@@ -70,6 +75,19 @@ public class NeoTest extends NeoBaseTest{
         NeoMap result = neo.insert("neo_table4", data);
         show(result);
         show(data);
+    }
+
+    /**
+     * 测试异步的数据插入
+     */
+    @Test
+    public void testInsertAsync1(){
+        CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, NeoMap.of("group", "ok"), pool);
+        future.thenAccept(r->{
+            sleep(5);
+            show(r);
+        });
+        sleep(10);
     }
 
     /******************************删除******************************/

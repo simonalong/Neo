@@ -4,9 +4,10 @@ CREATE TABLE `neo_table1` (
   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
   `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
   `age` int(11) DEFAULT NULL,
+  `sl` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `group_index` (`group`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `neo_table2` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -98,3 +99,9 @@ CREATE TABLE `xx_test5` (
   `year2` year(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项';
+
+CREATE PROCEDURE `pro`()
+BEGIN
+   explain select * from neo_table1;
+  select * from neo_table1;
+END;

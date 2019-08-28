@@ -1,13 +1,7 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.db.AliasParser;
-import com.simonalong.neo.db.TimeDateConverter;
-import com.simonalong.neo.exception.NeoMapChgException;
-import com.simonalong.neo.exception.NumberOfValueException;
-import com.simonalong.neo.exception.ParameterNullException;
-import com.simonalong.neo.util.ObjectUtil;
-import com.simonalong.neo.db.AliasParser;
-import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.table.AliasParser;
+import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
@@ -38,9 +32,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
-     * 全局的命名转换，默认不转换
+     * 全局的命名转换，默认为小驼峰和下划线
      */
-    private static NamingChg globalNaming = NamingChg.DEFAULT;
+    private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
      * 用于自定义的转换器，key为变量名，value为dataMap的key映射，结构为：{@code Map<String, String>}
      */
@@ -451,13 +445,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         String comma = ",";
         String dom = ".";
         if(value.contains(comma)){
-            return String.join(comma + " ", Stream.of(value.split(comma)).map(v->{
+            return Stream.of(value.split(comma)).map(v->{
                 v = v.trim();
                 if (!v.startsWith(keyPreTableName) && !v.contains(dom)) {
                     return keyPreTableName + "." + v;
                 }
                 return v;
-            }).collect(Collectors.toList()));
+            }).collect(Collectors.joining(comma + " "));
         }
         if (!value.startsWith(keyPreTableName) && !value.contains(dom)) {
             return keyPreTableName + "." + value;
@@ -864,7 +858,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
          */
         PREPOSTUNDER(StringConverter::prePostUnder, StringConverter::underLineToSmallCamel),
         /**
-         * 小驼峰到中划线 {@code dataBaseUser <------> data-base-user }
+         * 小驼峰到中划线 {@code dataBaseUser <------> data-db-user }
          */
         MIDDLELINE(StringConverter::middleLine, StringConverter::middleLineToSmallCamel),
         /**

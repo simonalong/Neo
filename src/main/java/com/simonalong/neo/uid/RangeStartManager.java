@@ -79,7 +79,6 @@ public final class RangeStartManager {
      * @param rangeStart buf起始位置
      */
     public void refreshRangeStart(Long rangeStart){
-        haveRefreshed = true;
         if(currentStart.equals(rangeStartOfBuf1)){
             rangeStartOfBuf2 = rangeStart;
             return;
@@ -88,6 +87,10 @@ public final class RangeStartManager {
         if(currentStart.equals(rangeStartOfBuf2)){
             rangeStartOfBuf1 = rangeStart;
         }
+    }
+
+    public void setRefreshFinish(){
+        haveRefreshed = true;
     }
 
     /**
@@ -126,6 +129,6 @@ public final class RangeStartManager {
             log.debug("buf起点切换，currentStart = " + currentStart);
             return currentStart;
         }
-        return null;
+        return 0L;
     }
 }

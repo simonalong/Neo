@@ -1,8 +1,8 @@
-package com.simonalong.neo.db;
+package com.simonalong.neo.table;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.db.NeoTable.Table;
-import com.simonalong.neo.db.TableIndex.Index;
+import com.simonalong.neo.table.NeoTable.Table;
+import com.simonalong.neo.table.TableIndex.Index;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +53,10 @@ public final class NeoDb {
         return NeoDb.of(neo, null, catalogName);
     }
 
+    public static NeoDb of(Neo neo) {
+        return NeoDb.of(neo, null, null);
+    }
+
     /**
      * 如果数据表有自增的键，则返回该列
      * @param schemaName 模式名
@@ -68,19 +72,23 @@ public final class NeoDb {
         return null;
     }
 
+    /**
+     * 获取主键而且是自增的列名
+     * @param tableName 表名
+     * @return 自增的主键列名
+     */
     public String getPrimaryAndAutoIncName(String tableName){
         return getPrimaryAndAutoIncName(null, tableName);
     }
 
     /**
-     * 如果数据表有自增的键，则返回该列
+     * 返回表的主键列名
      * @param schemaName 模式名
      * @param tableName 库中的表名
-     * @return 自增的主键的列名，如果没有，则返回null
+     * @return 主键的列名，如果没有，则返回null
      */
     public String getPrimaryName(String schemaName, String tableName){
-        schemaName = base(schemaName);
-        NeoTable neoTable = getTable(schemaName, tableName);
+        NeoTable neoTable = getTable(base(schemaName), tableName);
         if (null != neoTable) {
             return neoTable.getPrimary();
         }

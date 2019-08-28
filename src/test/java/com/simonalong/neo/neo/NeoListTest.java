@@ -214,6 +214,11 @@ public class NeoListTest extends NeoBaseTest{
     }
 
     @Test
+    public void testList11(){
+        show(neo.list(TABLE_NAME, Columns.of("group", "name")));
+    }
+
+    @Test
     public void test(){
         show(neo.execute("select `group`, `name` from neo_table1 where `name` < ? ", "'name'"));
     }

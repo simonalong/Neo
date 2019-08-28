@@ -2,7 +2,7 @@ package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.table.NeoPage;
 import java.sql.SQLException;
 import org.junit.Test;
 
@@ -339,7 +339,6 @@ public class NeoJoinTest extends NeoBaseTest {
      */
     @Test
     public void multiJoinTest() {
-        // todo
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String table3 = "neo_table3";
