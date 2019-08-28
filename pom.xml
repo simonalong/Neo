@@ -95,6 +95,13 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.22</version>
         </dependency>
+
+        <!-- guava 重试工具包 -->
+        <dependency>
+            <groupId>com.github.rholder</groupId>
+            <artifactId>guava-retrying</artifactId>
+            <version>2.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -4,13 +4,20 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.RefreshRatioException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 分布式全局id生成器
  * @author zhouzhenyong
  * @since 2019/5/1 下午10:22
  */
+@Slf4j
 public final class UidGenerator {
 
     private Neo neo;
@@ -42,6 +49,18 @@ public final class UidGenerator {
      * buffer切换标识，只有在buffer切换成功之后才设置为true
      */
     private volatile Boolean haveChanged = false;
+    /**
+     * 二级buffer刷新锁
+     */
+    private ReentrantLock lock = new ReentrantLock();
+    /**
+     * 数据刷新完毕
+     */
+    private ReentrantReadWriteLock secondBufRefredLock = new ReentrantReadWriteLock();
+    /**
+     * 每两秒重试一次，重试3次
+     */
+    private final RetryTask retryTask = RetryTask.getInstance(2, TimeUnit.SECONDS, 3);
 
     private static volatile UidGenerator instance;
 
@@ -76,16 +95,31 @@ public final class UidGenerator {
         Long uid = uuidIndex.getAndIncrement();
         // 到达刷新buf的位置则进行刷新二级缓存
         if (rangeManager.readyRefresh(uid)) {
-            synchronized (UidGenerator.class) {
+            lock.lock();
+            try {
                 if (rangeManager.readyRefresh(uid)) {
+                    log.info("thread:{} refresh second buffer", Thread.currentThread().getName());
                     rangeManager.setRefreshFinish();
+                    lock.unlock();
 
                     // 异步化获取新的范围
                     CompletableFuture.runAsync(() -> {
-                        rangeManager.refreshRangeStart(allocStart());
-                        // 刷新新buffer之后，需要设置buffer切换标识
-                        haveChanged = false;
+                        WriteLock writeLock = secondBufRefredLock.writeLock();
+                        writeLock.lock();
+                        try {
+                            retryTask.run(() -> {
+                                rangeManager.refreshRangeStart(allocStart());
+                                // 刷新新buffer之后，需要设置buffer切换标识
+                                haveChanged = false;
+                            });
+                        } finally {
+                            writeLock.unlock();
+                        }
                     });
+                }
+            } finally {
+                if (lock.isLocked()) {
+                    lock.unlock();
                 }
             }
         }
@@ -93,8 +127,17 @@ public final class UidGenerator {
         if (rangeManager.reachBufEnd(uid) != 0 && !haveChanged) {
             synchronized (UidGenerator.class) {
                 if (rangeManager.reachBufEnd(uid) != 0 && !haveChanged) {
+                    log.info("thread:{} buffer chg ", Thread.currentThread().getName());
                     haveChanged = true;
-                    uuidIndex.set(rangeManager.chgBufStart());
+
+                    // 二级缓存切换
+                    ReadLock readLock = secondBufRefredLock.readLock();
+                    readLock.lock();
+                    try {
+                        uuidIndex.set(rangeManager.chgBufStart());
+                    } finally {
+                        readLock.unlock();
+                    }
                 }
             }
             return uuidIndex.getAndIncrement();
