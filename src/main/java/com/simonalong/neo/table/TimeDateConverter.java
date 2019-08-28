@@ -23,11 +23,11 @@ public class TimeDateConverter {
      */
     public Object dbTimeToLong(Object time){
         if (time instanceof java.sql.Date){
-            return java.sql.Date.class.cast(time).getTime();
+            return ((java.sql.Date) time).getTime();
         } else if(time instanceof java.sql.Time){
-            return java.sql.Time.class.cast(time).getTime();
+            return ((java.sql.Time) time).getTime();
         } else if(time instanceof java.sql.Timestamp){
-            return java.sql.Timestamp.class.cast(time).getTime();
+            return ((java.sql.Timestamp) time).getTime();
         }
         return time;
     }
@@ -45,7 +45,7 @@ public class TimeDateConverter {
         if(!(data instanceof Long)){
             return data;
         }
-        Long dataLong = Long.class.cast(data);
+        Long dataLong = (Long) data;
         if (java.sql.Date.class.isAssignableFrom(tClass)){
             if (columnTypeName.equals(YEAR)) {
                 return longToYearTime(dataLong);
@@ -81,7 +81,7 @@ public class TimeDateConverter {
      */
     public Object valueToEntityTime(Class<?> tClass, Object time){
         if (time instanceof Long){
-            return longToEntityTime(tClass, Long.class.cast(time));
+            return longToEntityTime(tClass, (Long) time);
         }
         return time;
     }
@@ -121,13 +121,13 @@ public class TimeDateConverter {
      */
     public Object entityTimeToLong(Object fieldTime){
         if (fieldTime instanceof java.sql.Date){
-           return java.sql.Date.class.cast(fieldTime).getTime();
+           return ((java.sql.Date) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Time){
-            return java.sql.Time.class.cast(fieldTime).getTime();
+            return ((java.sql.Time) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Timestamp){
-            return java.sql.Timestamp.class.cast(fieldTime).getTime();
+            return ((java.sql.Timestamp) fieldTime).getTime();
         } else if(fieldTime instanceof java.util.Date){
-            return java.util.Date.class.cast(fieldTime).getTime();
+            return ((Date) fieldTime).getTime();
         }
         return fieldTime;
     }
