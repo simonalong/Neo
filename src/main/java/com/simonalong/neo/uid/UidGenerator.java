@@ -3,6 +3,7 @@ package com.simonalong.neo.uid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.RefreshRatioException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -37,6 +38,10 @@ public final class UidGenerator {
      * 范围管理器
      */
     private RangeStartManager rangeManager;
+    /**
+     * buffer切换标识，只有在buffer切换成功之后才设置为true
+     */
+    private volatile Boolean haveChanged = false;
 
     private static volatile UidGenerator instance;
 
@@ -73,17 +78,25 @@ public final class UidGenerator {
         if (rangeManager.readyRefresh(uid)) {
             synchronized (UidGenerator.class) {
                 if (rangeManager.readyRefresh(uid)) {
-                    rangeManager.refreshRangeStart(allocStart());
+                    rangeManager.setRefreshFinish();
+
+                    // 异步化获取新的范围
+                    CompletableFuture.runAsync(() -> {
+                        rangeManager.refreshRangeStart(allocStart());
+                        // 刷新新buffer之后，需要设置buffer切换标识
+                        haveChanged = false;
+                    });
                 }
             }
         }
 
-        // 刚好到达末尾，则切换起点，对于没有来得及切换，增长超过范围的，则重新分配
-        int reachResult = rangeManager.reachBufEnd(uid);
-        if (1 == reachResult) {
-            uuidIndex.set(rangeManager.chgBufStart());
-            return uid;
-        } else if (2 == reachResult) {
+        if (rangeManager.reachBufEnd(uid) != 0 && !haveChanged) {
+            synchronized (UidGenerator.class) {
+                if (rangeManager.reachBufEnd(uid) != 0 && !haveChanged) {
+                    haveChanged = true;
+                    uuidIndex.set(rangeManager.chgBufStart());
+                }
+            }
             return uuidIndex.getAndIncrement();
         }
         return uid;

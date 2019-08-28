@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +109,6 @@ public class Neo extends AbstractBaseDb {
             baseProper.putAll(properties);
         }
         neo.pool = new ConnectPool(neo, baseProper);
-        neo.initDb();
         return neo;
     }
 
@@ -124,7 +124,6 @@ public class Neo extends AbstractBaseDb {
     public static Neo connect(String propertiesPath) {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(neo, propertiesPath);
-        neo.initDb();
         return neo;
     }
 
@@ -136,26 +135,44 @@ public class Neo extends AbstractBaseDb {
         properties.setProperty("dataSource.useInformationSchema", "true");
 
         neo.pool = new ConnectPool(neo, properties);
-        neo.initDb();
         return neo;
     }
 
     public static Neo connect(DataSource dataSource) {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(neo, dataSource);
-        neo.initDb();
         return neo;
     }
 
-    public void initDb(){
+    public Neo initDb(String... tablePres){
         try(Connection con = pool.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLFeatureNotSupportedException) {
+                this.db = NeoDb.of(this);
+            } else {
+                e.printStackTrace();
+                return this;
+            }
         }
 
         // 初始化所有表信息
-        getAllTables().forEach(this::initTable);
+        getAllTables().stream().filter(t->haveConcernTablePre(Arrays.asList(tablePres), t)).forEach(this::initTable);
+        return this;
+    }
+
+    /**
+     * 判断是否包含关心的表前缀的表名
+     * @param concernTablePreList 关心的表明前缀
+     * @param tableName 表名
+     * @return true：关心的表，false不关心或者
+     */
+    private Boolean haveConcernTablePre(List<String> concernTablePreList, String tableName){
+        // 若没有配置关心表前缀，则默认关心所有的表
+        if (concernTablePreList.isEmpty()) {
+            return true;
+        }
+        return concernTablePreList.stream().anyMatch(tableName::startsWith);
     }
 
     /**
@@ -1309,17 +1326,29 @@ public class Neo extends AbstractBaseDb {
     private Set<String> getAllTables() {
         Set<String> tableSet = new HashSet<>();
         try (Connection con = pool.getConnect()) {
-            DatabaseMetaData dbMeta = con.getMetaData();
-            ResultSet rs = dbMeta.getTables(con.getCatalog(), null, null, new String[]{"TABLE"});
-            while (rs.next()) {
-                Table table = Table.parse(rs);
-                tableSet.add(table.getTableName());
-                db.addTable(this, table);
-            }
+            getAllTables(con, tableSet, con.getCatalog());
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLFeatureNotSupportedException) {
+                try (Connection con = pool.getConnect()) {
+                    getAllTables(con, tableSet, null);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
         }
         return tableSet;
+    }
+
+    private void getAllTables(Connection con, Set<String> tableSet, String catalog) throws SQLException {
+        DatabaseMetaData dbMeta = con.getMetaData();
+        ResultSet rs = dbMeta.getTables(catalog, null, null, new String[]{"TABLE"});
+        while (rs.next()) {
+            Table table = Table.parse(rs);
+            tableSet.add(table.getTableName());
+            db.addTable(this, table);
+        }
     }
 
     private void initTable(String tableName){
@@ -1336,34 +1365,58 @@ public class Neo extends AbstractBaseDb {
      */
     private void initPrimary(String tableName) {
         try (Connection con = pool.getConnect()) {
-            DatabaseMetaData dbMeta = con.getMetaData();
-            ResultSet rs = dbMeta.getPrimaryKeys(con.getCatalog(), con.getSchema(), tableName);
-            if (rs.next()) {
-                db.setPrimaryKey(con.getSchema(), tableName, rs.getString("COLUMN_NAME"));
-            }
+            initPrimary(con, tableName, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLFeatureNotSupportedException) {
+                try (Connection con = pool.getConnect()) {
+                    initPrimary(con, tableName, null, null);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void initPrimary(Connection con, String tableName, String catalog, String schema) throws SQLException {
+        DatabaseMetaData dbMeta = con.getMetaData();
+        ResultSet rs = dbMeta.getPrimaryKeys(catalog, schema, tableName);
+        if (rs.next()) {
+            db.setPrimaryKey(schema, tableName, rs.getString("COLUMN_NAME"));
         }
     }
 
     /**
      * 主要是初始化表的索引信息：索引
      */
-    private void initIndex(String tableName){
-        try(Connection con = pool.getConnect()){
-            DatabaseMetaData dbMeta = con.getMetaData();
-            // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
-            ResultSet rs = dbMeta.getIndexInfo(con.getCatalog(), con.getSchema(), tableName, false, true);
-            while (rs.next()) {
-                NeoTable table = db.getTable(tableName);
-                if(null == table) {
-                    log.warn("表" + tableName + "没有找到");
-                }else{
-                    table.initIndex(rs);
-                }
-            }
+    private void initIndex(String tableName) {
+        try (Connection con = pool.getConnect()) {
+            initIndex(con, tableName, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLFeatureNotSupportedException) {
+                try (Connection con = pool.getConnect()) {
+                    initIndex(con, tableName, null, null);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void initIndex(Connection con, String tableName, String catalog, String schema) throws SQLException {
+        DatabaseMetaData dbMeta = con.getMetaData();
+        // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
+        ResultSet rs = dbMeta.getIndexInfo(catalog, schema, tableName, false, true);
+        while (rs.next()) {
+            NeoTable table = db.getTable(tableName);
+            if(null == table) {
+                log.warn("表" + tableName + "没有找到");
+            }else{
+                table.initIndex(rs);
+            }
         }
     }
 

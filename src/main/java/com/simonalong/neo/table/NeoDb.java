@@ -53,6 +53,10 @@ public final class NeoDb {
         return NeoDb.of(neo, null, catalogName);
     }
 
+    public static NeoDb of(Neo neo) {
+        return NeoDb.of(neo, null, null);
+    }
+
     /**
      * 如果数据表有自增的键，则返回该列
      * @param schemaName 模式名
