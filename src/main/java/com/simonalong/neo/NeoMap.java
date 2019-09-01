@@ -36,7 +36,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
-     * 用于自定义的转换器，key为变量名，value为dataMap的key映射，结构为：{@code Map<String, String>}
+     * 用于自定义的转换器，key为实体的变量的属性名，value为表中对应的字段名
      */
     @Setter
     private NeoMap userDefineNaming;
@@ -159,7 +159,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      *
      * @param object 待转换对象
      * @param columns 对象的属性名列表
-     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}
+     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}，key为实体的属性名，value为DB中的列名
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, Columns columns, NeoMap userDefineNaming) {
@@ -714,12 +714,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param key map的key
      * @return String类型的值
      */
-    public String getStr(String key){
+    public String getString(String key){
         return ObjectUtil.toStr(get(key));
     }
 
-    public String getStr(String key, String defaultValue){
-        String result = getStr(key);
+    public String getString(String key, String defaultValue){
+        String result = getString(key);
         return (null == result) ? defaultValue : result;
     }
 
@@ -820,12 +820,22 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     /**
      * 这里根据命名订阅，如果用户自定义表中存在映射，则使用该映射，否则用设置的命名映射规则
+     * 属性名的字符转换
+     * <p>有如下几种转换规则
+     * <ul>
+     *     <li>1.有当前NeoMap对象本身指定，则先按照本身指定，否则走下面的，其中对于不包含的属性，也会走后面的</li>
+     *     <li>2.如果指定了表的全局属性</li>
+     *     <li></li>
+     * </ul>
+     *
      */
     private String namingChg(String name) {
         if (null != userDefineNaming) {
-            String chgName = (String) userDefineNaming.get(name);
-            if (null != chgName) {
-                return chgName;
+            if (userDefineNaming.containsKey(name)) {
+                String chgName = userDefineNaming.getString(name);
+                if (null != chgName) {
+                    return chgName;
+                }
             }
         }
         return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming)

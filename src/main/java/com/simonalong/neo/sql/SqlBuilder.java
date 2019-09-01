@@ -67,7 +67,7 @@ public class SqlBuilder {
      */
     public String buildOrderBy(NeoMap searchMap) {
         if (!NeoMap.isEmpty(searchMap) && searchMap.containsKey(ORDER_BY)) {
-            return " " + ORDER_BY + " " + orderByStr(searchMap.getStr(ORDER_BY));
+            return " " + ORDER_BY + " " + orderByStr(searchMap.getString(ORDER_BY));
         }
         return "";
     }
