@@ -23,6 +23,6 @@ public class NeoBaseTest extends BaseTest {
 
     @BeforeClass
     public static void start(){
-        neo = Neo.connect(URL, USER, PASSWORD);
+        neo = Neo.connect(URL, USER, PASSWORD).initDb("neo", "xx");
     }
 }
