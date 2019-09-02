@@ -26,11 +26,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<T> insertAsync(T object, NamingChg naming) {
-        return insertAsync(object, naming, getExecutor());
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(NeoMap dataMap) {
         return deleteAsync(dataMap, getExecutor());
     }
@@ -41,11 +36,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<Integer> deleteAsync(T entity, NamingChg naming) {
-        return deleteAsync(entity, naming, getExecutor());
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(Number id) {
         return deleteAsync(id, getExecutor());
     }
@@ -53,11 +43,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap) {
         return updateAsync(dataMap, searchMap, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, NamingChg namingChg) {
-        return updateAsync(setEntity, searchMap, namingChg, getExecutor());
     }
 
     @Override
@@ -73,11 +58,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Columns columns) {
         return updateAsync(dataMap, columns, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(T entity, Columns columns, NamingChg namingChg) {
-        return updateAsync(entity, columns, namingChg, getExecutor());
     }
 
     @Override
@@ -246,11 +226,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg) {
-        return batchInsertEntityAsync(dataList, namingChg, getExecutor());
-    }
-
-    @Override
     public <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList) {
         return batchInsertEntityAsync(dataList, getExecutor());
     }
@@ -269,12 +244,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList) {
         return batchUpdateEntityAsync(dataList, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns,
-        NamingChg namingChg) {
-        return batchUpdateEntityAsync(dataList, columns, namingChg, getExecutor());
     }
 
     @Override

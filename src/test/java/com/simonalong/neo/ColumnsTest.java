@@ -3,7 +3,6 @@ package com.simonalong.neo;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.TestEntity;
 import com.simonalong.neo.neo.NeoBaseTest;
-import com.simonalong.neo.neo.NeoBaseTest;
 import java.sql.SQLException;
 import org.junit.Assert;
 import org.junit.Test;

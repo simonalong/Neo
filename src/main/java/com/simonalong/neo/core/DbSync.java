@@ -16,21 +16,15 @@ public interface DbSync extends SyncNeo{
 
     <T> T insert(String tableName, T object);
 
-    <T> T insert(String tableName, T object, NamingChg naming);
-
 
     Integer delete(String tableName, NeoMap searchMap);
 
     <T> Integer delete(String tableName, T object);
 
-    <T> Integer delete(String tableName, T object, NamingChg naming);
-
     Integer delete(String tableName, Number id);
 
 
     NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap);
-
-    <T> T update(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg);
 
     <T> T update(String tableName, T setEntity, NeoMap searchMap);
 
@@ -39,8 +33,6 @@ public interface DbSync extends SyncNeo{
     <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity);
 
     NeoMap update(String tableName, NeoMap dataMap, Columns columns);
-
-    <T> T update(String tableName, T entity, Columns columns, NamingChg namingChg);
 
     <T> T update(String tableName, T entity, Columns columns);
 
@@ -121,8 +113,6 @@ public interface DbSync extends SyncNeo{
 
     Integer batchInsert(String tableName, List<NeoMap> dataMapList);
 
-    <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg);
-
     <T> Integer batchInsertEntity(String tableName, List<T> dataList);
 
 
@@ -131,8 +121,6 @@ public interface DbSync extends SyncNeo{
     Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns);
 
     <T> Integer batchUpdateEntity(String tableName, List<T> dataList);
-
-    <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg);
 
     <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns);
 

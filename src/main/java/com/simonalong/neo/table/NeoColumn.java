@@ -55,7 +55,7 @@ public final class NeoColumn {
     /**
      * 列的元信息
      */
-    private Column columnMeta = new Column();
+    private NeoInnerColumn innerColumn = new NeoInnerColumn();
 
     private NeoColumn(){}
 
@@ -90,7 +90,7 @@ public final class NeoColumn {
 
     @Data
     @Accessors(chain = true)
-    public static class Column{
+    public static class NeoInnerColumn {
 
         private static final String TABLE_CAT = "TABLE_CAT";
         private static final String TABLE_SCHEM = "TABLE_SCHEM";
@@ -224,11 +224,11 @@ public final class NeoColumn {
          */
         private String isGeneratedColumn;
 
-        private Column(){}
+        private NeoInnerColumn(){}
 
-        public static Column parse(ResultSet rs){
+        public static NeoInnerColumn parse(ResultSet rs){
             try {
-                return new Column()
+                return new NeoInnerColumn()
                     .setCatalog(rs.getString(TABLE_CAT))
                     .setSchema(rs.getString(TABLE_SCHEM))
                     .setColumnName(rs.getString(COLUMN_NAME))
@@ -253,7 +253,7 @@ public final class NeoColumn {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return new Column();
+            return new NeoInnerColumn();
         }
     }
 

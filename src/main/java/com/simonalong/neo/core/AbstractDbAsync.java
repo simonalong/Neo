@@ -2,7 +2,6 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.table.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -26,11 +25,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public <T> CompletableFuture<T> insertAsync(String tableName, T object, NamingChg naming) {
-        return insertAsync(tableName, object, naming, getExecutor());
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap) {
         return deleteAsync(tableName, dataMap, getExecutor());
     }
@@ -41,11 +35,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public <T> CompletableFuture<Integer> deleteAsync(String tableName, T entity, NamingChg naming) {
-        return deleteAsync(tableName, entity, naming, getExecutor());
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(String tableName, Number id) {
         return deleteAsync(tableName, id, getExecutor());
     }
@@ -53,11 +42,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     @Override
     public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap) {
         return updateAsync(tableName, dataMap, searchMap, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
-        return updateAsync(tableName, setEntity, searchMap, namingChg, getExecutor());
     }
 
     @Override
@@ -73,11 +57,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     @Override
     public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns) {
         return updateAsync(tableName, dataMap, columns, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, NamingChg namingChg) {
-        return updateAsync(tableName, entity, columns, namingChg, getExecutor());
     }
 
     @Override
@@ -311,12 +290,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList,
-        NamingChg namingChg) {
-        return batchInsertEntityAsync(tableName, dataList, namingChg, getExecutor());
-    }
-
-    @Override
     public <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList) {
         return batchInsertEntityAsync(tableName, dataList, getExecutor());
     }
@@ -340,11 +313,5 @@ public abstract class AbstractDbAsync implements DbAsync {
     @Override
     public <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns) {
         return batchUpdateEntityAsync(tableName, dataList, columns, getExecutor());
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns,
-        NamingChg namingChg) {
-        return batchUpdateEntityAsync(tableName, dataList, columns, namingChg, getExecutor());
     }
 }

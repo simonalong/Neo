@@ -2,7 +2,6 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.table.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,10 +21,6 @@ public interface DbAsync extends AsyncNeo {
 
     <T> CompletableFuture<T> insertAsync(String tableName, T object);
 
-    <T> CompletableFuture<T> insertAsync(String tableName, T object, NamingChg naming, Executor executor);
-
-    <T> CompletableFuture<T> insertAsync(String tableName, T object, NamingChg naming);
-
 
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor);
 
@@ -35,10 +30,6 @@ public interface DbAsync extends AsyncNeo {
 
     <T> CompletableFuture<Integer> deleteAsync(String tableName, T object);
 
-    <T> CompletableFuture<Integer> deleteAsync(String tableName, T entity, NamingChg naming, Executor executor);
-
-    <T> CompletableFuture<Integer> deleteAsync(String tableName, T entity, NamingChg naming);
-
     CompletableFuture<Integer> deleteAsync(String tableName, Number id, Executor executor);
 
     CompletableFuture<Integer> deleteAsync(String tableName, Number id);
@@ -47,10 +38,6 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap, Executor executor);
 
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap);
-
-    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg, Executor executor);
-
-    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg);
 
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, Executor executor);
 
@@ -63,10 +50,6 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns, Executor executor);
 
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns);
-
-    <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, NamingChg namingChg, Executor executor);
-
-    <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, NamingChg namingChg);
 
     <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, Executor executor);
 
@@ -207,10 +190,6 @@ public interface DbAsync extends AsyncNeo {
 
     CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList, Executor executor);
 
-    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, NamingChg namingChg);
-
-    <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, NamingChg namingChg, Executor executor);
-
     <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList);
 
     <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, Executor executor);
@@ -227,10 +206,6 @@ public interface DbAsync extends AsyncNeo {
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList);
 
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Executor executor);
-
-    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, NamingChg namingChg);
-
-    <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, NamingChg namingChg, Executor executor);
 
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns);
 

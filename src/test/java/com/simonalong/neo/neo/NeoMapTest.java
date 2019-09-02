@@ -5,6 +5,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
+import com.simonalong.neo.entity.DemoEntity2;
 import com.simonalong.neo.entity.EnumEntity;
 import com.simonalong.neo.entity.TestEntity;
 import java.sql.Time;
@@ -48,7 +49,7 @@ public class NeoMapTest extends BaseTest {
     }
 
     /**
-     * 默认情况下，属性名和map的key完全一致
+     * 默认情况下，采用小驼峰转换
      */
     @Test
     public void testAs1() {
@@ -60,12 +61,12 @@ public class NeoMapTest extends BaseTest {
     }
 
     /**
-     * 可以指定全局命名转换规则，比如UNDERLINE，就是 dataBaseUser -> data_base_user，请注意，该设置，会对所有的NeoMap生效
+     * 可以指定全局命名转换规则，比如 MIDDLELINE，就是 dataBaseUser -> data-base-name，请注意，该设置，会对所有的NeoMap生效
      */
     @Test
     public void testAs2() {
-        NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
-        NeoMap map2 = NeoMap.of("user_name", "name", "id", 123L, "data_base_name", TABLE_NAME);
+        NeoMap.setDefaultNamingChg(NamingChg.MIDDLELINE);
+        NeoMap map2 = NeoMap.of("user_name", "name", "id", 123L, "data-base-name", TABLE_NAME);
         DemoEntity demo2 = map2.as(DemoEntity.class);
         // 其中，user_name、id和data_base_name都能匹配上
         // DemoEntity(group=null, name=null, userName=name, id=123, dataBaseName=neo_table1)
@@ -95,7 +96,7 @@ public class NeoMapTest extends BaseTest {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
         NeoMap map4 = NeoMap.of("user_name", "name", "id", 123L, "data-db-name", TABLE_NAME);
         // dataBaseUser -> data-db-user
-        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        DemoEntity demo4 = map4.as(DemoEntity.class);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4);
     }
@@ -111,22 +112,28 @@ public class NeoMapTest extends BaseTest {
         NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
         NeoMap map4 = NeoMap.of("user_name", "name", "id", 123, "data-db-name", TABLE_NAME);
         // dataBaseUser -> data-db-user
-        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
+        DemoEntity demo4 = map4.as(DemoEntity.class);
         // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
         show(demo4.toString());
     }
 
+    /**
+     * 测试在有指定列名情况下的测试
+     */
     @Test
     @SneakyThrows
     public void testAs6() {
         Long a = 12L;
-        NeoMap map4 = NeoMap.of("user_name", "name", "sl", a);
+        NeoMap map4 = NeoMap.of("t_group", "name", "t_name", a);
         // dataBaseUser -> data-db-user
-        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.MIDDLELINE);
-        // DemoEntity(group=null, name=null, userName=null, id=123, dataBaseName=neo_table1)
+        DemoEntity2 demo4 = map4.as(DemoEntity2.class);
+        // DemoEntity2(group=name, name=12, userName=null, id=null, dataBaseName=null)
         show(demo4.toString());
     }
 
+    /**
+     * 测试多表情况下的列名转换
+     */
     @Test
     @SneakyThrows
     public void testAs7() {
@@ -134,7 +141,7 @@ public class NeoMapTest extends BaseTest {
         NeoMap map4 = NeoMap.of("date", time, "sql_date", time, "time", time, "timestamp", time);
 //        NeoMap map4 = NeoMap.of("a", 1);
         // sqlDate -> sql_date
-        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.UNDERLINE);
+        DemoEntity demo4 = map4.as(DemoEntity.class);
         // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=1, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
         show(demo4.toString());
     }
@@ -227,21 +234,6 @@ public class NeoMapTest extends BaseTest {
     }
 
     @Test
-    public void testFrom7(){
-        DemoEntity demo = new DemoEntity();
-        demo.setGroup("group1");
-        demo.setName("name1");
-        demo.setUserName("userName1");
-        demo.setDataBaseName("databasename");
-        demo.setId(212L);
-
-        // 将map的key全部转换为下划线
-        NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"), NamingChg.UNDERLINE);
-        // {data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
-        show(neoMap);
-    }
-
-    @Test
     public void testFrom8(){
         NeoMap sourceMap = NeoMap.of("group", "group1", "userName", "userName1");
 
@@ -268,38 +260,38 @@ public class NeoMapTest extends BaseTest {
         show(neoMap);
     }
 
-    /**
-     * 用于自定义命名转换
-     */
-    @Test
-    public void testUserDefineNaming(){
-        DemoEntity demo = new DemoEntity();
-        demo.setGroup("group1");
-        demo.setName("name1");
-        demo.setUserName("userName1");
-        demo.setDataBaseName("databasename");
-        demo.setId(212L);
-
-        // 自定义转换规则
-        NeoMap namingChg = NeoMap.of().append("group", "m_group")
-            .append("name", "m_name")
-            .append("id", "m_id")
-            .append("dataBaseName", "m_data_base_name")
-            .append("userName", "m_user_name");
-
-        NeoMap neoMap = NeoMap.from(demo, namingChg);
-
-        // NeoMap={m_data_base_name=databasename, m_group=group1, m_id=212, m_name=name1, m_user_name=userName1}
-        show(neoMap);
-
-        // 生成新的数据
-        DemoEntity newDemo = neoMap.as(DemoEntity.class);
-        // DemoEntity(group=group1, name=name1, userName=userName1, id=212, dataBaseName=databasename)
-        show(newDemo);
-
-        // 数据完全一直
-        Assert.assertEquals(demo, newDemo);
-    }
+//    /**
+//     * 用于自定义命名转换
+//     */
+//    @Test
+//    public void testUserDefineNaming(){
+//        DemoEntity demo = new DemoEntity();
+//        demo.setGroup("group1");
+//        demo.setName("name1");
+//        demo.setUserName("userName1");
+//        demo.setDataBaseName("databasename");
+//        demo.setId(212L);
+//
+//        // 自定义转换规则
+//        NeoMap namingChg = NeoMap.of().append("group", "m_group")
+//            .append("name", "m_name")
+//            .append("id", "m_id")
+//            .append("dataBaseName", "m_data_base_name")
+//            .append("userName", "m_user_name");
+//
+//        NeoMap neoMap = NeoMap.from(demo, namingChg);
+//
+//        // NeoMap={m_data_base_name=databasename, m_group=group1, m_id=212, m_name=name1, m_user_name=userName1}
+//        show(neoMap);
+//
+//        // 生成新的数据
+//        DemoEntity newDemo = neoMap.as(DemoEntity.class);
+//        // DemoEntity(group=group1, name=name1, userName=userName1, id=212, dataBaseName=databasename)
+//        show(newDemo);
+//
+//        // 数据完全一直
+//        Assert.assertEquals(demo, newDemo);
+//    }
 
     @Test
     public void testAssign(){

@@ -4,8 +4,7 @@ import static com.simonalong.neo.NeoConstant.LIMIT;
 
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.table.NeoColumn;
-import com.simonalong.neo.table.NeoColumn.Column;
-import com.simonalong.neo.NeoMap.NamingChg;
+import com.simonalong.neo.table.NeoColumn.NeoInnerColumn;
 import com.simonalong.neo.table.NeoDb;
 import com.simonalong.neo.table.NeoJoiner;
 import com.simonalong.neo.table.NeoPage;
@@ -215,16 +214,6 @@ public class Neo extends AbstractBaseDb {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T insert(String tableName, T entity, NamingChg naming) {
-        NeoMap neoMap = insert(tableName, NeoMap.from(entity, naming));
-        if(!NeoMap.isEmpty(neoMap)){
-            return neoMap.as((Class<T>) entity.getClass());
-        }
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public <T> T insert(String tableName, T entity) {
         NeoMap neoMap = insert(tableName, NeoMap.from(entity));
         if(!NeoMap.isEmpty(neoMap)){
@@ -246,15 +235,6 @@ public class Neo extends AbstractBaseDb {
             return execute(false, () -> generateDeleteSqlPair(tableName, searchMapTem), this::executeUpdate);
         }
         return 0;
-    }
-
-    @Override
-    public <T> Integer delete(String tableName, T entity, NamingChg naming) {
-        if (entity.getClass().isPrimitive()){
-            log.error(PRE_LOG + "数据{}是基本类型", entity);
-            return 0;
-        }
-        return delete(tableName, NeoMap.from(entity, naming));
     }
 
     @Override
@@ -294,21 +274,16 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T update(String tableName, T setEntity, NeoMap searchMap, NamingChg namingChg) {
+    public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
         if (setEntity.getClass().isPrimitive()) {
             log.error(PRE_LOG + "数据{}是基本类型", setEntity);
             return setEntity;
         }
-        NeoMap neoMap = update(tableName, NeoMap.from(setEntity, namingChg), searchMap);
+        NeoMap neoMap = update(tableName, NeoMap.from(setEntity), searchMap);
         if (!NeoMap.isEmpty(neoMap)){
             return neoMap.as((Class<T>) setEntity.getClass());
         }
         return null;
-    }
-
-    @Override
-    public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
-        return update(tableName, setEntity, searchMap, NamingChg.DEFAULT);
     }
 
     @Override
@@ -337,20 +312,6 @@ public class Neo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
         return update(tableName, dataMap, dataMap.assign(columns));
-    }
-
-    /**
-     * 更新
-     * @param tableName 表名
-     * @param entity 设置的实体数据
-     * @param columns 注意：该搜索条件中的列是entity实体中的属性的名字，跟作为NeoMap时候搜索是不一样的
-     * @param namingChg 命名转换方式
-     * @param <T> 命名转换方式
-     * @return 更新后的结果对象
-     */
-    @Override
-    public <T> T update(String tableName, T entity, Columns columns, NamingChg namingChg) {
-        return update(tableName, entity, NeoMap.from(entity, columns, namingChg), namingChg);
     }
 
     @Override
@@ -1002,19 +963,6 @@ public class Neo extends AbstractBaseDb {
      * 批量插入实体列表
      * @param tableName 表名
      * @param dataList 数据列表
-     * @param namingChg 命名转换
-     * @param <T> 目标类型
-     * @return 插入的数据个数：0或者all
-     */
-    @Override
-    public <T> Integer batchInsertEntity(String tableName, List<T> dataList, NamingChg namingChg){
-        return batchInsert(tableName, NeoMap.fromArray(dataList, namingChg));
-    }
-
-    /**
-     * 批量插入实体列表
-     * @param tableName 表名
-     * @param dataList 数据列表
      * @param <T> 目标类型
      * @return 插入的数据个数：0或者all
      */
@@ -1071,21 +1019,7 @@ public class Neo extends AbstractBaseDb {
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){
         Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns, null));
-    }
-
-    /**
-     * 批量执行更新，指定搜索的哪些列和命名转换方式
-     * @param tableName 表名
-     * @param dataList 数据列表
-     * @param columns 这里的列为对象的属性名字，记得这里不是对象转换到NeoMap之后的列
-     * @param namingChg 对象的命名转换，如果为null，则执行全局的，默认的全局为不转换
-     * @param <T> 目标类型
-     * @return 批量更新的个数：0或者all
-     */
-    @Override
-    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns, NamingChg namingChg){
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns, namingChg));
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns));
     }
 
     /**
@@ -1098,7 +1032,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns){
-        return batchUpdateEntity(tableName, dataList, columns, null);
+        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns));
     }
 
     /**
@@ -1427,7 +1361,7 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("all")
     private void initColumnMeta(String tableName){
         try (Connection con = pool.getConnect()) {
-            Map<String, Column> columnMap = generateColumnMetaMap(con, tableName);
+            Map<String, NeoInnerColumn> columnMap = generateColumnMetaMap(con, tableName);
             String sql = "select * from " + tableName + " limit 1";
 
             try (PreparedStatement statement = con.prepareStatement(sql)) {
@@ -1438,7 +1372,7 @@ public class Neo extends AbstractBaseDb {
                 Set<NeoColumn> columnList = new LinkedHashSet<>();
                 for (int i = 1; i <= columnCount; i++) {
                     NeoColumn column = NeoColumn.parse(metaData, i);
-                    column.setColumnMeta(columnMap.get(column.getColumnName()));
+                    column.setInnerColumn(columnMap.get(column.getColumnName()));
                     columnList.add(column);
                 }
                 db.addColumn(tableName, columnList);
@@ -1455,14 +1389,14 @@ public class Neo extends AbstractBaseDb {
      *
      * @return key为列名，value为Column
      */
-    private Map<String, Column> generateColumnMetaMap(Connection conn, String tableName){
-        Map<String, Column> columnMap = new HashMap<>(16);
+    private Map<String, NeoInnerColumn> generateColumnMetaMap(Connection conn, String tableName){
+        Map<String, NeoInnerColumn> columnMap = new HashMap<>(16);
         try {
             // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
             ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, tableName, null);
             while (rs.next()) {
-                Column column = Column.parse(rs);
-                columnMap.put(column.getColumnName(), column);
+                NeoInnerColumn innerColumn = NeoInnerColumn.parse(rs);
+                columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1765,13 +1699,12 @@ public class Neo extends AbstractBaseDb {
      * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
      * @return 其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
      */
-    private <T> List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereListFromEntity(List<T> dataList, Columns columns,
-        NamingChg namingChg) {
+    private <T> List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereListFromEntity(List<T> dataList, Columns columns) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
         return dataList.stream()
-            .map(m -> new Pair<>(NeoMap.from(m, namingChg), NeoMap.from(m, columns, namingChg)))
+            .map(m -> new Pair<>(NeoMap.from(m), NeoMap.from(m, columns)))
             .collect(Collectors.toList());
     }
 

@@ -263,7 +263,7 @@ public class EntityCodeGen {
         return neo.getColumnList(tableName).stream()
             .map(c -> NeoMap.from(new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
-                .setFieldRemark(c.getColumnMeta().getRemarks())
+                .setFieldRemark(c.getInnerColumn().getRemarks())
                 .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))))
             .collect(Collectors.toList());
     }

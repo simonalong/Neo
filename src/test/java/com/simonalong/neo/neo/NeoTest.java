@@ -3,7 +3,6 @@ package com.simonalong.neo.neo;
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        DemoEntity result = neo.insert(TABLE_NAME, input, NamingChg.UNDERLINE);
+        DemoEntity result = neo.insert(TABLE_NAME, input);
         show(result);
     }
 
@@ -104,7 +103,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        show(neo.delete(TABLE_NAME, input, NamingChg.UNDERLINE));
+        show(neo.delete(TABLE_NAME, input));
     }
 
     @Test
@@ -215,7 +214,7 @@ public class NeoTest extends NeoBaseTest{
         search.setGroup("group555");
         search.setName("name333");
         search.setUserName("userName2222");
-        show(neo.update(TABLE_NAME, search, Columns.of("userName"), NamingChg.UNDERLINE));
+        show(neo.update(TABLE_NAME, search, Columns.of("userName")));
     }
 
     @Test

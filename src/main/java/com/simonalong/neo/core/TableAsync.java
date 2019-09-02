@@ -22,10 +22,6 @@ public interface TableAsync extends AsyncNeo{
 
     <T> CompletableFuture<T> insertAsync(T object);
 
-    <T> CompletableFuture<T> insertAsync(T object, NamingChg naming, Executor executor);
-
-    <T> CompletableFuture<T> insertAsync(T object, NamingChg naming);
-
 
     CompletableFuture<Integer> deleteAsync(NeoMap dataMap, Executor executor);
 
@@ -35,10 +31,6 @@ public interface TableAsync extends AsyncNeo{
 
     <T> CompletableFuture<Integer> deleteAsync(T object);
 
-    <T> CompletableFuture<Integer> deleteAsync(T entity, NamingChg naming, Executor executor);
-
-    <T> CompletableFuture<Integer> deleteAsync(T entity, NamingChg naming);
-
     CompletableFuture<Integer> deleteAsync(Number id, Executor executor);
 
     CompletableFuture<Integer> deleteAsync(Number id);
@@ -47,10 +39,6 @@ public interface TableAsync extends AsyncNeo{
     CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap, Executor executor);
 
     CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap);
-
-    <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, NamingChg namingChg, Executor executor);
-
-    <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, NamingChg namingChg);
 
     <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, Executor executor);
 
@@ -63,10 +51,6 @@ public interface TableAsync extends AsyncNeo{
     CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Columns columns, Executor executor);
 
     CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Columns columns);
-
-    <T> CompletableFuture<T> updateAsync(T entity, Columns columns, NamingChg namingChg, Executor executor);
-
-    <T> CompletableFuture<T> updateAsync(T entity, Columns columns, NamingChg namingChg);
 
     <T> CompletableFuture<T> updateAsync(T entity, Columns columns, Executor executor);
 
@@ -208,10 +192,6 @@ public interface TableAsync extends AsyncNeo{
 
     CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList, Executor executor);
 
-    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg);
-
-    <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg, Executor executor);
-
     <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList);
 
     <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, Executor executor);
@@ -228,10 +208,6 @@ public interface TableAsync extends AsyncNeo{
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList);
 
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Executor executor);
-
-    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, NamingChg namingChg);
-
-    <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, NamingChg namingChg, Executor executor);
 
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns);
 

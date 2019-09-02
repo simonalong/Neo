@@ -1,5 +1,6 @@
 package com.simonalong.neo;
 
+import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.table.AliasParser;
 import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
@@ -36,15 +37,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
-     * 用于自定义的转换器，key为实体的变量的属性名，value为表中对应的字段名
-     */
-    @Setter
-    private NeoMap userDefineNaming;
-    /**
      * 单体数据的命名转换
      */
     @Setter
-    private NamingChg localNaming;
+    private NamingChg localNaming = NamingChg.DEFAULT;
     /**
      * 针对存储表和表对应的字段的时候，table名字和columnsName可能一起设定，这里就是tableName
      */
@@ -155,29 +151,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * 对象转换为NeoMap
-     *
-     * @param object 待转换对象
-     * @param columns 对象的属性名列表
-     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}，key为实体的属性名，value为DB中的列名
-     * @return 转换之后的NeoMap
-     */
-    public static NeoMap from(Object object, Columns columns, NeoMap userDefineNaming) {
-        return from(object, userDefineNaming, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
-    }
-
-    /**
-     * 对象转换为NeoMap
-     *
-     * @param object 待转换对象
-     * @param userDefineNaming 用户自定义的转换，结构为{@code Map<String, String>}，key为实体的属性名，value为DB中的列名
-     * @return 转换之后的NeoMap
-     */
-    public static NeoMap from(Object object, NeoMap userDefineNaming) {
-        return from(object, userDefineNaming, new ArrayList<>(), new ArrayList<>());
-    }
-
-    /**
      * 指定包括的属性进行对象转换为NeoMap
      *
      * @param object 待转换对象
@@ -197,24 +170,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static NeoMap fromExclude(Object object, String... fields) {
         return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields));
-    }
-
-    /**
-     * 通过用户自定义的方式，将对象转换为NeoMap
-     *
-     * @param object 待转换的对象
-     * @param userNaming 用户自定义命名转换方式
-     * @param inFieldList 包括的属性
-     * @param exFieldList 排除的属性
-     * @return 转换之后的NeoMap
-     */
-    public static NeoMap from(Object object, NeoMap userNaming, List<String> inFieldList, List<String> exFieldList) {
-        NeoMap neoMap = NeoMap.of();
-        if (null == object) {
-            return neoMap;
-        }
-        neoMap.setUserDefineNaming(userNaming);
-        return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
 
     /**
@@ -306,7 +261,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
-                        neoMap.putIfAbsent(neoMap.namingChg(f.getName()), value);
+                        neoMap.putIfAbsent(neoMap.namingChg(f), value);
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -324,34 +279,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
-    public static <T> List<T> asArray(List<NeoMap> neoMaps, Class<T> tClass, NamingChg namingChg) {
-        if (null == neoMaps || neoMaps.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return neoMaps.stream().map(m -> m.as(tClass, namingChg)).collect(Collectors.toList());
-    }
-
-    public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns, NamingChg namingChg) {
-        if (null == dataList || dataList.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return dataList.stream().map(m -> NeoMap.from(m, columns, namingChg)).collect(Collectors.toList());
-    }
-
     public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns) {
-        return fromArray(dataList, columns, null);
-    }
-
-    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
         }
-        return dataList.stream().map(m -> NeoMap.from(m, namingChg)).collect(Collectors.toList());
+        return dataList.stream().map(m -> NeoMap.from(m, columns)).collect(Collectors.toList());
     }
 
     public static <T> List<NeoMap> fromArray(List<T> dataList) {
-        return fromArray(dataList, null, null);
+        return fromArray(dataList, null);
     }
 
     /**
@@ -502,20 +438,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param <T> 目标类的类型
      * @return 目标类的实体对象
      */
-    public <T> T as(Class<T> tClass) {
-        return as(tClass, localNaming);
-    }
-
-    /**
-     * NeoMap 转化为实体数据，其中key就是对应的属性
-     *
-     * @param tClass 目标类的Class
-     * @param naming 属性名的转换
-     * @param <T> 目标类的类型
-     * @return 目标类的实体对象
-     */
     @SuppressWarnings("unchecked")
-    public <T> T as(Class<T> tClass, NamingChg naming) {
+    public <T> T as(Class<T> tClass) {
         if (dataMap.isEmpty()) {
             return null;
         }
@@ -529,11 +453,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             Field[] fields = tClass.getDeclaredFields();
             if (fields.length != 0) {
                 T finalT = t;
-                setLocalNaming(naming);
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        String key = namingChg(f.getName());
+                        String key = namingChg(f);
                         Object value = toEntityValue(f, key);
 
                         // NeoMap中包含对象的属性，且value不为空，则进行设置
@@ -660,11 +583,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     public Stream<Object> valueStream() {
         return dataMap.values().stream();
-    }
-
-    public NeoMap putAll(NeoMap sourceMap, NamingChg namingChg) {
-        this.putAll(NeoMap.fromMap(sourceMap, namingChg));
-        return this;
     }
 
     /**
@@ -823,23 +741,19 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 属性名的字符转换
      * <p>有如下几种转换规则
      * <ul>
-     *     <li>1.有当前NeoMap对象本身指定，则先按照本身指定，否则走下面的，其中对于不包含的属性，也会走后面的</li>
-     *     <li>2.如果指定了表的全局属性</li>
-     *     <li></li>
+     *     <li>1.当前的类的属性有指定注解{@link Column}的，则按照该注解中的属性对应，否则走下面</li>
+     *     <li>2.如果指定了本次转换规则，则按照本次转换，否则按照全局小驼峰下划线转换</li>
      * </ul>
      *
      */
-    private String namingChg(String name) {
-        if (null != userDefineNaming) {
-            if (userDefineNaming.containsKey(name)) {
-                String chgName = userDefineNaming.getString(name);
-                if (null != chgName) {
-                    return chgName;
-                }
-            }
+    private String namingChg(Field field) {
+        Column column = field.getDeclaredAnnotation(Column.class);
+        if (null != column) {
+            return column.value();
         }
+
         return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming)
-            .smallCamelToOther(name);
+            .smallCamelToOther(field.getName());
     }
 
     public enum NamingChg {
