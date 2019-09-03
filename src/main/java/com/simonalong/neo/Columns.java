@@ -4,6 +4,7 @@ import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.table.AliasParser;
 import com.simonalong.neo.table.ColumnParseException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -15,8 +16,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 /**
  * @author zhouzhenyong
@@ -34,21 +33,18 @@ public final class Columns {
      * 表的别名
      */
     private String tableName;
-    @Setter
-    @Accessors(chain = true)
     private Neo neo;
+    private NamingChg namingChg = NamingChg.DEFAULT;
     @Getter
     private Map<String, Set<String>> tableFieldsMap = new LinkedHashMap<>();
 
     private Columns() {
     }
 
-    public static Columns table(String tableName){
-        return Columns.of().setTableName(tableName);
-    }
-
-    public static Columns table(String tableName, Neo neo){
-        return Columns.of().setTableName(tableName).setNeo(neo);
+    public static Columns setNeo(Neo neo){
+        Columns columns = Columns.of();
+        columns.neo = neo;
+        return columns;
     }
 
     public static Columns of(String... fields) {
@@ -59,9 +55,27 @@ public final class Columns {
         return columns.and(DEFAULT_TABLE).cs(fields);
     }
 
+    public Columns table(String tableName, String... fields) {
+
+        return Columns.of().setTableName(tableName);
+    }
+
+    public static Columns table(String tableName, Neo neo){
+        return Columns.of().setTableName(tableName).setNeo(neo);
+    }
+
+
+
     private static Columns of(List<Field> fieldList, NamingChg namingChg) {
         return Columns.of(fieldList.stream().map(f -> namingChg.smallCamelToOther(f.getName())).collect(Collectors.toList())
                 .toArray(new String[]{}));
+    }
+
+
+
+    public Columns setNamingChg(NamingChg namingChg){
+        this.namingChg = namingChg;
+        return this;
     }
 
     public static Columns from(Class tClass) {

@@ -203,6 +203,13 @@ public class ColumnsTest extends NeoBaseTest {
         show(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"));
     }
 
+    @Test
+    public void tableCsTest8() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        show(Columns.table(table2, neo).cs("*"));
+    }
+
 
     @Test
     public void removeTest() {
@@ -230,7 +237,7 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest2() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.table("neo_table1", neo).cs("*", "group");
+        Columns columns = Columns.setNeo(neo).setTableName().table("neo_table1", neo).cs("*", "group");
         Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`id`", "neo_table1.`name`"), columns);
     }
 
