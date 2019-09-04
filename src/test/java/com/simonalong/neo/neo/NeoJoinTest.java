@@ -49,7 +49,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "id")
-            .one(Columns.table(table1).cs("id"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(table1, "id"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -66,7 +66,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "id")
-            .one(Columns.table(table1, neo).cs("*").and(table2).cs("*"), NeoMap.of("order by", "neo_table2.`sort` desc")));
+            .one(Columns.of(neo).table(table1, "*").table(table2, "*"), NeoMap.of("order by", "neo_table2.`sort` desc")));
     }
 
     /**
@@ -81,7 +81,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "id")
-            .one(Columns.table(table1).cs("id").and(table2).cs("group"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(table1, "id").table(table2, "group"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -97,7 +97,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*").and(table2).cs("*"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of(neo).table(table1, "*").table(table2, "*"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -114,7 +114,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3, group2=group4}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(table1, "group as group1").table(table2, "group as group2"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -131,7 +131,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1).cs("group", "group as group1"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(table1, "group", "group as group1"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -148,7 +148,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*", "group as group1"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of(neo).table(table1, "*", "group as group1"), NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -164,7 +164,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("group", "group1", "id", 11)));
+            .one(Columns.of(neo).table(table1, "*"), NeoMap.table(table1).cs("group", "group1", "id", 11)));
     }
 
     /**
@@ -180,7 +180,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3, id=13, name=name1, user_name=user_name1}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("group", "group1", "id", 11)
+            .one(Columns.of(neo).table(table1, "*"), NeoMap.table(table1).cs("group", "group1", "id", 11)
                 .and(table2).cs("group", "group1").append("order by", "sort desc")));
     }
 
@@ -195,7 +195,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // [{group=group1}, {group=group1}, {group=group2}, {group=group3}]
         show(neo.join(table1, table2).on("id", "n_id")
-            .list(Columns.table(table1).cs("group"), NeoMap.of()));
+            .list(Columns.of().table(table1, "group"), NeoMap.of()));
     }
 
     /**
@@ -210,7 +210,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // [{group1=group1, group2=group1, id=11, name=}, {group1=group1, group2=group2, id=11, name=}, {group1=group2, group2=group3, id=12, name=haode}, {group1=group3, group2=group4, id=13, name=name1, user_name=user_name1}]
         show(neo.join(table1, table2).on("id", "id")
-            .list(Columns.table(table1, neo).cs("*", "group as group1").and(table2).cs("group as group2")));
+            .list(Columns.of(neo).table(table1, "*", "group as group1").table(table2, "group as group2")));
     }
 
     /**
@@ -224,7 +224,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // [{id=13}, {id=11}, {id=11}, {id=12}]
         show(neo.leftJoin(table1, table2).on("id", "id")
-            .list(Columns.table(table1).cs("id"),  NeoMap.of("order by", "sort desc")));
+            .list(Columns.of().table(table1, "id"),  NeoMap.of("order by", "sort desc")));
     }
 
     /**
@@ -346,7 +346,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table3 = "neo_table3";
         show(neo.rightJoin(table1, table2).on("id", "id")
             .rightJoin(table2, table3).on("name", "name")
-            .one(Columns.table(table1).cs("id", "group").and(table2).cs("name")));
+            .one(Columns.of().table(table1, "id", "group").table(table2, "name")));
     }
 
     /**
@@ -361,7 +361,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("name", "name")
-            .one(Columns.table(table1).cs("id", "name", "group").and(table2).cs("id", "name", "group"),
+            .one(Columns.of().table(table1, "id", "name", "group").table(table2, "id", "name", "group"),
                 NeoMap.table(table1).cs("group", "ok", "name", "haode").and(table2).cs("name", "ceshi")));
     }
 
@@ -379,7 +379,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.leftJoinExceptInner(table1, table2).on("name", "name")
-            .one(Columns.table(table1).cs("id", "name", "group").and(table2).cs("id", "name", "group"))
+            .one(Columns.of().table(table1, "id", "name", "group").table(table2, "id", "name", "group"))
         );
     }
 
@@ -396,7 +396,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "id")
-            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table1).cs("order by", "group desc"),
+            .page(Columns.of(neo).table(table1, "*"), NeoMap.table(table1).cs("order by", "group desc"),
                 NeoPage.of(1, 12)));
     }
 
@@ -414,7 +414,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table1 as t1";
         String table2 = "neo_table2 as t2";
         show(neo.join(table1, table2).on("id", "id")
-            .page(Columns.table(table1, neo).cs("*"), NeoMap.table(table2).cs("order by", "id desc"),
+            .page(Columns.of(neo).table(table1, "*"), NeoMap.table(table2).cs("order by", "id desc"),
                 NeoPage.of(1, 12)));
     }
 
@@ -430,6 +430,6 @@ public class NeoJoinTest extends NeoBaseTest {
     public void joinSelfTest1(){
         String table1 = "neo_table3 as t1";
         String table2 = "neo_table3 as t2";
-        neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.table(table2, neo).cs("*"));
+        neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.of(neo).table(table2, "*"));
     }
 }

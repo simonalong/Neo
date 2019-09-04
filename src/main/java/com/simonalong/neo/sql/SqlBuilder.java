@@ -135,7 +135,7 @@ public class SqlBuilder {
         if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());
         }else{
-            sqlAppender.append(Columns.from(neo, tableName).buildFields());
+            sqlAppender.append(Columns.of(neo).table(tableName).buildFields());
         }
         sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
         return sqlAppender.toString();

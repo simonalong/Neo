@@ -111,7 +111,7 @@ public class NeoTableTest extends BaseNeoTableTest {
         String otherTableName = "neo_table1";
         // {group1=test3, group2=test3}
         show(tinaTest.leftJoin(otherTableName).on("group", "group")
-            .one(Columns.table("neo_table1").cs("group as group1").and("neo_table2").cs("group as group2"),
+            .one(Columns.of().table("neo_table1", "group as group1").table("neo_table2", "group as group2"),
                 NeoMap.of("order by", "sort desc")));
     }
 
@@ -122,7 +122,7 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void leftJoinOneTest2() {
         String otherTableName = "neo_table1";
         show(tinaTest.rightJoin(otherTableName).on("group", "group")
-            .one(Columns.table(tinaTest.getTableName()).cs("group")));
+            .one(Columns.of().table(tinaTest.getTableName(), "group")));
     }
 
 
@@ -145,7 +145,7 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void rightJoinOneTest1() {
         String otherTableName = "neo_table3";
         show(tinaTest.leftJoin(otherTableName).on("group", "group")
-            .list(Columns.table(tinaTest.getTableName()).cs("group as group1").and(otherTableName).cs("group as group2"),
+            .list(Columns.of().table(tinaTest.getTableName(), "group as group1").table(otherTableName, "group as group2"),
                 NeoMap.table(otherTableName).cs("order by", "sort desc")));
     }
 
@@ -169,7 +169,7 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void innerJoinTest() {
         String otherTableName = "neo_table1";
         show(tinaTest.innerJoin(otherTableName).on("group", "group")
-            .one(Columns.table(otherTableName).cs("group"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(otherTableName, "group"), NeoMap.of("order by", "sort desc")));
     }
 //
 //    /**
@@ -191,7 +191,7 @@ public class NeoTableTest extends BaseNeoTableTest {
     public void leftJoinExceptInnerListTest1() {
         String otherTableName = "neo_table1";
         show(tinaTest.leftJoinExceptInner(otherTableName).on("group", "group")
-            .list(Columns.table(otherTableName).cs("group")));
+            .list(Columns.of().table(otherTableName, "group")));
     }
 
 //

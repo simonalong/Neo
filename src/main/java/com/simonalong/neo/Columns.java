@@ -1,9 +1,9 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.NeoMap.NamingChg;
+import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.table.AliasParser;
 import com.simonalong.neo.table.ColumnParseException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author zhouzhenyong
@@ -25,82 +27,88 @@ public final class Columns {
 
     private static final String DEFAULT_TABLE = "";
     private static final String ALL_COLUMN_NAME = "*";
-    /**
-     * 表的原始名
-     */
-    private String tableNameOrigin;
-    /**
-     * 表的别名
-     */
-    private String tableName;
+
+    @Setter
+    @Accessors(chain = true)
     private Neo neo;
-    private NamingChg namingChg = NamingChg.DEFAULT;
+    /**
+     * 全局默认采用小驼峰和数据库下划线方式
+     */
+    @Setter
+    private static NamingChg globalNaming = NamingChg.UNDERLINE;
     @Getter
     private Map<String, Set<String>> tableFieldsMap = new LinkedHashMap<>();
 
-    private Columns() {
-    }
-
-    public static Columns setNeo(Neo neo){
-        Columns columns = Columns.of();
-        columns.neo = neo;
-        return columns;
-    }
+    private Columns() {}
 
     public static Columns of(String... fields) {
         Columns columns = new Columns();
         if (null == fields || 0 == fields.length || Stream.of(fields).allMatch(Objects::isNull)) {
             return columns;
         }
-        return columns.and(DEFAULT_TABLE).cs(fields);
+        return columns.table(DEFAULT_TABLE, fields);
     }
 
-    public Columns table(String tableName, String... fields) {
-
-        return Columns.of().setTableName(tableName);
-    }
-
-    public static Columns table(String tableName, Neo neo){
-        return Columns.of().setTableName(tableName).setNeo(neo);
-    }
-
-
-
-    private static Columns of(List<Field> fieldList, NamingChg namingChg) {
-        return Columns.of(fieldList.stream().map(f -> namingChg.smallCamelToOther(f.getName())).collect(Collectors.toList())
-                .toArray(new String[]{}));
-    }
-
-
-
-    public Columns setNamingChg(NamingChg namingChg){
-        this.namingChg = namingChg;
-        return this;
+    public static Columns of(Neo neo){
+        return Columns.of().setNeo(neo);
     }
 
     public static Columns from(Class tClass) {
+        return Columns.from(tClass, "");
+    }
+
+    public static Columns from(Class tClass, String... excludeFields) {
         if (null == tClass) {
             return Columns.of();
         }
-        return Columns.of(Arrays.asList(tClass.getDeclaredFields()), NamingChg.DEFAULT);
-    }
 
-    public static Columns from(Class tClass, NamingChg namingChg) {
-        if (null == tClass) {
-            return Columns.of();
+        Set<String> excludeFieldList = new HashSet<>();
+        if (null != excludeFields){
+            excludeFieldList = Stream.of(excludeFields).collect(Collectors.toSet());
         }
-        return Columns.of(Arrays.asList(tClass.getDeclaredFields()), namingChg);
+
+        Set<String> finalExcludeFieldList = excludeFieldList;
+        List<String> fieldNames = Arrays.stream(tClass.getDeclaredFields())
+            .filter(field -> {
+                if(!finalExcludeFieldList.isEmpty()){
+                    return !finalExcludeFieldList.contains(field.getName());
+                }
+                return true;
+            })
+            .map(field -> {
+                Column column = field.getDeclaredAnnotation(Column.class);
+                if (null != column && !"".equals(column.value())) {
+                    return column.value();
+                } else {
+                    return globalNaming.smallCamelToOther(field.getName());
+                }
+            })
+            .collect(Collectors.toList());
+        return Columns.of(fieldNames.toArray(new String[]{}));
     }
 
-    /**
-     * 将对应表的所有列返回
-     *
-     * @param neo 库对象
-     * @param tableName 表名
-     * @return 列所有的数据
-     */
-    public static Columns from(Neo neo, String tableName) {
-        return Columns.of().and(tableName).cs(neo.getColumnNameList(tableName));
+    public Columns table(String tableName, String... fields) {
+        List<String> fieldList = new ArrayList<>(Arrays.asList(fields));
+        if (fieldList.isEmpty()) {
+            fieldList.add("*");
+        }
+        if (fieldList.contains(ALL_COLUMN_NAME)) {
+            if (null == neo) {
+                throw new ColumnParseException("列中含有符号'*'，请先添加库对象neo（setNeo），或者使用of(Neo neo)先构造对象");
+            } else {
+                fieldList.remove(ALL_COLUMN_NAME);
+                fieldList.addAll(neo.getColumnNameList(tableName));
+            }
+        }
+        this.tableFieldsMap.compute(tableName, (k, v) -> {
+            if (null == v) {
+                return new HashSet<>(fieldList);
+            } else {
+                v.addAll(fieldList);
+                return v;
+            }
+        });
+        return this;
     }
 
     public static boolean isEmpty(Columns columns) {
@@ -111,52 +119,12 @@ public final class Columns {
         return null == columnsList || columnsList.isEmpty();
     }
 
-    public Columns setTableName(String tableName){
-        this.tableNameOrigin = AliasParser.metaData(tableName);
-        this.tableName = AliasParser.getAlias(tableName);
-        return this;
-    }
-
-    public Columns and(String tableName){
-        return this.setTableName(tableName);
-    }
-
-    public Columns cs(String... cs){
-        return cs(Arrays.stream(cs).filter(c->!"".equals(c)).collect(Collectors.toSet()));
-    }
-
-    public Columns cs(Set<String> fieldSets) {
-        if(fieldSets.contains(ALL_COLUMN_NAME) && null == neo){
-            throw new ColumnParseException("列中含有符号'*'，请先添加库对象neo（setNeo），或者使用table(String tableName, Neo neo)函数");
-        }
-        this.tableFieldsMap.compute(tableName, (k, v) -> {
-            if (null == v) {
-                return new HashSet<>(fieldSets);
-            } else {
-                v.addAll(fieldSets);
-                return v;
-            }
-        });
-        return this;
-    }
-
     /**
      * 返回select 后面选择的列对应的数据库的字段
      *
      * @return 比如：`xxx`, `kkk`
      */
     public String buildFields() {
-        if (null != neo) {
-            tableFieldsMap.forEach((tableName, f) -> {
-                if (!tableName.equals(DEFAULT_TABLE)) {
-                    if (f.contains(ALL_COLUMN_NAME)) {
-                        f.addAll(neo.getColumnNameList(tableNameOrigin));
-                    }
-                }
-            });
-            remove(ALL_COLUMN_NAME);
-        }
-
         return String.join(", ", tableFieldsMap.entrySet().stream().flatMap(e -> {
             String tableName = e.getKey();
             return columnToDbField(e.getValue()).stream().map(c -> {
@@ -183,7 +151,7 @@ public final class Columns {
     }
 
     public Columns append(String... cs) {
-        return and(DEFAULT_TABLE).cs(cs);
+        return table(DEFAULT_TABLE, cs);
     }
 
     public boolean contains(String data) {

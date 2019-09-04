@@ -419,7 +419,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap one(String tableName, NeoMap searchMap){
-        return one(tableName, Columns.table(tableName, this), searchMap);
+        return one(tableName, Columns.of().setNeo(this).table(tableName), searchMap);
     }
 
     /**
@@ -431,7 +431,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T one(String tableName, T entity){
-        return one(tableName, Columns.from(this, tableName), entity);
+        return one(tableName, Columns.of().setNeo(this).table(tableName), entity);
     }
 
     /**
@@ -747,12 +747,12 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page){
-        return page(tableName, Columns.from(this, tableName), searchMap, page);
+        return page(tableName, Columns.of().setNeo(this).table(tableName), searchMap, page);
     }
 
     @Override
     public <T> List<T> page(String tableName, T entity, NeoPage page){
-        return page(tableName, Columns.from(this, tableName), entity, page);
+        return page(tableName, Columns.of().setNeo(this).table(tableName), entity, page);
     }
 
     @Override
@@ -762,7 +762,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public List<NeoMap> page(String tableName, NeoPage page){
-        return page(tableName, Columns.from(this, tableName), NeoMap.of(), page);
+        return page(tableName, Columns.of().setNeo(this).table(tableName), NeoMap.of(), page);
     }
 
     /**

@@ -1,9 +1,11 @@
-package com.simonalong.neo;
+package com.simonalong.neo.column;
 
-import com.simonalong.neo.NeoMap.NamingChg;
+import com.simonalong.neo.Columns;
 import com.simonalong.neo.entity.TestEntity;
 import com.simonalong.neo.neo.NeoBaseTest;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,24 +62,43 @@ public class ColumnsTest extends NeoBaseTest {
 
     @Test
     public void testFrom1() {
-        // `userName`, `group`, `name`, `id`, `dataBaseName`
+        // `data_base_name`, `group`, `user_name`, `name`, `id`
         show(Columns.from(TestEntity.class));
-        Assert.assertEquals(Columns.of("`userName`", "`group`", "`name`", "`id`", "`dataBaseName`"), Columns.from(TestEntity.class));
+        Assert.assertEquals(Columns.of("`data_base_name`", "`group`", "`user_name`", "`name`", "`id`"), Columns.from(TestEntity.class));
     }
 
     @Test
     public void testFrom2() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns expect = Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`id`", "neo_table1.`name`");
-        Assert.assertEquals(expect, Columns.from(neo, "neo_table1"));
+        Columns expect = Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`");
+        Assert.assertEquals(expect, Columns.of(neo).table("neo_table1"));
     }
 
     @Test
     public void testFrom3() {
-        // `data_base_name`, `group`, `user_name`, `name`, `id`
-        show(Columns.from(TestEntity.class, NamingChg.UNDERLINE));
-        Columns expect = Columns.of("`user_name`", "`group`", "`name`", "`id`", "`data_base_name`");
-        Assert.assertEquals(expect, Columns.from(TestEntity.class, NamingChg.UNDERLINE));
+        // `data_base_name`, `group`, `neo_user_name`, `name`, `id`
+        show(Columns.from(ColumnEntity.class));
+        Columns expect = Columns.of("`neo_user_name`", "`group`", "`name`", "`id`", "`data_base_name`");
+        Assert.assertEquals(expect, Columns.from(ColumnEntity.class));
+    }
+
+    /**
+     * 测试剔除某几个属性的功能
+     */
+    @Test
+    public void testFrom4() {
+        // `data_base_name`, `group`, `neo_user_name`, `name`, `id`
+        show(Columns.from(ColumnEntity.class, null));
+        Columns expect = Columns.of("`neo_user_name`", "`group`", "`name`", "`id`", "`data_base_name`");
+        Assert.assertEquals(expect, Columns.from(ColumnEntity.class));
+
+        show(Columns.from(ColumnEntity.class, "group"));
+        Columns expect1 = Columns.of("`neo_user_name`", "`name`", "`id`", "`data_base_name`");
+        Assert.assertEquals(expect1, Columns.from(ColumnEntity.class, "group"));
+
+        show(Columns.from(ColumnEntity.class, "group", "id"));
+        Columns expect2 = Columns.of("`neo_user_name`", "`name`", "`data_base_name`");
+        Assert.assertEquals(expect2, Columns.from(ColumnEntity.class, "group", "id"));
     }
 
     @Test
@@ -135,83 +156,6 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     @Test
-    public void tableCsTest1() {
-        // tableName.`c2`, tableName.`c3`, tableName.`c1`
-        Assert.assertEquals(Columns.of("tableName.`c2`", "tableName.`c3`", "tableName.`c1`"),
-            Columns.table("tableName").cs("c1", "c2", "c3"));
-    }
-
-    @Test
-    public void tableCsTest2() {
-        Columns columns = Columns.table("tableName").cs("c1", "c2", "c3").append("a1", "a2");
-        // tableName.`c1`, tableName.`c2`, tableName.`c3`, `a1`, `a2`
-        Assert.assertEquals(Columns.of("tableName.`c1`", "tableName.`c2`", "tableName.`c3`", "`a1`", "`a2`"), columns);
-    }
-
-    /**
-     * 多表的数据字段
-     */
-    @Test
-    public void tableCsTest3() {
-        String table1 = "table1";
-        String table2 = "table2";
-        String table3 = "table3";
-        Columns columns = Columns.table(table1).cs("a1", "b1")
-            .and(table2).cs("a2", "b2")
-            .and(table3).cs("a3", "b3");
-
-        // table3.`b3`, table1.`b1`, table1.`c1`, table1.`a1`, table2.`c2`, table2.`b2`, table2.`a2`, table3.`a3`
-        show(columns.buildFields());
-        Assert.assertEquals(Columns.of("table1.`a1`", "table1.`b1`", "table2.`a2`", "table2.`b2`", "table3.`a3`", "table3.`b3`"), columns);
-    }
-
-    /**
-     * 针对as xxx的情况，进行合并
-     */
-    @Test
-    public void tableCsTest4() {
-        // neo_table1.`group` s g
-        Assert.assertEquals(Columns.of("neo_table1.`group` as g"), Columns.table("neo_table1").cs("group as g", "group"));
-    }
-
-    /**
-     * 针对as xxx的情况，进行合并
-     */
-    @Test
-    public void tableCsTest5() {
-        // neo_table1.`group` s g, neo_table1.`name`
-        Columns columns = Columns.table("neo_table1").cs("group", "name").cs("group as g");
-        Assert.assertEquals(Columns.of("neo_table1.`group` as g", "neo_table1.`name`"), columns);
-    }
-
-    /**
-     * 针对表的所有列进行展开，包含as xx情况的合并
-     */
-    @Test
-    public void tableCsTest6() {
-        // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.table("neo_table1", neo).cs("group as g", "group", "*");
-        show(columns);
-        Assert.assertEquals(Columns.of("neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`group` as g",
-            "neo_table1.`id`", "neo_table1.`name`"), columns);
-    }
-
-    @Test
-    public void tableCsTest7() {
-        String table1 = "neo_table1";
-        String table2 = "neo_table2";
-        show(Columns.table(table1).cs("group as group1").and(table2).cs("group as group2"));
-    }
-
-    @Test
-    public void tableCsTest8() {
-        String table1 = "neo_table1";
-        String table2 = "neo_table2";
-        show(Columns.table(table2, neo).cs("*"));
-    }
-
-
-    @Test
     public void removeTest() {
         Columns columns = Columns.of("c1", "c2");
         columns.remove("c2");
@@ -225,9 +169,9 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest1() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.table("neo_table1", neo).cs("*");
+        Columns columns = Columns.of(neo).table("neo_table1", "*");
 
-        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`id`", "neo_table1.`name`"),
+        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"),
             columns);
     }
 
@@ -237,8 +181,8 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest2() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.setNeo(neo).setTableName().table("neo_table1", neo).cs("*", "group");
-        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`id`", "neo_table1.`name`"), columns);
+        Columns columns = Columns.of(neo).table("neo_table1", "*", "group");
+        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"), columns);
     }
 
     /**
@@ -247,13 +191,31 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest3() {
         // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.table("neo_table1", neo).cs("*", "group as g");
-        Assert.assertEquals(Columns.of("neo_table1.`group` as g", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`id`", "neo_table1.`name`"), columns);
+        Columns columns = Columns.of(neo).table("neo_table1", "*", "group as g");
+        Assert.assertEquals(Columns.of("neo_table1.`group` as g", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"), columns);
     }
 
     @Test
     public void containTest() {
         Columns columns = Columns.of("a", "b");
         Assert.assertTrue(columns.contains("a"));
+    }
+
+    @Test
+    public void isEmptyTest1() {
+        Columns columns = Columns.of("a", "b");
+        Assert.assertFalse(Columns.isEmpty(columns));
+    }
+
+    @Test
+    public void isEmptyTest2() {
+        List<Columns> columnList = Arrays.asList(Columns.of("a", "b"), Columns.of("c"));
+        Assert.assertFalse(Columns.isEmpty(columnList));
+    }
+
+    @Test
+    public void getFieldSetsTest() {
+        Columns columns = Columns.of("a", "b");
+        show(columns.getFieldSets());
     }
 }
