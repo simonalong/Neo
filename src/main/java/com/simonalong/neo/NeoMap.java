@@ -123,6 +123,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, Columns columns) {
+        if (null == columns) {
+            return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
+        }
         return from(object, NamingChg.DEFAULT, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
     }
 

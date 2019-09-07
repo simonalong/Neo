@@ -67,6 +67,7 @@ public class Neo extends AbstractBaseDb {
     private ConnectPool pool;
     private static final String SELECT = "select";
     private static final String ORDER_BY = "order by";
+    private static final String ALL_FIELD = "*";
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
@@ -143,7 +144,7 @@ public class Neo extends AbstractBaseDb {
         return neo;
     }
 
-    public Neo initDb(String... tablePres){
+    public Neo initDb(String... tablePres) {
         try(Connection con = pool.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
@@ -169,6 +170,10 @@ public class Neo extends AbstractBaseDb {
     private Boolean haveConcernTablePre(List<String> concernTablePreList, String tableName){
         // 若没有配置关心表前缀，则默认关心所有的表
         if (concernTablePreList.isEmpty()) {
+            return true;
+        }
+
+        if (concernTablePreList.size() == 1 && concernTablePreList.get(0).equals(ALL_FIELD)) {
             return true;
         }
         return concernTablePreList.stream().anyMatch(tableName::startsWith);

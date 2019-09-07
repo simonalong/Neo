@@ -1,6 +1,7 @@
 package com.simonalong.neo.column;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.entity.TestEntity;
 import com.simonalong.neo.neo.NeoBaseTest;
 import java.sql.SQLException;
@@ -114,6 +115,30 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     @Test
+    public void appendTest3() {
+        Columns aColumns = Columns.of("`c1`");
+        Columns bColumns = Columns.of("`c2`");
+        Columns cColumns = Columns.of("`c1`", "`c2`");
+        show(aColumns);
+        show(bColumns);
+        show(cColumns);
+        // `c1`, `c2`
+        Assert.assertEquals(aColumns.append(bColumns), cColumns);
+    }
+
+    @Test
+    public void appendTest4() {
+        Columns aColumns = Columns.of("`c1`");
+        Columns bColumns = Columns.of("`c2`", "`c1`");
+        Columns cColumns = Columns.of("`c1`", "`c2`");
+        show(aColumns);
+        show(bColumns);
+        show(cColumns);
+        // `c1`, `c2`
+        Assert.assertEquals(aColumns.append(bColumns), cColumns);
+    }
+
+    @Test
     public void asTest1() {
         // `c1` as c11, `c2`, `c3`
         Assert.assertEquals(Columns.of("`c1` as c11", "`c2`", "`c3`"), Columns.of("c1 as c11", "c2", "c3"));
@@ -193,6 +218,22 @@ public class ColumnsTest extends NeoBaseTest {
         // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
         Columns columns = Columns.of(neo).table("neo_table1", "*", "group as g");
         Assert.assertEquals(Columns.of("neo_table1.`group` as g", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"), columns);
+    }
+
+    /**
+     * 获取所有的列名 "*"，如果有别名，则以别名为主
+     */
+    // todo 有问题
+    @Test
+    public void allColumnTest4() {
+        Columns aColumn = Columns.of(neo).table("neo_table1", "*");
+        show(aColumn);
+        Columns bColumn = Columns.of(neo).table("neo_table2", "*");
+        show(bColumn);
+        Columns totalColumn = Columns.of(neo).table("neo_table1", "*").table("neo_table2", "*");
+        show(aColumn.append(bColumn));
+        show(totalColumn);
+        Assert.assertEquals(aColumn.append(bColumn), totalColumn);
     }
 
     @Test

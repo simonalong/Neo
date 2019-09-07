@@ -117,6 +117,85 @@ public void testDemo2() {
 }
 ```
 
+### 指定实体
+上面我们对数据的操作全都是基于map，下面我们基于实体DO对数据库进行操作
+```java
+/**
+ * 指定表的话，就更简单
+ */
+@Test
+public void testDemo3() {
+    String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    String user = "neo_test";
+    String password = "neo@Test123";
+    String tableName = "neo_table1";
+    // 连接
+    Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+    NeoTable table = neo.getTable(tableName);
+
+    // 实体数据
+    DemoEntity3 entity = new DemoEntity3().setGroup("group1").setUsName("name1");
+
+    // 插入
+    DemoEntity3 result = table.insert(entity);
+
+    result.setUsName("name2");
+
+    // 更新
+    table.update(result);
+
+    // 删除
+    table.delete(result);
+
+    // 查询一行
+    table.one(result);
+
+    // 查询多行
+    table.list(result);
+
+    // 查询指定列的
+    table.value("group", NeoMap.of("user_name", "name2"));
+
+    // 查询指定列的多个值
+    table.values("group", NeoMap.of("user_name", "name2"));
+
+    // 查询分页，第一个参数是搜索条件
+    table.page(NeoMap.of("user_name", "name2"), NeoPage.of(1, 20));
+
+    // 批量
+    List<DemoEntity3> list = new ArrayList<>();
+    list.add(new DemoEntity3().setGroup("group1").setUsName("name1"));
+    list.add(new DemoEntity3().setGroup("group2").setUsName("name2"));
+    list.add(new DemoEntity3().setGroup("group3").setUsName("name3"));
+    list.add(new DemoEntity3().setGroup("group4").setUsName("name4"));
+    table.batchInsertEntity(list);
+}
+```
+表结构，简化的几个字段
+```java
+@Data
+@Accessors(chain = true)
+public class DemoEntity3 {
+
+    private Integer id;
+    private String group;
+    @Column("user_name")
+    private String usName;
+}
+```
+```sql
+CREATE TABLE `neo_table1` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',
+  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
+  `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
+  `age` int(11) DEFAULT NULL,
+  `sl` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `k_group_index` (`group`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+```
+
 ### 其他使用
 也可以继承使用，针对业务接入，可以直接继承类`AbstractBizService`即可具备一个表的常见的所有功能，只需要实现如下两个方法即可
 ```java

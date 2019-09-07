@@ -1,5 +1,8 @@
-package com.simonalong.neo;
+package com.simonalong.neo.neo;
 
+import com.simonalong.neo.Neo;
+import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.entity.DemoEntity3;
 import com.simonalong.neo.table.NeoPage;
 import com.simonalong.neo.table.NeoTable;
 import java.util.ArrayList;
@@ -21,7 +24,7 @@ public class NeoDemo {
         String password = "neo@Test123";
         String tableName = "neo_table1";
         // 连接
-        Neo neo = Neo.connect(url, user, password);
+        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
 
         // 插入
         NeoMap data = neo.insert(tableName, NeoMap.of("group", "value"));
@@ -78,7 +81,7 @@ public class NeoDemo {
         String password = "neo@Test123";
         String tableName = "neo_table1";
         // 连接
-        Neo neo = Neo.connect(url, user, password);
+        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
         NeoTable table = neo.getTable(tableName);
 
         // 插入
@@ -114,5 +117,55 @@ public class NeoDemo {
         list.add(NeoMap.of("group", "v3"));
         list.add(NeoMap.of("group", "v4"));
         table.batchInsert(list);
+    }
+
+    /**
+     * 指定表的话，就更简单
+     */
+    @Test
+    public void testDemo3() {
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
+        String tableName = "neo_table1";
+        // 连接
+        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+        NeoTable table = neo.getTable(tableName);
+
+        DemoEntity3 entity = new DemoEntity3().setGroup("group1").setUsName("name1");
+
+        // 插入
+        DemoEntity3 result = table.insert(entity);
+
+        result.setUsName("name2");
+
+        // 更新
+        table.update(result);
+
+        // 删除
+        table.delete(result);
+
+        // 查询一行
+        table.one(result);
+
+        // 查询多行
+        table.list(result);
+
+        // 查询指定列的
+        table.value("group", NeoMap.of("user_name", "name2"));
+
+        // 查询指定列的多个值
+        table.values("group", NeoMap.of("user_name", "name2"));
+
+        // 查询分页，第一个参数是搜索条件
+        table.page(NeoMap.of("user_name", "name2"), NeoPage.of(1, 20));
+
+        // 批量
+        List<DemoEntity3> list = new ArrayList<>();
+        list.add(new DemoEntity3().setGroup("group1").setUsName("name1"));
+        list.add(new DemoEntity3().setGroup("group2").setUsName("name2"));
+        list.add(new DemoEntity3().setGroup("group3").setUsName("name3"));
+        list.add(new DemoEntity3().setGroup("group4").setUsName("name4"));
+        table.batchInsertEntity(list);
     }
 }

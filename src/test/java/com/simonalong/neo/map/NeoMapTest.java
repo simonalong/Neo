@@ -1,4 +1,4 @@
-package com.simonalong.neo.neo;
+package com.simonalong.neo.map;
 
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
@@ -144,6 +144,15 @@ public class NeoMapTest extends BaseTest {
         DemoEntity demo4 = map4.as(DemoEntity.class);
         // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=1, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
         show(demo4.toString());
+    }
+
+    /**
+     * as的db字段和实体字段映射
+     */
+    @Test
+    public void testAs8(){
+        NeoMapEntity entity = new NeoMapEntity().setAge(12).setUserAddress("dizhi").setUserName("wo");
+        Assert.assertEquals(NeoMap.from(entity).as(NeoMapEntity.class), entity);
     }
 
     @Test
