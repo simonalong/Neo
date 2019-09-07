@@ -28,7 +28,7 @@ final class FieldInfo {
     @Setter
     private String fieldName;
 
-    public FieldInfo setFieldRemark(String fieldRemark) {
+    FieldInfo setFieldRemark(String fieldRemark) {
         if (null != fieldRemark && !fieldRemark.equals("")) {
             this.fieldRemark = fieldRemark;
             this.fieldRemarkFlag = 1;

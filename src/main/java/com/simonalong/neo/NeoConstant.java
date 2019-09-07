@@ -12,4 +12,5 @@ public interface NeoConstant {
     String LIMIT = "limit";
     String DESC = "desc";
     String ASC = "asc";
+    String ALL_COLUMN_NAME = "*";
 }

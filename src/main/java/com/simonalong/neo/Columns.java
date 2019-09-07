@@ -1,9 +1,11 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.ALL_COLUMN_NAME;
+
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.table.AliasParser;
-import com.simonalong.neo.table.ColumnParseException;
+import com.simonalong.neo.exception.ColumnParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +28,6 @@ import lombok.experimental.Accessors;
 public final class Columns {
 
     private static final String DEFAULT_TABLE = "";
-    private static final String ALL_COLUMN_NAME = "*";
 
     @Setter
     @Accessors(chain = true)

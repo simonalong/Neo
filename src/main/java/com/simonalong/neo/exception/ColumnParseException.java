@@ -1,4 +1,4 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.exception;
 
 import com.simonalong.neo.exception.NeoException;
 

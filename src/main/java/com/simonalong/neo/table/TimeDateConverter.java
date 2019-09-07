@@ -35,7 +35,7 @@ public class TimeDateConverter {
     /**
      * NeoMap中的long对象转换到db中的时间类型，用于数据插入
      *
-     * mysql中有5中时间类型，但是该函数只支持其中四种：Date, Time, DateTime, Timestamp，其中不支持year，year的插入需要通过函数{@link TimeDateConverter#longToYearTime}转换
+     * mysql中有5种时间类型，但是该函数只支持其中四种：Date, Time, DateTime, Timestamp，其中不支持year，year的插入需要通过函数{@link TimeDateConverter#longToYearTime}转换
      * @param tClass 数据对应的类型
      * @param columnTypeName 列在数据库中的类型
      * @param data long类型的时间类型
