@@ -29,7 +29,7 @@ final class FieldInfo {
     private String fieldName;
 
     FieldInfo setFieldRemark(String fieldRemark) {
-        if (null != fieldRemark && !fieldRemark.equals("")) {
+        if (null != fieldRemark && !"".equals(fieldRemark)) {
             this.fieldRemark = fieldRemark;
             this.fieldRemarkFlag = 1;
         }
