@@ -96,6 +96,8 @@ public final class Columns {
         if (fieldList.contains(ALL_COLUMN_NAME)) {
             if (null == neo) {
                 throw new ColumnParseException("列中含有符号'*'，请先添加库对象neo（setNeo），或者使用of(Neo neo)先构造对象");
+            } else if(null == tableName){
+                throw new ColumnParseException("列中含有符号'*'，表名不能为空");
             } else {
                 fieldList.remove(ALL_COLUMN_NAME);
                 fieldList.addAll(neo.getColumnNameList(tableName));
@@ -142,12 +144,10 @@ public final class Columns {
     }
 
     public Columns append(Columns columns) {
-        Map<String, Set<String>> otherTableFieldMap = columns.getTableFieldsMap();
-        this.getTableFieldsMap().forEach((tableName, fieldSet)->{
-            if(otherTableFieldMap.containsKey(tableName)){
-                fieldSet.addAll(otherTableFieldMap.get(tableName));
-            }
-        });
+        if (Columns.isEmpty(columns)) {
+            return this;
+        }
+        this.tableFieldsMap.putAll(columns.getTableFieldsMap());
         return this;
     }
 

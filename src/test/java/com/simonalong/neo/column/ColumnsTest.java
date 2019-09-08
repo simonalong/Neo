@@ -221,9 +221,8 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     /**
-     * 获取所有的列名 "*"，如果有别名，则以别名为主
+     * 拼接
      */
-    // todo 有问题
     @Test
     public void allColumnTest4() {
         Columns aColumn = Columns.of(neo).table("neo_table1", "*");
@@ -231,8 +230,6 @@ public class ColumnsTest extends NeoBaseTest {
         Columns bColumn = Columns.of(neo).table("neo_table2", "*");
         show(bColumn);
         Columns totalColumn = Columns.of(neo).table("neo_table1", "*").table("neo_table2", "*");
-        show(aColumn.append(bColumn));
-        show(totalColumn);
         Assert.assertEquals(aColumn.append(bColumn), totalColumn);
     }
 

@@ -60,8 +60,6 @@ public class NeoJoinTest extends NeoBaseTest {
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
      */
     @Test
-    // todo 有问题
-    // todo 多列转换到DO中，怎么进行转换
     public void joinOneTest2() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
