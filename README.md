@@ -171,7 +171,7 @@ public void testDemo3() {
     table.batchInsertEntity(list);
 }
 ```
-表结构，简化的几个字段
+实体类，简化的字段（使用注解跟db中字段对应即可）
 ```java
 @Data
 @Accessors(chain = true)
@@ -179,10 +179,12 @@ public class DemoEntity3 {
 
     private Integer id;
     private String group;
+    // 自定义的跟DB中对应的
     @Column("user_name")
     private String usName;
 }
 ```
+sql字段
 ```sql
 CREATE TABLE `neo_table1` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
