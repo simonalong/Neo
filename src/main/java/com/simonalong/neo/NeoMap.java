@@ -37,11 +37,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
-     * 单体数据的命名转换
-     */
-    @Setter
-    private NamingChg localNaming = NamingChg.DEFAULT;
-    /**
      * 针对存储表和表对应的字段的时候，table名字和columnsName可能一起设定，这里就是tableName
      */
     @Setter
@@ -112,7 +107,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object) {
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
+        return from(object, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
@@ -124,33 +119,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static NeoMap from(Object object, Columns columns) {
         if (null == columns) {
-            return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
+            return from(object, new ArrayList<>(), new ArrayList<>());
         }
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
-    }
-
-    /**
-     * 对象转换为NeoMap
-     *
-     * @param object 待转换对象
-     * @param columns 对象的属性名列表
-     * @param namingChg 对象属性和NeoMap的映射关系
-     * @return 转换之后的NeoMap
-     */
-    public static NeoMap from(Object object, Columns columns, NamingChg namingChg) {
-        return from(object, namingChg,
-            new ArrayList<>(null == columns ? Collections.emptyList() : columns.getFieldSets()), new ArrayList<>());
-    }
-
-    /**
-     * 对象转换为NeoMap
-     *
-     * @param object 待转换对象
-     * @param namingChg 对象属性和NeoMap的映射关系
-     * @return 转换之后的NeoMap
-     */
-    public static NeoMap from(Object object, NamingChg namingChg) {
-        return from(object, namingChg, new ArrayList<>(), new ArrayList<>());
+        return from(object, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
     }
 
     /**
@@ -161,7 +132,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromInclude(Object object, String... fields) {
-        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
+        return from(object, Arrays.asList(fields), new ArrayList<>());
     }
 
     /**
@@ -172,20 +143,19 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromExclude(Object object, String... fields) {
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields));
+        return from(object, new ArrayList<>(), Arrays.asList(fields));
     }
 
     /**
      * 对象转换为NeoMap
      *
      * @param object 待转换的对象
-     * @param naming 转换方式
      * @param inFieldList 包括的属性
      * @param exFieldList 排除的属性
      * @return 转换之后的NeoMap
      */
     @SuppressWarnings("unchecked")
-    public static NeoMap from(Object object, NamingChg naming, List<String> inFieldList, List<String> exFieldList) {
+    public static NeoMap from(Object object, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of();
         if (null == object) {
             return neoMap;
@@ -199,7 +169,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         if (Map.class.isAssignableFrom(object.getClass())) {
             return neoMap.append(Map.class.cast(object));
         }
-        neoMap.setLocalNaming(naming);
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
 
@@ -755,8 +724,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             return column.value();
         }
 
-        return ((null != localNaming && !localNaming.equals(NamingChg.DEFAULT)) ? localNaming : globalNaming)
-            .smallCamelToOther(field.getName());
+        return globalNaming.smallCamelToOther(field.getName());
     }
 
     public enum NamingChg {
