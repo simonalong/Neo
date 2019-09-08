@@ -22,7 +22,7 @@ public void testDemo1() {
     String password = "neo@Test123";
     String tableName = "neo_table1";
     // 连接
-    Neo neo = Neo.connect(url, user, password);
+    Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
 
     // 插入
     NeoMap data = neo.insert(tableName, NeoMap.of("group", "value"));
@@ -78,7 +78,7 @@ public void testDemo2() {
     String password = "neo@Test123";
     String tableName = "neo_table1";
     // 连接
-    Neo neo = Neo.connect(url, user, password);
+    Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
     NeoTable table = neo.getTable(tableName);
 
     // 插入
