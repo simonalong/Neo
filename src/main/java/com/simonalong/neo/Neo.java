@@ -95,6 +95,8 @@ public class Neo extends AbstractBaseDb {
      */
     private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
 
+    private Neo(){}
+
     public static Neo connect(String url, String username, String password, Properties properties) {
         Neo neo = new Neo();
         Properties baseProper = new Properties();
