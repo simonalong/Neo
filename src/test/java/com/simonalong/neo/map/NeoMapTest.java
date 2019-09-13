@@ -321,10 +321,10 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void getCharacterTest(){
         NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
-//        show(neoMap.getCharacter("flag"));
-//        show(neoMap.getCharacter("test"));
-        show(neoMap.getCharacter("test2"));
-        show(neoMap.getCharacter("t"));
+//        show(neoMap.getChar("flag"));
+//        show(neoMap.getChar("test"));
+        show(neoMap.getChar("test2"));
+        show(neoMap.getChar("t"));
     }
 
     @Test
@@ -547,7 +547,12 @@ public class NeoMapTest extends BaseTest {
 
     @Test
     public void assignExceptTest1(){
-        show(NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept("a"));
+        Assert.assertEquals(NeoMap.of("a", 1), NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept("b", "c"));
+    }
+
+    @Test
+    public void assignExceptTest2(){
+        Assert.assertEquals(NeoMap.of("a", 1), NeoMap.of("a", 1, "b", 2, "c", 3).assignExcept(Columns.of("b", "c")));
     }
 
     /**
@@ -592,5 +597,74 @@ public class NeoMapTest extends BaseTest {
         NeoMap dataMap = NeoMap.of("a", 1, "b", 2);
         Map<String, Integer> integerMap = dataMap.getDataMapAssignValueType(Integer.class);
         show(integerMap);
+    }
+
+    @Test
+    public void asArrayTest1(){
+        NeoMap neoMap1 = NeoMap.of("age", 12, "data_user", "ok1");
+        NeoMap neoMap2 = NeoMap.of("age", 13, "data_user", "ok2");
+        NeoMap neoMap3 = NeoMap.of("age", 14, "data_user", "ok3");
+        List<NeoMap> dataMap = Arrays.asList(neoMap1, neoMap2, neoMap3);
+        List<NeoMapEntity> neoMapEntities = NeoMap.asArray(dataMap, NeoMapEntity.class);
+        show(neoMapEntities);
+    }
+
+    @Test
+    public void fromArrayTest1(){
+        NeoMapEntity entity1 = new NeoMapEntity().setAge(11).setDataNameUser("ok1");
+        NeoMapEntity entity2 = new NeoMapEntity().setAge(12).setDataNameUser("ok2");
+        NeoMapEntity entity3 = new NeoMapEntity().setAge(13).setDataNameUser("ok3");
+        List<NeoMapEntity> entityList = Arrays.asList(entity1, entity2, entity3);
+        // [{"age":11,"data_user":"ok1"}, {"age":12,"data_user":"ok2"}, {"age":13,"data_user":"ok3"}]
+        show(NeoMap.fromArray(entityList));
+    }
+
+    @Test
+    public void fromArrayTest2(){
+        NeoMapEntity entity1 = new NeoMapEntity().setAge(11).setDataNameUser("ok1");
+        NeoMapEntity entity2 = new NeoMapEntity().setAge(12).setDataNameUser("ok2");
+        NeoMapEntity entity3 = new NeoMapEntity().setAge(13).setDataNameUser("ok3");
+        List<NeoMapEntity> entityList = Arrays.asList(entity1, entity2, entity3);
+        // [{"age":11}, {"age":12}, {"age":13}]
+        show(NeoMap.fromArray(entityList, Columns.of("age")));
+    }
+
+    @Test
+    public void dbToJavaStrTest1() {
+        NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
+        // dataUser
+        show(NeoMap.dbToJavaStr("data_user"));
+    }
+
+    @Test
+    public void dbToJavaStrTest2() {
+        // dataUser
+        show(NeoMap.dbToJavaStr("data-user", NamingChg.MIDDLELINE));
+    }
+
+    @Test
+    public void isEmptyTest(){
+        List<NeoMap> neoMaps = Arrays.asList(NeoMap.of("a", 12), NeoMap.of("b", "ok"));
+        Assert.assertFalse(NeoMap.isEmpty(neoMaps));
+        List<NeoMap> neoMap2 = Arrays.asList(NeoMap.of(), NeoMap.of());
+        Assert.assertTrue(NeoMap.isEmpty(neoMap2));
+    }
+
+    @Test
+    public void assignTest1(){
+        NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
+        show(neoMap.assign("a"));
+    }
+
+    @Test
+    public void keyStream(){
+        NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
+        neoMap.keyStream().forEach(this::show);
+    }
+
+    @Test
+    public void valueStream(){
+        NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
+        neoMap.valueStream().forEach(this::show);
     }
 }

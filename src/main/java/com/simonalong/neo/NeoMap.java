@@ -1,12 +1,12 @@
 package com.simonalong.neo;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
-import com.sun.istack.internal.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -266,13 +266,17 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * 默认全局转换
+     * 默认全局转换，小驼峰转换为其他类型
+     *
+     * {@code data_base_user <------> dataBaseUser }
+     * {@code _data_base_user <------> dataBaseUser }
+     * {@code data-db-user <------> dataBaseUser }
      *
      * @param source 源字符
      * @return 转换后的字符
      */
     public static String dbToJavaStr(String source) {
-        return globalNaming.smallCamelToOther(source);
+        return globalNaming.otherToSmallCamel(source);
     }
 
     public static boolean isEmpty(NeoMap neoMap) {
@@ -467,10 +471,21 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMap;
     }
 
+    /**
+     * 获取指定的一些列，得到新的数据
+     * {@code {"a":12, "b":"ok"} ---->  {"a":12}}
+     * @param keys 要获取的key，比如上面的a
+     * @return 返回包含指定key对应的map
+     */
     public NeoMap assign(String... keys){
         return assign(Columns.of(keys));
     }
 
+    /**
+     * 排除指定的列
+     * @param columns 其中的列值为map中的key
+     * @return 排除指定列后的map
+     */
     public NeoMap assignExcept(Columns columns) {
         if (Columns.isEmpty(columns)) {
             return this;
@@ -485,9 +500,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * 排除固定的几个值
+     * 排除固定的列
      *
-     * @param keys 具体的列列表
+     * @param keys map中的指定的key
      * @return 新的map数据
      */
     public NeoMap assignExcept(String... keys){
@@ -579,12 +594,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param key map的key
      * @return 字符，如果是字符串，则返回字符串的第一个字符
      */
-    public Character getCharacter(String key){
+    public Character getChar(String key){
         return ObjectUtil.toChar(get(key));
     }
 
-    public Character getCharacter(String key, Character defaultValue) {
-        Character result = getCharacter(key);
+    public Character getChar(String key, Character defaultValue) {
+        Character result = getChar(key);
         return (null == result) ? defaultValue : result;
     }
 
@@ -911,7 +926,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return dataMap.toString();
+        return JSON.toJSONString(dataMap);
     }
 
     @Override

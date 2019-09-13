@@ -17,4 +17,6 @@ public class NeoMapEntity {
     private String userAddress;
     @Column("name")
     private String userName;
+    @Column("data_user")
+    private String dataNameUser;
 }
