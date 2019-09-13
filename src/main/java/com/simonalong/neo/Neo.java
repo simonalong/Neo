@@ -357,13 +357,13 @@ public class Neo extends AbstractBaseDb {
             log.error(PRE_LOG + "参数{}是基本类型", entity);
             return entity;
         }
-        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
-        NeoMap searchMap = NeoMap.from(entity, columns);
+        String keyStr = NeoMap.dbToJavaStr(db.getPrimaryName(tableName));
+        NeoMap searchMap = NeoMap.fromInclude(entity, keyStr);
         // 若没有指定主键，则不进行DB更新
         if (NeoMap.from(entity).equals(searchMap)) {
             return entity;
         }
-        return update(tableName, entity, NeoMap.from(entity, columns));
+        return update(tableName, entity, searchMap);
     }
 
     /**

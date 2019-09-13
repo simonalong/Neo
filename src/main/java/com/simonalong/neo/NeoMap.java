@@ -47,6 +47,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
+     * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
+     *
+     * @param namingChg 转换类型
+     */
+    public static void setDefaultNamingChg(NamingChg namingChg) {
+        globalNaming = namingChg;
+    }
+
+    /**
      * 通过key-value-key-value生成
      *
      * @param kvs 参数是通过key-value-key-value等等这种
@@ -67,15 +76,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMap;
     }
 
-    public static NeoMap fromMap(Map<String, ?> dataMap) {
-        NeoMap data = NeoMap.of();
-        if (null == dataMap) {
-            return data;
-        }
-        data.putAll(dataMap);
-        return data;
-    }
-
     /**
      * 将多个NeoMap中的value集合起来
      *
@@ -90,13 +90,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return valueList;
     }
 
-    /**
-     * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
-     *
-     * @param namingChg 转换类型
-     */
-    public static void setDefaultNamingChg(NamingChg namingChg) {
-        globalNaming = namingChg;
+    public static NeoMap fromMap(Map<String, ?> dataMap) {
+        NeoMap data = NeoMap.of();
+        if (null == dataMap) {
+            return data;
+        }
+        data.putAll(dataMap);
+        return data;
     }
 
     /**
@@ -127,7 +127,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 指定包括的属性进行对象转换为NeoMap
      *
      * @param object 待转换对象
-     * @param fields 需要的属性
+     * @param fields 对象的属性名列表
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromInclude(Object object, String... fields) {
@@ -138,7 +138,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 指定排除的属性进行对象转换为NeoMap
      *
      * @param object 待转换对象
-     * @param fields 排除的属性
+     * @param fields 排除的对象的属性名列表
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromExclude(Object object, String... fields) {
@@ -149,8 +149,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 对象转换为NeoMap
      *
      * @param object 待转换的对象
-     * @param inFieldList 包括的属性
-     * @param exFieldList 排除的属性
+     * @param inFieldList 包括的对象的属性名列表
+     * @param exFieldList 排除的对象的属性名列表
      * @return 转换之后的NeoMap
      */
     @SuppressWarnings("unchecked")
@@ -171,6 +171,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
 
+    /**
+     * 将其他的map的key进行转换
+     * @param sourceMap 待转换的数据
+     * @param namingChg 转换方式
+     * @return 转换之后的数据，比如key：dataName 到 data_name
+     */
     public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {
         NeoMap targetMap = NeoMap.of();
         sourceMap.stream().forEach(c -> {
@@ -291,6 +297,43 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
+     * 设置对应的表的一些列
+     * @param tableName 表名
+     * @param kvs 表中对应的列和值的对应
+     * @return 拼接后的数据，比如：table1.`group`=ok, table1.`name`=kk, table2.`age`=123
+     */
+    public NeoMap table(String tableName, Object... kvs){
+//        NeoMap.of().setKeyPreTableName(AliasParser.getAlias(tableName));
+//        return setKeyPreTableName(tableName);
+        NeoMap currentMap = NeoMap.of();
+        if (kvs.length % 2 != 0) {
+            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
+        }
+
+        String orderByStr = "order by";
+        for (int i = 0; i < kvs.length; i += 2) {
+            if (null == kvs[i]) {
+                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
+            }
+            String key = (String) kvs[i];
+            Object valueObj = kvs[i + 1];
+            if (key.trim().equals(orderByStr) && valueObj instanceof String) {
+                String filterValue = toOrderByValueStr(tableName, String.class.cast(valueObj));
+                // 不包含order by对应的value，则设置转换的
+                if (!containsKey(key)) {
+                    put(key, filterValue);
+                } else {
+                    // 已经包含过，则合并新的
+                    String orderByValue = String.class.cast(get(key));
+                    put(key, orderByValue + ", " + filterValue);
+                }
+            } else {
+                put(toColumnStr(tableName, (String) kvs[i]), kvs[i + 1]);
+            }
+        }
+    }
+
+    /**
      * 拼接表的多个列名columns和对应的值
      *
      * @param kvs key-value-key-value-...
@@ -334,9 +377,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param key 表的列名
      * @return sql中对应的表的字段名
      */
-    private String toColumnStr(String key){
-        if (null != keyPreTableName && !"".equals(keyPreTableName)) {
-            return keyPreTableName + "." + key + "";
+    private String toColumnStr(String tableName, String key){
+        if (null != tableName && !"".equals(tableName)) {
+            return tableName + "." + key + "";
         }
         return "`" + key + "`";
     }
@@ -348,20 +391,20 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param value order by 后面的字段
      * @return 添加表前缀
      */
-    private String toOrderByValueStr(String value){
+    private String toOrderByValueStr(String tableName, String value){
         String comma = ",";
         String dom = ".";
         if(value.contains(comma)){
             return Stream.of(value.split(comma)).map(v->{
                 v = v.trim();
-                if (!v.startsWith(keyPreTableName) && !v.contains(dom)) {
-                    return keyPreTableName + "." + v;
+                if (!v.startsWith(tableName) && !v.contains(dom)) {
+                    return tableName + "." + v;
                 }
                 return v;
             }).collect(Collectors.joining(comma + " "));
         }
-        if (!value.startsWith(keyPreTableName) && !value.contains(dom)) {
-            return keyPreTableName + "." + value;
+        if (!value.startsWith(tableName) && !value.contains(dom)) {
+            return tableName + "." + value;
         }
         return value;
     }

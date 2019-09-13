@@ -81,8 +81,6 @@ public class NeoMapTest extends BaseTest {
         NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
         NeoMap map3 = NeoMap.of("_user_name", "name", "id", 123L, "data_base_name", TABLE_NAME);
         // 设置本地命名转换，用于覆盖全局命名转换：dataBaseUser -> _data_base_user
-        map3.setLocalNaming(NamingChg.PREUNDER);
-        // 其中，只有_user_name能匹配上
         // DemoEntity(group=null, name=null, userName=name, id=null, dataBaseName=null)
         DemoEntity demo3 = map3.as(DemoEntity.class);
         show(demo3);
@@ -198,21 +196,6 @@ public class NeoMapTest extends BaseTest {
     }
 
     @Test
-    public void testFrom4(){
-        DemoEntity demo = new DemoEntity();
-        demo.setGroup("group1");
-        demo.setName("name1");
-        demo.setUserName("userName1");
-        demo.setDataBaseName("databasename");
-        demo.setId(212L);
-
-        // 将map的key全部转换为下划线
-        NeoMap neoMap = NeoMap.from(demo, NamingChg.UNDERLINE);
-        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
-        show(neoMap);
-    }
-
-    @Test
     public void testFrom5(){
         DemoEntity demo = new DemoEntity();
         demo.setGroup("group1");
@@ -237,9 +220,11 @@ public class NeoMapTest extends BaseTest {
         demo.setId(212L);
 
         // 将map的key全部转换为下划线
-        NeoMap neoMap = NeoMap.from(demo, Columns.of("userName"));
-        // NeoMap={data_base_name=databasename, group=group1, id=212, name=name1, user_name=userName1}
+        NeoMap neoMap = NeoMap.from(demo, Columns.of("userName", "dataBaseName"));
+        NeoMap neoMap2 = NeoMap.fromInclude(demo, "userName", "dataBaseName");
+        // {data_name=databasename, user_name=userName1}
         show(neoMap);
+        show(neoMap2);
     }
 
     @Test
@@ -264,7 +249,7 @@ public class NeoMapTest extends BaseTest {
             .setUtilDate(new Date());
 
         // 将map的key全部转换为下划线
-        NeoMap neoMap = NeoMap.from(demoEntity, NamingChg.UNDERLINE);
+        NeoMap neoMap = NeoMap.from(demoEntity);
         // {group=group1, user_name=userName1}
         show(neoMap);
     }
