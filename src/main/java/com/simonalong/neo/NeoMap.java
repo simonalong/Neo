@@ -1,12 +1,12 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.annotation.Column;
-import com.simonalong.neo.table.AliasParser;
 import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
+import com.sun.istack.internal.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,8 +19,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -30,17 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
+    private static final Integer KV_NUM = 2;
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
      * 全局的命名转换，默认为小驼峰和下划线
      */
     private static NamingChg globalNaming = NamingChg.UNDERLINE;
-    /**
-     * 针对存储表和表对应的字段的时候，table名字和columnsName可能一起设定，这里就是tableName
-     */
-    @Setter
-    @Accessors(chain = true)
-    private String keyPreTableName;
 
     public NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
@@ -62,12 +55,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 生成的map数据
      */
     public static NeoMap of(Object... kvs) {
-        if (kvs.length % 2 != 0) {
+        if (kvs.length % KV_NUM != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
         }
 
         NeoMap neoMap = new NeoMap();
-        for (int i = 0; i < kvs.length; i += 2) {
+        for (int i = 0; i < kvs.length; i += KV_NUM) {
             if (null == kvs[i]) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
@@ -179,14 +172,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static NeoMap fromMap(NeoMap sourceMap, NamingChg namingChg) {
         NeoMap targetMap = NeoMap.of();
-        sourceMap.stream().forEach(c -> {
-            targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue());
-        });
+        sourceMap.stream().forEach(c -> targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue()));
         return targetMap;
-    }
-
-    public static NeoMap table(String tableName){
-        return NeoMap.of().setKeyPreTableName(AliasParser.getAlias(tableName));
     }
 
     /**
@@ -303,15 +290,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 拼接后的数据，比如：table1.`group`=ok, table1.`name`=kk, table2.`age`=123
      */
     public NeoMap table(String tableName, Object... kvs){
-//        NeoMap.of().setKeyPreTableName(AliasParser.getAlias(tableName));
-//        return setKeyPreTableName(tableName);
         NeoMap currentMap = NeoMap.of();
-        if (kvs.length % 2 != 0) {
+        if (kvs.length % KV_NUM != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
         }
 
         String orderByStr = "order by";
-        for (int i = 0; i < kvs.length; i += 2) {
+        for (int i = 0; i < kvs.length; i += KV_NUM) {
             if (null == kvs[i]) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
@@ -321,55 +306,18 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 String filterValue = toOrderByValueStr(tableName, String.class.cast(valueObj));
                 // 不包含order by对应的value，则设置转换的
                 if (!containsKey(key)) {
-                    put(key, filterValue);
+                    currentMap.put(key, filterValue);
                 } else {
                     // 已经包含过，则合并新的
                     String orderByValue = String.class.cast(get(key));
-                    put(key, orderByValue + ", " + filterValue);
+                    currentMap.put(key, orderByValue + ", " + filterValue);
                 }
             } else {
-                put(toColumnStr(tableName, (String) kvs[i]), kvs[i + 1]);
+                currentMap.put(toColumnStr(tableName, (String) kvs[i]), kvs[i + 1]);
             }
         }
-    }
 
-    /**
-     * 拼接表的多个列名columns和对应的值
-     *
-     * @param kvs key-value-key-value-...
-     * @return 拼接字段之后的数据
-     */
-    public NeoMap cs(Object... kvs) {
-        if (kvs.length % 2 != 0) {
-            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
-        }
-
-        String orderByStr = "order by";
-        for (int i = 0; i < kvs.length; i += 2) {
-            if (null == kvs[i]) {
-                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
-            }
-            String key = (String) kvs[i];
-            Object valueObj = kvs[i + 1];
-            if (key.trim().equals(orderByStr) && valueObj instanceof String) {
-                String filterValue = toOrderByValueStr(String.class.cast(valueObj));
-                // 不包含order by对应的value，则设置转换的
-                if (!containsKey(key)) {
-                    put(key, filterValue);
-                } else {
-                    // 已经包含过，则合并新的
-                    String orderByValue = String.class.cast(get(key));
-                    put(key, orderByValue + ", " + filterValue);
-                }
-            } else {
-                put(toColumnStr((String) kvs[i]), kvs[i + 1]);
-            }
-        }
-        return this;
-    }
-
-    public NeoMap and(String tableName){
-        return setKeyPreTableName(tableName);
+        return append(currentMap);
     }
 
     /**

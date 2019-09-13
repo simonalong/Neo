@@ -531,9 +531,9 @@ public class NeoMapTest extends BaseTest {
         String table2 = "table2";
         String table3 = "table3";
 
-        NeoMap result = NeoMap.table(table1).cs("name", "a", "age", 123)
-            .and(table2).cs("group", "g1")
-            .and(table3).cs("name", "k");
+        NeoMap result = NeoMap.of().table(table1, "name", "a", "age", 123)
+            .table(table2, "group", "g1")
+            .table(table3, "name", "k");
 
         // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
         show(result);

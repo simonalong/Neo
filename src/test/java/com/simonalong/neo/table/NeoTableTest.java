@@ -146,7 +146,7 @@ public class NeoTableTest extends BaseNeoTableTest {
         String otherTableName = "neo_table3";
         show(tinaTest.leftJoin(otherTableName).on("group", "group")
             .list(Columns.of().table(tinaTest.getTableName(), "group as group1").table(otherTableName, "group as group2"),
-                NeoMap.table(otherTableName).cs("order by", "sort desc")));
+                NeoMap.of().table(otherTableName, "order by", "sort desc")));
     }
 
 
