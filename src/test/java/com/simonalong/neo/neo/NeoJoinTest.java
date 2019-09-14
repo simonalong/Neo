@@ -337,6 +337,7 @@ public class NeoJoinTest extends NeoBaseTest {
      * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`id`
      * right join neo_table3 on neo_table2.`name`=neo_table3.`name`  limit 1
      */
+    // todo 多表join的时候sql有点问题
     @Test
     public void multiJoinTest() {
         String table1 = "neo_table1";

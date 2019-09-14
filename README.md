@@ -171,7 +171,8 @@ public void testDemo3() {
     table.batchInsertEntity(list);
 }
 ```
-实体类，简化的字段（使用注解跟db中字段对应即可）
+### 实体和DB字段映射
+映射可以通过设置全局映射（NeoMap.setDefaultNamingChg(xxx)），也可以设置db和实体的字段，如下，提供注解`@Column`用于提供实体的属性和DB表中的字段映射
 ```java
 @Data
 @Accessors(chain = true)
@@ -198,7 +199,7 @@ CREATE TABLE `neo_table1` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
 
-### 其他使用
+### 业务使用
 也可以继承使用，针对业务接入，可以直接继承类`AbstractBizService`即可具备一个表的常见的所有功能，只需要实现如下两个方法即可
 ```java
 public class BizServiceTest extends AbstractBizService {
