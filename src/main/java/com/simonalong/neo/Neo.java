@@ -881,7 +881,7 @@ public class Neo extends AbstractBaseDb {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner leftJoin(String leftTableName, String rightTableName){
+    public NeoJoiner leftJoin(String leftTableName, String rightTableName) {
         return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.LEFT_JOIN);
     }
 
