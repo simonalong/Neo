@@ -192,6 +192,6 @@ public class TimeRangeStrUtil {
     }
 
     private boolean canMillis(long time) {
-        return time >= MILLIS;
+        return time >= 0;
     }
 }

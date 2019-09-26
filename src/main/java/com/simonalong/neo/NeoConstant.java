@@ -8,6 +8,7 @@ package com.simonalong.neo;
  */
 public interface NeoConstant {
 
+    String LOG_PRE = "neo-orm:";
     String ORDER_BY = "order by";
     String LIMIT = "limit";
     String DESC = "desc";

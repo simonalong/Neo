@@ -355,7 +355,7 @@ public final class NeoJoiner {
     }
 
     private String generateSql(Columns columns, NeoMap searchMap){
-        String joinHeadSql = SqlBuilder.buildJoinHead(neo, columns) + ;
+        String joinHeadSql = SqlBuilder.buildJoinHead(neo, columns);
         String joinTailSql = SqlBuilder.buildJoinTail(sqlCondition, searchMap);
         if(null != joinSql && !"".equals(joinSql)){
             return joinHeadSql + " " + joinSql + " " + joinTailSql;

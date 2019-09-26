@@ -1197,11 +1197,11 @@ public class Neo extends AbstractBaseDb {
      *
      * @return 当前分布式系统内的唯一id
      */
-    public Long getUid() {
+    public Long getUuid() {
         if (null == uidGenerator) {
             throw new UidGeneratorNotInitException();
         }
-        return uidGenerator.getUid();
+        return uidGenerator.getUuid();
     }
 
     /**
@@ -1231,17 +1231,7 @@ public class Neo extends AbstractBaseDb {
      * 开启全局id生成器
      */
     public void openUidGenerator(){
-        uidGenerator = UidGenerator.getInstance(this, 10000, 0.2f);
-    }
-
-    /**
-     * 开启管局id生成器
-     *
-     * @param stepSize 步长
-     * @param refreshRatio 开启刷新二级缓存的比率
-     */
-    public void openUidGenerator(Integer stepSize, Float refreshRatio){
-        uidGenerator = UidGenerator.getInstance(this, stepSize, refreshRatio);
+        uidGenerator = UidGenerator.getInstance(this);
     }
 
     public Boolean isTransaction(){
