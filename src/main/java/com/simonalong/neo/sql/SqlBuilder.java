@@ -130,7 +130,7 @@ public class SqlBuilder {
      * @param searchMap 搜索条件
      * @return 返回拼接的sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
-    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap){
+    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
         StringBuilder sqlAppender = new StringBuilder("select ");
         if (!Columns.isEmpty(columns)){
             sqlAppender.append(columns.buildFields());

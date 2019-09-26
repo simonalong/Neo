@@ -210,13 +210,15 @@ public class Neo extends AbstractBaseDb {
     @Override
     public NeoMap insert(String tableName, NeoMap valueMap) {
         NeoMap valueMapTem = valueMap.clone();
-        Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
-        String incrementKey = db.getPrimaryAndAutoIncName(tableName);
-        if (null != incrementKey) {
-            valueMap.put(incrementKey, id);
-            return one(tableName, valueMap);
-        }
-        return valueMap;
+        return tx(() -> {
+            Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
+            String incrementKey = db.getPrimaryAndAutoIncName(tableName);
+            if (null != incrementKey) {
+                valueMap.put(incrementKey, id);
+                return oneWithXMode(tableName, valueMap);
+            }
+            return valueMap;
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -272,11 +274,25 @@ public class Neo extends AbstractBaseDb {
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
         NeoMap dataMapTem = dataMap.clone();
         NeoMap searchMapTem = searchMap.clone();
-        execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
-        closeStandard();
-        NeoMap result = one(tableName, NeoMap.of().append(searchMap).append(dataMap));
-        openStandard();
-        return result;
+        return tx(()->{
+            execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
+            closeStandard();
+            NeoMap result = oneWithXMode(tableName, NeoMap.of().append(searchMap).append(dataMap));
+            openStandard();
+            return result;
+        });
+    }
+
+    /**
+     * 添加排他锁执行查询
+     * @param tableName 表名
+     * @param params 参数
+     * @return 返回值
+     */
+    private NeoMap oneWithXMode(String tableName, NeoMap params) {
+        String sql = SqlBuilder.buildOne(this, tableName, null, params) + " " + "for update";
+        List<Object> parameters = new ArrayList<>(params.values());
+        return execute(false, () -> generateExeSqlPair(sql, parameters, false), this::executeOne);
     }
 
     @Override

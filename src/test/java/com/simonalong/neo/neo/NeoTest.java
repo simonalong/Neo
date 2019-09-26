@@ -116,6 +116,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate1(){
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group2", "name", "name"));
         // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("group", "ok2"), NeoMap.of("group", "group2", "name", "name")));
     }
