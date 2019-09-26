@@ -12,23 +12,23 @@ import javax.sql.DataSource;
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
-public final class ConnectPool {
+final class ConnectPool {
 
     private final Neo neo;
     private final DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
-    public ConnectPool(Neo neo, DataSource dataSource){
+    ConnectPool(Neo neo, DataSource dataSource){
         this.neo = neo;
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo, String propertiesPath){
+    ConnectPool(Neo neo, String propertiesPath){
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    public ConnectPool(Neo neo, Properties properties){
+    ConnectPool(Neo neo, Properties properties){
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(properties));
     }
@@ -38,7 +38,7 @@ public final class ConnectPool {
      * @return 返回连接
      * @throws SQLException 获取连接失败
      */
-    public Connection getConnect() throws SQLException {
+    Connection getConnect() throws SQLException {
         Connection con = connectLocal.get();
         if (null != con) {
             return con;
@@ -74,7 +74,7 @@ public final class ConnectPool {
         }
     }
 
-    public void submit() throws SQLException {
+    void submit() throws SQLException {
         ReusableConnection con = connectLocal.get();
         if(null != con){
             try {
@@ -87,7 +87,7 @@ public final class ConnectPool {
         }
     }
 
-    public void rollback() throws SQLException {
+    void rollback() throws SQLException {
         ReusableConnection con = connectLocal.get();
         if(null != con){
             try {
