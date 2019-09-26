@@ -374,7 +374,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap exeOne(String sql, Object... parameters) {
-        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
+        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
     }
 
     @Override
@@ -528,7 +528,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
+        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
         if (null != result) {
             Iterator<Object> it = result.values().iterator();
             return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
@@ -791,7 +791,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public Integer exeCount(String sql, Object... parameters) {
-        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), true), this::executeOne);
+        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
         if (null != result){
             Iterator<Object> it = result.values().iterator();
             return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
