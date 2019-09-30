@@ -2,6 +2,7 @@ package com.simonalong.neo;
 
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
+import com.simonalong.neo.table.AliasParser;
 import com.simonalong.neo.table.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
@@ -293,7 +294,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param kvs 表中对应的列和值的对应
      * @return 拼接后的数据，比如：table1.`group`=ok, table1.`name`=kk, table2.`age`=123
      */
-    public NeoMap table(String tableName, Object... kvs){
+    public NeoMap table(String tableNameStr, Object... kvs){
+        String tableName = AliasParser.getAlias(tableNameStr);
         NeoMap currentMap = NeoMap.of();
         if (kvs.length % KV_NUM != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");

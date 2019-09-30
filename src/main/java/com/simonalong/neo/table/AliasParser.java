@@ -42,23 +42,42 @@ public class AliasParser {
     }
 
     /**
-     * 获取列的别名
+     * 获取别名
      * {@code group as g --> g} {@code group g --> g}
      *
-     * @param fieldStr 字段列
-     * @return 列的别名
+     * @param dataStr 表名或者字段列
+     * @return 表的别名或者列的别名
      */
-    public String getAlias(String fieldStr){
+    public String getAlias(String dataStr){
         String asStr = " as ";
         String spaceStr = " ";
-        fieldStr = fieldStr.trim();
-        if(fieldStr.contains(asStr)){
-            return fieldStr.substring(fieldStr.indexOf(asStr) + asStr.length()).trim();
+        dataStr = dataStr.trim();
+        if(dataStr.contains(asStr)){
+            return dataStr.substring(dataStr.indexOf(asStr) + asStr.length()).trim();
         }
 
-        if (fieldStr.contains(spaceStr)){
-            return fieldStr.substring(fieldStr.indexOf(spaceStr) + spaceStr.length()).trim();
+        if (dataStr.contains(spaceStr)){
+            return dataStr.substring(dataStr.indexOf(spaceStr) + spaceStr.length()).trim();
         }
-        return fieldStr;
+        return dataStr;
+    }
+
+    /**
+     * 获取名字的原名
+     * {@code table1 as t1 --> table1} {@code table1 t1--> table1}
+     * @return 表名或者列名的原名字
+     */
+    public String getOrigin(String tableNameStr){
+        String asStr = " as ";
+        String spaceStr = " ";
+        tableNameStr = tableNameStr.trim();
+        if(tableNameStr.contains(asStr)){
+            return tableNameStr.substring(0, tableNameStr.indexOf(asStr)).trim();
+        }
+
+        if (tableNameStr.contains(spaceStr)){
+            return tableNameStr.substring(0, tableNameStr.indexOf(spaceStr)).trim();
+        }
+        return tableNameStr;
     }
 }

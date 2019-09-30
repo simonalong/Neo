@@ -13,7 +13,7 @@ public class NeoBaseTest extends BaseTest {
 
     public  static final String URL = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
     public static final String USER = "neo_test";
-    public static final String PASSWORD = "neo@123";
+    public static final String PASSWORD = "neo@Test123";
 
     public static final String TABLE_NAME = "neo_table1";
 
@@ -22,7 +22,7 @@ public class NeoBaseTest extends BaseTest {
     public NeoBaseTest() throws SQLException {}
 
     static {
-        System.setProperty("LOG_LEVEL", "info");
+        System.setProperty("LOG_LEVEL", "debug");
     }
 
     @BeforeClass

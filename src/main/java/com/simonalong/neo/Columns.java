@@ -89,6 +89,7 @@ public final class Columns {
     }
 
     public Columns table(String tableName, String... fields) {
+//        String tableName = AliasParser.getOrigin(tableNameStr);
         List<String> fieldList = new ArrayList<>(Arrays.asList(fields));
         if (fieldList.isEmpty()) {
             fieldList.add("*");
@@ -100,7 +101,7 @@ public final class Columns {
                 throw new ColumnParseException("列中含有符号'*'，表名不能为空");
             } else {
                 fieldList.remove(ALL_COLUMN_NAME);
-                fieldList.addAll(neo.getColumnNameList(tableName));
+                fieldList.addAll(neo.getColumnNameList(AliasParser.getOrigin(tableName)));
             }
         }
         this.tableFieldsMap.compute(tableName, (k, v) -> {
@@ -132,7 +133,7 @@ public final class Columns {
             String tableName = e.getKey();
             return columnToDbField(e.getValue()).stream().map(c -> {
                 if (!tableName.equals(DEFAULT_TABLE)) {
-                    return tableName + "." + c;
+                    return AliasParser.getAlias(tableName) + "." + c;
                 }
                 return c;
             });

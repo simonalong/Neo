@@ -41,8 +41,7 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`id`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
+     * select neo_table1.`id`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc
      */
     @Test
     public void joinOneTest1() {
@@ -56,23 +55,26 @@ public class NeoJoinTest extends NeoBaseTest {
      * join 采用的是innerJoin
      *
      * 搜索字段为一个表的所有
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`  order by `sort` desc limit 1
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table2.`user_name`, neo_table2.`n_id`, neo_table2.`sort`,
+     * neo_table1.`name`, neo_table2.`name`, neo_table2.`id`, neo_table2.`age`, neo_table1.`age`, neo_table1.`sl`,
+     * neo_table1.`id`, neo_table2.`group`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id` order by neo_table2.`sort` desc
      */
     @Test
     public void joinOneTest2() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         show(neo.join(table1, table2).on("id", "id")
-            .one(Columns.of(neo).table(table1, "*").table(table2, "*"), NeoMap.of("order by", "neo_table2.`sort` desc")));
+            .one(Columns.of(neo).table(table1, "*").table(table2, "*"), NeoMap.of("order by", "neo_table2.sort desc")));
     }
 
     /**
      * join 采用的是innerJoin
      *
      * 搜索字段为多个表中的字段
-     * select neo_table1.`id`, neo_table2.`group`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * order by `sort` desc limit 1
+     * select neo_table1.`id`, neo_table2.`group`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * order by `sort` desc
      */
     @Test
     public void joinOneTest3() {
@@ -86,9 +88,11 @@ public class NeoJoinTest extends NeoBaseTest {
      * join 采用的是innerJoin
      *
      * 搜索字段为多个表中的所有
-     * select neo_table1.`group`, neo_table2.`age`, neo_table1.`user_name`, neo_table2.`user_name`, neo_table2.`sort`,
-     * neo_table1.`age`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table2.`user_name`, neo_table2.`n_id`, neo_table2.`sort`,
+     * neo_table1.`name`, neo_table2.`name`, neo_table2.`id`, neo_table2.`age`, neo_table1.`age`, neo_table1.`sl`,
+     * neo_table1.`id`, neo_table2.`group`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc
      */
     @Test
     public void joinOneTest4() {
@@ -103,8 +107,9 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 针对列的别名方式使用
      *
-     * select neo_table2.`group` as group2, neo_table1.`group` as group1  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * order by `sort` desc limit 1
+     * select neo_table2.`group` group2, neo_table1.`group` group1
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by neo_table2.`sort` desc
      */
     @Test
     public void joinOneTest5() {
@@ -112,7 +117,7 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table2";
         // {group1=group3, group2=group4}
         show(neo.join(table1, table2).on("id", "n_id")
-            .one(Columns.of().table(table1, "group as group1").table(table2, "group as group2"), NeoMap.of("order by", "sort desc")));
+            .one(Columns.of().table(table1, "group as group1").table(table2, "group as group2"), NeoMap.of("order by", "neo_table2.sort desc")));
     }
 
     /**
@@ -120,8 +125,9 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 针对列的别名方式使用：在已有其他列情况下，别名会覆盖原列
      *
-     * select neo_table1.`group` as group1  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * order by `sort` desc limit 1
+     * select neo_table1.`group` group1
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc
      */
     @Test
     public void joinOneTest6() {
@@ -137,8 +143,9 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 针对列的别名方式使用：在已有其他列情况下，别名的覆盖，对于*的覆盖
      *
-     * select neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`group` as group1, neo_table1.`name`
-     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
+     * select neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` group1, neo_table1.`sl`, neo_table1.`id`, neo_table1.`name`
+     * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+     * order by `sort` desc
      */
     @Test
     public void joinOneTest7() {
@@ -152,9 +159,9 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * 针对有搜索条件情况下的使用
      *
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`sl`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * where neo_table1.`group` =  ? and neo_table1.`id` =  ? null limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`id` =  ?
      */
     @Test
     public void joinOneTest8() {
@@ -168,9 +175,10 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * 测试多条件
      *
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`sl`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
-     * where neo_table1.`group` =  ? and neo_table1.`id` =  ? and neo_table2.`group` =  ? order by `sort` desc limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`id` =  ? and neo_table2.`group` =  ?
+     * order by `sort` desc
      */
     @Test
     public void joinOneTest9() {
@@ -199,7 +207,7 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join 采用的是innerJoin
      *
-     * select neo_table1.`user_name`, neo_table2.`group` as group2, neo_table1.`age`, neo_table1.`id`, neo_table1.`group` as group1, neo_table1.`name`
+     * select neo_table2.`group` group2, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` group1, neo_table1.`sl`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
      */
     @Test
@@ -213,8 +221,8 @@ public class NeoJoinTest extends NeoBaseTest {
 
     /**
      * select neo_table1.`id`
-     * from neo_table1
-     * left join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by sort desc
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * order by `sort` desc
      */
     @Test
     public void leftJoinListTest1() {
@@ -227,7 +235,8 @@ public class NeoJoinTest extends NeoBaseTest {
 
     /**
      * select neo_table1.`group`
-     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`n_id`  order by `sort` desc limit 1
+     * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * order by `sort` desc
      */
     @Test
     public void leftJoinListTest2() {
@@ -240,9 +249,9 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * order by的放置，可以放到table里面，这样，其中order by后面的属性就是当前表的
      *
-     * select neo_table1.`group`
-     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
-     * where neo_table2.`group` =  ? order by neo_table2.`sort` desc
+     * select neo_table1.`group`  from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * where neo_table2.`group` =  ?
+     * order by neo_table2.`sort` desc
      */
     @Test
     public void leftJoinOrderByTest1() {
@@ -256,7 +265,8 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * order by的放置，里面可以放置多个参数
      *
-     * select neo_table1.`group`  from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+     * select neo_table1.`group`
+     * from neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id`
      * order by neo_table1.`name` desc, neo_table1.`group` asc
      */
     @Test
@@ -337,7 +347,6 @@ public class NeoJoinTest extends NeoBaseTest {
      * from neo_table1 right join neo_table2 on neo_table1.`id`=neo_table2.`id`
      * right join neo_table3 on neo_table2.`name`=neo_table3.`name`  limit 1
      */
-    // todo 多表join的时候sql有点问题
     @Test
     public void multiJoinTest() {
         String table1 = "neo_table1";
@@ -351,7 +360,7 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
      * from neo_table1 inner join neo_table2 on neo_table1.`name`=neo_table2.`name`
-     * where neo_table1.`group` =  ? and neo_table1.`name` =  ? and neo_table2.`name` =  ? limit 1
+     * where neo_table1.`group` =  ? and neo_table1.`name` =  ? and neo_table2.`name` =  ?
      */
     @Test
     public void oneTest(){
@@ -371,7 +380,7 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * select neo_table1.`group`, neo_table1.`id`, neo_table2.`group`, neo_table1.`name`, neo_table2.`name`, neo_table2.`id`
      * from neo_table1 left join neo_table2 on neo_table1.`name`=neo_table2.`name`
-     * where (neo_table2.id is null) limit 1
+     * where (neo_table2.id is null)
      */
     @Test
     public void leftJoinExceptInnerTest(){
@@ -385,10 +394,9 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * join的分页查询
      *
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`sl`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`id`
-     * order by neo_table1.`group` desc
-     * limit 0, 12
+     * order by neo_table1.`group` desc limit 0, 12
      */
     @Test
     public void pageTest(){
@@ -404,7 +412,7 @@ public class NeoJoinTest extends NeoBaseTest {
      *
      * 这里要通过在表的前头直接填写即可
      *
-     * select t1.`name`, t1.`id`, t1.`user_name`, t1.`group`, t1.`age`
+     * select t1.`name`, t1.`id`, t1.`user_name`, t1.`group`, t1.`sl`, t1.`age`
      * from neo_table1 as t1 inner join neo_table2 as t2 on t1.`id`=t2.`id`
      * order by t2.`id` desc limit 0, 12
      */
@@ -429,6 +437,7 @@ public class NeoJoinTest extends NeoBaseTest {
     public void joinSelfTest1(){
         String table1 = "neo_table3 as t1";
         String table2 = "neo_table3 as t2";
-        neo.leftJoin(table1, table2).on("id", "n_id").list(Columns.of(neo).table(table2, "*"));
+        show(neo.leftJoin(table1, table2).on("id", "n_id")
+            .list(Columns.of(neo).table(table2, "*")));
     }
 }

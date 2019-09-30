@@ -7,6 +7,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlBuilder;
 import java.util.List;
+import lombok.Getter;
 
 /**
  * @author zhouzhenyong
@@ -16,33 +17,13 @@ public final class NeoJoiner {
 
     private Neo neo;
     /**
-     * 左表表名，原始表名
+     * 起始表的joiner
      */
-    private String leftTableNameOrigin;
+    private TableJoiner tableJoiner;
     /**
-     * 左表表名，如果有别名，则为别名
+     * 中间表的joiner
      */
-    private String leftTableName;
-    /**
-     * join时候左表表名，原始表名
-     */
-    private String joinLeftTableNameOrigin;
-    /**
-     * join时候左表表名，如果有别名，则为别名
-     */
-    private String joinLeftTableName;
-    /**
-     * 右表表名，原始表名
-     */
-    private String rightTableNameOrigin;
-    /**
-     * 右表表名，如果有别名，则为别名
-     */
-    private String rightTableName;
-    /**
-     * join的类型
-     */
-    private JoinType joinType;
+    private TableJoiner innerTableJoiner;
     /**
      * join对应的sql，from a xxJoin b on a.xxx=b.xxx
      */
@@ -52,22 +33,10 @@ public final class NeoJoiner {
      */
     private String sqlCondition;
 
-    public NeoJoiner(Neo neo, String leftTableName, String rightTableName) {
+    public NeoJoiner(Neo neo, String leftTableName, String rightTableName, JoinType joinType) {
         this.neo = neo;
-        this.leftTableName = getAlias(leftTableName);
-        this.joinLeftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.joinLeftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
-    }
-
-    public NeoJoiner setJoin(JoinType joinType){
-        this.joinType = joinType;
-        this.sqlCondition = SqlBuilder.buildJoinCondition(neo, leftTableName, rightTableName, joinType);
-        return this;
+        this.tableJoiner = new TableJoiner(leftTableName, rightTableName, joinType);
+        this.sqlCondition = SqlBuilder.buildJoinCondition(neo, getOrigin(rightTableName), getOrigin(rightTableName), joinType);
     }
 
     /**
@@ -78,14 +47,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner join(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.INNER_JOIN;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.INNER_JOIN);
         return this;
     }
 
@@ -97,14 +59,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoin(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.LEFT_JOIN;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.LEFT_JOIN);
         return this;
     }
 
@@ -116,14 +71,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoin(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.RIGHT_JOIN;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.RIGHT_JOIN);
         return this;
     }
 
@@ -135,14 +83,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner innerJoin(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.INNER_JOIN;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.INNER_JOIN);
         return this;
     }
 
@@ -154,14 +95,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoin(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.OUTER_JOIN;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.OUTER_JOIN);
         return this;
     }
 
@@ -173,14 +107,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.LEFT_JOIN_EXCEPT_INNER;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.LEFT_JOIN_EXCEPT_INNER);
         return this;
     }
 
@@ -192,14 +119,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.RIGHT_JOIN_EXCEPT_INNER;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.RIGHT_JOIN_EXCEPT_INNER);
         return this;
     }
 
@@ -211,14 +131,7 @@ public final class NeoJoiner {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
-        this.joinLeftTableName = null;
-        this.leftTableName = getAlias(leftTableName);
-        this.rightTableName = getAlias(rightTableName);
-        this.joinType = JoinType.OUTER_JOIN_EXCEPT_INNER;
-
-        // 原始表名设置
-        this.leftTableNameOrigin = leftTableName;
-        this.rightTableNameOrigin = rightTableName;
+        this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.OUTER_JOIN_EXCEPT_INNER);
         return this;
     }
 
@@ -235,14 +148,14 @@ public final class NeoJoiner {
     }
 
     private String buildJoin(String leftColumnName, String rightColumnName) {
-        if(null != joinLeftTableNameOrigin){
-            return joinLeftTableNameOrigin + " " + joinType.getSql() + " " + rightTableNameOrigin
-                + " on " + leftTableName + "." + SqlBuilder.toDbField(leftColumnName) + "=" + rightTableName + "." + SqlBuilder
-                .toDbField(rightColumnName);
+        if(null == innerTableJoiner){
+            return tableJoiner.getLeftTableName() + " " + tableJoiner.getJoinType().getSql() + " " + tableJoiner.getRightTableName()
+                + " on " + tableJoiner.getLeftTableNameAlias() + "." + SqlBuilder.toDbField(leftColumnName)
+                + "=" + tableJoiner.getRightTableNameAlias() + "." + SqlBuilder.toDbField(rightColumnName);
         }else{
-            return " " + joinType.getSql() + " " + rightTableNameOrigin
-                + " on " + leftTableName + "." + SqlBuilder.toDbField(leftColumnName) + "=" + rightTableName + "." + SqlBuilder
-                .toDbField(rightColumnName);
+            return " " + innerTableJoiner.getJoinType().getSql() + " " + innerTableJoiner.getRightTableName()
+                + " on " + innerTableJoiner.getLeftTableNameAlias() + "." + SqlBuilder.toDbField(leftColumnName)
+                + "=" + innerTableJoiner.getRightTableNameAlias() + "." + SqlBuilder.toDbField(rightColumnName);
         }
     }
 
@@ -381,5 +294,38 @@ public final class NeoJoiner {
 
     private String generateValueSql(String tableName, String columnName, String joinTailSql){
         return "select " + tableName + "." + SqlBuilder.toDbField(columnName) + " " + joinSql + " " + joinTailSql;
+    }
+
+    @Getter
+    class TableJoiner{
+
+        /**
+         * 左表名字
+         */
+        private String leftTableName;
+        /**
+         * 左表别名
+         */
+        private String leftTableNameAlias;
+        /**
+         * 右表名字
+         */
+        private String rightTableName;
+        /**
+         * 右表别名
+         */
+        private String rightTableNameAlias;
+        /**
+         * join的类型
+         */
+        private JoinType joinType;
+
+        TableJoiner(String leftTableName, String rightTableName, JoinType joinType){
+            this.leftTableName = leftTableName;
+            this.leftTableNameAlias = getAlias(leftTableName);
+            this.rightTableName = rightTableName;
+            this.rightTableNameAlias = getAlias(rightTableName);
+            this.joinType = joinType;
+        }
     }
 }

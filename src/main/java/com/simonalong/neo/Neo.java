@@ -292,7 +292,7 @@ public class Neo extends AbstractBaseDb {
     private NeoMap oneWithXMode(String tableName, NeoMap params) {
         String sql = SqlBuilder.buildOne(this, tableName, null, params) + " " + "for update";
         List<Object> parameters = new ArrayList<>(params.values());
-        return execute(false, () -> generateExeSqlPair(sql, parameters, false), this::executeOne);
+        return execute(false, () -> generateExeSqlPair(sql, parameters), this::executeOne);
     }
 
     @Override
@@ -390,7 +390,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap exeOne(String sql, Object... parameters) {
-        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
+        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
     }
 
     @Override
@@ -482,7 +482,7 @@ public class Neo extends AbstractBaseDb {
     @Override
     public List<NeoMap> exeList(String sql, Object... parameters) {
         if (startWithSelect(sql)) {
-            return execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
+            return execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeList);
         }
         return new ArrayList<>();
     }
@@ -544,7 +544,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
+        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
         if (null != result) {
             Iterator<Object> it = result.values().iterator();
             return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
@@ -635,7 +635,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        List<NeoMap> resultList = execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeList);
+        List<NeoMap> resultList = execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeList);
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
@@ -807,7 +807,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public Integer exeCount(String sql, Object... parameters) {
-        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::executeOne);
+        NeoMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
         if (null != result){
             Iterator<Object> it = result.values().iterator();
             return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
@@ -844,7 +844,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<List<NeoMap>> execute(String sql, Object... parameters) {
-        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters), false), this::execute);
+        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
     }
 
     public Set<String> getColumnNameList(String tableName){
@@ -898,7 +898,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoin(String leftTableName, String rightTableName) {
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.LEFT_JOIN);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.LEFT_JOIN);
     }
 
     /**
@@ -909,7 +909,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoin(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.RIGHT_JOIN);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.RIGHT_JOIN);
     }
 
     /**
@@ -920,7 +920,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner innerJoin(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.INNER_JOIN);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.INNER_JOIN);
     }
 
     /**
@@ -931,7 +931,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoin(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.OUTER_JOIN);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.OUTER_JOIN);
     }
 
     /**
@@ -942,7 +942,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.LEFT_JOIN_EXCEPT_INNER);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.LEFT_JOIN_EXCEPT_INNER);
     }
 
     /**
@@ -953,7 +953,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.RIGHT_JOIN_EXCEPT_INNER);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.RIGHT_JOIN_EXCEPT_INNER);
     }
 
     /**
@@ -964,7 +964,7 @@ public class Neo extends AbstractBaseDb {
      * @return 做关联的关联器
      */
     public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
-        return new NeoJoiner(this, leftTableName, rightTableName).setJoin(JoinType.OUTER_JOIN_EXCEPT_INNER);
+        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.OUTER_JOIN_EXCEPT_INNER);
     }
 
     /**
@@ -1646,7 +1646,7 @@ public class Neo extends AbstractBaseDb {
     /**
      * 通过表名和查询参数生成查询一行数据的sql
      */
-    private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters, Boolean single){
+    private Pair<String, List<Object>> generateExeSqlPair(String sqlOrigin, List<Object> parameters){
         Pair<List<Object>, List<Object>> pair = replaceHolderParameters(sqlOrigin, parameters);
         List<Object> keys = pair.getKey();
         String sql = sqlOrigin;
@@ -1655,9 +1655,6 @@ public class Neo extends AbstractBaseDb {
             sql = String.format(sqlOrigin, keys.toArray());
         }
 
-        if (null != single && single) {
-            sql += SqlBuilder.limitOne();
-        }
         return new Pair<>(sql, pair.getValue());
     }
 
@@ -1669,7 +1666,7 @@ public class Neo extends AbstractBaseDb {
         if (!sqlOrigin.contains(LIMIT)) {
             sqlOrigin += " limit " + startIndex + ", " + pageSize;
         }
-        return generateExeSqlPair(sqlOrigin, parameters, false);
+        return generateExeSqlPair(sqlOrigin, parameters);
     }
 
     /**
