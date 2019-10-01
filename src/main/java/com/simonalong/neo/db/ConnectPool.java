@@ -1,5 +1,6 @@
-package com.simonalong.neo;
+package com.simonalong.neo.db;
 
+import com.simonalong.neo.Neo;
 import com.simonalong.neo.sql.TxIsolationEnum;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -12,23 +13,23 @@ import javax.sql.DataSource;
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
-final class ConnectPool {
+public final class ConnectPool {
 
     private final Neo neo;
     private final DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
-    ConnectPool(Neo neo, DataSource dataSource){
+    public ConnectPool(Neo neo, DataSource dataSource){
         this.neo = neo;
         this.dataSource = dataSource;
     }
 
-    ConnectPool(Neo neo, String propertiesPath){
+    public ConnectPool(Neo neo, String propertiesPath){
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    ConnectPool(Neo neo, Properties properties){
+    public ConnectPool(Neo neo, Properties properties){
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(properties));
     }
@@ -38,7 +39,7 @@ final class ConnectPool {
      * @return 返回连接
      * @throws SQLException 获取连接失败
      */
-    Connection getConnect() throws SQLException {
+    public Connection getConnect() throws SQLException {
         Connection con = connectLocal.get();
         if (null != con) {
             return con;
@@ -74,7 +75,7 @@ final class ConnectPool {
         }
     }
 
-    void submit() throws SQLException {
+    public void submit() throws SQLException {
         ReusableConnection con = connectLocal.get();
         if(null != con){
             try {
@@ -87,7 +88,7 @@ final class ConnectPool {
         }
     }
 
-    void rollback() throws SQLException {
+    public void rollback() throws SQLException {
         ReusableConnection con = connectLocal.get();
         if(null != con){
             try {

@@ -6,8 +6,8 @@ import static com.simonalong.neo.sql.JoinType.*;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.table.AliasParser;
-import com.simonalong.neo.table.NeoTable;
+import com.simonalong.neo.db.AliasParser;
+import com.simonalong.neo.db.NeoTable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class SqlBuilder {
     /**
      * order by 后面的字符转换为数据库字样，比如
      * {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
-     * {@code table.group desc, table.name asc --> table.`group` desc, table.`name` asc}
+     * {@code db.group desc, db.name asc --> db.`group` desc, db.`name` asc}
      * @param orderByValueStr order by后面的字符
      * @return 转换后的字符
      */
@@ -353,7 +353,7 @@ public class SqlBuilder {
     }
 
     /**
-     * 将普通的列名转换为sql语句中的列，{@code group --> `group`} {@code table.name --> table.`name`}
+     * 将普通的列名转换为sql语句中的列，{@code group --> `group`} {@code db.name --> db.`name`}
      * @param column 原列名
      * @return 转换后的列名，比如name 到 `name`
      */

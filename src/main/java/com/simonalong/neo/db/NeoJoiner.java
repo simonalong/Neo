@@ -1,6 +1,6 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
-import static com.simonalong.neo.table.AliasParser.*;
+import static com.simonalong.neo.db.AliasParser.*;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;

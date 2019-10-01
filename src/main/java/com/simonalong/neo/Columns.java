@@ -4,7 +4,7 @@ import static com.simonalong.neo.NeoConstant.ALL_COLUMN_NAME;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.annotation.Column;
-import com.simonalong.neo.table.AliasParser;
+import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.exception.ColumnParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,7 +222,7 @@ public final class Columns {
     /**
      * 筛选和清理列名为原始字符
      *
-     * 对于这么几种情况进行处理：{@code table.name --> name } {@code `name` --> name} {@code table.`name` --> name}
+     * 对于这么几种情况进行处理：{@code db.name --> name } {@code `name` --> name} {@code db.`name` --> name}
      * @param fieldName 指定的列名
      * @return 清理之后的列名
      */
@@ -247,7 +247,7 @@ public final class Columns {
     /**
      * 筛选处理为合法的sql字段
      *
-     * 对于这么几种情况进行处理：{@code name --> `name`} {@code table.name --> table.`name`} {@code table.`name` --> table.`name`}
+     * 对于这么几种情况进行处理：{@code name --> `name`} {@code db.name --> db.`name`} {@code db.`name` --> db.`name`}
      * @param fieldName 指定的列名
      * @return 处理之后的sql对应的列名
      */

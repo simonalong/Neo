@@ -1,6 +1,6 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
-import static com.simonalong.neo.table.AliasParser.*;
+import static com.simonalong.neo.db.AliasParser.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,10 +20,10 @@ public class AliasParserTest {
 
     @Test
     public void haveAliasTest2(){
-        Assert.assertEquals(true, haveAlias("table.group as g"));
-        Assert.assertEquals(true, haveAlias("table.group  g"));
-        Assert.assertEquals(true, haveAlias("table.group g"));
-        Assert.assertEquals(false, haveAlias("table.groupg"));
+        Assert.assertEquals(true, haveAlias("db.group as g"));
+        Assert.assertEquals(true, haveAlias("db.group  g"));
+        Assert.assertEquals(true, haveAlias("db.group g"));
+        Assert.assertEquals(false, haveAlias("db.groupg"));
     }
 
     @Test

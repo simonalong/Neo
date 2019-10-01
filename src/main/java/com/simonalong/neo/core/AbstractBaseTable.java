@@ -2,9 +2,8 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.exception.DbNotSetException;
-import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;

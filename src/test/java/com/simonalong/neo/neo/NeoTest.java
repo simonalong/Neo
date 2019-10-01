@@ -19,7 +19,7 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 /**
- * 测试，其中待测试的表结构请见文件 /table/test.sql
+ * 测试，其中待测试的表结构请见文件 /db/test.sql
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:47
  */
@@ -273,7 +273,7 @@ public class NeoTest extends NeoBaseTest {
 
     @Test
     public void testExecute6(){
-        NeoMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
+        NeoMap sql = neo.execute("show create db `xx_test5`").get(0).get(0);
         show("****");
         show(sql.get("Create Table"));
     }

@@ -3,7 +3,7 @@ package com.simonalong.neo.neo;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.db.NeoPage;
 import java.sql.SQLException;
 import org.junit.Test;
 

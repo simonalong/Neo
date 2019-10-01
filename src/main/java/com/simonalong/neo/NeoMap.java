@@ -2,8 +2,8 @@ package com.simonalong.neo;
 
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
-import com.simonalong.neo.table.AliasParser;
-import com.simonalong.neo.table.TimeDateConverter;
+import com.simonalong.neo.db.AliasParser;
+import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
@@ -340,7 +340,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     /**
      * 对order by后面的字段添加表前缀，比如：{@code name desc --> table1.name desc}
-     * {@code name desc, group asc --> table.name desc, table.group asc}
+     * {@code name desc, group asc --> db.name desc, db.group asc}
      *
      * @param value order by 后面的字段
      * @return 添加表前缀

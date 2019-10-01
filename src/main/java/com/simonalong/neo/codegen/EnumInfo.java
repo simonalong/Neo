@@ -36,7 +36,7 @@ final class EnumInfo {
 
     /**
      * 通过sql的创建语句
-     * @param tableCreateSql 比如：create table xxx(....) ...
+     * @param tableCreateSql 比如：create db xxx(....) ...
      * @return key为枚举的名字，value为枚举对应的信息
      */
     private Map<String, EnumInner> buildEnumMap(String tableCreateSql){

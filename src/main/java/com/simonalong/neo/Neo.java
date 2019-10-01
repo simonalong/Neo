@@ -1,21 +1,24 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.ALL_FIELD;
 import static com.simonalong.neo.NeoConstant.LIMIT;
+import static com.simonalong.neo.NeoConstant.ORDER_BY;
+import static com.simonalong.neo.NeoConstant.PRE_LOG;
+import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.core.AbstractBaseDb;
-import com.simonalong.neo.table.NeoColumn;
-import com.simonalong.neo.table.NeoColumn.NeoInnerColumn;
-import com.simonalong.neo.table.NeoDb;
-import com.simonalong.neo.table.NeoJoiner;
-import com.simonalong.neo.table.NeoPage;
-import com.simonalong.neo.table.NeoTable;
-import com.simonalong.neo.table.NeoTable.Table;
-import com.simonalong.neo.table.TimeDateConverter;
+import com.simonalong.neo.db.ConnectPool;
+import com.simonalong.neo.db.NeoColumn;
+import com.simonalong.neo.db.NeoDb;
+import com.simonalong.neo.db.NeoJoiner;
+import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.NeoTable;
+import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.uid.UidGenerator;
-import com.simonalong.neo.table.TableIndex.Index;
+import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlExplain;
 import com.simonalong.neo.sql.SqlMonitor;
@@ -23,7 +26,6 @@ import com.simonalong.neo.sql.SqlStandard;
 import com.simonalong.neo.sql.TxIsolationEnum;
 import com.simonalong.neo.util.ObjectUtil;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -33,10 +35,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,14 +59,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Neo extends AbstractBaseDb {
 
-    private static final String PRE_LOG = "[Neo] ";
-
     @Getter
     private NeoDb db;
+    @Getter
     private ConnectPool pool;
-    private static final String SELECT = "select";
-    private static final String ORDER_BY = "order by";
-    private static final String ALL_FIELD = "*";
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
@@ -146,9 +141,14 @@ public class Neo extends AbstractBaseDb {
         return neo;
     }
 
+    /**
+     * 初始化表信息
+     * @param tablePres 表的前缀
+     * @return 初始化db之后的表信息
+     */
     public Neo initDb(String... tablePres) {
         try(Connection con = pool.getConnect()) {
-            this.db = NeoDb.of(this, con.getCatalog(), con.getSchema());
+            this.db = NeoDb.of(this, con.getCatalog(), con.getSchema(), tablePres);
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
                 this.db = NeoDb.of(this);
@@ -157,28 +157,7 @@ public class Neo extends AbstractBaseDb {
                 return this;
             }
         }
-
-        // 初始化所有表信息
-        getAllTables().stream().filter(t->haveConcernTablePre(Arrays.asList(tablePres), t)).forEach(this::initTable);
         return this;
-    }
-
-    /**
-     * 判断是否包含关心的表前缀的表名
-     * @param concernTablePreList 关心的表明前缀
-     * @param tableName 表名
-     * @return true：关心的表，false不关心或者
-     */
-    private Boolean haveConcernTablePre(List<String> concernTablePreList, String tableName){
-        // 若没有配置关心表前缀，则默认关心所有的表
-        if (concernTablePreList.isEmpty()) {
-            return true;
-        }
-
-        if (concernTablePreList.size() == 1 && concernTablePreList.get(0).equals(ALL_FIELD)) {
-            return true;
-        }
-        return concernTablePreList.stream().anyMatch(tableName::startsWith);
     }
 
     /**
@@ -465,6 +444,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap one(String tableName, Number id){
+        checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         NeoMap neoMap = NeoMap.of();
         if(null != primaryKey){
@@ -621,7 +601,7 @@ public class Neo extends AbstractBaseDb {
         if (null != primaryKey && !"".equals(primaryKey)) {
             return value(tableName, String.class, field, NeoMap.of(primaryKey, entity));
         }
-        log.warn(PRE_LOG + "table {}'s primary key is null, please set", tableName);
+        log.warn(PRE_LOG + "db {}'s primary key is null, please set", tableName);
         return null;
     }
 
@@ -1196,7 +1176,7 @@ public class Neo extends AbstractBaseDb {
     /**
      * 获取创建sql的语句
      * {@code
-     * create table xxx{
+     * create db xxx{
      *     id xxxx;
      * } comment ='xxxx';
      * }
@@ -1205,7 +1185,7 @@ public class Neo extends AbstractBaseDb {
      * @return 表的创建语句
      */
     public String getTableCreate(String tableName){
-        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+        return (String) (execute("show create db `" + tableName + "`").get(0).get(0).get("Create Table"));
     }
 
     /**
@@ -1265,156 +1245,6 @@ public class Neo extends AbstractBaseDb {
                 explain.explain(this, sqlAndParamsList.getKey(), sqlAndParamsList.getValue());
             }
         }
-    }
-
-    /**
-     * 获取table的信息
-     */
-    private Set<String> getAllTables() {
-        Set<String> tableSet = new HashSet<>();
-        try (Connection con = pool.getConnect()) {
-            getAllTables(con, tableSet, con.getCatalog());
-        } catch (SQLException e) {
-            if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = pool.getConnect()) {
-                    getAllTables(con, tableSet, null);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                e.printStackTrace();
-            }
-        }
-        return tableSet;
-    }
-
-    private void getAllTables(Connection con, Set<String> tableSet, String catalog) throws SQLException {
-        DatabaseMetaData dbMeta = con.getMetaData();
-        ResultSet rs = dbMeta.getTables(catalog, null, null, new String[]{"TABLE"});
-        while (rs.next()) {
-            Table table = Table.parse(rs);
-            tableSet.add(table.getTableName());
-            db.addTable(this, table);
-        }
-    }
-
-    private void initTable(String tableName){
-        // 初始化表中的列信息
-        initColumnMeta(tableName);
-        // 初始化表的主键、外键和索引
-        initPrimary(tableName);
-        // 初始化索引
-        initIndex(tableName);
-    }
-
-    /**
-     * 主要是初始化表的一些信息：主键，外键，索引：这里先添加主键，其他的后面再说
-     */
-    private void initPrimary(String tableName) {
-        try (Connection con = pool.getConnect()) {
-            initPrimary(con, tableName, con.getCatalog(), con.getSchema());
-        } catch (SQLException e) {
-            if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = pool.getConnect()) {
-                    initPrimary(con, tableName, null, null);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void initPrimary(Connection con, String tableName, String catalog, String schema) throws SQLException {
-        DatabaseMetaData dbMeta = con.getMetaData();
-        ResultSet rs = dbMeta.getPrimaryKeys(catalog, schema, tableName);
-        if (rs.next()) {
-            db.setPrimaryKey(schema, tableName, rs.getString("COLUMN_NAME"));
-        }
-    }
-
-    /**
-     * 主要是初始化表的索引信息：索引
-     */
-    private void initIndex(String tableName) {
-        try (Connection con = pool.getConnect()) {
-            initIndex(con, tableName, con.getCatalog(), con.getSchema());
-        } catch (SQLException e) {
-            if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = pool.getConnect()) {
-                    initIndex(con, tableName, null, null);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void initIndex(Connection con, String tableName, String catalog, String schema) throws SQLException {
-        DatabaseMetaData dbMeta = con.getMetaData();
-        // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
-        ResultSet rs = dbMeta.getIndexInfo(catalog, schema, tableName, false, true);
-        while (rs.next()) {
-            NeoTable table = db.getTable(tableName);
-            if(null == table) {
-                log.warn("表" + tableName + "没有找到");
-            }else{
-                table.initIndex(rs);
-            }
-        }
-    }
-
-    /**
-     * 初始化表中的列信息
-     * @param tableName 表名
-     */
-    @SuppressWarnings("all")
-    private void initColumnMeta(String tableName){
-        try (Connection con = pool.getConnect()) {
-            Map<String, NeoInnerColumn> columnMap = generateColumnMetaMap(con, tableName);
-            String sql = "select * from " + tableName + " limit 1";
-
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-                ResultSet rs = statement.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                Set<NeoColumn> columnList = new LinkedHashSet<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    NeoColumn column = NeoColumn.parse(metaData, i);
-                    column.setInnerColumn(columnMap.get(column.getColumnName()));
-                    columnList.add(column);
-                }
-                db.addColumn(tableName, columnList);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 生成列的元数据map
-     *
-     * @return key为列名，value为Column
-     */
-    private Map<String, NeoInnerColumn> generateColumnMetaMap(Connection conn, String tableName){
-        Map<String, NeoInnerColumn> columnMap = new HashMap<>(16);
-        try {
-            // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
-            ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, tableName, null);
-            while (rs.next()) {
-                NeoInnerColumn innerColumn = NeoInnerColumn.parse(rs);
-                columnMap.put(innerColumn.getColumnName(), innerColumn);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return columnMap;
     }
 
     /**
@@ -1873,5 +1703,17 @@ public class Neo extends AbstractBaseDb {
         List<NeoMap> dataMapTem = new ArrayList<>();
         dataMapList.forEach(d-> dataMapTem.add(d.clone()));
         return dataMapTem;
+    }
+
+    /**
+     * 核查数据库是否存储，或者表是否包含
+     * @param tableName 表名
+     */
+    private void checkDb(String tableName){
+        if (null == db) {
+            initDb(tableName);
+        } else if (!db.containTable(tableName)) {
+            db.addTable(tableName);
+        }
     }
 }

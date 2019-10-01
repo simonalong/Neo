@@ -14,4 +14,7 @@ public interface NeoConstant {
     String DESC = "desc";
     String ASC = "asc";
     String ALL_COLUMN_NAME = "*";
+    String ALL_FIELD = "*";
+    String SELECT = "select";
+    String PRE_LOG = "[Neo] ";
 }

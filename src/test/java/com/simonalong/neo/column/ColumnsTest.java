@@ -56,8 +56,8 @@ public class ColumnsTest extends NeoBaseTest {
 
     @Test
     public void aliasTest4(){
-        // table.`c1`  c11, `c3`
-        show(Columns.of("table.c1  c11", "`c1`", "`c3`").buildFields());
+        // db.`c1`  c11, `c3`
+        show(Columns.of("db.c1  c11", "`c1`", "`c3`").buildFields());
     }
 
     @Test

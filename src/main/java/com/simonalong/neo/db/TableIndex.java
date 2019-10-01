@@ -1,4 +1,4 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,15 +68,15 @@ public final class TableIndex {
     @Accessors(chain = true)
     public static class Index{
         /**
-         * table catalog
+         * db catalog
          */
         private String catalog;
         /**
-         * table schema
+         * db schema
          */
         private String schema;
         /**
-         * table name
+         * db name
          */
         private String tableName;
         /**

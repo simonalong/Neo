@@ -177,7 +177,7 @@ public final class UidGenerator {
     }
 
     private String uidTableCreateSql() {
-        return "create table `" + UUID_TABLE + "` (\n"
+        return "create db `" + UUID_TABLE + "` (\n"
             + "  `id` int(11) not null,\n"
             + "  `uuid` bigint(20) not null default 0,\n"
             + "  primary key (`id`)\n"

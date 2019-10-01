@@ -1,4 +1,4 @@
-package com.simonalong.neo;
+package com.simonalong.neo.db;
 
 import java.sql.Array;
 import java.sql.Blob;

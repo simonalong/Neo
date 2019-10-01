@@ -122,7 +122,7 @@ public final class SqlExplain {
          * 这是一个非常重要的参数，连接类型，常见的有：all , index , range , ref , eq_ref , const , system , null 八个级别。
          *  性能从最优到最差的排序：system > const > eq_ref > ref > range > index > all
          *  我们这里约束要至少达到range级别或者最好能达到ref，all进行告警，index进行Info打印，其他的进行debug打印
-         *  all：（full table scan）全表扫描无疑是最差，若是百万千万级数据量，全表扫描会非常慢。
+         *  all：（full db scan）全表扫描无疑是最差，若是百万千万级数据量，全表扫描会非常慢。
          *  index：（full index scan）全索引文件扫描比all好很多，毕竟从索引树中找数据，比从全表中找数据要快。
          *  range：只检索给定范围的行，使用索引来匹配行。范围缩小了，当然比全表扫描和全索引文件扫描要快。sql语句中一般会有between，in，>，< 等查询。
          *  ref：非唯一性索引扫描，本质上也是一种索引访问，返回所有匹配某个单独值的行。比如查询公司所有属于研发团队的同事，匹配的结果是多个并非唯一值。
@@ -179,7 +179,7 @@ public final class SqlExplain {
             return new Explain()
                 .setId((Integer)(neoMap.get("neoMap")))
                 .setSelectType((String) neoMap.get("select_type"))
-                .setTable((String) neoMap.get("table"))
+                .setTable((String) neoMap.get("db"))
                 .setPartitions((String) neoMap.get("partitions"))
                 .setType((String) neoMap.get("type"))
                 .setPossibleKeys((String) neoMap.get("possible_keys"))

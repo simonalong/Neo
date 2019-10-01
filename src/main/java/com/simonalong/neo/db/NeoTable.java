@@ -1,9 +1,9 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.core.AbstractBaseTable;
 import com.simonalong.neo.core.DbSync;
-import com.simonalong.neo.table.TableIndex.Index;
+import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -165,7 +165,7 @@ public class NeoTable extends AbstractBaseTable {
     /**
      * 获取创建sql的语句
      * {@code
-     * create table xxx{
+     * create db xxx{
      *     id xxxx;
      * } comment ='xxxx';
      * }
@@ -173,7 +173,7 @@ public class NeoTable extends AbstractBaseTable {
      * @return 表创建的sql语句
      */
     public String getTableCreate(){
-        return (String) (neo.execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+        return (String) (neo.execute("show create db `" + tableName + "`").get(0).get(0).get("Create Table"));
     }
 
     /**
@@ -240,19 +240,19 @@ public class NeoTable extends AbstractBaseTable {
         private static final String REF_GENERATION = "REF_GENERATION";
 
         /**
-         * String => table catalog（可以为null）
+         * String => db catalog（可以为null）
          */
         private String catalog;
         /**
-         * String => table schema（可以为null）
+         * String => db schema（可以为null）
          */
         private String schema;
         /**
-         * String => table name
+         * String => db name
          */
         private String tableName;
         /**
-         * String => table type。典型的类型是“TABLE”，“VIEW”，“SYSTEM TABLE”，“GLOBAL TEMPORARY”，“LOCAL TEMPORARY”，“ALIAS”，“SYNONYM”。
+         * String => db type。典型的类型是“TABLE”，“VIEW”，“SYSTEM TABLE”，“GLOBAL TEMPORARY”，“LOCAL TEMPORARY”，“ALIAS”，“SYNONYM”。
          */
         private String tableType;
         /**

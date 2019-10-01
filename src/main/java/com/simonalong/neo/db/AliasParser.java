@@ -1,4 +1,4 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
 import lombok.experimental.UtilityClass;
 
@@ -24,7 +24,7 @@ public class AliasParser {
     }
 
     /**
-     * 去除别名字段之后的字段：{@code table.name as n --> table.name} {@code table.name n}
+     * 去除别名字段之后的字段：{@code db.name as n --> db.name} {@code db.name n}
      * @param fieldStr 字段列
      * @return 去除别名后的名字
      */

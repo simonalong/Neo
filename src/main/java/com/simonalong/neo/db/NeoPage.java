@@ -1,4 +1,4 @@
-package com.simonalong.neo.table;
+package com.simonalong.neo.db;
 
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
