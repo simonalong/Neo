@@ -177,7 +177,7 @@ public void testDemo3() {
 }
 ```
 ### 实体和DB字段映射
-映射可以通过设置全局映射（NeoMap.setDefaultNamingChg(xxx)），也可以设置db和实体的字段，如下，提供注解`@Column`用于提供实体的属性和DB表中的字段映射
+上面的所有映射，遵从的db和实体的映射是按照指定的规则匹配的，即全局的`NamingChg`（`NeoMap.setDefaultNamingChg(xxx)`）。如果要单独指定，则这里提供注解`@Column`用于提供实体的属性和DB表中的字段映射
 ```java
 @Data
 @Accessors(chain = true)
