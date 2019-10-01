@@ -6,6 +6,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.db.NeoColumn.NeoInnerColumn;
 import com.simonalong.neo.db.NeoTable.Table;
 import com.simonalong.neo.db.TableIndex.Index;
+import com.simonalong.neo.exception.NeoException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -69,7 +70,7 @@ public final class NeoDb {
     }
 
     private NeoDb init(String... tablePres){
-        getAllTables(tablePres).stream().filter(t->haveConcernTablePre(Arrays.asList(tablePres), t)).forEach(this::initTable);
+        getAllTables(tablePres).forEach(this::initTable);
         return this;
     }
 
@@ -108,7 +109,7 @@ public final class NeoDb {
         if (null != neoTable) {
             return neoTable.getPrimary();
         }
-        return null;
+        throw new NeoException("表"+tableName+"不存在");
     }
 
     public String getPrimaryName(String tableName){
@@ -248,23 +249,26 @@ public final class NeoDb {
         return tableSet;
     }
 
-    private void getAllTables(Connection con, Set<String> tableSet, String catalog) throws SQLException {
+    private void getAllTables(Connection con, Set<String> tableSet, String catalog, String... tablePres) throws SQLException {
         DatabaseMetaData dbMeta = con.getMetaData();
         ResultSet rs = dbMeta.getTables(catalog, null, null, new String[]{"TABLE"});
+        List<String> tablePreList = Arrays.asList(tablePres);
         while (rs.next()) {
             Table table = Table.parse(rs);
-            tableSet.add(table.getTableName());
-            addTable(neo, table);
+            if (concernTable(tablePreList, table.getTableName())){
+                tableSet.add(table.getTableName());
+                addTable(neo, table);
+            }
         }
     }
 
     /**
-     * 判断是否包含关心的表前缀的表名
-     * @param concernTablePreList 关心的表明前缀
-     * @param tableName 表名
-     * @return true：关心的表，false不关心或者
+     * 判断当前的表名是否是关心的表
+     * @param concernTablePreList 关心的表前缀列表
+     * @param tableName 待校验的表名
+     * @return true：当前表关心
      */
-    private Boolean haveConcernTablePre(List<String> concernTablePreList, String tableName){
+    private Boolean concernTable(List<String> concernTablePreList, String tableName){
         // 若没有配置关心表前缀，则默认关心所有的表
         if (concernTablePreList.isEmpty()) {
             return true;

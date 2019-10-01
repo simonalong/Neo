@@ -2,6 +2,7 @@ package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.exception.NeoException;
 import java.sql.SQLException;
 import org.junit.Test;
 
@@ -36,5 +37,14 @@ public class NeoDbTest extends NeoBaseTest {
     public void testDb3() {
         Neo second = Neo.connect(URL, USER, PASSWORD).initDb("neo_table2");
         show(second.one("neo_table1", 4));
+    }
+
+    /**
+     * 不存在的表，则上报异常
+     */
+    @Test(expected = NeoException.class)
+    public void testDb4() {
+        Neo second = Neo.connect(URL, USER, PASSWORD).initDb("neo_table2");
+        show(second.one("neo_table9", 4));
     }
 }

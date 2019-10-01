@@ -14,6 +14,7 @@ import com.simonalong.neo.db.NeoJoiner;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
