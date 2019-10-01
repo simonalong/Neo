@@ -89,7 +89,6 @@ public final class Columns {
     }
 
     public Columns table(String tableName, String... fields) {
-//        String tableName = AliasParser.getOrigin(tableNameStr);
         List<String> fieldList = new ArrayList<>(Arrays.asList(fields));
         if (fieldList.isEmpty()) {
             fieldList.add("*");

@@ -1,7 +1,5 @@
 package com.simonalong.neo.exception;
 
-import com.simonalong.neo.exception.NeoException;
-
 /**
  * @author zhouzhenyong
  * @since 2019/5/10 下午4:42
@@ -9,6 +7,6 @@ import com.simonalong.neo.exception.NeoException;
 public class ColumnParseException extends NeoException {
 
     public ColumnParseException(String msg) {
-        super(msg);
+        super("列解析异常：" + msg);
     }
 }
