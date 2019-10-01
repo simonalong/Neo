@@ -1,7 +1,6 @@
 package com.simonalong.neo.uid;
 
-import com.simonalong.neo.neo.NeoBaseTest;
-import com.simonalong.neo.neo.NeoBaseTest;
+import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Test;

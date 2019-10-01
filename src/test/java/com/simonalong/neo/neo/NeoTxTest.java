@@ -1,5 +1,6 @@
 package com.simonalong.neo.neo;
 
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
 import com.simonalong.neo.sql.TxIsolationEnum;

@@ -1,9 +1,8 @@
 package com.simonalong.neo.column;
 
 import com.simonalong.neo.Columns;
-import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.entity.TestEntity;
-import com.simonalong.neo.neo.NeoBaseTest;
+import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;

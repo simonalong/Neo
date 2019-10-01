@@ -1,8 +1,8 @@
 package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/25 下午20:04
  */
-public class NeoBatchTest extends NeoBaseTest{
+public class NeoBatchTest extends NeoBaseTest {
 
     public NeoBatchTest() throws SQLException {}
 

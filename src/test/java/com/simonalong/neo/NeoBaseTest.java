@@ -1,4 +1,4 @@
-package com.simonalong.neo.neo;
+package com.simonalong.neo;
 
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
