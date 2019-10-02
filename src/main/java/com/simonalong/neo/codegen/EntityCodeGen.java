@@ -118,7 +118,7 @@ public class EntityCodeGen {
     }
 
     public void generate(){
-        Neo neo = Neo.connect(url, userName, password);
+        Neo neo = Neo.connect(url, userName, password).initDb();
         NeoMap dataMap = NeoMap.of("entityPath", entityPath);
 
         List<String> tableNameList = getShowTableList(neo);

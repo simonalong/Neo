@@ -152,7 +152,7 @@ public class Neo extends AbstractBaseDb {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema(), tablePres);
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
-                this.db = NeoDb.of(this);
+                this.db = NeoDb.of(this, tablePres);
             } else {
                 e.printStackTrace();
                 return this;
@@ -1186,7 +1186,7 @@ public class Neo extends AbstractBaseDb {
      * @return 表的创建语句
      */
     public String getTableCreate(String tableName){
-        return (String) (execute("show create db `" + tableName + "`").get(0).get(0).get("Create Table"));
+        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
     }
 
     /**

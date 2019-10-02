@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -32,9 +34,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     private static final Integer KV_NUM = 2;
     private ConcurrentSkipListMap<String, Object> dataMap;
     /**
-     * 全局的命名转换，默认为小驼峰和下划线
+     * 全局的命名转换，默认不转换
      */
-    private static NamingChg globalNaming = NamingChg.UNDERLINE;
+    private static NamingChg globalNaming = NamingChg.DEFAULT;
+    /**
+     * 本次的默认转换规则
+     */
+    @Setter
+    @Accessors(chain = true)
+    private NamingChg namingChg = NamingChg.DEFAULT;
 
     public NeoMap() {
         dataMap = new ConcurrentSkipListMap<>();
@@ -731,6 +739,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             return column.value();
         }
 
+        if (!namingChg.equals(NamingChg.DEFAULT)) {
+            return namingChg.smallCamelToOther(field.getName());
+        }
+
         return globalNaming.smallCamelToOther(field.getName());
     }
 
@@ -932,6 +944,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     @Override
+    @SuppressWarnings("all")
     public NeoMap clone(){
         NeoMap neoMap = NeoMap.of();
         neoMap.putAll(dataMap.clone());
