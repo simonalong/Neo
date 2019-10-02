@@ -177,17 +177,46 @@ public void testDemo3() {
 }
 ```
 ### 实体和DB字段映射
-上面的所有映射，遵从的db和实体的映射是按照指定的规则匹配的，即全局的`NamingChg`（`NeoMap.setDefaultNamingChg(xxx)`）。如果要单独指定，则这里提供注解`@Column`用于提供实体的属性和DB表中的字段映射
+实体和DB中字段的映射，可以有三种方式进行配置<br/>
+1.`NeoMap`全局配置：`NeoMap.setDefaultNamingChg(xxx)`<br/>
+2.`NeoMap`实体单独配置：`neoMap.setNamingChg(xxx)`<br/>
+3.通过注解`@Column`对应配置：每个属性上面添加`@Column`其中是DB中的属性名 <br/>
+
+下面介绍`@Column`的用法，以后表字段修改时候，实体就不用修改，如果有属性上面没有添加注解，则默认按照类型`NamingChg.UNDERLINE`进行转换
 ```java
+/**
+ * @author robot
+ */
 @Data
 @Accessors(chain = true)
-public class DemoEntity3 {
+public class NeoTable1DO {
 
-    private Integer id;
+    @Column("id")
+    private Long id;
+
+    /**
+     * 数据来源组，外键关联lk_config_group
+     */
+    @Column("group")
     private String group;
-    // 自定义的跟DB中对应的
+
+    /**
+     * 任务name
+     */
+    @Column("name")
+    private String name;
+
+    /**
+     * 修改人名字
+     */
     @Column("user_name")
-    private String usName;
+    private String userName;
+    @Column("age")
+    private Integer age;
+    @Column("sl")
+    private Long sl;
+    @Column("data_name")
+    private String dataName;
 }
 ```
 sql字段
@@ -199,9 +228,10 @@ CREATE TABLE `neo_table1` (
   `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
   `age` int(11) DEFAULT NULL,
   `sl` bigint(20) DEFAULT NULL,
+  `data_name` varchar(24) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `k_group_index` (`group`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `group_index` (`group`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;;
 ```
 
 ### 业务使用
@@ -232,6 +262,35 @@ public class BizServiceTest extends AbstractBizService {
             .setUserName("me")
             .setName("hello");
         insert(entity);
+    }
+}
+```
+
+### 实体代码生成器
+本框架也支持实体生成器，如下，即可生成如上所示的类`NeoTable1DO`就是如下生成的
+```java
+public class CodeGenTest {
+
+    @Test
+    public void test1(){
+        EntityCodeGen codeGen = new EntityCodeGen()
+            // 设置DB信息
+            .setDb("neo_test", "neo@Test123", "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false")
+            // 设置项目路径
+            .setProjectPath("/Users/zhouzhenyong/project/private/Neo")
+            // 设置实体生成的包路径
+            .setEntityPath("com.simonalong.neo.entity")
+            // 设置表前缀过滤
+//            .setPreFix("t_")
+            // 设置要排除的表
+            //.setExcludes("xx_test")
+            // 设置只要的表
+            .setIncludes("neo_table1")
+            // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
+            .setFieldNamingChg(NamingChg.UNDERLINE);
+
+        // 代码生成
+        codeGen.generate();
     }
 }
 ```

@@ -36,7 +36,7 @@ public class NeoOneTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeOne2(){
-        show(neo.exeOne("select * from %s where `group`=?", "neo_table1", "nihao1"));
+        show(neo.exeOne("select * from %s where `group`=?", "neo_table1", "group1"));
     }
 
     /**
@@ -56,7 +56,7 @@ public class NeoOneTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeOne4(){
-        show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "nihao1"));
+        show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "group1"));
     }
 
     /**

@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 <#if importBigDecimal == 1>
 import java.math.BigDecimal;
 </#if>
+import com.simonalong.neo.annotation.Column;
+import lombok.experimental.Accessors;
 import lombok.Data;
 <#if importInnerEnum == 1>
 import lombok.AllArgsConstructor;
@@ -25,6 +27,7 @@ import lombok.Getter;
  * @author robot
  */
 @Data
+@Accessors(chain = true)
 public class ${tableName}${tableNamePost} {
 
 <#list fieldList! as field>
@@ -34,9 +37,9 @@ public class ${tableName}${tableNamePost} {
      * ${field.fieldRemark}
      */
     </#if>
+    @Column("${field.columnName}")
     private ${field.fieldType} ${field.fieldName};
 </#list>
-
 <#list innerEnumList! as inner>
     /**
 <#if inner.enumRemark??>

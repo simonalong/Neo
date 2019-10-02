@@ -140,8 +140,8 @@ public class NeoMapTest extends BaseTest {
         NeoMap map4 = NeoMap.of("date", time, "sql_date", time, "time", time, "timestamp", time);
 //        NeoMap map4 = NeoMap.of("a", 1);
         // sqlDate -> sql_date
-        DemoEntity demo4 = map4.as(DemoEntity.class);
-        // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=1, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
+        DemoEntity demo4 = map4.as(DemoEntity.class, NamingChg.UNDERLINE);
+        // DemoEntity(group=null, name=null, userName=null, id=null, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=2019-10-02, time=12:19:29, timestamp=2019-10-02 12:19:29.174)
         show(demo4.toString());
     }
 
@@ -258,6 +258,21 @@ public class NeoMapTest extends BaseTest {
     }
 
     @Test
+    public void testFrom10(){
+        DemoEntity demo = new DemoEntity();
+        demo.setGroup("group1");
+        demo.setName("name1");
+        demo.setUserName("userName1");
+        demo.setDataBaseName("databasename");
+        demo.setId(212L);
+
+        NeoMap neoMap = NeoMap.from(demo, NamingChg.UNDERLINE);
+        // {"data_name":"databasename","group":"group1","id":212,"name":"name1","sl":0,"user_name":"userName1"}
+        show(neoMap);
+        Assert.assertEquals(neoMap.as(DemoEntity.class), demo);
+    }
+
+    @Test
     public void testAssign(){
         NeoMap neoMap1 = NeoMap.of("a", "1", "b", "2", "c", "3");
         NeoMap neoMap2 = NeoMap.of("a", "1", "c", "3");
@@ -304,14 +319,14 @@ public class NeoMapTest extends BaseTest {
         show(neoMap.getChar("t"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void getByteTest(){
         NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
         // 异常
 //        show(neoMap.getByte("flag"));
         // 异常
 //        show(neoMap.getByte("test"));
-//        show(neoMap.getByte("test2"));
+        show(neoMap.getByte("test2"));
         // 异常
 //        show(neoMap.getByte("t"));
     }

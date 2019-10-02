@@ -104,25 +104,49 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 对象转换为NeoMap
      *
+     * <p>转换规则为默认不转换
+     *
      * @param object 待转换对象
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object) {
-        return from(object, new ArrayList<>(), new ArrayList<>());
+        return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /**
+     * 对象转换为NeoMap
+     *
+     * @param object 待转换对象
+     * @param namingChg 转换规则
+     * @return 转换之后的NeoMap
+     */
+    public static NeoMap from(Object object, NamingChg namingChg) {
+        return from(object, namingChg, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
      * 根据指定的一些列转换为NeoMap对象，该函数同函数 fromInclude，只是为了方便命名的统一
      *
      * @param object 待转换对象
-     * @param columns 对象的属性名列表
+     * @param columnsNames 对象的属性名列表
      * @return 转换之后的NeoMap
      */
+    public static NeoMap from(Object object, String... columnsNames) {
+        return from(object, NamingChg.DEFAULT, Arrays.asList(columnsNames), new ArrayList<>());
+    }
+
     public static NeoMap from(Object object, Columns columns) {
-        if (null == columns) {
-            return from(object, new ArrayList<>(), new ArrayList<>());
+        if (Columns.isEmpty(columns)) {
+            return from(object);
         }
-        return from(object, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
+        return from(object, columns.getFieldSets().toArray(new String[]{}));
+    }
+
+    public static NeoMap from(Object object, Columns columns, NamingChg namingChg) {
+        if (Columns.isEmpty(columns)) {
+            return from(object, namingChg);
+        }
+        return from(object, namingChg, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
     }
 
     /**
@@ -133,7 +157,18 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromInclude(Object object, String... fields) {
-        return from(object, Arrays.asList(fields), new ArrayList<>());
+        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
+    }
+
+    /**
+     * 指定包括的属性进行对象转换为NeoMap
+     *
+     * @param object 待转换对象
+     * @param fields 对象的属性名列表
+     * @return 转换之后的NeoMap
+     */
+    public static NeoMap fromInclude(Object object, NamingChg namingChg, String... fields) {
+        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
     }
 
     /**
@@ -144,20 +179,33 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromExclude(Object object, String... fields) {
-        return from(object, new ArrayList<>(), Arrays.asList(fields));
+        return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields));
+    }
+
+    /**
+     * 指定排除的属性进行对象转换为NeoMap
+     *
+     * @param object 待转换对象
+     * @param namingChg 转换规则
+     * @param fields 排除的对象的属性名列表
+     * @return 转换之后的NeoMap
+     */
+    public static NeoMap fromExclude(Object object, NamingChg namingChg, String... fields) {
+        return from(object, namingChg, new ArrayList<>(), Arrays.asList(fields));
     }
 
     /**
      * 对象转换为NeoMap
      *
      * @param object 待转换的对象
+     * @param namingChg 转换规则
      * @param inFieldList 包括的对象的属性名列表
      * @param exFieldList 排除的对象的属性名列表
      * @return 转换之后的NeoMap
      */
     @SuppressWarnings("unchecked")
-    public static NeoMap from(Object object, List<String> inFieldList, List<String> exFieldList) {
-        NeoMap neoMap = NeoMap.of();
+    private static NeoMap from(Object object, NamingChg namingChg, List<String> inFieldList, List<String> exFieldList) {
+        NeoMap neoMap = NeoMap.of().setNamingChg(namingChg);
         if (null == object) {
             return neoMap;
         }
@@ -252,6 +300,14 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMaps.stream().map(m -> m.as(tClass)).collect(Collectors.toList());
     }
 
+    public static <T> List<T> asArray(List<NeoMap> neoMaps, NamingChg namingChg, Class<T> tClass) {
+        if (null == neoMaps || neoMaps.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return neoMaps.stream().map(m -> m.setNamingChg(namingChg).as(tClass)).collect(Collectors.toList());
+    }
+
     public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
@@ -260,7 +316,18 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public static <T> List<NeoMap> fromArray(List<T> dataList) {
-        return fromArray(dataList, null);
+        return fromArray(dataList, NamingChg.UNDERLINE, null);
+    }
+
+    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg, Columns columns) {
+        if (null == dataList || dataList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return dataList.stream().map(m -> NeoMap.from(m, columns, namingChg)).collect(Collectors.toList());
+    }
+
+    public static <T> List<NeoMap> fromArray(List<T> dataList, NamingChg namingChg) {
+        return fromArray(dataList, namingChg, null);
     }
 
     /**
@@ -298,7 +365,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     /**
      * 设置对应的表的一些列
-     * @param tableName 表名
+     * @param tableNameStr 表名
      * @param kvs 表中对应的列和值的对应
      * @return 拼接后的数据，比如：table1.`group`=ok, table1.`name`=kk, table2.`age`=123
      */
@@ -405,6 +472,11 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         NeoMap neoMap = NeoMap.of();
         stream().forEach(e -> neoMap.put(preFix + e.getKey(), e.getValue()));
         return neoMap;
+    }
+
+    public <T> T as(Class<T> tClass, NamingChg namingChg) {
+        this.setNamingChg(namingChg);
+        return as(tClass);
     }
 
     /**

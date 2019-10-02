@@ -264,7 +264,8 @@ public class EntityCodeGen {
             .map(c -> NeoMap.from(new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getInnerColumn().getRemarks())
-                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))))
+                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))
+                .setColumnName(c.getColumnName())))
             .collect(Collectors.toList());
     }
 

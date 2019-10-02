@@ -1,11 +1,11 @@
 package com.simonalong.neo;
 
-import static com.simonalong.neo.NeoConstant.ALL_FIELD;
 import static com.simonalong.neo.NeoConstant.LIMIT;
 import static com.simonalong.neo.NeoConstant.ORDER_BY;
 import static com.simonalong.neo.NeoConstant.PRE_LOG;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
+import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.ConnectPool;
 import com.simonalong.neo.db.NeoColumn;
@@ -14,7 +14,6 @@ import com.simonalong.neo.db.NeoJoiner;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.db.TimeDateConverter;
-import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
@@ -204,9 +203,9 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T insert(String tableName, T entity) {
-        NeoMap neoMap = insert(tableName, NeoMap.from(entity));
+        NeoMap neoMap = insert(tableName, NeoMap.from(entity, NamingChg.UNDERLINE));
         if(!NeoMap.isEmpty(neoMap)){
-            return neoMap.as((Class<T>) entity.getClass());
+            return neoMap.setNamingChg(NamingChg.UNDERLINE).as((Class<T>) entity.getClass());
         }
         return null;
     }
@@ -231,7 +230,7 @@ public class Neo extends AbstractBaseDb {
         if (entity instanceof Number){
            return delete(tableName, (Number) entity);
         }
-        return delete(tableName, NeoMap.from(entity));
+        return delete(tableName, NeoMap.from(entity, NamingChg.UNDERLINE));
     }
 
     @Override
@@ -282,7 +281,7 @@ public class Neo extends AbstractBaseDb {
             log.error(PRE_LOG + "数据{}是基本类型", setEntity);
             return setEntity;
         }
-        NeoMap neoMap = update(tableName, NeoMap.from(setEntity), searchMap);
+        NeoMap neoMap = update(tableName, NeoMap.from(setEntity, NamingChg.UNDERLINE), searchMap);
         if (!NeoMap.isEmpty(neoMap)){
             return neoMap.as((Class<T>) setEntity.getClass());
         }
@@ -297,12 +296,12 @@ public class Neo extends AbstractBaseDb {
                 return update(tableName, setEntity, NeoMap.of(primaryKey, searchEntity));
             }
         }
-        return update(tableName, setEntity, NeoMap.from(searchEntity));
+        return update(tableName, setEntity, NeoMap.from(searchEntity, NamingChg.UNDERLINE));
     }
 
     @Override
     public <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity) {
-        return update(tableName, setMap, NeoMap.from(searchEntity));
+        return update(tableName, setMap, NeoMap.from(searchEntity, NamingChg.UNDERLINE));
     }
 
     /**
@@ -319,7 +318,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T entity, Columns columns) {
-        return update(tableName, entity, NeoMap.from(entity, columns));
+        return update(tableName, entity, NeoMap.from(entity, columns, NamingChg.UNDERLINE));
     }
 
     /**
@@ -354,9 +353,9 @@ public class Neo extends AbstractBaseDb {
             return entity;
         }
         String keyStr = NeoMap.dbToJavaStr(db.getPrimaryName(tableName));
-        NeoMap searchMap = NeoMap.fromInclude(entity, keyStr);
+        NeoMap searchMap = NeoMap.fromInclude(entity, NamingChg.UNDERLINE, keyStr);
         // 若没有指定主键，则不进行DB更新
-        if (NeoMap.from(entity).equals(searchMap)) {
+        if (NeoMap.from(entity, NamingChg.UNDERLINE).equals(searchMap)) {
             return entity;
         }
         return update(tableName, entity, searchMap);
@@ -375,7 +374,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public <T> T exeOne(Class<T> tClass, String sql, Object... parameters){
-        return exeOne(sql, parameters).as(tClass);
+        return exeOne(sql, parameters).setNamingChg(NamingChg.UNDERLINE).as(tClass);
     }
 
     /**
@@ -395,11 +394,11 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("unchecked")
     public <T> T one(String tableName, Columns columns, T entity) {
         if(entity instanceof Number){
-            return one(tableName, columns, (Number) entity).as((Class<T>) entity.getClass());
+            return one(tableName, columns, (Number) entity).setNamingChg(NamingChg.UNDERLINE).as((Class<T>) entity.getClass());
         }
         NeoMap neoMap = one(tableName, columns, NeoMap.from(entity));
         if (!NeoMap.isEmpty(neoMap)) {
-            return neoMap.as((Class<T>) entity.getClass());
+            return neoMap.setNamingChg(NamingChg.UNDERLINE).as((Class<T>) entity.getClass());
         }
         return null;
     }
@@ -469,8 +468,8 @@ public class Neo extends AbstractBaseDb {
     }
 
     @Override
-    public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters){
-        return NeoMap.asArray(exeList(sql, parameters), tClass);
+    public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters) {
+        return NeoMap.asArray(exeList(sql, parameters), NamingChg.UNDERLINE, tClass);
     }
 
     /**
@@ -494,7 +493,7 @@ public class Neo extends AbstractBaseDb {
                 log.error(PRE_LOG + "参数{}是基本类型", entity);
                 return Collections.emptyList();
             }
-            return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity)), (Class<T>) entity.getClass());
+            return NeoMap.asArray(list(tableName, columns, NeoMap.from(entity, NamingChg.UNDERLINE)), NamingChg.UNDERLINE, (Class<T>) entity.getClass());
         }
         log.warn(PRE_LOG + "entity is null");
         return Collections.emptyList();
@@ -745,8 +744,8 @@ public class Neo extends AbstractBaseDb {
             log.error(PRE_LOG + "参数{}是基本类型");
             return Collections.emptyList();
         }
-        return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity), page),
-            (Class<T>) entity.getClass());
+        return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity, NamingChg.UNDERLINE), page),
+            NamingChg.UNDERLINE, (Class<T>) entity.getClass());
     }
 
     @Override
@@ -1545,7 +1544,7 @@ public class Neo extends AbstractBaseDb {
             return new ArrayList<>();
         }
         return dataList.stream()
-            .map(m -> new Pair<>(NeoMap.from(m), NeoMap.from(m, columns)))
+            .map(m -> new Pair<>(NeoMap.from(m, NamingChg.UNDERLINE), NeoMap.from(m, columns, NamingChg.UNDERLINE)))
             .collect(Collectors.toList());
     }
 
