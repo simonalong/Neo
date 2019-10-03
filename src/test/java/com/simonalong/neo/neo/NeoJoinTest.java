@@ -429,7 +429,7 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * 自己和自己
      *
-     * select t2.`n_id`, t2.`age`, t2.`sort`, t2.`user_name`, t2.`name`, t2.`group`, t2.`enum1`, t2.`id`
+     * select t1.`name`, t2.`n_id`, t1.`n_id`, t2.`age`, t2.`sort`, t1.`sort`, t2.`name`, t2.`enum1`, t2.`id`, t1.`id`, t1.`enum1`, t1.`user_name`, t2.`user_name`, t1.`group`, t2.`group`, t1.`age`
      * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
      *
      * 需要利用到别名系统才行
@@ -439,6 +439,6 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table3 as t1";
         String table2 = "neo_table3 as t2";
         show(neo.leftJoin(table1, table2).on("id", "n_id")
-            .list(Columns.of(neo).table(table2, "*")));
+            .list(Columns.of(neo).table(table2, "*").table(table1, "*")));
     }
 }
