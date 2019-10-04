@@ -1,5 +1,7 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.AliasParser;
@@ -20,6 +22,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
-    private ConcurrentSkipListMap<String, Object> dataMap;
+    private ConcurrentSkipListMap<String, EntryValue> dataMap;
     /**
      * 全局的命名转换，默认不转换
      */
@@ -504,13 +508,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        String key = namingChg(f);
-                        Object value = toEntityValue(f, key);
-
-                        // NeoMap中包含对象的属性，且value不为空，则进行设置
-                        if (containsKey(key) && null != value) {
-                            f.set(finalT, value);
-                        }
+                        f.set(finalT, getValue(f));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -522,6 +520,14 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return t;
     }
 
+    private Object getValue(Field field) {
+        String key = namingChg(field);
+        Object value = toEntityValue(field, key);
+
+        Class<?> fieldClass = field.getType();
+        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, value));
+    }
+
     /**
      * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为事件类型，对于非时间类型的，则保持，然后再经过兼容类型
      *
@@ -531,7 +537,18 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private Object toEntityValue(Field f, String key) {
         Class<?> fieldClass = f.getType();
-        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, get(key)));
+        Object value = get(key);
+        if (value instanceof EntryValue) {
+            Column column = f.getDeclaredAnnotation(Column.class);
+            if (null != column) {
+                String tableName = column.table();
+                return EntryValue.class.cast(value).getNodeList().stream()
+                    .filter(n -> n.getKey().equals(tableName))
+                    .map(Node::getValue)
+                    .findFirst().orElse(null);
+            }
+        }
+        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, value));
     }
 
     /**
@@ -627,13 +644,22 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return this;
     }
 
+    public NeoMap append(String tableName, String key, Object value) {
+        this.put(tableName, key, value);
+        return this;
+    }
+
     public NeoMap delete(String key){
         this.remove(key);
         return this;
     }
 
     public Stream<Entry<String, Object>> stream() {
-        return dataMap.entrySet().stream();
+        return dataMap.entrySet().stream()
+            .flatMap(d -> d.getValue().getNodeList()
+                .stream()
+                .map(n-> new Node<>(d.getKey(), n.getValue()))
+            );
     }
 
     public Stream<String> keyStream() {
@@ -641,7 +667,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public Stream<Object> valueStream() {
-        return dataMap.values().stream();
+        return dataMap.values().stream().flatMap(d-> d.getNodeList().stream().map(Node::getValue));
     }
 
     /**
@@ -808,7 +834,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     private String namingChg(Field field) {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (null != column) {
-            return column.value();
+            String columnName = column.value();
+            String tableName = column.table();
+
+            if (containsKey(columnName)){
+                Node node = dataMap.get(columnName).getNodeList().stream().filter(n->n.getKey().equals(tableName)).findFirst().orElse(null);
+                if(null != node){
+                    return columnName;
+                }
+            }
         }
 
         if (!namingChg.equals(NamingChg.DEFAULT)) {
@@ -816,6 +850,210 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
 
         return globalNaming.smallCamelToOther(field.getName());
+    }
+
+    public Map<String, EntryValue> getDataMap() {
+        return dataMap;
+    }
+
+    /**
+     * 指定value值类型的情况下获取dataMap
+     * @param tClass value的目标类
+     * @param <T> 类型
+     * @return 转换后的类型
+     */
+    public <T> Map<String, T> getDataMapAssignValueType(Class<T> tClass) {
+        return stream().collect(Collectors.toMap(Entry::getKey, e -> ObjectUtil.cast(tClass, e.getValue())));
+    }
+
+    @Override
+    public int size() {
+        return dataMap.size();
+    }
+
+    @Override
+    public int hashCode(){
+        return dataMap.hashCode();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return dataMap.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        if (null == key) {
+            return false;
+        }
+        return dataMap.containsKey(key);
+    }
+
+    /**
+     * 包含所有的key
+     * @param keys keys的列表
+     * @return true： 包含所有的值，false，没有包含全部的key
+     */
+    public boolean containsKeys(String... keys){
+        return Stream.of(keys).allMatch(this::containsKey);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return dataMap.containsValue(value);
+    }
+
+    @Override
+    public Object get(Object key) {
+        Object result = dataMap.get(key);
+        if (null != result) {
+            List<Node<String, Object>> dataList = EntryValue.class.cast(result).getNodeList();
+            if (dataList.size() == 1) {
+                return dataList.get(0).getValue();
+            }else{
+                return result;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 对所有的放到NeoMap中的值，如果是时间类型，则就要进行转换成Long类型
+     * @param key key
+     * @param value value
+     * @return 原value
+     */
+    @Override
+    public Object put(String key, Object value) {
+        return put(DEFAULT_TABLE, key, value);
+    }
+
+    public Object put(String key, Object value, Boolean timeTypeToLong) {
+        return put(DEFAULT_TABLE, key, value, timeTypeToLong);
+    }
+
+    /**
+     * 添加含有指定表的列的数据
+     * @param key key
+     * @param tableName 表名
+     * @param value 值
+     * @return value数据
+     */
+    public Object put(String tableName, String key, Object value) {
+        return put(tableName, key, value, true);
+    }
+
+    /**
+     * 是否进行时间类型到Long类型的转换来放置数据
+     * @param key key
+     * @param value value
+     * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
+     * @return value的值
+     */
+    public Object put(String tableName, String key, Object value, Boolean timeTypeToLong) {
+        if (null != value) {
+            if (timeTypeToLong) {
+                doPut(tableName, key, TimeDateConverter.entityTimeToLong(value));
+            } else {
+                doPut(tableName, key, value);
+            }
+        }
+        return value;
+    }
+
+    private void doPut(String tableName, String key, Object value) {
+        if (value instanceof EntryValue) {
+            dataMap.compute(key, (k, v) -> {
+                if (null == v) {
+                    return EntryValue.class.cast(value);
+                } else {
+                    v.addTable(tableName, value);
+                    return v;
+                }
+            });
+        } else {
+            dataMap.compute(key, (k, v) -> {
+                if (null == v) {
+                    return new EntryValue(tableName, value);
+                } else {
+                    v.addTable(tableName, value);
+                    return v;
+                }
+            });
+        }
+    }
+
+    @Override
+    public Object remove(Object key) {
+        return dataMap.remove(key);
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ?> m) {
+        if (null == m || m.isEmpty()) {
+            return;
+        }
+
+        if(m instanceof NeoMap){
+            getDataMap().putAll(NeoMap.class.cast(m).getDataMap());
+        }else{
+            m.forEach((key, value) -> put(key, TimeDateConverter.entityTimeToLong(value)));
+        }
+    }
+
+    @Override
+    public void clear() {
+        dataMap.clear();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return dataMap.keySet();
+    }
+
+    @Override
+    public Collection<Object> values() {
+        return dataMap.entrySet().stream()
+            .flatMap(t -> t.getValue().getNodeList().stream().map(Node::getValue))
+            .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        return dataMap.entrySet().stream()
+            .flatMap(t -> t.getValue().getNodeList().stream().map(v->new Node<>(t.getKey(), v.getValue())))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof NeoMap) {
+            Map<String, EntryValue> d1 = this.clone().getDataMap();
+            Map<String, EntryValue> d2 = NeoMap.class.cast(object).getDataMap();
+            return d1.equals(d2);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        Map<String, ?> map = dataMap.entrySet().stream().flatMap(e -> {
+            List<Node<String, Object>> dataList = e.getValue().nodeList;
+            if (1 == dataList.size()) {
+                return Stream.of(new Node<>(e.getKey(), dataList.get(0).getValue()));
+            } else {
+                return dataList.stream().map(d -> new Node<>(e.getKey(), d.getValue()));
+            }
+        }).collect(Collectors.toMap(Node::getKey, Node::getValue));
+        return JSON.toJSONString(map);
+    }
+
+    @Override
+    @SuppressWarnings("all")
+    public NeoMap clone(){
+        NeoMap neoMap = NeoMap.of();
+        neoMap.putAll(dataMap.clone());
+        return neoMap;
     }
 
     public enum NamingChg {
@@ -888,138 +1126,49 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
-    public Map<String, Object> getDataMap() {
-        return dataMap;
-    }
+    @EqualsAndHashCode
+    static class Node<K,V> implements Map.Entry<K,V> {
+        final K key;
+        V value;
 
-    /**
-     * 指定value值类型的情况下获取dataMap
-     * @param tClass value的目标类
-     * @param <T> 类型
-     * @return 转换后的类型
-     */
-    public <T> Map<String, T> getDataMapAssignValueType(Class<T> tClass){
-        return dataMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey, r->ObjectUtil.cast(tClass, r.getValue())));
-    }
-
-    @Override
-    public int size() {
-        return dataMap.size();
-    }
-
-    @Override
-    public int hashCode(){
-        return dataMap.hashCode();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return dataMap.isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-        return dataMap.containsKey(key);
-    }
-
-    /**
-     * 包含所有的key
-     * @param keys keys的列表
-     * @return true： 包含所有的值，false，没有包含全部的key
-     */
-    public boolean containsKeys(String... keys){
-        return Stream.of(keys).allMatch(this::containsKey);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return dataMap.containsValue(value);
-    }
-
-    @Override
-    public Object get(Object key) {
-        return dataMap.get(key);
-    }
-
-    /**
-     * 对所有的放到NeoMap中的值，如果是时间类型，则就要进行转换成Long类型
-     * @param key key
-     * @param value value
-     * @return 原value
-     */
-    @Override
-    public Object put(String key, Object value) {
-        return put(key, value, true);
-    }
-
-    /**
-     * 是否进行时间类型到Long类型的转换来放置数据
-     * @param key key
-     * @param value value
-     * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
-     * @return value的值
-     */
-    public Object put(String key, Object value, Boolean timeTypeToLong) {
-        if (null != value) {
-            if (timeTypeToLong) {
-                dataMap.put(key, TimeDateConverter.entityTimeToLong(value));
-            } else {
-                dataMap.put(key, value);
-            }
+        Node(K key, V value) {
+            this.key = key;
+            this.value = value;
         }
-        return value;
-    }
 
-    @Override
-    public Object remove(Object key) {
-        return dataMap.remove(key);
-    }
+        @Override
+        public K getKey() {
+            return key;
+        }
 
-    @Override
-    public void putAll(Map<? extends String, ?> m) {
-        if (null != m && !m.isEmpty()) {
-            m.forEach((key, value) -> put(key, TimeDateConverter.entityTimeToLong(value)));
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            this.value = value;
+            return value;
         }
     }
 
-    @Override
-    public void clear() {
-        dataMap.clear();
-    }
+    @EqualsAndHashCode(of = "nodeList")
+    public static class EntryValue{
+        @Getter
+        private List<Node<String, Object>> nodeList = new ArrayList<>();
 
-    @Override
-    public Set<String> keySet() {
-        return dataMap.keySet();
-    }
-
-    @Override
-    public Collection<Object> values() {
-        return dataMap.values();
-    }
-
-    @Override
-    public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof NeoMap) {
-            return dataMap.equals(NeoMap.class.cast(object).getDataMap());
+        public EntryValue(Object object){
+            nodeList.add(new Node<>(DEFAULT_TABLE, object));
         }
-        return false;
-    }
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(dataMap);
-    }
+        public EntryValue(String tableName, Object object){
+            nodeList.add(new Node<>(tableName, object));
+        }
 
-    @Override
-    @SuppressWarnings("all")
-    public NeoMap clone(){
-        NeoMap neoMap = NeoMap.of();
-        neoMap.putAll(dataMap.clone());
-        return neoMap;
+        public EntryValue addTable(String tableName, Object object){
+            nodeList.add(new Node<>(tableName, object));
+            return this;
+        }
     }
 }

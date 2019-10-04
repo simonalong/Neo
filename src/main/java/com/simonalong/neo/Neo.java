@@ -1,5 +1,6 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.NeoConstant.LIMIT;
 import static com.simonalong.neo.NeoConstant.ORDER_BY;
 import static com.simonalong.neo.NeoConstant.PRE_LOG;
@@ -1684,7 +1685,10 @@ public class Neo extends AbstractBaseDb {
             while (rs.next()) {
                 NeoMap row = NeoMap.of();
                 for (int j = 1; j <= col; j++) {
-                    row.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
+                    Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(j));
+                    String tableAlis = pair.getKey();
+                    String columnLabel = pair.getValue();
+                    row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(j)));
                 }
                 result.add(row);
             }
@@ -1692,6 +1696,14 @@ public class Neo extends AbstractBaseDb {
             e.printStackTrace();
         }
         return result;
+    }
+
+    private Pair<String, String> getTableAliasAndColumn(String columnLabel){
+        if (columnLabel.contains("_")) {
+            int index = columnLabel.indexOf("_");
+            return new Pair<>(columnLabel.substring(0, index), columnLabel.substring(index + 1, columnLabel.length()));
+        }
+        return new Pair<>(DEFAULT_TABLE, columnLabel);
     }
 
     /**

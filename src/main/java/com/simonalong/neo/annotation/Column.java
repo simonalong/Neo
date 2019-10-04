@@ -1,5 +1,7 @@
 package com.simonalong.neo.annotation;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,8 +24,8 @@ public @interface Column {
     String value() default "";
 
     /**
-     * 表名
-     * @return 对应表的名字
+     * 表的别名
+     * @return 对应表的别名
      */
-    String table() default "";
+    String table() default DEFAULT_TABLE;
 }

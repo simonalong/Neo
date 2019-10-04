@@ -17,4 +17,5 @@ public interface NeoConstant {
     String ALL_FIELD = "*";
     String SELECT = "select";
     String PRE_LOG = "[Neo] ";
+    String DEFAULT_TABLE = "_default_";
 }

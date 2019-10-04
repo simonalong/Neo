@@ -1,10 +1,11 @@
-package com.simonalong.neo.neo;
+package com.simonalong.neo.neo.join;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.Test;
 
 /**
@@ -440,5 +441,44 @@ public class NeoJoinTest extends NeoBaseTest {
         String table2 = "neo_table3 as t2";
         show(neo.leftJoin(table1, table2).on("id", "n_id")
             .list(Columns.of(neo).table(table2, "*").table(table1, "*")));
+    }
+
+    /**
+     * 自己和自己，join后，得到的结果用实体保存下来
+     *
+     * select t1.`name`, t2.`n_id`, t1.`n_id`, t2.`age`, t2.`sort`, t1.`sort`, t2.`name`, t2.`enum1`, t2.`id`, t1.`id`, t1.`enum1`, t1.`user_name`, t2.`user_name`, t1.`group`, t2.`group`, t1.`age`
+     * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
+     *
+     * 需要利用到别名系统才行
+     */
+    @Test
+    public void joinSelfTest2(){
+        String table1 = "neo_table3 as t1";
+        String table2 = "neo_table3 as t2";
+        List<NeoMap> result = neo.leftJoin(table1, table2).on("id", "n_id")
+            .list(Columns.of(neo).table(table2, "*").table(table1, "*"));
+        show(result);
+        List<JoinEntity> joinEntityList = NeoMap.asArray(result, JoinEntity.class);
+        show(joinEntityList);
+    }
+
+    /**
+     * 自己和自己，join后，得到的结果用实体保存下来
+     *
+     * select t1.`name`, t2.`n_id`, t1.`n_id`, t2.`age`, t2.`sort`, t1.`sort`, t2.`name`, t2.`enum1`, t2.`id`, t1.`id`, t1.`enum1`, t1.`user_name`, t2.`user_name`, t1.`group`, t2.`group`, t1.`age`
+     * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
+     *
+     * 需要利用到别名系统才行
+     */
+    // todo 别名的下划线这里不行，因为会跟业务重合，需要重新命名
+    @Test
+    public void joinSelfTest3(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        List<NeoMap> result = neo.leftJoin(table1, table2).on("id", "n_id")
+            .list(Columns.of(neo).table(table2, "*").table(table1, "*"));
+        show(result);
+        List<NeoJoinEntity2> joinEntityList = NeoMap.asArray(result, NeoJoinEntity2.class);
+        show(joinEntityList);
     }
 }

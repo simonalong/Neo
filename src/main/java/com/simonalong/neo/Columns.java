@@ -132,7 +132,8 @@ public final class Columns {
             String tableName = e.getKey();
             return columnToDbField(e.getValue()).stream().map(c -> {
                 if (!tableName.equals(DEFAULT_TABLE)) {
-                    return AliasParser.getAlias(tableName) + "." + c;
+                    String tableAlias = AliasParser.getAlias(tableName);
+                    return tableAlias + "." + c + " as " + tableAlias + "_" + reduceDom(c);
                 }
                 return c;
             });
@@ -272,5 +273,12 @@ public final class Columns {
 
     private String toDbField(String field){
         return "`" + field + "`";
+    }
+
+    private String reduceDom(String columnStr){
+        if (columnStr.startsWith("`") && columnStr.endsWith("`")){
+            return columnStr.substring(1, columnStr.length() - 1);
+        }
+        return columnStr;
     }
 }

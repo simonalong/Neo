@@ -3,6 +3,7 @@ package com.simonalong.neo.map;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoMap.EntryValue;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import com.simonalong.neo.entity.DemoEntity2;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +31,14 @@ import org.junit.Test;
 public class NeoMapTest extends BaseTest {
     
     private static final String TABLE_NAME = "neo_table1";
+
+    @Test
+    public void testString(){
+        NeoMap neoMap1 = NeoMap.of("a", 123);
+
+        // {"a":123,"b":123}
+        show(neoMap1);
+    }
 
     @Test
     public void testAppend(){
@@ -154,6 +164,43 @@ public class NeoMapTest extends BaseTest {
         Assert.assertEquals(NeoMap.from(entity).as(NeoMapEntity.class), entity);
     }
 
+    /**
+     * 在指定表字段时候的映射
+     */
+    @Test
+    public void testAs9() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        NeoMap neoMap = NeoMap.of()
+            .append("age", 123)
+            .append(table1, "user_address", "puyang")
+            .append(table2, "data_user", "zhou")
+            .append(table1, "name", "simon")
+            ;
+        NeoMapEntity2 entity = neoMap.as(NeoMapEntity2.class);
+
+        // {"age":123,"dataNameUser":"zhou","userAddress":"puyang","userName":"simon"}
+        show(entity);
+    }
+
+    /**
+     * as的db字段和实体字段映射
+     */
+    @Test
+    public void testAs10() {
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        NeoMap neoMap = NeoMap.of();
+        neoMap.put("age", 123);
+        neoMap.put(table1, "user_address", "puyang");
+        neoMap.put(table2, "data_user", "zhou");
+        neoMap.put(table1, "name", "simon");
+        NeoMapEntity2 entity = neoMap.as(NeoMapEntity2.class);
+
+        // {"age":123,"dataNameUser":"zhou","userAddress":"puyang","userName":"simon"}
+        show(entity);
+    }
+
     @Test
     public void testFrom1(){
         DemoEntity demo = new DemoEntity();
@@ -164,7 +211,7 @@ public class NeoMapTest extends BaseTest {
         demo.setId(212L);
 
         NeoMap neoMap = NeoMap.from(demo);
-        // {"data_name":"databasename","group":"group1","id":212,"name":"name1","sl":0,"userName":"userName1"}
+        // {"name":"name1","id":212,"group":"group1","dataBaseName":"databasename","userName":"userName1","sl":0}
         show(neoMap);
         Assert.assertEquals(neoMap.as(DemoEntity.class), demo);
     }
@@ -270,6 +317,17 @@ public class NeoMapTest extends BaseTest {
         // {"data_name":"databasename","group":"group1","id":212,"name":"name1","sl":0,"user_name":"userName1"}
         show(neoMap);
         Assert.assertEquals(neoMap.as(DemoEntity.class), demo);
+    }
+
+    /**
+     * 若object类型为{@code Map<String, ?>}，则from和fromMap是一样的
+     */
+    @Test
+    public void testFrom11(){
+        NeoMap map1 = NeoMap.of("a", 123, "b", 4332);
+        show(NeoMap.from(map1));
+        show(NeoMap.fromMap(map1));
+        Assert.assertEquals(NeoMap.from(map1), NeoMap.fromMap(map1));
     }
 
     @Test
@@ -466,9 +524,11 @@ public class NeoMapTest extends BaseTest {
         TestEntity demoEntity = new TestEntity().setName("name").setId(12L).setUserName("user");
 
         NeoMap data = NeoMap.of("a", demoEntity);
-
         NeoMap result = NeoMap.of("name", "name", "id", 12L, "userName", "user");
-        Assert.assertTrue(result.equals(data.get(NeoMap.class, "a")));
+        show(result);
+        NeoMap value2 = data.get(NeoMap.class, "a");
+        show(value2);
+        Assert.assertTrue(result.equals(value2));
     }
 
     @Test
@@ -658,5 +718,14 @@ public class NeoMapTest extends BaseTest {
     public void valueStream(){
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
         neoMap.valueStream().forEach(this::show);
+    }
+
+    @Test
+    public void testPut1(){
+        NeoMap data = NeoMap.of();
+        data.put("t1", "a", 1);
+        data.put("t1", "b", 2);
+        data.put("t1", "c", 3);
+        show(data);
     }
 }
