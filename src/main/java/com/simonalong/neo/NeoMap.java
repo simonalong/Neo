@@ -508,7 +508,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        f.set(finalT, getValue(f));
+                        Object value = getValue(f);
+                        if (null != value) {
+                            f.set(finalT, value);
+                        }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }

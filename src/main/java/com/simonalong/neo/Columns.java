@@ -1,5 +1,6 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
 import static com.simonalong.neo.NeoConstant.ALL_COLUMN_NAME;
 
 import com.simonalong.neo.NeoMap.NamingChg;
@@ -133,7 +134,7 @@ public final class Columns {
             return columnToDbField(e.getValue()).stream().map(c -> {
                 if (!tableName.equals(DEFAULT_TABLE)) {
                     String tableAlias = AliasParser.getAlias(tableName);
-                    return tableAlias + "." + c + " as " + tableAlias + "_" + reduceDom(c);
+                    return tableAlias + "." + c + " as " + tableAlias + ALIAS_DOM + reduceDom(c);
                 }
                 return c;
             });

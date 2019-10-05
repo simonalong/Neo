@@ -1,5 +1,6 @@
 package com.simonalong.neo;
 
+import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
 import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.NeoConstant.LIMIT;
 import static com.simonalong.neo.NeoConstant.ORDER_BY;
@@ -1644,7 +1645,7 @@ public class Neo extends AbstractBaseDb {
                     while (rs.next()) {
                         NeoMap data = NeoMap.of();
                         for (int i = 1; i <= meta.getColumnCount(); i++) {
-                            data.put(meta.getColumnLabel(i), TimeDateConverter.dbTimeToLong(rs.getObject(i)));
+                            generateResult(data, meta, rs, i);
                         }
                         dataList.add(data);
                     }
@@ -1666,7 +1667,7 @@ public class Neo extends AbstractBaseDb {
 
             if (rs.next()) {
                 for (int j = 1; j <= col; j++) {
-                    result.put(metaData.getColumnLabel(j), TimeDateConverter.dbTimeToLong(rs.getObject(j)));
+                    generateResult(result, metaData, rs, j);
                 }
             }
         } catch (SQLException e) {
@@ -1685,10 +1686,7 @@ public class Neo extends AbstractBaseDb {
             while (rs.next()) {
                 NeoMap row = NeoMap.of();
                 for (int j = 1; j <= col; j++) {
-                    Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(j));
-                    String tableAlis = pair.getKey();
-                    String columnLabel = pair.getValue();
-                    row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(j)));
+                    generateResult(row, metaData, rs, j);
                 }
                 result.add(row);
             }
@@ -1699,11 +1697,19 @@ public class Neo extends AbstractBaseDb {
     }
 
     private Pair<String, String> getTableAliasAndColumn(String columnLabel){
-        if (columnLabel.contains("_")) {
-            int index = columnLabel.indexOf("_");
-            return new Pair<>(columnLabel.substring(0, index), columnLabel.substring(index + 1, columnLabel.length()));
+        if (columnLabel.contains(ALIAS_DOM)) {
+            int index = columnLabel.indexOf(ALIAS_DOM);
+            return new Pair<>(columnLabel.substring(0, index), columnLabel.substring(index + ALIAS_DOM.length(), columnLabel.length()));
         }
         return new Pair<>(DEFAULT_TABLE, columnLabel);
+    }
+
+    private void generateResult(NeoMap row, ResultSetMetaData metaData, ResultSet rs, Integer index)
+        throws SQLException {
+        Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(index));
+        String tableAlis = pair.getKey();
+        String columnLabel = pair.getValue();
+        row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(index)));
     }
 
     /**

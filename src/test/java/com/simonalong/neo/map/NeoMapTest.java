@@ -611,11 +611,35 @@ public class NeoMapTest extends BaseTest {
      * 测试克隆模式
      */
     @Test
-    public void cloneTest(){
+    public void cloneTest1(){
         NeoMap result = NeoMap.of("a", 1, "b", 2);
         NeoMap cloneMap = result.clone();
         show(cloneMap);
         result.remove("a");
+        show(result);
+        show(cloneMap);
+    }
+
+    /**
+     * 测试克隆模式
+     */
+    @Test
+    public void cloneTest2(){
+        NeoMap result = NeoMap.of("a", 1, "b", 2);
+        NeoMap cloneMap = result.clone();
+        show(result.getDataMap() == cloneMap.getDataMap());
+        show(result.getDataMap() == result.getDataMap());
+    }
+
+    /**
+     * 测试克隆模式
+     */
+    // todo 这里还有点问题
+    @Test
+    public void cloneTest3(){
+        NeoMap result = NeoMap.of("a", 1, "b", 2);
+        NeoMap cloneMap = result.clone();
+        cloneMap.stream().forEach(e-> result.put(e.getKey(), e.getValue() + "-"));
         show(result);
         show(cloneMap);
     }

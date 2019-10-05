@@ -444,7 +444,7 @@ public class NeoJoinTest extends NeoBaseTest {
     }
 
     /**
-     * 自己和自己，join后，得到的结果用实体保存下来
+     * 测试别名，情况下NeoMap到实体的转换
      *
      * select t1.`name`, t2.`n_id`, t1.`n_id`, t2.`age`, t2.`sort`, t1.`sort`, t2.`name`, t2.`enum1`, t2.`id`, t1.`id`, t1.`enum1`, t1.`user_name`, t2.`user_name`, t1.`group`, t2.`group`, t1.`age`
      * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
@@ -456,21 +456,20 @@ public class NeoJoinTest extends NeoBaseTest {
         String table1 = "neo_table3 as t1";
         String table2 = "neo_table3 as t2";
         List<NeoMap> result = neo.leftJoin(table1, table2).on("id", "n_id")
-            .list(Columns.of(neo).table(table2, "*").table(table1, "*"));
+            .list(Columns.of(neo).table(table2, "*").table(table1, "id"));
         show(result);
         List<JoinEntity> joinEntityList = NeoMap.asArray(result, JoinEntity.class);
         show(joinEntityList);
     }
 
     /**
-     * 自己和自己，join后，得到的结果用实体保存下来
+     * 测试非别名的转换
      *
      * select t1.`name`, t2.`n_id`, t1.`n_id`, t2.`age`, t2.`sort`, t1.`sort`, t2.`name`, t2.`enum1`, t2.`id`, t1.`id`, t1.`enum1`, t1.`user_name`, t2.`user_name`, t1.`group`, t2.`group`, t1.`age`
      * from neo_table3 as t1 left join neo_table3 as t2 on t1.`id`=t2.`n_id`
      *
      * 需要利用到别名系统才行
      */
-    // todo 别名的下划线这里不行，因为会跟业务重合，需要重新命名
     @Test
     public void joinSelfTest3(){
         String table1 = "neo_table1";
@@ -480,5 +479,31 @@ public class NeoJoinTest extends NeoBaseTest {
         show(result);
         List<NeoJoinEntity2> joinEntityList = NeoMap.asArray(result, NeoJoinEntity2.class);
         show(joinEntityList);
+    }
+
+    /**
+     * 测试其他的函数，one
+     */
+    @Test
+    public void joinSelfTest4(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        NeoMap result = neo.rightJoin(table1, table2).on("id", "n_id")
+            .one(Columns.of(neo).table(table2, "*").table(table1, "*"));
+        show(result);
+        NeoJoinEntity2 joinEntity = result.as(NeoJoinEntity2.class);
+        show(joinEntity);
+    }
+
+    /**
+     * 测试其他的函数，value
+     */
+    @Test
+    public void joinSelfTest5(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        Long age = neo.rightJoin(table1, table2).on("id", "n_id")
+            .value(Long.class, table2, "age");
+        show(age);
     }
 }

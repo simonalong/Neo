@@ -55,7 +55,7 @@ public class NeoOneTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testExeOne4(){
+    public void testExeOne4() {
         show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "group1"));
     }
 
