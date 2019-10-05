@@ -149,7 +149,13 @@ public final class Columns {
         if (Columns.isEmpty(columns)) {
             return this;
         }
-        this.tableFieldsMap.putAll(columns.getTableFieldsMap());
+
+        Map<String, Set<String>> dataMap = columns.getTableFieldsMap();
+        tableFieldsMap.forEach((k, v) -> {
+            if (dataMap.containsKey(k)) {
+                v.addAll(dataMap.get(k));
+            }
+        });
         return this;
     }
 
@@ -185,7 +191,7 @@ public final class Columns {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Columns) {
-            return this.buildFields().equals(Columns.class.cast(obj).buildFields());
+            return this.getTableFieldsMap().equals(Columns.class.cast(obj).getTableFieldsMap());
         }
         return false;
     }

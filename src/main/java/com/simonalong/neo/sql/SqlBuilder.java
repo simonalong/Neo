@@ -336,8 +336,7 @@ public class SqlBuilder {
 
     private List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        NeoMap searchClone = searchMap.clone();
-        return searchClone.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e))
+        return searchMap.clone().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e))
             .collect(Collectors.toList());
     }
 

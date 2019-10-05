@@ -634,12 +634,11 @@ public class NeoMapTest extends BaseTest {
     /**
      * 测试克隆模式
      */
-    // todo 这里还有点问题
     @Test
     public void cloneTest3(){
         NeoMap result = NeoMap.of("a", 1, "b", 2);
         NeoMap cloneMap = result.clone();
-        cloneMap.stream().forEach(e-> result.put(e.getKey(), e.getValue() + "-"));
+        cloneMap.stream().forEach(e-> result.put(e.getKey(), e.getValue()));
         show(result);
         show(cloneMap);
     }
@@ -750,6 +749,15 @@ public class NeoMapTest extends BaseTest {
         data.put("t1", "a", 1);
         data.put("t1", "b", 2);
         data.put("t1", "c", 3);
+        show(data);
+    }
+
+    @Test
+    public void testPut2(){
+        NeoMap data = NeoMap.of();
+        data.put("a", 1);
+        data.put("a", 2);
+        data.put("a", 3);
         show(data);
     }
 }

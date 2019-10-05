@@ -104,6 +104,8 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void appendTest1() {
         // `c`, `a`, `b`
+        show(Columns.of("`a`", "`b`", "`c`").toString());
+        show(Columns.of("c").append(Columns.of("a", "b")).toString());
         Assert.assertEquals(Columns.of("`a`", "`b`", "`c`"), Columns.of("c").append(Columns.of("a", "b")));
     }
 
@@ -194,8 +196,16 @@ public class ColumnsTest extends NeoBaseTest {
     public void allColumnTest1() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
         Columns columns = Columns.of(neo).table("neo_table1", "*");
+        show(columns);
 
-        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"),
+        Assert.assertEquals(Columns.of().table("neo_table1",
+            "group",
+            "name",
+            "user_name",
+            "sl",
+            "id",
+            "data_name",
+            "age"),
             columns);
     }
 
@@ -206,17 +216,34 @@ public class ColumnsTest extends NeoBaseTest {
     public void allColumnTest2() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
         Columns columns = Columns.of(neo).table("neo_table1", "*", "group");
-        Assert.assertEquals(Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"), columns);
+        Assert.assertEquals(Columns.of().table("neo_table1",
+            "group",
+            "name",
+            "user_name",
+            "sl",
+            "id",
+            "data_name",
+            "age"
+            ), columns);
     }
 
     /**
      * 获取所有的列名 "*"，如果有别名，则以别名为主
      */
+    // todo
     @Test
     public void allColumnTest3() {
         // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
         Columns columns = Columns.of(neo).table("neo_table1", "*", "group as g");
-        Assert.assertEquals(Columns.of("neo_table1.`group` as g", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`"), columns);
+        Assert.assertEquals(Columns.of().table("neo_table1",
+            "group",
+            "name",
+            "user_name",
+            "sl",
+            "id",
+            "data_name",
+            "age"
+        ), columns);
     }
 
     /**

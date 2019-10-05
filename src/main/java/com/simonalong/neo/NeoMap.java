@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -970,7 +971,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 if (null == v) {
                     return EntryValue.class.cast(value);
                 } else {
-                    v.addTable(tableName, value);
+                    Node<String, Object> node = v.getNodeList().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    if (null == node) {
+                        v.addTable(tableName, value);
+                    } else {
+                        node.setValue(value);
+                    }
                     return v;
                 }
             });
@@ -979,7 +985,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 if (null == v) {
                     return new EntryValue(tableName, value);
                 } else {
-                    v.addTable(tableName, value);
+                    Node<String, Object> node = v.getNodeList().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    if (null == node) {
+                        v.addTable(tableName, value);
+                    } else {
+                        node.setValue(value);
+                    }
                     return v;
                 }
             });
@@ -1051,11 +1062,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return JSON.toJSONString(map);
     }
 
+    /**
+     * 这里采用深拷贝，浅拷贝存在集合并发修改问题
+     */
     @Override
-    @SuppressWarnings("all")
-    public NeoMap clone(){
+    public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
-        neoMap.putAll(dataMap.clone());
+        dataMap.forEach((key, value) -> neoMap.put(key, value.clone()));
         return neoMap;
     }
 
@@ -1156,6 +1169,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
+    @NoArgsConstructor
     @EqualsAndHashCode(of = "nodeList")
     public static class EntryValue{
         @Getter
@@ -1172,6 +1186,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         public EntryValue addTable(String tableName, Object object){
             nodeList.add(new Node<>(tableName, object));
             return this;
+        }
+
+        @Override
+        public Object clone() {
+            EntryValue clone = new EntryValue();
+            nodeList.forEach(n-> clone.addTable(n.getKey(), n.getValue()));
+            return clone;
         }
     }
 }
