@@ -129,7 +129,7 @@ public class NeoDemo {
         String password = "neo@Test123";
         String tableName = "neo_table1";
         // 连接
-        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+        Neo neo = Neo.connect(url, user, password);
         NeoTable table = neo.getTable(tableName);
 
         DemoEntity3 entity = new DemoEntity3().setGroup("group1").setUsName("name1");

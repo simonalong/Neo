@@ -133,9 +133,9 @@ public class SqlBuilder {
     public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
         StringBuilder sqlAppender = new StringBuilder("select ");
         if (!Columns.isEmpty(columns)){
-            sqlAppender.append(columns.buildFields());
+            sqlAppender.append(columns.toString());
         }else{
-            sqlAppender.append(Columns.of(neo).table(tableName).buildFields());
+            sqlAppender.append(Columns.of(neo).table(tableName).toString());
         }
         sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
         return sqlAppender.toString();
@@ -217,7 +217,7 @@ public class SqlBuilder {
      * @return join对应的head，比如：select xxx,xxx
      */
     public String buildJoinHead(Neo neo, Columns columns) {
-        return "select " + columns.setNeo(neo).buildFields();
+        return "select " + columns.setNeo(neo).toString();
     }
 
     /**

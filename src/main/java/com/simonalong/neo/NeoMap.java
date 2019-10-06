@@ -15,10 +15,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,6 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
+    /**
+     * key为数据对应的key，value里面对应的是不同情况下对应的值，通常情况下只有一个值，但是在多表情况下的多值时候，一个key可以有多个值
+     */
     private ConcurrentSkipListMap<String, EntryValue> dataMap;
     /**
      * 全局的命名转换，默认不转换
@@ -287,7 +292,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
-                        neoMap.putIfAbsent(neoMap.namingChg(f), value);
+                        neoMap.putIfAbsent(neoMap.namingChg(f, false), value);
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -525,7 +530,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     private Object getValue(Field field) {
-        String key = namingChg(field);
+        String key = namingChg(field, true);
         Object value = toEntityValue(field, key);
 
         Class<?> fieldClass = field.getType();
@@ -546,7 +551,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             Column column = f.getDeclaredAnnotation(Column.class);
             if (null != column) {
                 String tableName = column.table();
-                return EntryValue.class.cast(value).getNodeList().stream()
+                return EntryValue.class.cast(value).getTableValues().stream()
                     .filter(n -> n.getKey().equals(tableName))
                     .map(Node::getValue)
                     .findFirst().orElse(null);
@@ -566,7 +571,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             return this;
         }
         NeoMap neoMap = NeoMap.of();
-        columns.stream().forEach(f -> {
+        columns.streamMeta().forEach(f -> {
             if (containsKey(f)) {
                 neoMap.put(f, get(f));
             }
@@ -639,7 +644,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public NeoMap append(NeoMap neoMap) {
-        this.putAll(neoMap.getDataMap());
+        this.getDataMap().putAll(neoMap.getDataMap());
         return this;
     }
 
@@ -660,7 +665,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     public Stream<Entry<String, Object>> stream() {
         return dataMap.entrySet().stream()
-            .flatMap(d -> d.getValue().getNodeList()
+            .flatMap(d -> d.getValue().getTableValues()
                 .stream()
                 .map(n-> new Node<>(d.getKey(), n.getValue()))
             );
@@ -671,7 +676,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public Stream<Object> valueStream() {
-        return dataMap.values().stream().flatMap(d-> d.getNodeList().stream().map(Node::getValue));
+        return dataMap.values().stream().flatMap(d-> d.getTableValues().stream().map(Node::getValue));
     }
 
     /**
@@ -826,26 +831,30 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * 这里根据命名订阅，如果用户自定义表中存在映射，则使用该映射，否则用设置的命名映射规则
+     * 根据field返回属性对应的转换后的字符：比如用户自定义的，否则按照内定义的默认规则
      * 属性名的字符转换
      * <p>有如下几种转换规则
      * <ul>
      *     <li>1.当前的类的属性有指定注解{@link Column}的，则按照该注解中的属性对应，否则走下面</li>
      *     <li>2.如果指定了本次转换规则，则按照本次转换，否则按照全局小驼峰下划线转换</li>
      * </ul>
-     *
+     * @param field 对应属性的key
+     * @param checkContain 是否关心当前的key在map中存在
      */
-    private String namingChg(Field field) {
+    private String namingChg(Field field, Boolean checkContain) {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (null != column) {
             String columnName = column.value();
-            String tableName = column.table();
-
-            if (containsKey(columnName)){
-                Node node = dataMap.get(columnName).getNodeList().stream().filter(n->n.getKey().equals(tableName)).findFirst().orElse(null);
-                if(null != node){
-                    return columnName;
+            if (checkContain) {
+                String tableName = column.table();
+                if (containsKey(columnName)) {
+                    Node node = dataMap.get(columnName).getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    if (null != node) {
+                        return columnName;
+                    }
                 }
+            } else {
+                return columnName;
             }
         }
 
@@ -911,7 +920,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     public Object get(Object key) {
         Object result = dataMap.get(key);
         if (null != result) {
-            List<Node<String, Object>> dataList = EntryValue.class.cast(result).getNodeList();
+            List<Node<String, Object>> dataList = EntryValue.class.cast(result).getTableValues();
             if (dataList.size() == 1) {
                 return dataList.get(0).getValue();
             }else{
@@ -971,7 +980,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 if (null == v) {
                     return EntryValue.class.cast(value);
                 } else {
-                    Node<String, Object> node = v.getNodeList().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    Node<String, Object> node = v.getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
                     if (null == node) {
                         v.addTable(tableName, value);
                     } else {
@@ -985,7 +994,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 if (null == v) {
                     return new EntryValue(tableName, value);
                 } else {
-                    Node<String, Object> node = v.getNodeList().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    Node<String, Object> node = v.getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
                     if (null == node) {
                         v.addTable(tableName, value);
                     } else {
@@ -1027,15 +1036,16 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Collection<Object> values() {
-        return dataMap.entrySet().stream()
-            .flatMap(t -> t.getValue().getNodeList().stream().map(Node::getValue))
+        Collection<Object> result = dataMap.entrySet().stream()
+            .flatMap(t -> t.getValue().getTableValues().stream().map(Node::getValue))
             .collect(Collectors.toCollection(ArrayList::new));
+        return result;
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return dataMap.entrySet().stream()
-            .flatMap(t -> t.getValue().getNodeList().stream().map(v->new Node<>(t.getKey(), v.getValue())))
+            .flatMap(t -> t.getValue().getTableValues().stream().map(v->new Node<>(t.getKey(), v.getValue())))
             .collect(Collectors.toSet());
     }
 
@@ -1051,20 +1061,27 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public String toString() {
-        Map<String, ?> map = dataMap.entrySet().stream().flatMap(e -> {
-            List<Node<String, Object>> dataList = e.getValue().nodeList;
+        AtomicBoolean mutilValue = new AtomicBoolean(false);
+        Map<String, Object> result = new HashMap<>();
+        dataMap.forEach((key, value) -> {
+            List<Node<String, Object>> dataList = value.tableValues;
             if (1 == dataList.size()) {
-                return Stream.of(new Node<>(e.getKey(), dataList.get(0).getValue()));
+                result.put(key, dataList.get(0).getValue());
             } else {
-                return dataList.stream().map(d -> new Node<>(e.getKey(), d.getValue()));
+                mutilValue.set(true);
+                dataList.forEach(d -> result.put(key, d.getValue()));
             }
-        }).collect(Collectors.toMap(Node::getKey, Node::getValue));
-        return JSON.toJSONString(map);
+        });
+        if (mutilValue.get()) {
+            return JSON.toJSONString(dataMap);
+        }
+        return JSON.toJSONString(result);
     }
 
     /**
      * 这里采用深拷贝，浅拷贝存在集合并发修改问题
      */
+    @SuppressWarnings("all")
     @Override
     public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
@@ -1170,28 +1187,32 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     @NoArgsConstructor
-    @EqualsAndHashCode(of = "nodeList")
-    public static class EntryValue{
+    public static class EntryValue implements Serializable{
+
+        /**
+         * node 其中key为表名，value为数据对应的值
+         */
         @Getter
-        private List<Node<String, Object>> nodeList = new ArrayList<>();
+        private List<Node<String, Object>> tableValues = new ArrayList<>();
 
         public EntryValue(Object object){
-            nodeList.add(new Node<>(DEFAULT_TABLE, object));
+            tableValues.add(new Node<>(DEFAULT_TABLE, object));
         }
 
         public EntryValue(String tableName, Object object){
-            nodeList.add(new Node<>(tableName, object));
+            tableValues.add(new Node<>(tableName, object));
         }
 
         public EntryValue addTable(String tableName, Object object){
-            nodeList.add(new Node<>(tableName, object));
+            tableValues.add(new Node<>(tableName, object));
             return this;
         }
 
+        @SuppressWarnings("all")
         @Override
         public Object clone() {
             EntryValue clone = new EntryValue();
-            nodeList.forEach(n-> clone.addTable(n.getKey(), n.getValue()));
+            tableValues.forEach(n-> clone.addTable(n.getKey(), n.getValue()));
             return clone;
         }
     }

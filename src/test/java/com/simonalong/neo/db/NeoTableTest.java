@@ -3,6 +3,8 @@ package com.simonalong.neo.db;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import java.sql.SQLException;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -11,7 +13,13 @@ import org.junit.Test;
  */
 public class NeoTableTest extends BaseNeoTableTest {
 
+    static NeoTable tinaTest;
     public NeoTableTest() throws SQLException {}
+
+    @Before
+    public void before(){
+        tinaTest = neo.asTable("neo_table2");
+    }
 
     @Test
     public void testInsert(){

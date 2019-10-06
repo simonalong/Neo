@@ -3,7 +3,6 @@ package com.simonalong.neo.map;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.EntryValue;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import com.simonalong.neo.entity.DemoEntity2;
@@ -19,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListMap;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +32,7 @@ public class NeoMapTest extends BaseTest {
 
     @Test
     public void testString(){
-        NeoMap neoMap1 = NeoMap.of("a", 123);
+        NeoMap neoMap1 = NeoMap.of("a", 123, "b", 12);
 
         // {"a":123,"b":123}
         show(neoMap1);
@@ -336,7 +334,7 @@ public class NeoMapTest extends BaseTest {
         NeoMap neoMap2 = NeoMap.of("a", "1", "c", "3");
         NeoMap neoMapResult = neoMap1.assign(Columns.of("a", "c"));
 
-        Assert.assertEquals(neoMap2.toString(), neoMapResult.toString());
+        Assert.assertEquals(neoMap2, neoMapResult);
     }
 
     @Test

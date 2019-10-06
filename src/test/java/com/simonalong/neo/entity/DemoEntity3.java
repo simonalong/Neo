@@ -1,6 +1,7 @@
 package com.simonalong.neo.entity;
 
 import com.simonalong.neo.annotation.Column;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,7 +11,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class DemoEntity3 {
+public class DemoEntity3 implements Serializable {
 
     private Integer id;
     private String group;

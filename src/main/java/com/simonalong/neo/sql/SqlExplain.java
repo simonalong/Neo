@@ -46,13 +46,16 @@ public final class SqlExplain {
         Explain explain = explainMap.computeIfAbsent(EncryptUtil.SHA256(sql), k-> exeSqlExplain(neo, sql, parameters));
 
         if (null != explain) {
-            String type = explain.getType().toLowerCase();
-            if (ALL.equals(type)) {
-                log.warn(PRE_LOG + " [sql走了全表扫描] [sql => " + sql + " ]");
-            } else if (INDEX.equals(type)) {
-                log.info(PRE_LOG + " [sql走了全索引扫描] [sql => " + sql + " ]");
-            } else {
-                log.debug(PRE_LOG + " [sql索引类型：" + type + "] [sql => " + sql + " ]");
+            String type = explain.getType();
+            if(null != type) {
+                type = type.toLowerCase();
+                if (ALL.equals(type)) {
+                    log.warn(PRE_LOG + " [sql走了全表扫描] [sql => " + sql + " ]");
+                } else if (INDEX.equals(type)) {
+                    log.info(PRE_LOG + " [sql走了全索引扫描] [sql => " + sql + " ]");
+                } else {
+                    log.debug(PRE_LOG + " [sql索引类型：" + type + "] [sql => " + sql + " ]");
+                }
             }
         }
     }

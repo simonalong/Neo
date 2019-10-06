@@ -1,6 +1,7 @@
 package com.simonalong.neo.column;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.Columns.ColumnValue;
 import com.simonalong.neo.entity.TestEntity;
 import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
@@ -16,6 +17,12 @@ import org.junit.Test;
 public class ColumnsTest extends NeoBaseTest {
 
     public ColumnsTest() throws SQLException {}
+
+    @Test
+    public void testOf0() {
+        Assert.assertEquals(Columns.of("name"), Columns.of("name"));
+        Assert.assertEquals(Columns.of("`name`"), Columns.of("name"));
+    }
 
     @Test
     public void testOf1() {
@@ -36,28 +43,40 @@ public class ColumnsTest extends NeoBaseTest {
         Assert.assertEquals(Columns.of("`name`"), Columns.of("name", "name"));
     }
 
+    /**
+     * 不支持别名系统
+     */
     @Test
     public void aliasTest1(){
-        // `c1` s c11, `c2`, `c3`
-        show(Columns.of("`c1` as c11", "`c2`", "`c3`"));
+        // `c1 as c11`, `c2`, `c3`
+        show(Columns.of("c1 as c11", "`c2`", "`c3`"));
     }
 
+    /**
+     * 不支持别名
+     */
     @Test
     public void aliasTest2(){
-        // `c1` c11, `c2`, `c3`
+        // `c1 c11`, `c2`, `c3`
         show(Columns.of("c1 c11", "`c2`", "`c3`"));
     }
 
+    /**
+     * 不支持别名
+     */
     @Test
     public void aliasTest3(){
-        // `c1`  c11, `c3`
-        show(Columns.of("c1  c11", "`c1`", "`c3`").buildFields());
+        // `c1  c11`, `c3`, `c1`
+        show(Columns.of("c1  c11", "`c1`", "`c3`").toString());
     }
 
+    /**
+     * 不支持别名
+     */
     @Test
     public void aliasTest4(){
-        // db.`c1`  c11, `c3`
-        show(Columns.of("db.c1  c11", "`c1`", "`c3`").buildFields());
+        // db.`c1  c11`, `c3`, `c1`
+        show(Columns.of("db.c1  c11", "`c1`", "`c3`").toString());
     }
 
     @Test
@@ -65,13 +84,6 @@ public class ColumnsTest extends NeoBaseTest {
         // `data_base_name`, `group`, `user_name`, `name`, `id`
         show(Columns.from(TestEntity.class));
         Assert.assertEquals(Columns.of("`data_base_name`", "`group`", "`user_name`", "`name`", "`id`"), Columns.from(TestEntity.class));
-    }
-
-    @Test
-    public void testFrom2() {
-        // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns expect = Columns.of("neo_table1.`group`", "neo_table1.`user_name`", "neo_table1.`age`", "neo_table1.`sl`", "neo_table1.`id`", "neo_table1.`name`");
-        Assert.assertEquals(expect, Columns.of(neo).table("neo_table1"));
     }
 
     @Test
@@ -140,45 +152,12 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     @Test
-    public void asTest1() {
-        // `c1` as c11, `c2`, `c3`
-        Assert.assertEquals(Columns.of("`c1` as c11", "`c2`", "`c3`"), Columns.of("c1 as c11", "c2", "c3"));
-    }
-
-    /**
-     * as的列的转换
-     */
-    @Test
-    public void asTest2() {
-        // `c1` as c11, `c3`
-        Assert.assertEquals(Columns.of("`c1` as c11", "`c3`"), Columns.of("c1 as c11", "c1", "c3"));
-    }
-
-    /**
-     * as的列的转换
-     */
-    @Test
-    public void asTest3() {
-        // table1.`c1` s c11, `c3`
-        Assert.assertEquals(Columns.of("table1.`c1` as c11", "c3"), Columns.of("table1.c1 as c11", "c3"));
-    }
-
-    /**
-     * 别名的列的转换
-     */
-    @Test
-    public void asTest4() {
-        // table1.`c1` s c11, `c3`
-        Assert.assertEquals(Columns.of("table1.`c1` as c11", "c3"), Columns.of("table1.`c1` as c11", "c3"));
-    }
-
-    /**
-     * 别名列的转换
-     */
-    @Test
-    public void asTest5() {
-        // table1.`c1` s c11, `c3`
-        Assert.assertEquals(Columns.of("table1.`c1` c11", "c3"), Columns.of("table1.c1 c11", "c3"));
+    public void appendTest5() {
+        Columns aColumns = Columns.of(neo).table("neo_table1", "group");
+        Columns bColumns = Columns.of(neo).table("neo_table2", "group");
+        show(aColumns);
+        show(bColumns);
+        show(aColumns.append(bColumns));
     }
 
     @Test
@@ -228,13 +207,12 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     /**
-     * 获取所有的列名 "*"，如果有别名，则以别名为主
+     * 获取所有的列名 "*"，不支持别名
      */
-    // todo
     @Test
     public void allColumnTest3() {
         // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of(neo).table("neo_table1", "*", "group as g");
+        Columns columns = Columns.of(neo).table("neo_table1", "*", "group");
         Assert.assertEquals(Columns.of().table("neo_table1",
             "group",
             "name",
@@ -255,6 +233,7 @@ public class ColumnsTest extends NeoBaseTest {
         show(aColumn);
         Columns bColumn = Columns.of(neo).table("neo_table2", "*");
         show(bColumn);
+        show(aColumn.append(bColumn));
         Columns totalColumn = Columns.of(neo).table("neo_table1", "*").table("neo_table2", "*");
         Assert.assertEquals(aColumn.append(bColumn), totalColumn);
     }

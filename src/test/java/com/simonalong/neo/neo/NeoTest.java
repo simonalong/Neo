@@ -273,7 +273,7 @@ public class NeoTest extends NeoBaseTest {
 
     @Test
     public void testExecute6(){
-        NeoMap sql = neo.execute("show create db `xx_test5`").get(0).get(0);
+        NeoMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
         show("****");
         show(sql.get("Create Table"));
     }

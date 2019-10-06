@@ -14,7 +14,7 @@ public class BaseTest {
             show("obj is null ");
             return;
         }
-        Optional.of(object).ifPresent(objects1 -> System.out.println(JSON.toJSONString(objects1)));
+        Optional.of(object).ifPresent(objects1 -> System.out.println(objects1.toString()));
     }
 
     public void sleep(Integer seconds){

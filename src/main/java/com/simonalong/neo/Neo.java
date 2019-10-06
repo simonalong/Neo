@@ -179,6 +179,7 @@ public class Neo extends AbstractBaseDb {
      * @return 表对应的实例
      */
     public NeoTable asTable(String tableName){
+        checkDb(tableName);
         return db.getTable(tableName);
     }
 
@@ -190,6 +191,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap insert(String tableName, NeoMap valueMap) {
+        checkDb(tableName);
         NeoMap valueMapTem = valueMap.clone();
         return tx(() -> {
             Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
@@ -237,6 +239,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public Integer delete(String tableName, Number id) {
+        checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         if(null != primaryKey){
             return delete(tableName, NeoMap.of(primaryKey, id));
@@ -271,7 +274,7 @@ public class Neo extends AbstractBaseDb {
      * @return 返回值
      */
     private NeoMap oneWithXMode(String tableName, NeoMap params) {
-        String sql = SqlBuilder.buildOne(this, tableName, null, params) + " " + "for update";
+        String sql = SqlBuilder.buildOne(this, tableName, null, params) + " for update";
         List<Object> parameters = new ArrayList<>(params.values());
         return execute(false, () -> generateExeSqlPair(sql, parameters), this::executeOne);
     }
@@ -292,6 +295,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T setEntity, T searchEntity) {
+        checkDb(tableName);
         if (searchEntity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey) {
@@ -332,6 +336,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public NeoMap update(String tableName, NeoMap dataMap) {
+        checkDb(tableName);
         Columns columns = Columns.of(db.getPrimaryName(tableName));
         NeoMap searchMap = dataMap.assign(columns);
         // 若没有指定主键，则不进行DB更新
@@ -350,6 +355,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T update(String tableName, T entity) {
+        checkDb(tableName);
         if (entity.getClass().isPrimitive()) {
             log.error(PRE_LOG + "参数{}是基本类型", entity);
             return entity;
@@ -407,6 +413,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public NeoMap one(String tableName, Columns columns, Number key) {
+        checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         NeoMap neoMap = NeoMap.of();
         if(null != primaryKey){
@@ -445,7 +452,7 @@ public class Neo extends AbstractBaseDb {
      * @return 查询到的数据
      */
     @Override
-    public NeoMap one(String tableName, Number id){
+    public NeoMap one(String tableName, Number id) {
         checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         NeoMap neoMap = NeoMap.of();
@@ -563,6 +570,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
+        checkDb(tableName);
         // 若entity为数字类型，则认为是主键
         if (entity instanceof Number){
             String primaryKey = db.getPrimaryName(tableName);
@@ -587,6 +595,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public String value(String tableName, String field, Object entity) {
+        checkDb(tableName);
         // 若entity为数字类型，则认为是主键
         if (entity instanceof Number){
             String primaryKey = db.getPrimaryName(tableName);
@@ -599,6 +608,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public String value(String tableName, String field, Number entity){
+        checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         if (null != primaryKey && !"".equals(primaryKey)) {
             return value(tableName, String.class, field, NeoMap.of(primaryKey, entity));
@@ -657,6 +667,7 @@ public class Neo extends AbstractBaseDb {
 
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
+        checkDb(tableName);
         // 若entity为数字类型，则认为是主键
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
@@ -681,6 +692,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<String> values(String tableName, String field, Object entity) {
+        checkDb(tableName);
         // 若entity为数字类型，则认为是主键
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
@@ -834,14 +846,17 @@ public class Neo extends AbstractBaseDb {
     }
 
     public List<NeoColumn> getColumnList(String tableName){
+        checkDb(tableName);
         return db.getColumnList(tableName);
     }
 
     public List<Index> getIndexList(String tableName){
+        checkDb(tableName);
         return db.getIndexList(tableName);
     }
 
     public List<String> getIndexNameList(String tableName){
+        checkDb(tableName);
         return db.getIndexNameList(tableName);
     }
 
@@ -854,6 +869,7 @@ public class Neo extends AbstractBaseDb {
     }
 
     public NeoTable getTable(String schema, String tableName){
+        checkDb(tableName);
         return db.getTable(schema, tableName);
     }
 
@@ -996,6 +1012,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public Integer batchUpdate(String tableName, List<NeoMap> dataList){
+        checkDb(tableName);
         Columns columns = Columns.of(db.getPrimaryName(tableName));
         List<NeoMap> dataListTem = clone(dataList);
         return innerBatchUpdate(tableName, buildBatchValueAndWhereList(tableName, dataListTem, columns));
@@ -1023,6 +1040,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList){
+        checkDb(tableName);
         Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
         return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns));
     }

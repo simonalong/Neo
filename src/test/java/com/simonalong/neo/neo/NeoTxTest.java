@@ -41,7 +41,7 @@ public class NeoTxTest extends NeoBaseTest {
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group23"));
             neo.update(TABLE_NAME, NeoMap.of("id", 4, "group", "group24"));
             try {
-                Thread.sleep(10 * 1000);
+                Thread.sleep(3 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

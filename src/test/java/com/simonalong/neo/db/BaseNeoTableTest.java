@@ -16,13 +16,11 @@ public class BaseNeoTableTest extends BaseTest {
     public static final String PASSWORD = "neo@Test123";
 
     static Neo neo;
-    static NeoTable tinaTest;
 
     public BaseNeoTableTest() throws SQLException {}
 
     @BeforeClass
     public static void start(){
         neo = Neo.connect(URL, USER, PASSWORD);
-        tinaTest = neo.asTable("neo_table2");
     }
 }

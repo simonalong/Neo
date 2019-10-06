@@ -187,7 +187,6 @@ public class NeoListTest extends NeoBaseTest {
      * 条件通过NeoMap设置
      * 相当于：select `group`,`name` from neo_table1 where `name` < 'name' limit 1
      */
-    // todo youwenti
     @Test
     @SneakyThrows
     public void testList9(){

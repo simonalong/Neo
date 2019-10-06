@@ -19,4 +19,6 @@ public interface NeoConstant {
     String PRE_LOG = "[Neo] ";
     String DEFAULT_TABLE = "_default_";
     String ALIAS_DOM = "_NDom_";
+    String AS = " as ";
+    String COLUMN_PRE = "`";
 }
