@@ -1,6 +1,10 @@
 package com.simonalong.neo.uid;
 
-import com.simonalong.neo.Neo;
+import static com.simonalong.neo.uid.UidConstant.DEFAULT_STEP;
+import static com.simonalong.neo.uid.UidConstant.REFRESH_RATIO;
+
+import java.util.concurrent.atomic.AtomicLong;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -12,63 +16,50 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class RangeStartManager {
 
-    private Neo neo;
-    /**
-     * 步长设置
-     */
-    private Integer stepSize;
-    /**
-     * 刷新第二buf的尺寸大小
-     */
-    private Integer refreshBufSize;
     /**
      * 缓存1的全局起点
      */
     private volatile Long rangeStartOfBuf1;
     /**
-     * 缓存2的全局起点
+     * 缓存1的全局起点
+     */
+    private volatile Long rangeEndOfBuf1;
+    /**
+     * 缓存2的全局终点
      */
     private volatile Long rangeStartOfBuf2;
     /**
+     * 缓存2的全局终点
+     */
+    private volatile Long rangeEndOfBuf2;
+    /**
      * 当前使用的全局起点
      */
-    private Long currentStart;
-
-    /**
-     * 是否刷新二级buf
-     *
-     * 每次buf切换，则将已刷新设置为未刷新
-     */
-    private volatile Boolean haveRefreshed = false;
-
-    public RangeStartManager(Neo neo, Integer stepSize, Integer refreshBufSize){
-        this.neo = neo;
-        this.stepSize = stepSize;
-        this.refreshBufSize = refreshBufSize;
-    }
+    @Getter
+    private volatile Long currentStart;
 
     /**
      * 初始化buf起点
-     * @param rangeStart buff的其实位置
+     *
+     * @param start 新的起点
      * @return 当前位置
      */
-    public Long initBufStart(Long rangeStart){
-        rangeStartOfBuf1 = rangeStart;
-        currentStart = rangeStartOfBuf1;
-        return currentStart;
+    Long initBufStart(Long start) {
+        currentStart = start;
+        rangeStartOfBuf1 = start;
+        rangeEndOfBuf1 = start + DEFAULT_STEP;
+        return start;
     }
 
     /**
      * 准备和刷新buf，如果满足刷新条件，则进行刷新二级buf
+     *
      * @param uid 全局id
      * @return true:达到刷新条件，且未刷新，false:没有到达刷新条件，或者到达刷新条件，但是已经刷新
      */
-    public Boolean readyRefresh(Long uid) {
-        if (uid - currentStart < refreshBufSize || haveRefreshed) {
-            return false;
-        }
-        log.debug("到达刷新二级buf");
-        return true;
+    Boolean readyRefresh(long uid) {
+        // 到达刷新位置，而且还没有刷新
+        return uid >= currentStart + DEFAULT_STEP * REFRESH_RATIO / 100;
     }
 
     /**
@@ -76,59 +67,55 @@ public final class RangeStartManager {
      *
      * 将其中不是当前的另外一个buf设置为新的buf
      *
-     * @param rangeStart buf起始位置
+     * @param start 起点
      */
-    public void refreshRangeStart(Long rangeStart){
-        if(currentStart.equals(rangeStartOfBuf1)){
-            rangeStartOfBuf2 = rangeStart;
+    void refreshRangeStart(Long start) {
+        if (currentStart.equals(rangeStartOfBuf1)) {
+            rangeStartOfBuf2 = start;
+            rangeEndOfBuf2 = start + DEFAULT_STEP;
             return;
         }
 
-        if(currentStart.equals(rangeStartOfBuf2)){
-            rangeStartOfBuf1 = rangeStart;
+        if (currentStart.equals(rangeStartOfBuf2)) {
+            rangeStartOfBuf1 = start;
+            rangeEndOfBuf1 = start + DEFAULT_STEP;
         }
-    }
-
-    public void setRefreshFinish(){
-        haveRefreshed = true;
     }
 
     /**
      * 到达其中一个buf的末尾部分
      *
      * @param uid 全局id
-     * @return 0:没有到达末尾，1：刚好到达末尾，2：超过末尾
+     * @return true：到达末尾，false：没有到末尾
      */
-    public Integer reachBufEnd(Long uid) {
-        if (uid - currentStart + 1 == stepSize) {
-            return 1;
+    Boolean reachBufEnd(Long uid) {
+        Long start = rangeStartOfBuf1;
+        Long end = rangeEndOfBuf1;
+        if (currentStart.equals(rangeStartOfBuf2)) {
+            start = rangeStartOfBuf2;
+            end = rangeEndOfBuf2;
         }
 
-        if(uid - currentStart + 1 > stepSize){
-            return 2;
-        }
-        return 0;
+        return uid < start || uid >= end;
     }
 
     /**
      * buf切换起点
-     *
-     * 将current切换为另外的一个buf起点
-     * @return 新的buf起点
+     * <p>将current切换为另外的一个buf起点
+     * @param uuidIndex 当前id的游标
      */
-    public Long chgBufStart(){
-        haveRefreshed = false;
-        if (currentStart.equals(rangeStartOfBuf1)){
-            currentStart = rangeStartOfBuf2;
-            log.debug("buf起点切换，currentStart = " + currentStart);
-            return currentStart;
+    void chgBufStart(AtomicLong uuidIndex) {
+        if (currentStart.equals(rangeStartOfBuf1)) {
+            log.debug("buf起点切换，currentStart = " + rangeStartOfBuf2);
+            this.currentStart = rangeStartOfBuf2;
+            uuidIndex.compareAndSet(rangeStartOfBuf1, rangeEndOfBuf2);
+            return;
         }
 
-        if(currentStart.equals(rangeStartOfBuf2)){
-            currentStart = rangeStartOfBuf1;
-            log.debug("buf起点切换，currentStart = " + currentStart);
-            return currentStart;
+        if (currentStart.equals(rangeStartOfBuf2)) {
+            log.debug("buf起点切换，currentStart = " + rangeStartOfBuf1);
+            this.currentStart = rangeStartOfBuf1;
+            uuidIndex.compareAndSet(rangeStartOfBuf2, rangeEndOfBuf1);
         }
-        return 0L;
     }
 }

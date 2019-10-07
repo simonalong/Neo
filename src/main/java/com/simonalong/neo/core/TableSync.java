@@ -2,8 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 
 /**
@@ -16,21 +15,15 @@ public interface TableSync extends SyncNeo{
 
     <T> T insert(T object);
 
-    <T> T insert(T object, NamingChg naming);
-
 
     Integer delete(NeoMap searchMap);
 
     <T> Integer delete(T object);
 
-    <T> Integer delete(T object, NamingChg naming);
-
     Integer delete( Number id);
 
 
     NeoMap update(NeoMap dataMap, NeoMap searchMap);
-
-    <T> T update(T setEntity, NeoMap searchMap, NamingChg namingChg);
 
     <T> T update(T setEntity, NeoMap searchMap);
 
@@ -39,8 +32,6 @@ public interface TableSync extends SyncNeo{
     NeoMap update(NeoMap dataMap, Columns columns);
 
     <T> NeoMap update(NeoMap setMap, T searchEntity);
-
-    <T> T update(T entity, Columns columns, NamingChg namingChg);
 
     <T> T update(T entity, Columns columns);
 
@@ -120,8 +111,6 @@ public interface TableSync extends SyncNeo{
 
     Integer batchInsert(List<NeoMap> dataMapList);
 
-    <T> Integer batchInsertEntity(List<T> dataList, NamingChg namingChg);
-
     <T> Integer batchInsertEntity(List<T> dataList);
 
 
@@ -130,8 +119,6 @@ public interface TableSync extends SyncNeo{
     Integer batchUpdate(List<NeoMap> dataList, Columns columns);
 
     <T> Integer batchUpdateEntity(List<T> dataList);
-
-    <T> Integer batchUpdateEntity(List<T> dataList, Columns columns, NamingChg namingChg);
 
     <T> Integer batchUpdateEntity(List<T> dataList, Columns columns);
 }

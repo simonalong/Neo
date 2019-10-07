@@ -2,9 +2,8 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.exception.DbNotSetException;
-import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -53,11 +52,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> T insert(T object, NamingChg naming) {
-        return getDbInner().insert(getTableName(), object, naming);
-    }
-
-    @Override
     public Integer delete(NeoMap searchMap){
         return getDbInner().delete(getTableName(), searchMap);
     }
@@ -68,11 +62,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> Integer delete(T object, NamingChg naming){
-        return getDbInner().delete(getTableName(), object, naming);
-    }
-
-    @Override
     public Integer delete(Number id){
         return getDbInner().delete(getTableName(), id);
     }
@@ -80,11 +69,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public NeoMap update(NeoMap dataMap, NeoMap searchMap){
         return getDbInner().update(getTableName(), dataMap, searchMap);
-    }
-
-    @Override
-    public <T> T update(T setEntity, NeoMap searchMap, NamingChg namingChg){
-        return getDbInner().update(getTableName(), setEntity, searchMap, namingChg);
     }
 
     @Override
@@ -100,11 +84,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public NeoMap update(NeoMap dataMap, Columns columns){
         return getDbInner().update(getTableName(), dataMap, columns);
-    }
-
-    @Override
-    public <T> T update(T entity, Columns columns, NamingChg namingChg){
-        return getDbInner().update(getTableName(), entity, columns, namingChg);
     }
 
     @Override
@@ -293,11 +272,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> Integer batchInsertEntity(List<T> dataList, NamingChg namingChg) {
-        return getDbInner().batchInsertEntity(getTableName(), dataList, namingChg);
-    }
-
-    @Override
     public <T> Integer batchInsertEntity(List<T> dataList) {
         return getDbInner().batchInsertEntity(getTableName(), dataList);
     }
@@ -318,11 +292,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns, NamingChg namingChg) {
-        return getDbInner().batchUpdateEntity(getTableName(), dataList, columns, namingChg);
-    }
-
-    @Override
     public <T> Integer batchUpdateEntity(List<T> dataList, Columns columns) {
         return getDbInner().batchUpdateEntity(getTableName(), dataList, columns);
     }
@@ -339,11 +308,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<T> insertAsync(T object, NamingChg naming, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> insert(object, naming), executor);
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(NeoMap dataMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> delete(dataMap), executor);
     }
@@ -354,11 +318,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<Integer> deleteAsync(T entity, NamingChg naming, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> delete(entity, naming), executor);
-    }
-
-    @Override
     public CompletableFuture<Integer> deleteAsync(Number id, Executor executor) {
         return CompletableFuture.supplyAsync(() -> delete(id), executor);
     }
@@ -366,11 +325,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> update(dataMap, searchMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, NamingChg namingChg, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> update(setEntity, searchMap, namingChg), executor);
     }
 
     @Override
@@ -386,11 +340,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Columns columns, Executor executor) {
         return CompletableFuture.supplyAsync(() -> update(dataMap, columns), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(T entity, Columns columns, NamingChg namingChg, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> update(entity, columns, namingChg), executor);
     }
 
     @Override
@@ -562,15 +511,9 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, NamingChg namingChg, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchInsertEntity(dataList, namingChg), executor);
-    }
-
-    @Override
     public <T> CompletableFuture<Integer> batchInsertEntityAsync(List<T> dataList, Executor executor){
         return CompletableFuture.supplyAsync(() -> batchInsertEntity(dataList), executor);
     }
-
 
     @Override
     public CompletableFuture<Integer> batchUpdateAsync(List<NeoMap> dataList, Executor executor){
@@ -585,11 +528,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Executor executor){
         return CompletableFuture.supplyAsync(() -> batchUpdateEntity(dataList), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchUpdateEntityAsync(List<T> dataList, Columns columns, NamingChg namingChg, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchUpdateEntity(dataList, columns, namingChg), executor);
     }
 
     @Override

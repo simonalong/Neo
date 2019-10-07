@@ -1,6 +1,7 @@
 package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
 import com.simonalong.neo.sql.SqlBuilder;
@@ -14,7 +15,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/14 下午5:56
  */
-public class NeoListTest extends NeoBaseTest{
+public class NeoListTest extends NeoBaseTest {
 
     public NeoListTest() throws SQLException {}
 

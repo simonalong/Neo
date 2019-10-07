@@ -1,5 +1,6 @@
 package com.simonalong.neo.entity;
 
+import com.simonalong.neo.annotation.Column;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -24,6 +25,7 @@ public class DemoEntity {
     private String name;
     private String userName;
     private Long id;
+    @Column("data_name")
     private String dataBaseName;
     private Integer a;
     private long sl = 0;

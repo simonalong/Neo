@@ -1,12 +1,8 @@
 package com.simonalong.neo.sql;
 
-import static com.simonalong.neo.sql.SqlBuilder.*;
-
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.neo.NeoBaseTest;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.neo.NeoBaseTest;
+import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +61,7 @@ public class SqlBuilderTest extends NeoBaseTest {
     public void buildJoinHeadTest1(){
         String table1 = "table1";
         String table2 = "table2";
-        Columns columns = Columns.table(table1).cs("c1", "c11").and(table2).cs("c2", "c22");
+        Columns columns = Columns.of().table(table1, "c1", "c11").table(table2, "c2", "c22");
         // select table1.`c11`, table1.`c1`, table2.`c22`, table2.`c2`
         show(SqlBuilder.buildJoinHead(neo, columns));
     }

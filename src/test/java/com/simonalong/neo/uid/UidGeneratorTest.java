@@ -1,7 +1,6 @@
 package com.simonalong.neo.uid;
 
-import com.simonalong.neo.neo.NeoBaseTest;
-import com.simonalong.neo.neo.NeoBaseTest;
+import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,18 +17,18 @@ public class UidGeneratorTest extends NeoBaseTest {
 
     @Before
     public void before(){
-        generator = UidGenerator.getInstance(neo, 10, 0.3f);
+        generator = UidGenerator.getInstance(neo);
     }
 
     @Test
     public void generateTest1(){
-        show(generator.getUid());
-        show(generator.getUid());
-        show(generator.getUid());
+        show(generator.getUuid());
+        show(generator.getUuid());
+        show(generator.getUuid());
     }
 
     @Test
     public void generateTest2(){
-        show(generator.getUid());
+        show(generator.getUuid());
     }
 }

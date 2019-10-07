@@ -1,3 +1,7 @@
+create database neo DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+create user 'neo_test'@'localhost' identified by 'neo@Test123';
+grant all privileges on neo.* to 'neo_test'@'localhost';
+
 CREATE TABLE `neo_table1` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',

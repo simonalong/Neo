@@ -31,7 +31,7 @@ public class DateZoneUtil {
         Stream.of(timeKeys).forEach(t -> {
             if (dataMap.containsKey(t)) {
                 try {
-                    dataMap.put(t, parse.parse(dataMap.getStr(t)));
+                    dataMap.put(t, parse.parse(dataMap.getString(t)));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

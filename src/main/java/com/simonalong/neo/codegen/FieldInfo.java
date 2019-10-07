@@ -27,9 +27,14 @@ final class FieldInfo {
      */
     @Setter
     private String fieldName;
+    /**
+     * db中列的名字
+     */
+    @Setter
+    private String columnName;
 
-    public FieldInfo setFieldRemark(String fieldRemark) {
-        if (null != fieldRemark && !fieldRemark.equals("")) {
+    FieldInfo setFieldRemark(String fieldRemark) {
+        if (null != fieldRemark && !"".equals(fieldRemark)) {
             this.fieldRemark = fieldRemark;
             this.fieldRemarkFlag = 1;
         }

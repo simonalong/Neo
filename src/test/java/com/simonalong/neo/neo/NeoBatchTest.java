@@ -1,8 +1,8 @@
 package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/25 下午20:04
  */
-public class NeoBatchTest extends NeoBaseTest{
+public class NeoBatchTest extends NeoBaseTest {
 
     public NeoBatchTest() throws SQLException {}
 
@@ -55,7 +55,7 @@ public class NeoBatchTest extends NeoBaseTest{
             new DemoEntity().setGroup("group15").setName("name15"),
             new DemoEntity().setGroup("group16").setName("name16")
         );
-        neo.batchInsertEntity(TABLE_NAME, entities, NamingChg.UNDERLINE);
+        neo.batchInsertEntity(TABLE_NAME, entities);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class NeoBatchTest extends NeoBaseTest{
             new DemoEntity().setGroup("group15chg").setName("name5chg").setUserName("userName5"),
             new DemoEntity().setGroup("group16chg").setName("name6chg").setUserName("userName6")
         );
-        show(neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("userName"), NamingChg.UNDERLINE));
+        show(neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("userName")));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class NeoBatchTest extends NeoBaseTest{
             new DemoEntity().setId(5L).setGroup("group15chg").setName("name15chg"),
             new DemoEntity().setId(6L).setGroup("group16chg").setName("name16chg")
         );
-        neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("id", "group"), NamingChg.UNDERLINE);
+        neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("id", "group"));
     }
 
     @Test

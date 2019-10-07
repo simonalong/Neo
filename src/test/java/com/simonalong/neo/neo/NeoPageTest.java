@@ -1,8 +1,9 @@
 package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.table.NeoPage;
+import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
@@ -12,7 +13,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/3/14 下午2:34
  */
-public class NeoPageTest extends NeoBaseTest{
+public class NeoPageTest extends NeoBaseTest {
 
     public NeoPageTest() throws SQLException {}
 

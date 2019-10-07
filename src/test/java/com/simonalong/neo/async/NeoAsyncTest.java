@@ -1,7 +1,7 @@
 package com.simonalong.neo.async;
 
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.neo.NeoBaseTest;
+import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import org.junit.Test;
 

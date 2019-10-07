@@ -8,8 +8,17 @@ package com.simonalong.neo;
  */
 public interface NeoConstant {
 
+    String LOG_PRE = "neo-orm:";
     String ORDER_BY = "order by";
     String LIMIT = "limit";
     String DESC = "desc";
     String ASC = "asc";
+    String ALL_COLUMN_NAME = "*";
+    String ALL_FIELD = "*";
+    String SELECT = "select";
+    String PRE_LOG = "[Neo] ";
+    String DEFAULT_TABLE = "_default_";
+    String ALIAS_DOM = "_NDom_";
+    String AS = " as ";
+    String COLUMN_PRE = "`";
 }

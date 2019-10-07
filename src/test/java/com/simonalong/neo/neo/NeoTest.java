@@ -2,8 +2,8 @@ package com.simonalong.neo.neo;
 
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -19,11 +19,11 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 /**
- * 测试，其中待测试的表结构请见文件 /table/test.sql
+ * 测试，其中待测试的表结构请见文件 /db/test.sql
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:47
  */
-public class NeoTest extends NeoBaseTest{
+public class NeoTest extends NeoBaseTest {
 
     private ExecutorService pool = Executors.newCachedThreadPool();
 
@@ -51,7 +51,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        DemoEntity result = neo.insert(TABLE_NAME, input, NamingChg.UNDERLINE);
+        DemoEntity result = neo.insert(TABLE_NAME, input);
         show(result);
     }
 
@@ -104,7 +104,7 @@ public class NeoTest extends NeoBaseTest{
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
-        show(neo.delete(TABLE_NAME, input, NamingChg.UNDERLINE));
+        show(neo.delete(TABLE_NAME, input));
     }
 
     @Test
@@ -117,6 +117,7 @@ public class NeoTest extends NeoBaseTest{
     @Test
     @SneakyThrows
     public void testUpdate1(){
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group2", "name", "name"));
         // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
         show(neo.update(TABLE_NAME, NeoMap.of("group", "ok2"), NeoMap.of("group", "group2", "name", "name")));
     }
@@ -215,7 +216,7 @@ public class NeoTest extends NeoBaseTest{
         search.setGroup("group555");
         search.setName("name333");
         search.setUserName("userName2222");
-        show(neo.update(TABLE_NAME, search, Columns.of("userName"), NamingChg.UNDERLINE));
+        show(neo.update(TABLE_NAME, search, Columns.of("userName")));
     }
 
     @Test
@@ -386,20 +387,20 @@ public class NeoTest extends NeoBaseTest{
      */
     @Test
     public void testUid(){
-        neo.openUidGenerator(10, 0f);
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
+        neo.openUidGenerator();
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
 
-        show(neo.getUid());
-        show(neo.getUid());
-        show(neo.getUid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
     }
 }

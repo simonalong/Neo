@@ -2,7 +2,7 @@ package com.simonalong.neo.codegen;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.codegen.EnumInfo.EnumInner;
-import com.simonalong.neo.table.NeoColumn;
+import com.simonalong.neo.db.NeoColumn;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.StringConverter;
@@ -118,7 +118,7 @@ public class EntityCodeGen {
     }
 
     public void generate(){
-        Neo neo = Neo.connect(url, userName, password);
+        Neo neo = Neo.connect(url, userName, password).initDb();
         NeoMap dataMap = NeoMap.of("entityPath", entityPath);
 
         List<String> tableNameList = getShowTableList(neo);
@@ -263,8 +263,9 @@ public class EntityCodeGen {
         return neo.getColumnList(tableName).stream()
             .map(c -> NeoMap.from(new FieldInfo()
                 .setFieldType(c.getJavaClass().getSimpleName())
-                .setFieldRemark(c.getColumnMeta().getRemarks())
-                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))))
+                .setFieldRemark(c.getInnerColumn().getRemarks())
+                .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))
+                .setColumnName(c.getColumnName())))
             .collect(Collectors.toList());
     }
 

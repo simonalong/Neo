@@ -6,8 +6,8 @@ import static com.simonalong.neo.sql.JoinType.*;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.table.AliasParser;
-import com.simonalong.neo.table.NeoTable;
+import com.simonalong.neo.db.AliasParser;
+import com.simonalong.neo.db.NeoTable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,7 +67,7 @@ public class SqlBuilder {
      */
     public String buildOrderBy(NeoMap searchMap) {
         if (!NeoMap.isEmpty(searchMap) && searchMap.containsKey(ORDER_BY)) {
-            return " " + ORDER_BY + " " + orderByStr(searchMap.getStr(ORDER_BY));
+            return " " + ORDER_BY + " " + orderByStr(searchMap.getString(ORDER_BY));
         }
         return "";
     }
@@ -75,7 +75,7 @@ public class SqlBuilder {
     /**
      * order by 后面的字符转换为数据库字样，比如
      * {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
-     * {@code table.group desc, table.name asc --> table.`group` desc, table.`name` asc}
+     * {@code db.group desc, db.name asc --> db.`group` desc, db.`name` asc}
      * @param orderByValueStr order by后面的字符
      * @return 转换后的字符
      */
@@ -130,12 +130,12 @@ public class SqlBuilder {
      * @param searchMap 搜索条件
      * @return 返回拼接的sql，比如：select * from xxx where a=? and b=? order by `xxx` desc
      */
-    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap){
+    public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
         StringBuilder sqlAppender = new StringBuilder("select ");
         if (!Columns.isEmpty(columns)){
-            sqlAppender.append(columns.buildFields());
+            sqlAppender.append(columns.toString());
         }else{
-            sqlAppender.append(Columns.from(neo, tableName).buildFields());
+            sqlAppender.append(Columns.of(neo).table(tableName).toString());
         }
         sqlAppender.append(" from ").append(tableName).append(buildWhere(searchMap)).append(buildOrderBy(searchMap));
         return sqlAppender.toString();
@@ -217,7 +217,7 @@ public class SqlBuilder {
      * @return join对应的head，比如：select xxx,xxx
      */
     public String buildJoinHead(Neo neo, Columns columns) {
-        return "select " + columns.setNeo(neo).buildFields();
+        return "select " + columns.setNeo(neo).toString();
     }
 
     /**
@@ -336,7 +336,7 @@ public class SqlBuilder {
 
     private List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e))
+        return searchMap.clone().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e->valueFix(searchMap, e))
             .collect(Collectors.toList());
     }
 
@@ -353,7 +353,7 @@ public class SqlBuilder {
     }
 
     /**
-     * 将普通的列名转换为sql语句中的列，{@code group --> `group`} {@code table.name --> table.`name`}
+     * 将普通的列名转换为sql语句中的列，{@code group --> `group`} {@code db.name --> db.`name`}
      * @param column 原列名
      * @return 转换后的列名，比如name 到 `name`
      */
