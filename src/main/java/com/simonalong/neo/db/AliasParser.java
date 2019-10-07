@@ -65,9 +65,10 @@ public class AliasParser {
     /**
      * 获取名字的原名
      * {@code table1 as t1 --> table1} {@code table1 t1--> table1}
+     * @param tableNameStr 原表名
      * @return 表名或者列名的原名字
      */
-    public String getOrigin(String tableNameStr){
+    public String getOrigin(String tableNameStr) {
         String asStr = " as ";
         String spaceStr = " ";
         tableNameStr = tableNameStr.trim();

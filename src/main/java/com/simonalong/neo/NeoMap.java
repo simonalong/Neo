@@ -174,10 +174,11 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 指定包括的属性进行对象转换为NeoMap
      *
      * @param object 待转换对象
+     * @param namingChg 命名转换风格
      * @param fields 对象的属性名列表
      * @return 转换之后的NeoMap
      */
-    public static NeoMap fromInclude(Object object, NamingChg namingChg, String... fields) {
+    static NeoMap fromInclude(Object object, NamingChg namingChg, String... fields) {
         return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
     }
 
@@ -200,7 +201,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param fields 排除的对象的属性名列表
      * @return 转换之后的NeoMap
      */
-    public static NeoMap fromExclude(Object object, NamingChg namingChg, String... fields) {
+    static NeoMap fromExclude(Object object, NamingChg namingChg, String... fields) {
         return from(object, namingChg, new ArrayList<>(), Arrays.asList(fields));
     }
 
@@ -958,12 +959,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     /**
      * 是否进行时间类型到Long类型的转换来放置数据
+     * @param tableName 表名
      * @param key key
      * @param value value
      * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
      * @return value的值
      */
-    public Object put(String tableName, String key, Object value, Boolean timeTypeToLong) {
+    private Object put(String tableName, String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {
             if (timeTypeToLong) {
                 doPut(tableName, key, TimeDateConverter.entityTimeToLong(value));
