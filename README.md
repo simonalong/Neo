@@ -14,7 +14,7 @@ Neo是一个基于JDBC开发的至简化框架。开发源头，源于几个原�
 <dependency>
   <groupId>com.github.simonalong</groupId>
   <artifactId>Neo</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ public void testDemo1() {
     String password = "neo@Test123";
     String tableName = "neo_table1";
     // 连接
-    Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+    Neo neo = Neo.connect(url, user, password);
 
     // 插入
     NeoMap data = neo.insert(tableName, NeoMap.of("group", "value"));
@@ -56,13 +56,13 @@ public void testDemo1() {
     neo.page(tableName, data, NeoPage.of(1, 20));
 
     // 执行sql
-    neo.execute("select * from %s where group =?", tableName, "group1");
+    neo.execute("select * from %s where `group` =?", tableName, "group1");
 
     // 事务
     neo.tx(()->{
         neo.update(tableName, NeoMap.of("id", 12, "group", "value1"));
         neo.one(tableName, 12);
-        neo.update("neo_table2", NeoMap.of("column2", 12));
+        neo.update("neo_table2", NeoMap.of("name", 12));
     });
 
     // 批量
@@ -83,7 +83,7 @@ public void testDemo2() {
     String password = "neo@Test123";
     String tableName = "neo_table1";
     // 连接
-    Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+    Neo neo = Neo.connect(url, user, password);
     NeoTable table = neo.getTable(tableName);
 
     // 插入
@@ -228,10 +228,9 @@ CREATE TABLE `neo_table1` (
   `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
   `age` int(11) DEFAULT NULL,
   `sl` bigint(20) DEFAULT NULL,
-  `data_name` varchar(24) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `group_index` (`group`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
 
 ### 业务使用

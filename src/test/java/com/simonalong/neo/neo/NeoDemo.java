@@ -17,6 +17,18 @@ import org.junit.Test;
  */
 public class NeoDemo {
 
+    /**
+     * CREATE TABLE `neo_table1` (
+     *   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+     *   `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',
+     *   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
+     *   `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
+     *   `age` int(11) DEFAULT NULL,
+     *   `sl` bigint(20) DEFAULT NULL,
+     *   PRIMARY KEY (`id`),
+     *   KEY `group_index` (`group`)
+     * ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+     */
     @Test
     public void testDemo1() {
         String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -24,7 +36,7 @@ public class NeoDemo {
         String password = "neo@Test123";
         String tableName = "neo_table1";
         // 连接
-        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+        Neo neo = Neo.connect(url, user, password);
 
         // 插入
         NeoMap data = neo.insert(tableName, NeoMap.of("group", "value"));
@@ -53,13 +65,13 @@ public class NeoDemo {
         neo.page(tableName, data, NeoPage.of(1, 20));
 
         // 执行sql
-        neo.execute("select * from %s where group =?", tableName, "group1");
+        neo.execute("select * from %s where `group` =?", tableName, "group1");
 
         // 事务
         neo.tx(()->{
             neo.update(tableName, NeoMap.of("id", 12, "group", "value1"));
             neo.one(tableName, 12);
-            neo.update("neo_table2", NeoMap.of("column2", 12));
+            neo.update("neo_table2", NeoMap.of("name", 12));
         });
 
         // 批量
@@ -81,7 +93,7 @@ public class NeoDemo {
         String password = "neo@Test123";
         String tableName = "neo_table1";
         // 连接
-        Neo neo = Neo.connect(url, user, password).initDb("neo_table1");
+        Neo neo = Neo.connect(url, user, password);
         NeoTable table = neo.getTable(tableName);
 
         // 插入
