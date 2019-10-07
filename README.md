@@ -280,7 +280,7 @@ public class CodeGenTest {
             // 设置实体生成的包路径
             .setEntityPath("com.simonalong.neo.entity")
             // 设置表前缀过滤
-//            .setPreFix("t_")
+            // .setPreFix("t_")
             // 设置要排除的表
             //.setExcludes("xx_test")
             // 设置只要的表
