@@ -19,23 +19,24 @@ public final class ConnectPool {
     private final DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
-    public ConnectPool(Neo neo, DataSource dataSource){
+    public ConnectPool(Neo neo, DataSource dataSource) {
         this.neo = neo;
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo, String propertiesPath){
+    public ConnectPool(Neo neo, String propertiesPath) {
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    public ConnectPool(Neo neo, Properties properties){
+    public ConnectPool(Neo neo, Properties properties) {
         this.neo = neo;
         this.dataSource = new HikariDataSource(new HikariConfig(properties));
     }
 
     /**
      * 获取链接，非事务获取普通的链接对象，事务获取可重用的链接
+     *
      * @return 返回连接
      * @throws SQLException 获取连接失败
      */
@@ -57,6 +58,7 @@ public final class ConnectPool {
 
     /**
      * 设置事务的一些配置
+     *
      * @param isolationEnum 事务隔离级别
      * @param readOnly 事务的可读性
      * @throws SQLException SQL异常
@@ -77,7 +79,7 @@ public final class ConnectPool {
 
     public void submit() throws SQLException {
         ReusableConnection con = connectLocal.get();
-        if(null != con){
+        if (null != con) {
             try {
                 con.commit();
                 con.setAutoCommit(true);
@@ -90,7 +92,7 @@ public final class ConnectPool {
 
     public void rollback() throws SQLException {
         ReusableConnection con = connectLocal.get();
-        if(null != con){
+        if (null != con) {
             try {
                 con.rollback();
                 con.setAutoCommit(true);
