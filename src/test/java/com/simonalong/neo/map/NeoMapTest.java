@@ -34,7 +34,7 @@ public class NeoMapTest extends BaseTest {
     public void testString(){
         NeoMap neoMap1 = NeoMap.of("a", 123, "b", 12);
 
-        // {"a":123,"b":123}
+        // {"a":123,"b":12}
         show(neoMap1);
     }
 
