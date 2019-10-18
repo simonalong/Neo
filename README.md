@@ -125,9 +125,8 @@ public void testDemo2() {
 #### 注意
 生成一个Neo对象除了可以通过url、user和password，还可以通过DataSource方式
 ```java
-public static Neo connect(DataSource dataSource) {
-    //...
-}
+// 连接
+Neo neo = Neo.connect(datasource);
 ```
 
 ### 指定实体
