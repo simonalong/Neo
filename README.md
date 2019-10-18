@@ -122,6 +122,14 @@ public void testDemo2() {
 }
 ```
 
+#### 注意
+生成一个Neo对象除了可以通过url、user和password，还可以通过DataSource方式
+```java
+public static Neo connect(DataSource dataSource) {
+    //...
+}
+```
+
 ### 指定实体
 上面我们对数据的操作全都是基于map，下面我们基于实体DO对数据库进行操作
 ```java
