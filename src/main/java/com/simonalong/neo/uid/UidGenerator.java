@@ -88,7 +88,7 @@ public final class UidGenerator {
         });
     }
 
-    private void freshSecondBuf(Long uid){
+    private void freshSecondBuf(Long uid) {
         // 到达刷新比率
         if (rangeManager.readyRefresh(uid)) {
             lock.lock();

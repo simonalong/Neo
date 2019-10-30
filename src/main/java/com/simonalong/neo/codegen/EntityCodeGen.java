@@ -188,6 +188,7 @@ public class EntityCodeGen {
         neoMap.put("importTime", 0);
         neoMap.put("importTimestamp", 0);
         neoMap.put("importBigDecimal", 0);
+        neoMap.put("importBigInteger", 0);
         if(null != columnList && !columnList.isEmpty()){
             columnList.forEach(c->{
                 Class fieldClass = c.getJavaClass();
@@ -205,6 +206,10 @@ public class EntityCodeGen {
 
                 if (java.math.BigDecimal.class.isAssignableFrom(fieldClass)) {
                     neoMap.put("importBigDecimal", 1);
+                }
+
+                if (java.math.BigInteger.class.isAssignableFrom(fieldClass)) {
+                    neoMap.put("importBigInteger", 1);
                 }
 
                 // 枚举类型

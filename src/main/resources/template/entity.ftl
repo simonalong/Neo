@@ -12,6 +12,9 @@ import java.sql.Timestamp;
 <#if importBigDecimal == 1>
 import java.math.BigDecimal;
 </#if>
+<#if importBigInteger == 1>
+import java.math.BigInteger;
+</#if>
 import com.simonalong.neo.annotation.Column;
 import lombok.experimental.Accessors;
 import lombok.Data;
