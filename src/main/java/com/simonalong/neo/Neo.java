@@ -197,8 +197,7 @@ public class Neo extends AbstractBaseDb {
             Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
             String incrementKey = db.getPrimaryAndAutoIncName(tableName);
             if (null != incrementKey) {
-                valueMap.put(incrementKey, id);
-                return oneWithXMode(tableName, valueMap);
+                return oneWithXMode(tableName, NeoMap.of(incrementKey, id));
             }
             return valueMap;
         });
