@@ -1,26 +1,23 @@
-package com.simonalong.neo.db;
-
-import static com.simonalong.neo.NeoConstant.PRE_LOG;
+package com.simonalong.neo.db.xa;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoPool;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.exception.ParameterUnValidException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 import javax.sql.DataSource;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import lombok.Getter;
 
 /**
  * @author zhouzhenyong
@@ -48,10 +45,10 @@ public class NeoXa {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
 
-            if (kvs[i + 1] instanceof Neo) {
-                neoMap.put((String) kvs[i], (Neo) kvs[i + 1]);
+            if (kvs[i + 1] instanceof InnerNeo) {
+                neoMap.put((String) kvs[i], (InnerNeo) kvs[i + 1]);
             } else if (kvs[i + 1] instanceof DataSource) {
-                neoMap.put((String) kvs[i], Neo.connect((DataSource) kvs[i + 1]));
+                neoMap.put((String) kvs[i], InnerNeo.connect((DataSource) kvs[i + 1]));
             } else {
                 throw new ParameterUnValidException(
                     "value = " + kvs[i + 1].getClass().toString() + "不是Neo也不是Datasource类型");
@@ -95,15 +92,56 @@ public class NeoXa {
     }
 
     public void run(Runnable runnable) {
-        // todo
+        runnable.run();
+        afterProcess();
     }
 
-    public <V> V call(Callable<V> callable) {
-        // todo
-        return null;
+    private void afterProcess() {
+        // 全部事务成功标示
+        Boolean allSuccess = true;
+        List<InnerNeo> innerNeoList = neoMap.values().stream().map(n -> (InnerNeo) n).filter(InnerNeo::getAliveFlag)
+            .collect(Collectors.toList());
+        for (InnerNeo innerNeo : innerNeoList) {
+            try {
+                // 任何一个事务失败，则全局事务标示为失败
+                if (innerNeo.getRm().prepare(innerNeo.getXid()) != XAResource.XA_OK) {
+                    allSuccess = false;
+                }
+            } catch (XAException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (allSuccess) {
+            innerNeoList.forEach(n -> {
+                try {
+                    n.getRm().commit(n.getXid(), false);
+                } catch (XAException e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            innerNeoList.forEach(n -> {
+                try {
+                    n.getRm().rollback(n.getXid());
+                } catch (XAException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     class InnerNeo extends Neo {
+
+        @Getter
+        private XAResource rm;
+        @Getter
+        private Xid xid;
+        /**
+         * 是否执行有效
+         */
+        @Getter
+        private Boolean aliveFlag = false;
 
         private InnerNeo() {
         }
@@ -111,7 +149,15 @@ public class NeoXa {
         @Override
         protected <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier,
             Function<PreparedStatement, T> stateFun) {
-            return super.execute(multiLine, sqlSupplier, stateFun);
+            try {
+                beforeExecute();
+                T t = super.execute(multiLine, sqlSupplier, stateFun);
+                afterExecute();
+                return t;
+            } catch (SQLException | XAException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
@@ -119,5 +165,16 @@ public class NeoXa {
             return super.executeBatch(sqlPair);
         }
 
+        private void beforeExecute() throws SQLException, XAException {
+            rm = XaConnectionFactory.getXaConnect(this.getPool().getConnect()).getXAResource();
+            // todo 下面的txid和txBranchId需要添补
+            xid = XidFactory.getXid("", "", 1);
+            aliveFlag = true;
+            rm.start(xid, XAResource.TMNOFLAGS);
+        }
+
+        private void afterExecute() throws XAException {
+            rm.end(xid, XAResource.TMSUCCESS);
+        }
     }
 }

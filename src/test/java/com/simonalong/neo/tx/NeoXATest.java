@@ -3,7 +3,7 @@ package com.simonalong.neo.tx;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.NeoXa;
+import com.simonalong.neo.db.xa.NeoXa;
 import java.sql.SQLException;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class NeoXATest extends NeoBaseTest {
 
         NeoXa xa = NeoXa.of("d1", db1, "d2", db2);
 
-        xa.run(()->{
+        xa.run(() -> {
             Neo d1 = xa.get("d1");
             d1.insert("t1", NeoMap.of("code", 11));
             Neo d2 = xa.get("d2");
