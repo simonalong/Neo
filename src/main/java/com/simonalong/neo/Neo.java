@@ -92,7 +92,7 @@ public class Neo extends AbstractBaseDb {
      */
     private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
 
-    private Neo(){}
+    protected Neo(){}
 
     public static Neo connect(String url, String username, String password, Properties properties) {
         Neo neo = new Neo();
@@ -1274,7 +1274,7 @@ public class Neo extends AbstractBaseDb {
      * @param <T> 返回值的类型
      * @return 返回对应的要求的返回值
      */
-    private <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun) {
+    protected <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun) {
         Pair<String, List<Object>> sqlPair = sqlSupplier.get();
         String sql = sqlPair.getKey();
         List<Object> parameters = sqlPair.getValue();
@@ -1318,7 +1318,7 @@ public class Neo extends AbstractBaseDb {
         return null;
     }
 
-    private Integer executeBatch(Pair<String, List<List<Object>>> sqlPair){
+    protected Integer executeBatch(Pair<String, List<List<Object>>> sqlPair){
         String sql = sqlPair.getKey();
         List<List<Object>> parameterList = sqlPair.getValue();
 
