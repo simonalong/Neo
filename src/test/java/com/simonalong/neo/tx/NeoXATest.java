@@ -25,8 +25,8 @@ public class NeoXATest extends NeoBaseTest {
 
         xa.run(() -> {
             Neo d1 = xa.get("d1");
-            d1.insert("t1", NeoMap.of("code", 11));
             Neo d2 = xa.get("d2");
+            d1.insert("t1", NeoMap.of("code", 11));
             d2.insert("t1", NeoMap.of("code", 22));
         });
     }
