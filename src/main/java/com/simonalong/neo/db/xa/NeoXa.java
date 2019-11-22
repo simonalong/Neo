@@ -98,7 +98,7 @@ public class NeoXa {
 
     private void afterProcess() {
         // 全部事务成功标示
-        Boolean allSuccess = true;
+        boolean allSuccess = true;
         List<InnerNeo> innerNeoList = neoMap.values().stream().map(n -> (InnerNeo) n).filter(InnerNeo::getAliveFlag)
             .collect(Collectors.toList());
         for (InnerNeo innerNeo : innerNeoList) {
@@ -131,7 +131,7 @@ public class NeoXa {
         }
     }
 
-    class InnerNeo extends Neo {
+    static class InnerNeo extends Neo {
 
         @Getter
         private XAResource rm;

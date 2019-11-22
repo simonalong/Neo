@@ -1,7 +1,9 @@
 package com.simonalong.neo.db.xa;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
-import com.mysql.jdbc.jdbc2.optional.MysqlXid;
+import com.mysql.cj.jdbc.JdbcConnection;
+import com.mysql.cj.jdbc.MysqlXAConnection;
+import com.mysql.cj.jdbc.MysqlXid;
+
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -16,12 +18,12 @@ public class MysqlXAConnectionTest {
         boolean logXaCommands = true;
         // 获得资源管理器操作接口实例 RM1
         Connection conn1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "shxx12151022");
-        XAConnection xaConn1 = new MysqlXAConnection((com.mysql.jdbc.Connection) conn1, logXaCommands);
+        XAConnection xaConn1 = new MysqlXAConnection((JdbcConnection) conn1, logXaCommands);
         XAResource rm1 = xaConn1.getXAResource();
         // 获得资源管理器操作接口实例 RM2
         Connection conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root",
             "shxx12151022");
-        XAConnection xaConn2 = new MysqlXAConnection((com.mysql.jdbc.Connection) conn2, logXaCommands);
+        XAConnection xaConn2 = new MysqlXAConnection((JdbcConnection) conn2, logXaCommands);
         XAResource rm2 = xaConn2.getXAResource();
         // AP请求TM执行一个分布式事务，TM生成全局事务id
         byte[] gtrid = "g12345".getBytes();

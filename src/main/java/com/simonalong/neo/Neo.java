@@ -7,6 +7,7 @@ import static com.simonalong.neo.NeoConstant.ORDER_BY;
 import static com.simonalong.neo.NeoConstant.PRE_LOG;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.ConnectPool;
@@ -99,15 +100,15 @@ public class Neo extends AbstractBaseDb {
         Neo neo = new Neo();
         Properties baseProper = new Properties();
         if (null != url) {
-            baseProper.setProperty("jdbcUrl", url);
+            baseProper.setProperty("url", url);
         }
 
         if (null != username) {
-            baseProper.setProperty("dataSource.user", username);
+            baseProper.setProperty("username", username);
         }
 
         if (null != password) {
-            baseProper.setProperty("dataSource.password", password);
+            baseProper.setProperty("password", password);
         }
 
         // 针对mysql的特殊设置，下面这个用于设置获取remarks信息

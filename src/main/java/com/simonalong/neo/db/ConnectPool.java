@@ -1,22 +1,26 @@
 package com.simonalong.neo.db;
 
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.sql.TxIsolationEnum;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.sql.DataSource;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
+@Slf4j
 public final class ConnectPool {
 
     private final Neo neo;
-    private final DataSource dataSource;
+    private DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
     public ConnectPool(Neo neo, DataSource dataSource) {
@@ -24,14 +28,13 @@ public final class ConnectPool {
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo, String propertiesPath) {
-        this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
-    }
-
     public ConnectPool(Neo neo, Properties properties) {
         this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(properties));
+        try {
+            this.dataSource = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            log.error(LOG_PRE + "");
+        }
     }
 
     /**
