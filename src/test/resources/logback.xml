@@ -31,7 +31,7 @@
     </appender>
     <logger name="ch.qos.logback" level="ERROR" additivity="true"/>
 
-    <root level="${LOG_LEVEL}">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 

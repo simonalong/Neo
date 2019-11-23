@@ -17,6 +17,8 @@ import com.simonalong.neo.db.NeoJoiner;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.db.xa.XaConnectionFactory;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
@@ -51,6 +53,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 import javax.sql.DataSource;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +70,6 @@ public class Neo extends AbstractBaseDb {
 
     @Getter
     private NeoDb db;
-    @Getter
     private ConnectPool pool;
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
@@ -87,6 +92,19 @@ public class Neo extends AbstractBaseDb {
     @Setter
     @Getter
     private Boolean monitorFlag = true;
+    /**
+     * 分布式事务XA开关
+     */
+    @Setter
+    @Getter
+    private Boolean xaFlag = false;
+    @Getter
+    private XAResource rm;
+    @Getter
+    @Setter
+    private Xid xid;
+    @Getter
+    private Boolean successFlag = false;
 
     /**
      * 事务
@@ -147,6 +165,18 @@ public class Neo extends AbstractBaseDb {
         Neo neo = new Neo();
         neo.pool = new ConnectPool(neo, dataSource);
         return neo;
+    }
+
+    public DataSource getDataSource() {
+        return this.pool.getDataSource();
+    }
+
+    public Connection getConnection() {
+        try {
+            return this.pool.getConnect();
+        } catch (SQLException e) {
+            throw new NeoException("get connect fail", e);
+        }
     }
 
     /**
@@ -1277,6 +1307,13 @@ public class Neo extends AbstractBaseDb {
     }
 
     /**
+     * 开启分布式事务XA
+     */
+    public void openXAFlag() {
+        xaFlag = true;
+    }
+
+    /**
      * 开启全局id生成器
      */
     public void openUidGenerator() {
@@ -1316,41 +1353,20 @@ public class Neo extends AbstractBaseDb {
         String sql = sqlPair.getKey();
         List<Object> parameters = sqlPair.getValue();
 
-        // sql 多行查询的explain衡量
         explain(multiLine, sqlPair);
         try (Connection con = pool.getConnect()) {
             try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                if (standardFlag) {
-                    // sql规范化校验
-                    standard.valid(sql);
-                }
-                if (openMonitor()) {
-                    // 添加对sql的监控
-                    monitor.start(sql, parameters);
-                }
-
-                int i, dataSize = parameters.size();
-                for (i = 0; i < dataSize; i++) {
-                    state.setObject(i + 1, parameters.get(i));
-                }
-
-                T result = stateFun.apply(state);
-                if (openMonitor()) {
-                    // 统计sql信息
-                    monitor.calculate();
-                }
+                beforeExecute(sql, parameters);
+                T result = execute(state, stateFun, parameters);
+                afterExecute();
                 return result;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                log.error(PRE_LOG + "sql=> " + sql);
+            } catch (SQLException|XAException e) {
+                log.error(PRE_LOG + "sql=> " + sql, e);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            log.error(PRE_LOG + "sql=> " + sql);
+            log.error(PRE_LOG + "sql=> " + sql, e);
         } finally {
-            if (openMonitor()) {
-                monitor.close();
-            }
+            finallyExecute();
         }
         return null;
     }
@@ -1362,58 +1378,108 @@ public class Neo extends AbstractBaseDb {
         try (Connection con = pool.getConnect()) {
             try (PreparedStatement state = con.prepareStatement(sql)) {
                 con.setAutoCommit(false);
-                if (standardFlag) {
-                    // sql规范化校验
-                    standard.valid(sql);
-                }
-                if (openMonitor()) {
-                    // 添加对sql的监控
-                    monitor.start(sql, Collections.singletonList(parameterList));
-                }
-
-                // 插入批次数据
-                int i, j, batchCount = parameterList.size(), fieldCount;
-                for (i = 0; i < batchCount; i++) {
-                    List<Object> mList = parameterList.get(i);
-                    fieldCount = parameterList.get(i).size();
-                    for (j = 0; j < fieldCount; j++) {
-                        state.setObject(j + 1, mList.get(j));
-                    }
-                    state.addBatch();
-                }
-
-                state.executeBatch();
-                con.commit();
-                con.setAutoCommit(true);
-
-                if (openMonitor()) {
-                    // 统计sql信息
-                    monitor.calculate();
-                }
+                beforeExecuteBatch(sql, parameterList);
+                int batchCount = executeBatch(state, con, parameterList);
+                afterExecute();
                 return batchCount;
-            } catch (SQLException e) {
-                log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
-                e.printStackTrace();
+            } catch (SQLException|XAException e) {
+                log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]", e);
                 try {
-                    // 出现异常，进行回滚
                     if (!con.isClosed()) {
                         con.rollback();
                         con.setAutoCommit(true);
                     }
                 } catch (SQLException e1) {
-                    log.error(PRE_LOG + "[回滚异常]");
-                    e1.printStackTrace();
+                    log.error(PRE_LOG + "[回滚异常]", e);
                 }
             }
         } catch (SQLException e) {
-            log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
-            e.printStackTrace();
+            log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]", e);
         } finally {
-            if (openMonitor()) {
-                monitor.close();
-            }
+            finallyExecute();
         }
         return 0;
+    }
+
+    private <T> T execute(PreparedStatement state, Function<PreparedStatement, T> stateFun, List<Object> parameters) throws SQLException {
+        int i, dataSize = parameters.size();
+        for (i = 0; i < dataSize; i++) {
+            state.setObject(i + 1, parameters.get(i));
+        }
+
+        return stateFun.apply(state);
+    }
+
+    private int executeBatch(PreparedStatement state, Connection con, List<List<Object>> parameterList) throws SQLException {
+        // 插入批次数据
+        int i, j, batchCount = parameterList.size(), fieldCount;
+        for (i = 0; i < batchCount; i++) {
+            List<Object> mList = parameterList.get(i);
+            fieldCount = parameterList.get(i).size();
+            for (j = 0; j < fieldCount; j++) {
+                state.setObject(j + 1, mList.get(j));
+            }
+            state.addBatch();
+        }
+
+        state.executeBatch();
+        con.commit();
+        con.setAutoCommit(true);
+        return batchCount;
+    }
+
+    private void beforeExecute(String sql, List<Object> parameters) throws SQLException, XAException {
+        if (standardFlag) {
+            // sql规范化校验
+            standard.valid(sql);
+        }
+        if (openMonitor()) {
+            // 添加对sql的监控
+            monitor.start(sql, parameters);
+        }
+
+        if(xaFlag) {
+            beforeXaExecute();
+        }
+    }
+
+    private void beforeExecuteBatch(String sql, List<List<Object>> parameterList) throws SQLException, XAException {
+        if (standardFlag) {
+            // sql规范化校验
+            standard.valid(sql);
+        }
+        if (openMonitor()) {
+            // 添加对sql的监控
+            monitor.start(sql, Collections.singletonList(parameterList));
+        }
+        if (xaFlag) {
+            beforeXaExecute();
+        }
+    }
+
+    private void afterExecute() throws XAException {
+        if (openMonitor()) {
+            monitor.calculate();
+        }
+        if (xaFlag) {
+            afterXaExecute();
+        }
+    }
+
+    private void finallyExecute() {
+        if (openMonitor()) {
+            monitor.close();
+        }
+    }
+
+    private void beforeXaExecute() throws SQLException, XAException {
+        rm = XaConnectionFactory.getXaConnect(this.getDataSource()).getXAResource();
+        rm.start(xid, XAResource.TMNOFLAGS);
+    }
+
+    private void afterXaExecute() throws XAException {
+        rm.end(xid, XAResource.TMSUCCESS);
+        successFlag = true;
     }
 
     /**

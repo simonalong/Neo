@@ -12,8 +12,8 @@ import org.junit.BeforeClass;
 public class NeoBaseTest extends BaseTest {
 
     protected static final String URL = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true";
-    protected static final String USER = "neo_test";
-    protected static final String PASSWORD = "neo@Test123";
+    protected static final String USER = "root";
+    protected static final String PASSWORD = "Root@123";
 
     public static final String TABLE_NAME = "neo_table1";
 

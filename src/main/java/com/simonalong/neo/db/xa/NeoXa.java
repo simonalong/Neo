@@ -1,31 +1,38 @@
 package com.simonalong.neo.db.xa;
 
+import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.exception.NeoXAException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.exception.ParameterUnValidException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
+
+import com.simonalong.neo.util.EncryptUtil;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.sql.DataSource;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import lombok.Getter;
+
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
 
 /**
  * @author zhouzhenyong
  * @since 2019/11/20 下午11:17
  */
+@Slf4j
 public class NeoXa {
 
     private static Map<String, Neo> neoMap = new ConcurrentHashMap<>(8);
+    /**
+     * 资源管理器对应的发号器仓库
+     */
+    private Neo tm;
     private static final Integer KV_NUM = 2;
 
     /**
@@ -45,13 +52,15 @@ public class NeoXa {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
 
-            if (kvs[i + 1] instanceof InnerNeo) {
-                neoMap.put((String) kvs[i], (InnerNeo) kvs[i + 1]);
-            } else if (kvs[i + 1] instanceof DataSource) {
-                neoMap.put((String) kvs[i], InnerNeo.connect((DataSource) kvs[i + 1]));
+            Object value = kvs[i + 1];
+            if (value instanceof Neo) {
+                Neo db = (Neo) value;
+                neoMap.put((String) kvs[i], db);
+            } else if (value instanceof DataSource) {
+                Neo db = Neo.connect((DataSource) value);
+                neoMap.put((String) kvs[i], db);
             } else {
-                throw new ParameterUnValidException(
-                    "value = " + kvs[i + 1].getClass().toString() + "不是Neo也不是Datasource类型");
+                throw new ParameterUnValidException("value = " + kvs[i + 1].getClass().toString() + "不是Neo也不是Datasource类型");
             }
         }
         return xa;
@@ -60,7 +69,7 @@ public class NeoXa {
     /**
      * 添加db数据
      *
-     * @param alias 数据库别名
+     * @param alias      数据库别名
      * @param dataSource 数据库链接对象
      * @return pool对象
      */
@@ -73,7 +82,7 @@ public class NeoXa {
      * 添加db数据
      *
      * @param alias 数据库别名
-     * @param neo 数据库对象
+     * @param neo   数据库对象
      * @return pool对象
      */
     public NeoXa add(String alias, Neo neo) {
@@ -85,96 +94,83 @@ public class NeoXa {
      * 获取对应的db数据
      *
      * @param alias db别名
-     * @return neo对象
+     * @return neoXa对象
      */
-    public InnerNeo get(String alias) {
-        return (InnerNeo) neoMap.get(alias);
+    public Neo get(String alias) {
+        return neoMap.get(alias);
     }
 
     public void run(Runnable runnable) {
+        beforeProcess();
         runnable.run();
         afterProcess();
     }
 
+    /**
+     * 设置事务管理器
+     * <p>
+     * 这里事务管理器主要用于生成事务id
+     *
+     * @param tmDb 事务管理器中包含全局id表的DB
+     * @return neoXa对象
+     */
+    public NeoXa setTmDb(Neo tmDb) {
+        this.tm = tmDb;
+        return this;
+    }
+
+    /**
+     * 前置处理，用于初始化全局事务id
+     */
+    private void beforeProcess() {
+        this.tm.openUidGenerator();
+        String globalTrId = getGlobalTrId();
+        neoMap.values().forEach(n -> {
+            n.openXAFlag();
+            n.setXid(new MysqlXid(globalTrId.getBytes(), getBranchQualifierId().getBytes(), 1));
+        });
+    }
+
     private void afterProcess() {
-        // 全部事务成功标示
-        boolean allSuccess = true;
-        List<InnerNeo> innerNeoList = neoMap.values().stream().map(n -> (InnerNeo) n).filter(InnerNeo::getAliveFlag)
-            .collect(Collectors.toList());
-        for (InnerNeo innerNeo : innerNeoList) {
+        boolean allTxSuccess = true;
+        List<Neo> neoList = neoMap.values().stream().filter(Neo::getSuccessFlag).collect(Collectors.toList());
+        for (Neo neo : neoList) {
             try {
-                // 任何一个事务失败，则全局事务标示为失败
-                if (innerNeo.getRm().prepare(innerNeo.getXid()) != XAResource.XA_OK) {
-                    allSuccess = false;
+                if (neo.getRm().prepare(neo.getXid()) != XAResource.XA_OK) {
+                    allTxSuccess = false;
+                    break;
                 }
             } catch (XAException e) {
-                e.printStackTrace();
+                throw new NeoXAException("prepare fail", e);
             }
         }
 
-        if (allSuccess) {
-            innerNeoList.forEach(n -> {
+        if (allTxSuccess) {
+            log.info(LOG_PRE + " tx all success, ready to commit");
+            neoList.forEach(n -> {
                 try {
                     n.getRm().commit(n.getXid(), false);
                 } catch (XAException e) {
-                    e.printStackTrace();
+                    throw new NeoXAException("commit fail", e);
                 }
             });
         } else {
-            innerNeoList.forEach(n -> {
+            log.warn(LOG_PRE + " tx have fail, ready to rollback");
+            neoList.forEach(n -> {
                 try {
                     n.getRm().rollback(n.getXid());
                 } catch (XAException e) {
-                    e.printStackTrace();
+                    throw new NeoXAException("rollback fail", e);
                 }
             });
         }
     }
 
-    static class InnerNeo extends Neo {
+    private String getGlobalTrId() {
+        return EncryptUtil.MD5(tm.getUuid().toString());
+    }
 
-        @Getter
-        private XAResource rm;
-        @Getter
-        private Xid xid;
-        /**
-         * 是否执行有效
-         */
-        @Getter
-        private Boolean aliveFlag = false;
-
-        private InnerNeo() {
-        }
-
-        @Override
-        protected <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier,
-            Function<PreparedStatement, T> stateFun) {
-            try {
-                beforeExecute();
-                T t = super.execute(multiLine, sqlSupplier, stateFun);
-                afterExecute();
-                return t;
-            } catch (SQLException | XAException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected Integer executeBatch(Pair<String, List<List<Object>>> sqlPair) {
-            return super.executeBatch(sqlPair);
-        }
-
-        private void beforeExecute() throws SQLException, XAException {
-            rm = XaConnectionFactory.getXaConnect(this.getPool().getConnect()).getXAResource();
-            // todo 下面的txid和txBranchId需要添补
-            xid = XidFactory.getXid("", "", 1);
-            aliveFlag = true;
-            rm.start(xid, XAResource.TMNOFLAGS);
-        }
-
-        private void afterExecute() throws XAException {
-            rm.end(xid, XAResource.TMSUCCESS);
-        }
+    private String getBranchQualifierId() {
+        return EncryptUtil.MD5(tm.getUuid().toString());
     }
 }

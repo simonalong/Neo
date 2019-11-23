@@ -1,8 +1,10 @@
 package com.simonalong.neo.db;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.sql.TxIsolationEnum;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -20,6 +22,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 public final class ConnectPool {
 
     private final Neo neo;
+    @Getter
     private DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
