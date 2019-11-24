@@ -12,7 +12,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 import javax.sql.XAConnection;
-import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.sql.Connection;
