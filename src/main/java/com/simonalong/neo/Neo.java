@@ -4,7 +4,7 @@ import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
 import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.NeoConstant.LIMIT;
 import static com.simonalong.neo.NeoConstant.ORDER_BY;
-import static com.simonalong.neo.NeoConstant.PRE_LOG;
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
@@ -73,6 +73,7 @@ public class Neo extends AbstractBaseDb {
      * sql解析开关
      */
     @Setter
+    @Getter
     private Boolean explainFlag = true;
     /**
      * 规范校验开关
@@ -92,11 +93,46 @@ public class Neo extends AbstractBaseDb {
      */
     private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
 
-    protected Neo() {
+    public Neo() {
+    }
+
+    public static void clone(Neo source, Neo target) {
+        target.setExplainFlag(source.getExplainFlag());
+        target.setStandardFlag(source.getStandardFlag());
+        target.setMonitorFlag(source.getMonitorFlag());
+        target.init(source.getPool().getDataSource());
     }
 
     public static Neo connect(String url, String username, String password, Properties properties) {
         Neo neo = new Neo();
+        neo.init(url, username, password, properties);
+        return neo;
+    }
+
+    public static Neo connect(String url, String username, String password) {
+        return connect(url, username, password, null);
+    }
+
+    /**
+     * 针对有些数据库不需要用户，比如SQLite，这里给这种数据库提供
+     */
+    public static Neo connect(String url) {
+        return connect(url, null, null, null);
+    }
+
+    public static Neo connect(Properties properties) {
+        Neo neo = new Neo();
+        neo.init(properties);
+        return neo;
+    }
+
+    public static Neo connect(DataSource dataSource) {
+        Neo neo = new Neo();
+        neo.init(dataSource);
+        return neo;
+    }
+
+    public void init(String url, String username, String password, Properties properties){
         Properties baseProper = new Properties();
         if (null != url) {
             baseProper.setProperty("jdbcUrl", url);
@@ -116,36 +152,19 @@ public class Neo extends AbstractBaseDb {
         if (null != properties && !properties.isEmpty()) {
             baseProper.putAll(properties);
         }
-        neo.pool = new ConnectPool(neo, baseProper);
-        return neo;
+        this.pool = new ConnectPool(this, baseProper);
     }
 
-    public static Neo connect(String url, String username, String password) {
-        return connect(url, username, password, null);
+    public void init(DataSource dataSource){
+        this.pool = new ConnectPool(this, dataSource);
     }
 
-    /**
-     * 针对有些数据库不需要用户，比如SQLite，这里给这种数据库提供
-     */
-    public static Neo connect(String url) {
-        return connect(url, null, null, null);
-    }
-
-    public static Neo connect(Properties properties) {
-        Neo neo = new Neo();
-
+    public void init(Properties properties) {
         // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
         properties.setProperty("dataSource.remarks", "true");
         properties.setProperty("dataSource.useInformationSchema", "true");
 
-        neo.pool = new ConnectPool(neo, properties);
-        return neo;
-    }
-
-    public static Neo connect(DataSource dataSource) {
-        Neo neo = new Neo();
-        neo.pool = new ConnectPool(neo, dataSource);
-        return neo;
+        this.pool = new ConnectPool(this, properties);
     }
 
     /**
@@ -293,7 +312,7 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("unchecked")
     public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
         if (setEntity.getClass().isPrimitive()) {
-            log.error(PRE_LOG + "数据{}是基本类型", setEntity);
+            log.error(LOG_PRE + "数据{}是基本类型", setEntity);
             return setEntity;
         }
         NeoMap neoMap = update(tableName, NeoMap.from(setEntity, NamingChg.UNDERLINE), searchMap);
@@ -368,7 +387,7 @@ public class Neo extends AbstractBaseDb {
     public <T> T update(String tableName, T entity) {
         checkDb(tableName);
         if (entity.getClass().isPrimitive()) {
-            log.error(PRE_LOG + "参数{}是基本类型", entity);
+            log.error(LOG_PRE + "参数{}是基本类型", entity);
             return entity;
         }
         String keyStr = NeoMap.dbToJavaStr(db.getPrimaryName(tableName));
@@ -518,14 +537,14 @@ public class Neo extends AbstractBaseDb {
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         if (null != entity) {
             if (entity.getClass().isPrimitive()) {
-                log.error(PRE_LOG + "参数{}是基本类型", entity);
+                log.error(LOG_PRE + "参数{}是基本类型", entity);
                 return Collections.emptyList();
             }
             return NeoMap
                 .asArray(list(tableName, columns, NeoMap.from(entity, NamingChg.UNDERLINE)), NamingChg.UNDERLINE,
                     (Class<T>) entity.getClass());
         }
-        log.warn(PRE_LOG + "entity is null");
+        log.warn(LOG_PRE + "entity is null");
         return Collections.emptyList();
     }
 
@@ -638,7 +657,7 @@ public class Neo extends AbstractBaseDb {
         if (null != primaryKey && !"".equals(primaryKey)) {
             return value(tableName, String.class, field, NeoMap.of(primaryKey, entity));
         }
-        log.warn(PRE_LOG + "db {}'s primary key is null, please set", tableName);
+        log.warn(LOG_PRE + "db {}'s primary key is null, please set", tableName);
         return null;
     }
 
@@ -787,7 +806,7 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         if (entity.getClass().isPrimitive()) {
-            log.error(PRE_LOG + "参数{}是基本类型");
+            log.error(LOG_PRE + "参数{}是基本类型");
             return Collections.emptyList();
         }
         return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity, NamingChg.UNDERLINE), page),
@@ -1215,12 +1234,12 @@ public class Neo extends AbstractBaseDb {
             }
             return result;
         } catch (Exception e) {
-            log.error(PRE_LOG + "[提交失败，事务回滚]");
+            log.error(LOG_PRE + "[提交失败，事务回滚]");
             e.printStackTrace();
             try {
                 pool.rollback();
             } catch (SQLException e1) {
-                log.error(PRE_LOG + "[回滚失败]");
+                log.error(LOG_PRE + "[回滚失败]");
                 e1.printStackTrace();
             }
         } finally {
@@ -1341,11 +1360,11 @@ public class Neo extends AbstractBaseDb {
                 return result;
             } catch (SQLException e) {
                 e.printStackTrace();
-                log.error(PRE_LOG + "sql=> " + sql);
+                log.error(LOG_PRE + "sql=> " + sql);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            log.error(PRE_LOG + "sql=> " + sql);
+            log.error(LOG_PRE + "sql=> " + sql);
         } finally {
             if (openMonitor()) {
                 monitor.close();
@@ -1391,7 +1410,7 @@ public class Neo extends AbstractBaseDb {
                 }
                 return batchCount;
             } catch (SQLException e) {
-                log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
+                log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]");
                 e.printStackTrace();
                 try {
                     // 出现异常，进行回滚
@@ -1400,12 +1419,12 @@ public class Neo extends AbstractBaseDb {
                         con.setAutoCommit(true);
                     }
                 } catch (SQLException e1) {
-                    log.error(PRE_LOG + "[回滚异常]");
+                    log.error(LOG_PRE + "[回滚异常]");
                     e1.printStackTrace();
                 }
             }
         } catch (SQLException e) {
-            log.error(PRE_LOG + "[执行异常] [sql=> " + sql + " ]");
+            log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]");
             e.printStackTrace();
         } finally {
             if (openMonitor()) {

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import org.junit.Test;
 
 /**
+ * 分布式XA事务
  * @author zhouzhenyong
  * @since 2019/11/20 下午11:17
  */
@@ -26,8 +27,8 @@ public class NeoXATest extends NeoBaseTest {
         xa.run(() -> {
             Neo d1 = xa.get("d1");
             Neo d2 = xa.get("d2");
-            d1.insert("t1", NeoMap.of("code", 11));
-            d2.insert("t1", NeoMap.of("code", 22));
+            d1.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
+            d2.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
         });
     }
 }

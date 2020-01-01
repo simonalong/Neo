@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.sql.DataSource;
+import lombok.Getter;
 
 /**
  * @author zhouzhenyong
@@ -16,6 +17,7 @@ import javax.sql.DataSource;
 public final class ConnectPool {
 
     private final Neo neo;
+    @Getter
     private final DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
