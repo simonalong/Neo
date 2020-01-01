@@ -3,13 +3,17 @@ package com.simonalong.neo.neo.uid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoBaseTest;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+
+import static com.simonalong.neo.uid.UidConstant.UUID_TABLE;
 
 /**
  * @author zhouzhenyong
@@ -22,13 +26,23 @@ public class UuidGeneratorTest extends NeoBaseTest {
     }
 
     @Test
-    public void insert(){
+    public void insert() {
         neo.insert("uuid_data", NeoMap.of("uuid", 1));
     }
 
     @Test
+    public void getUuidTest() {
+        neo.openUidGenerator();
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+        show(neo.getUuid());
+    }
+
+    @Test
     @SneakyThrows
-    public void testInsert(){
+    public void testInsert() {
         neo.openUidGenerator();
         List<Thread> runnables = new ArrayList<>();
         Thread.sleep(1000);
@@ -41,12 +55,12 @@ public class UuidGeneratorTest extends NeoBaseTest {
         Thread.sleep(10 * 60 * 1000);
     }
 
-    class InnerThread implements Runnable{
+    class InnerThread implements Runnable {
 
         Random random = new Random();
         Neo neo;
 
-        public InnerThread(Neo neo){
+        public InnerThread(Neo neo) {
             this.neo = neo;
         }
 
@@ -61,7 +75,7 @@ public class UuidGeneratorTest extends NeoBaseTest {
                     neo.insert("uuid_data", NeoMap.of("uuid", result));
                     Thread.sleep(random.nextInt(10));
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("InnerThread 异常, ", e);
             }
         }

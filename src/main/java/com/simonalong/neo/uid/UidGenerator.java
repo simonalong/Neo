@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
+import com.simonalong.neo.exception.NeoException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -147,11 +149,13 @@ public final class UidGenerator {
      * @return 返回数据库最新分配的值
      */
     private Long allocStart() {
-        return neo.tx(() -> {
+        Long num =  neo.tx(() -> {
             Long value = neo.exeValue(Long.class, "select `uuid` from %s where `id` = ? for update", UUID_TABLE, TABLE_ID);
             neo.execute("update %s set `uuid` = `uuid` + ? where `id` = ?", UUID_TABLE, DEFAULT_STEP, TABLE_ID);
             return value;
         });
+
+        return num;
     }
 
     /**
@@ -170,17 +174,12 @@ public final class UidGenerator {
 
     private void initTable() {
         if (!neo.tableExist(UUID_TABLE)) {
-            neo.execute(uidTableCreateSql());
-            neo.initDb();
+            throw new NeoException("全局id生成器表" + UUID_TABLE + "没有创建，请先创建");
+        }
+
+        neo.initDb();
+        if (NeoMap.isEmpty(neo.one(UUID_TABLE, TABLE_ID))) {
             neo.insert(UUID_TABLE, NeoMap.of("id", TABLE_ID, "uuid", 1));
         }
-    }
-
-    private String uidTableCreateSql() {
-        return "create db `" + UUID_TABLE + "` (\n"
-            + "  `id` int(11) not null,\n"
-            + "  `uuid` bigint(20) not null default 0,\n"
-            + "  primary key (`id`)\n"
-            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
     }
 }
