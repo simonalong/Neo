@@ -1,7 +1,9 @@
 package com.simonalong.neo.db.xa;
 
-import com.mysql.cj.jdbc.JdbcConnection;
-import com.mysql.cj.jdbc.MysqlXAConnection;
+//import com.mysql.cj.jdbc.JdbcConnection;
+//import com.mysql.cj.jdbc.MysqlXAConnection;
+//import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
+import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
