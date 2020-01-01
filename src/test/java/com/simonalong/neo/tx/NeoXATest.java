@@ -25,8 +25,8 @@ public class NeoXATest extends NeoBaseTest {
         NeoXa xa = NeoXa.of("d1", db1, "d2", db2);
 
         xa.run(() -> {
-            Neo d1 = xa.get("d1");
-            Neo d2 = xa.get("d2");
+            Neo d1 = xa.get("d1").initDb(TABLE_NAME);
+            Neo d2 = xa.get("d2").initDb(TABLE_NAME);
             d1.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
             d2.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
         });

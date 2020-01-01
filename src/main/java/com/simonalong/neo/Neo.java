@@ -91,7 +91,8 @@ public class Neo extends AbstractBaseDb {
     /**
      * 事务
      */
-    private ThreadLocal<Boolean> txFlag = ThreadLocal.withInitial(() -> false);
+    @Getter
+    private ThreadLocal<Boolean> txFlag;
 
     public Neo() {
     }
@@ -132,6 +133,14 @@ public class Neo extends AbstractBaseDb {
         return neo;
     }
 
+    @Override
+    public void finalize() throws Throwable {
+        super.finalize();
+        if (null != txFlag) {
+            txFlag.remove();
+        }
+    }
+
     public void init(String url, String username, String password, Properties properties){
         Properties baseProper = new Properties();
         if (null != url) {
@@ -153,10 +162,12 @@ public class Neo extends AbstractBaseDb {
             baseProper.putAll(properties);
         }
         this.pool = new ConnectPool(this, baseProper);
+        this.txFlag = ThreadLocal.withInitial(() -> false);
     }
 
     public void init(DataSource dataSource){
         this.pool = new ConnectPool(this, dataSource);
+        this.txFlag = ThreadLocal.withInitial(() -> false);
     }
 
     public void init(Properties properties) {
@@ -165,6 +176,7 @@ public class Neo extends AbstractBaseDb {
         properties.setProperty("dataSource.useInformationSchema", "true");
 
         this.pool = new ConnectPool(this, properties);
+        this.txFlag = ThreadLocal.withInitial(() -> false);
     }
 
     /**
