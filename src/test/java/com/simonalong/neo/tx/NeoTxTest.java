@@ -36,8 +36,8 @@ public class NeoTxTest extends NeoBaseTest {
      * 验证是否一起提交
      */
     @Test
-    public void test2(){
-        neo.tx(()->{
+    public void test2() {
+        neo.tx(() -> {
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group21"));
             neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group22"));
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group23"));
@@ -55,6 +55,7 @@ public class NeoTxTest extends NeoBaseTest {
      * 验证异常情况下的回退，并且不影响其他的执行
      */
     @Test
+    @SuppressWarnings("all")
     public void test3(){
         DemoEntity entity = null;
         neo.tx(()->{
