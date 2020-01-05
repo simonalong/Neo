@@ -1,5 +1,6 @@
 package com.simonalong.neo.db;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.sql.TxIsolationEnum;
 import com.zaxxer.hikari.HikariConfig;
@@ -18,7 +19,7 @@ public final class ConnectPool {
 
     private final Neo neo;
     @Getter
-    private final DataSource dataSource;
+    private DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
     public ConnectPool(Neo neo, DataSource dataSource) {
@@ -26,14 +27,18 @@ public final class ConnectPool {
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo, String propertiesPath) {
+    public ConnectPool(Neo neo) {
         this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    public ConnectPool(Neo neo, Properties properties) {
-        this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(properties));
+    public void initFromDruid(Properties properties){
+        DruidDataSource druidDataSource= new DruidDataSource();
+        druidDataSource.configFromPropety(properties);
+        this.dataSource = druidDataSource;
+    }
+
+    public void initFromHikariCP(Properties properties){
+        this.dataSource = new HikariDataSource(new HikariConfig(properties));;
     }
 
     /**

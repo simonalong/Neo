@@ -104,26 +104,28 @@ public class Neo extends AbstractBaseDb {
         target.init(source.getPool().getDataSource());
     }
 
-    public static Neo connect(String url, String username, String password, Properties properties) {
-        Neo neo = new Neo();
-        neo.init(url, username, password, properties);
-        return neo;
-    }
-
-    public static Neo connect(String url, String username, String password) {
-        return connect(url, username, password, null);
-    }
-
     /**
      * 针对有些数据库不需要用户，比如SQLite，这里给这种数据库提供
      */
     public static Neo connect(String url) {
-        return connect(url, null, null, null);
+        return connect(url, null, null);
     }
 
-    public static Neo connect(Properties properties) {
+    public static Neo connect(String url, String username, String password) {
         Neo neo = new Neo();
-        neo.init(properties);
+        neo.init(url, username, password);
+        return neo;
+    }
+
+    public static Neo connectFromHikariCP(Properties properties) {
+        Neo neo = new Neo();
+        neo.initFromHikariCP(properties);
+        return neo;
+    }
+
+    public static Neo connectFromDruid(Properties properties) {
+        Neo neo = new Neo();
+        neo.initFromDruid(properties);
         return neo;
     }
 
@@ -141,7 +143,13 @@ public class Neo extends AbstractBaseDb {
         }
     }
 
-    public void init(String url, String username, String password, Properties properties){
+    /**
+     * 默认采用Hikaricp 作为连接池
+     * @param url 数据库连接url
+     * @param username 用户名
+     * @param password 密码
+     */
+    public void init(String url, String username, String password){
         Properties baseProper = new Properties();
         if (null != url) {
             baseProper.setProperty("jdbcUrl", url);
@@ -158,10 +166,8 @@ public class Neo extends AbstractBaseDb {
         // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
         baseProper.setProperty("dataSource.remarks", "true");
         baseProper.setProperty("dataSource.useInformationSchema", "true");
-        if (null != properties && !properties.isEmpty()) {
-            baseProper.putAll(properties);
-        }
-        this.pool = new ConnectPool(this, baseProper);
+        this.pool = new ConnectPool(this);
+        this.pool.initFromHikariCP(baseProper);
         this.txFlag = ThreadLocal.withInitial(() -> false);
     }
 
@@ -170,13 +176,29 @@ public class Neo extends AbstractBaseDb {
         this.txFlag = ThreadLocal.withInitial(() -> false);
     }
 
-    public void init(Properties properties) {
+    public void initFromDruid(Properties properties) {
+        this.pool = new ConnectPool(this);
+        this.pool.initFromDruid(properties);
+        this.txFlag = ThreadLocal.withInitial(() -> false);
+    }
+
+    public void initFromHikariCP(Properties properties) {
         // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
         properties.setProperty("dataSource.remarks", "true");
         properties.setProperty("dataSource.useInformationSchema", "true");
 
-        this.pool = new ConnectPool(this, properties);
+        this.pool = new ConnectPool(this);
+        this.pool.initFromHikariCP(properties);
         this.txFlag = ThreadLocal.withInitial(() -> false);
+    }
+
+    public Connection getConnection(){
+        try {
+            return getPool().getConnect();
+        } catch (SQLException e) {
+            log.error("get connect fail", e);
+            return null;
+        }
     }
 
     /**

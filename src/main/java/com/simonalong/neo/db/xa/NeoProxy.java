@@ -127,11 +127,11 @@ public class NeoProxy implements MethodInterceptor {
     }
 
     private void beforeExecute() throws SQLException, XAException {
-        rm = XaConnectionFactory.getXaConnect(neo.getPool().getConnect()).getXAResource();
-        // todo 下面的txid和txBranchId需要添补
-        xid = XidFactory.getXid("", "", 1);
-        aliveFlag = true;
-        rm.start(xid, XAResource.TMNOFLAGS);
+//        rm = XaConnectionFactory.getXaConnect(neo.getPool().getConnect()).getXAResource();
+//        // todo 下面的txid和txBranchId需要添补
+//        xid = XidFactory.getXid("", "", 1);
+//        aliveFlag = true;
+//        rm.start(xid, XAResource.TMNOFLAGS);
     }
 
     private void afterExecute() throws XAException {
