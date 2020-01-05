@@ -54,6 +54,14 @@ public final class ConnectPool {
         }
 
         con = dataSource.getConnection();
+        // XA事务获取可重用连接
+        if(neo.isXaTransaction()){
+            ReusableConnection reConnection = ReusableConnection.of(con);
+            connectLocal.set(reConnection);
+            return reConnection;
+        }
+
+        // 本机事务获取可重用连接，而且设置非自动提交
         if (neo.isTransaction()) {
             ReusableConnection reConnection = ReusableConnection.of(con);
             reConnection.setAutoCommit(false);

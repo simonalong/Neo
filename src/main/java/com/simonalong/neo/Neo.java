@@ -16,6 +16,7 @@ import com.simonalong.neo.db.NeoJoiner;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
@@ -89,10 +90,14 @@ public class Neo extends AbstractBaseDb {
     private Boolean monitorFlag = true;
 
     /**
-     * 事务
+     * 事务开启关闭状态
      */
-    @Getter
     private ThreadLocal<Boolean> txStatusLocal;
+
+    /**
+     * XA分布式事务开启关闭状态
+     */
+    private Boolean xaStatus = false;
 
     public Neo() {
     }
@@ -1250,6 +1255,10 @@ public class Neo extends AbstractBaseDb {
      * @return 事务执行完成返回的数据
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier) {
+        // 由于XA事务和本机事务不兼容，如果开启XA，则优先运行XA
+        if (isXaTransaction()) {
+            return supplier.get();
+        }
         // 针对事务嵌套这里采用最外层事务提交
         Boolean originalTxFlag = txStatusLocal.get();
         txStatusLocal.set(true);
@@ -1269,12 +1278,10 @@ public class Neo extends AbstractBaseDb {
             return result;
         } catch (Exception e) {
             log.error(LOG_PRE + "[提交失败，事务回滚]");
-            e.printStackTrace();
             try {
                 pool.rollback();
             } catch (SQLException e1) {
                 log.error(LOG_PRE + "[回滚失败]");
-                e1.printStackTrace();
             }
         } finally {
             txStatusLocal.set(originalTxFlag);
@@ -1328,6 +1335,10 @@ public class Neo extends AbstractBaseDb {
         standardFlag = true;
     }
 
+    public void openXA() {
+        xaStatus = true;
+    }
+
     /**
      * 开启全局id生成器
      */
@@ -1337,6 +1348,10 @@ public class Neo extends AbstractBaseDb {
 
     public Boolean isTransaction() {
         return txStatusLocal.get();
+    }
+
+    public Boolean isXaTransaction() {
+        return xaStatus;
     }
 
     /**
@@ -1393,18 +1408,17 @@ public class Neo extends AbstractBaseDb {
                 }
                 return result;
             } catch (SQLException e) {
-                e.printStackTrace();
                 log.error(LOG_PRE + "sql=> " + sql);
+                throw new NeoException(e);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             log.error(LOG_PRE + "sql=> " + sql);
+            throw new NeoException(e);
         } finally {
             if (openMonitor()) {
                 monitor.close();
             }
         }
-        return null;
     }
 
     protected Integer executeBatch(Pair<String, List<List<Object>>> sqlPair) {
@@ -1710,7 +1724,8 @@ public class Neo extends AbstractBaseDb {
                 return rs.getLong(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("execute insert fail, {}", statement, e);
+            throw new NeoException(e);
         }
         return null;
     }

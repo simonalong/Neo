@@ -40,8 +40,8 @@ public class NeoXATest extends NeoBaseTest {
         xa.run(() -> {
             Neo d1 = xa.get("d1");
             Neo d2 = xa.get("d2");
-            d1.insert(TABLE_NAME, NeoMap.of("id", 10, "group", "group111"));
-            d2.insert(TABLE_NAME, NeoMap.of("id", 10, "group", "group111"));
+            d1.insert(TABLE_NAME, NeoMap.of("id", 17, "group", "group111"));
+            d2.insert(TABLE_NAME, NeoMap.of("id", 16, "group", "group111"));
         });
     }
 
@@ -58,19 +58,19 @@ public class NeoXATest extends NeoBaseTest {
         XAConnection xaConn2 = new MysqlXAConnection(c2.unwrap(JdbcConnection.class), true);
 
 
-        Xid xid1 = new MysqlXid("g12345".getBytes(), "b1".getBytes(), 1);
-        Xid xid2 = new MysqlXid("g12345".getBytes(), "b2".getBytes(), 1);
+        Xid xid1 = new MysqlXid("2".getBytes(), "3".getBytes(), 1);
+        Xid xid2 = new MysqlXid("3".getBytes(), "3".getBytes(), 1);
 
         XAResource rm1 = xaConn1.getXAResource();
         rm1.start(xid1, XAResource.TMNOFLAGS);
-//        db1.insert(TABLE_NAME, NeoMap.of("id", 8));
-        PreparedStatement ps1 = c1.prepareStatement("INSERT into neo_table1(id) VALUES (9)"); ps1.execute();
-        rm1.end(xid1, XAResource.TMSUCCESS);
-
         XAResource rm2 = xaConn2.getXAResource();
         rm2.start(xid2, XAResource.TMNOFLAGS);
-//        db2.insert(TABLE_NAME, NeoMap.of("id", 5));
-        PreparedStatement ps2 = c2.prepareStatement("INSERT into neo_table1(id) VALUES (6)"); ps2.execute();
+
+
+        PreparedStatement ps1 = c1.prepareStatement("INSERT into neo_table1(id) VALUES (17)"); ps1.execute();
+        PreparedStatement ps2 = c2.prepareStatement("INSERT into neo_table1(id) VALUES (16)"); ps2.execute();
+
+        rm1.end(xid1, XAResource.TMSUCCESS);
         rm2.end(xid2, XAResource.TMSUCCESS);
 
         // ===================两阶段提交================================
