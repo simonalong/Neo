@@ -1,6 +1,8 @@
 package com.simonalong.neo.db.xa;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.exception.xa.XaCommitException;
@@ -114,12 +116,17 @@ public class NeoXa {
                 log.error("commit xid fail");
                 rollbackXid();
             }
-            log.error("xa run fail", e);
+            log.error("xa run fail, xid={}", getXidStr(), e);
         }
     }
 
-    public List<String> getXidStr() {
-        return dbMap.values().stream().map(proxy -> proxy.getXid().toString()).collect(Collectors.toList());
+    private List<String> getXidStr() {
+        return dbMap.values().stream().map(proxy -> {
+            String gid = new String(proxy.getXid().getGlobalTransactionId());
+            String branchId = new String(proxy.getXid().getBranchQualifier());
+            String formatId = String.valueOf(proxy.getXid().getFormatId());
+            return NeoMap.of("gid", gid, "branchId", branchId, "formatId", formatId).toString();
+        }).collect(Collectors.toList());
     }
 
     /**

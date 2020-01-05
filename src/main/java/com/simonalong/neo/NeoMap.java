@@ -1062,20 +1062,26 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return false;
     }
 
+    /**
+     * NeoMap 打印按照json格式输出string
+     * <p>
+     *     NeoMap 中有时候也会放表和表中对应的列和对应的值，但是也会放普通的数据，这两种打印为了方便看，这里进行区分开
+     * @return 数据对应的json格式字符串
+     */
     @Override
     public String toString() {
-        AtomicBoolean mutilValue = new AtomicBoolean(false);
-        Map<String, Object> result = new HashMap<>();
+        AtomicBoolean multiValue = new AtomicBoolean(false);
+        Map<String, Object> result = new HashMap<>(12);
         dataMap.forEach((key, value) -> {
             List<Node<String, Object>> dataList = value.tableValues;
             if (1 == dataList.size()) {
                 result.put(key, dataList.get(0).getValue());
             } else {
-                mutilValue.set(true);
+                multiValue.set(true);
                 dataList.forEach(d -> result.put(key, d.getValue()));
             }
         });
-        if (mutilValue.get()) {
+        if (multiValue.get()) {
             return JSON.toJSONString(dataMap);
         }
         return JSON.toJSONString(result);
