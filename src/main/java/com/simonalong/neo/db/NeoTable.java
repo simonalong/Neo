@@ -14,11 +14,13 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
+@Slf4j
 public class NeoTable extends AbstractBaseTable {
 
     /**
@@ -296,7 +298,7 @@ public class NeoTable extends AbstractBaseTable {
                     .setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME))
                     .setRefGeneration(rs.getString(REF_GENERATION));
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("parse error", e);
             }
             return new Table();
         }

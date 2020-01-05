@@ -219,8 +219,7 @@ public class Neo extends AbstractBaseDb {
             if (e instanceof SQLFeatureNotSupportedException) {
                 this.db = NeoDb.of(this, tablePres);
             } else {
-                e.printStackTrace();
-                return this;
+                throw new NeoException(e);
             }
         }
         return this;
@@ -1459,7 +1458,6 @@ public class Neo extends AbstractBaseDb {
                 return batchCount;
             } catch (SQLException e) {
                 log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]");
-                e.printStackTrace();
                 try {
                     // 出现异常，进行回滚
                     if (!con.isClosed()) {
@@ -1468,12 +1466,12 @@ public class Neo extends AbstractBaseDb {
                     }
                 } catch (SQLException e1) {
                     log.error(LOG_PRE + "[回滚异常]");
-                    e1.printStackTrace();
+                    throw new NeoException(e);
                 }
             }
         } catch (SQLException e) {
             log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]");
-            e.printStackTrace();
+            throw new NeoException(e);
         } finally {
             if (openMonitor()) {
                 monitor.close();
@@ -1724,7 +1722,6 @@ public class Neo extends AbstractBaseDb {
                 return rs.getLong(1);
             }
         } catch (SQLException e) {
-            log.error("execute insert fail, {}", statement, e);
             throw new NeoException(e);
         }
         return null;
@@ -1734,9 +1731,8 @@ public class Neo extends AbstractBaseDb {
         try {
             return statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NeoException(e);
         }
-        return 0;
     }
 
     private List<List<NeoMap>> execute(PreparedStatement statement) {
@@ -1761,7 +1757,7 @@ public class Neo extends AbstractBaseDb {
                 }
             } while (statement.getMoreResults());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NeoException(e);
         }
         return resultList;
     }
@@ -1779,7 +1775,7 @@ public class Neo extends AbstractBaseDb {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NeoException(e);
         }
         return result;
     }
@@ -1799,7 +1795,7 @@ public class Neo extends AbstractBaseDb {
                 result.add(row);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NeoException(e);
         }
         return result;
     }

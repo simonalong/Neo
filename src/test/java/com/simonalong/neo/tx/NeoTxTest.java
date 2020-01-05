@@ -7,12 +7,14 @@ import com.simonalong.neo.sql.TxIsolationEnum;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/26 上午8:35
  */
+@Slf4j
 public class NeoTxTest extends NeoBaseTest {
 
     public NeoTxTest() throws SQLException {}

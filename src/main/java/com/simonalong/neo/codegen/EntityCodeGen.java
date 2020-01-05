@@ -24,12 +24,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据库的DO实体映射生成器
  * @author zhouzhenyong
  * @since 2019/3/23 下午10:48
  */
+@Slf4j
 @Setter
 @Accessors(chain = true)
 public class EntityCodeGen {
@@ -229,7 +231,7 @@ public class EntityCodeGen {
                 template.process(dataMap, bufferedWriter);
             }
         } catch (TemplateException | IOException e) {
-            e.printStackTrace();
+            log.error("writeFile error", e);
         }
     }
 
@@ -259,7 +261,8 @@ public class EntityCodeGen {
         try {
             return configuration.getTemplate(templatePath);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("getTemplate error", e);
+
         }
         return null;
     }

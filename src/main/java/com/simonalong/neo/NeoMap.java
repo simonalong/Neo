@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
@@ -296,7 +297,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                         neoMap.putIfAbsent(neoMap.namingChg(f, false), value);
                     }
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new NeoException(e);
                 }
             });
         }
@@ -520,12 +521,12 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                             f.set(finalT, value);
                         }
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        throw new NeoException(e);
                     }
                 });
             }
         } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+            throw new NeoException(e);
         }
         return t;
     }

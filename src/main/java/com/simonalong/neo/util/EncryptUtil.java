@@ -3,6 +3,7 @@ package com.simonalong.neo.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 文本压缩加密
@@ -10,6 +11,7 @@ import lombok.experimental.UtilityClass;
  * @author zhouzhenyong
  * @since 2019/2/22 上午11:20
  */
+@Slf4j
 @UtilityClass
 public class EncryptUtil {
 
@@ -72,7 +74,7 @@ public class EncryptUtil {
             }
             encodeStr = stringBuffer.toString();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error("encrypt error", e);
         }
         return encodeStr;
     }

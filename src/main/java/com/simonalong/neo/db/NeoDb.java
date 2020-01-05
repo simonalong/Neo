@@ -243,7 +243,7 @@ public final class NeoDb {
                     ex.printStackTrace();
                 }
             } else {
-                e.printStackTrace();
+                log.error("getAllTables error", e);
             }
         }
         return tableSet;
@@ -312,10 +312,10 @@ public final class NeoDb {
                 }
                 addColumn(tableName, columnList);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("initColumnMeta error", e);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("initColumnMeta error", e);
         }
     }
 
@@ -334,7 +334,7 @@ public final class NeoDb {
                 columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("generateColumnMetaMap error", e);
         }
         return columnMap;
     }
@@ -353,7 +353,7 @@ public final class NeoDb {
                     ex.printStackTrace();
                 }
             } else {
-                e.printStackTrace();
+                log.error("initPrimary error", e);
             }
         }
     }
@@ -380,7 +380,7 @@ public final class NeoDb {
                     ex.printStackTrace();
                 }
             } else {
-                e.printStackTrace();
+                log.error("initIndex error", e);
             }
         }
     }

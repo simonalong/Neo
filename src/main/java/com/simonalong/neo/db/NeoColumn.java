@@ -74,7 +74,7 @@ public final class NeoColumn {
                 .setColumnTypeName(metaData.getColumnTypeName(index))
                 .setIsAutoIncrement(metaData.isAutoIncrement(index));
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("parse column error", e);
         }
         return new NeoColumn();
     }

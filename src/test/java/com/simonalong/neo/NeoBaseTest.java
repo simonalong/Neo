@@ -3,6 +3,7 @@ package com.simonalong.neo;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
 import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.BeforeClass;
 
 /**
