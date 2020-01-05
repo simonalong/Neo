@@ -95,7 +95,7 @@ public class NeoXa {
     private void afterProcess() {
         // 全部事务成功标示
         Boolean allSuccess = true;
-        List<NeoProxy> neoProxyList = dbMap.values().stream().filter(NeoProxy::getAliveFlag).collect(Collectors.toList());
+        List<NeoProxy> neoProxyList = dbMap.values().stream().filter(NeoProxy::getAliveStatus).collect(Collectors.toList());
         for (NeoProxy neoProxy : neoProxyList) {
             try {
                 // 任何一个事务失败，则全局事务标示为失败

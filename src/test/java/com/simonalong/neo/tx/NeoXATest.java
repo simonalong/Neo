@@ -38,10 +38,10 @@ public class NeoXATest extends NeoBaseTest {
         NeoXa xa = NeoXa.of("d1", db1, "d2", db2);
 
         xa.run(() -> {
-            Neo d1 = xa.get("d1").initDb(TABLE_NAME);
-            Neo d2 = xa.get("d2").initDb(TABLE_NAME);
-            d1.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
-            d2.insert(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
+            Neo d1 = xa.get("d1");
+            Neo d2 = xa.get("d2");
+            d1.insert(TABLE_NAME, NeoMap.of("id", 10, "group", "group111"));
+            d2.insert(TABLE_NAME, NeoMap.of("id", 10, "group", "group111"));
         });
     }
 
@@ -55,23 +55,23 @@ public class NeoXATest extends NeoBaseTest {
         Connection c2 = db2.getConnection();
 
         XAConnection xaConn1 = new MysqlXAConnection(c1.unwrap(JdbcConnection.class), true);
-        XAResource rm1 = xaConn1.getXAResource();
-
         XAConnection xaConn2 = new MysqlXAConnection(c2.unwrap(JdbcConnection.class), true);
-        XAResource rm2 = xaConn2.getXAResource();
+
 
         Xid xid1 = new MysqlXid("g12345".getBytes(), "b1".getBytes(), 1);
         Xid xid2 = new MysqlXid("g12345".getBytes(), "b2".getBytes(), 1);
 
+        XAResource rm1 = xaConn1.getXAResource();
         rm1.start(xid1, XAResource.TMNOFLAGS);
-        db1.insert(TABLE_NAME, NeoMap.of("id", 8));
-        PreparedStatement ps1 = c1.prepareStatement("INSERT into neo_table1(id) VALUES (10)"); ps1.execute();
+//        db1.insert(TABLE_NAME, NeoMap.of("id", 8));
+        PreparedStatement ps1 = c1.prepareStatement("INSERT into neo_table1(id) VALUES (9)"); ps1.execute();
         rm1.end(xid1, XAResource.TMSUCCESS);
 
+        XAResource rm2 = xaConn2.getXAResource();
         rm2.start(xid2, XAResource.TMNOFLAGS);
 //        db2.insert(TABLE_NAME, NeoMap.of("id", 5));
-        PreparedStatement ps2 = c2.prepareStatement("INSERT into neo_table1(id) VALUES (5)"); ps2.execute();
-        rm2.end(xid2, XAResource.TMFAIL);
+        PreparedStatement ps2 = c2.prepareStatement("INSERT into neo_table1(id) VALUES (6)"); ps2.execute();
+        rm2.end(xid2, XAResource.TMSUCCESS);
 
         // ===================两阶段提交================================
         // phase1：询问所有的RM 准备提交事务分支

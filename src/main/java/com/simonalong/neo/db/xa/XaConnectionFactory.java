@@ -1,13 +1,11 @@
 package com.simonalong.neo.db.xa;
 
-//import com.mysql.cj.jdbc.JdbcConnection;
-//import com.mysql.cj.jdbc.MysqlXAConnection;
-//import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
-//import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
+import com.mysql.cj.jdbc.JdbcConnection;
+import com.mysql.cj.jdbc.MysqlXAConnection;
+import java.sql.Connection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import javax.sql.XAConnection;
 
 /**
@@ -17,13 +15,11 @@ import javax.sql.XAConnection;
 @Slf4j
 public class XaConnectionFactory {
 
-    public static XAConnection getXaConnect(DataSource dataSource) {
-
-//        try {
-//            return new MysqlXAConnection(dataSource.getConnection().unwrap(JdbcConnection.class), true);
-//        } catch (SQLException e) {
-//            throw new UnsupportedOperationException("Not supported by DruidDataSource");
-//        }
-        return null;
+    public static XAConnection getXaConnect(Connection connection) {
+        try {
+            return new MysqlXAConnection(connection.unwrap(JdbcConnection.class), true);
+        } catch (SQLException e) {
+            throw new UnsupportedOperationException("Not supported by connect");
+        }
     }
 }

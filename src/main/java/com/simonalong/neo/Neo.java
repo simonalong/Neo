@@ -92,7 +92,7 @@ public class Neo extends AbstractBaseDb {
      * 事务
      */
     @Getter
-    private ThreadLocal<Boolean> txFlag;
+    private ThreadLocal<Boolean> txStatusLocal;
 
     public Neo() {
     }
@@ -138,8 +138,8 @@ public class Neo extends AbstractBaseDb {
     @Override
     public void finalize() throws Throwable {
         super.finalize();
-        if (null != txFlag) {
-            txFlag.remove();
+        if (null != txStatusLocal) {
+            txStatusLocal.remove();
         }
     }
 
@@ -168,18 +168,18 @@ public class Neo extends AbstractBaseDb {
         baseProper.setProperty("dataSource.useInformationSchema", "true");
         this.pool = new ConnectPool(this);
         this.pool.initFromHikariCP(baseProper);
-        this.txFlag = ThreadLocal.withInitial(() -> false);
+        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
     }
 
     public void init(DataSource dataSource){
         this.pool = new ConnectPool(this, dataSource);
-        this.txFlag = ThreadLocal.withInitial(() -> false);
+        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
     }
 
     public void initFromDruid(Properties properties) {
         this.pool = new ConnectPool(this);
         this.pool.initFromDruid(properties);
-        this.txFlag = ThreadLocal.withInitial(() -> false);
+        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
     }
 
     public void initFromHikariCP(Properties properties) {
@@ -189,7 +189,7 @@ public class Neo extends AbstractBaseDb {
 
         this.pool = new ConnectPool(this);
         this.pool.initFromHikariCP(properties);
-        this.txFlag = ThreadLocal.withInitial(() -> false);
+        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
     }
 
     public Connection getConnection(){
@@ -1251,8 +1251,8 @@ public class Neo extends AbstractBaseDb {
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier) {
         // 针对事务嵌套这里采用最外层事务提交
-        Boolean originalTxFlag = txFlag.get();
-        txFlag.set(true);
+        Boolean originalTxFlag = txStatusLocal.get();
+        txStatusLocal.set(true);
         try {
             pool.setTxConfig(isolationEnum, readOnly);
             if (openTxMonitor()) {
@@ -1277,7 +1277,7 @@ public class Neo extends AbstractBaseDb {
                 e1.printStackTrace();
             }
         } finally {
-            txFlag.set(originalTxFlag);
+            txStatusLocal.set(originalTxFlag);
         }
         return null;
     }
@@ -1336,7 +1336,7 @@ public class Neo extends AbstractBaseDb {
     }
 
     public Boolean isTransaction() {
-        return txFlag.get();
+        return txStatusLocal.get();
     }
 
     /**
@@ -1472,14 +1472,14 @@ public class Neo extends AbstractBaseDb {
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
     private Boolean openMonitor() {
-        return !txFlag.get() && monitorFlag;
+        return !txStatusLocal.get() && monitorFlag;
     }
 
     /**
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
     private Boolean openTxMonitor() {
-        return txFlag.get();
+        return txStatusLocal.get();
     }
 
     /**

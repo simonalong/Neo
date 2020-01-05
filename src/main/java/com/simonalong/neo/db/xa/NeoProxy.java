@@ -3,6 +3,7 @@ package com.simonalong.neo.db.xa;
 import static com.simonalong.neo.NeoConstant.FUN_EXECUTE;
 import static com.simonalong.neo.NeoConstant.FUN_EXECUTE_BATCH;
 
+import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.exception.ParameterUnValidException;
 import java.lang.reflect.Method;
@@ -21,6 +22,8 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
+ * Neo 的动态代理对象
+ *
  * @author zhouzhenyong
  * @since 2020/1/1 下午2:52
  */
@@ -41,7 +44,7 @@ public class NeoProxy implements MethodInterceptor {
      * 是否执行有效
      */
     @Getter
-    private Boolean aliveFlag = false;
+    private Boolean aliveStatus = false;
 
     public NeoProxy (Object object) {
         Neo db;
@@ -127,11 +130,12 @@ public class NeoProxy implements MethodInterceptor {
     }
 
     private void beforeExecute() throws SQLException, XAException {
-//        rm = XaConnectionFactory.getXaConnect(neo.getPool().getConnect()).getXAResource();
-//        // todo 下面的txid和txBranchId需要添补
-//        xid = XidFactory.getXid("", "", 1);
-//        aliveFlag = true;
-//        rm.start(xid, XAResource.TMNOFLAGS);
+        // 开启事务，这样其中的connect就可以重用了
+        neo.getTxStatusLocal().set(true);
+        rm = XaConnectionFactory.getXaConnect(neo.getConnection()).getXAResource();
+        Xid xid = new MysqlXid("g12345".getBytes(), String.valueOf(System.currentTimeMillis()).getBytes(), 1);
+        aliveStatus = true;
+        rm.start(xid, XAResource.TMNOFLAGS);
     }
 
     private void afterExecute() throws XAException {
