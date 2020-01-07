@@ -63,7 +63,7 @@ public final class NeoColumn {
 
     private NeoColumn(){}
 
-    public static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
+    static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
         try {
             return new NeoColumn()
                 .setColumnName(metaData.getColumnName(index))
@@ -94,7 +94,7 @@ public final class NeoColumn {
 
     @Data
     @Accessors(chain = true)
-    public static class NeoInnerColumn {
+    static class NeoInnerColumn {
 
         private static final String TABLE_CAT = "TABLE_CAT";
         private static final String TABLE_SCHEM = "TABLE_SCHEM";
@@ -233,7 +233,7 @@ public final class NeoColumn {
 
         private NeoInnerColumn(){}
 
-        public static NeoInnerColumn parse(ResultSet rs){
+        static NeoInnerColumn parse(ResultSet rs){
             NeoInnerColumn innerColumn = null;
             try {
                 innerColumn =  new NeoInnerColumn();

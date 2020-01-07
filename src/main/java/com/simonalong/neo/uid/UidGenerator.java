@@ -149,13 +149,11 @@ public final class UidGenerator {
      * @return 返回数据库最新分配的值
      */
     private Long allocStart() {
-        Long num =  neo.tx(() -> {
+        return neo.tx(() -> {
             Long value = neo.exeValue(Long.class, "select `uuid` from %s where `id` = ? for update", UUID_TABLE, TABLE_ID);
             neo.execute("update %s set `uuid` = `uuid` + ? where `id` = ?", UUID_TABLE, DEFAULT_STEP, TABLE_ID);
             return value;
         });
-
-        return num;
     }
 
     /**

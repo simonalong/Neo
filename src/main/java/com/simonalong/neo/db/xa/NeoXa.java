@@ -1,8 +1,8 @@
 package com.simonalong.neo.db.xa;
 
-import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoPool;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.exception.xa.XaCommitException;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -56,6 +57,12 @@ public class NeoXa {
 
             dbMap.put((String) key, new NeoXaProxy(kvs[i + 1]));
         }
+        return xa;
+    }
+
+    public static NeoXa from(NeoPool neoPool, String... dbs) {
+        NeoXa xa = new NeoXa();
+        Stream.of(dbs).forEach(db -> xa.add(db, neoPool.get(db)));
         return xa;
     }
 

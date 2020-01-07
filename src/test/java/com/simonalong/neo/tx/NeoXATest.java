@@ -9,6 +9,7 @@ import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoPool;
 import com.simonalong.neo.db.xa.NeoXa;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,8 +31,11 @@ public class NeoXATest extends NeoBaseTest {
     public NeoXATest() throws SQLException {
     }
 
+    /**
+     * 分布式事务XA支持
+     */
     @Test
-    public void testXa() {
+    public void testXa1() {
         Neo db1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123");
         Neo db2 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo2", "neo_test", "neo@Test123");
 
@@ -45,9 +49,35 @@ public class NeoXATest extends NeoBaseTest {
         });
     }
 
+    /**
+     * 分布式事务XA支持
+     */
     @Test
+    public void testXa2() {
+        Neo db1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123");
+        Neo db2 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo2", "neo_test", "neo@Test123");
+
+        NeoPool neoPool = NeoPool.getInstance();
+        neoPool.add("d1", db1);
+        neoPool.add("d2", db2);
+
+        NeoXa xa = NeoXa.from(neoPool, "d1", "d2");
+
+        xa.run(() -> {
+            Neo d1 = xa.get("d1");
+            Neo d2 = xa.get("d2");
+            d1.insert(TABLE_NAME, NeoMap.of("id", 17, "group", "group111"));
+            d2.insert(TABLE_NAME, NeoMap.of("id", 16, "group", "group111"));
+        });
+    }
+
+    /**
+     * 分布式XA的拆解测试
+     */
+    @Test
+    @SuppressWarnings("all")
     @SneakyThrows
-    public void testXa0() {
+    public void testXaRefer0() {
         Neo db1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123");
         Neo db2 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo2", "neo_test", "neo@Test123");
 
@@ -88,9 +118,13 @@ public class NeoXATest extends NeoBaseTest {
         }
     }
 
+    /**
+     * 原生分布式XA的使用
+     */
     @Test
+    @SuppressWarnings("all")
     @SneakyThrows
-    public void cankao(){
+    public void testXaRefer1(){
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection conn1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123").getConnection();
         Connection conn2 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo2", "neo_test", "neo@Test123").getConnection();
