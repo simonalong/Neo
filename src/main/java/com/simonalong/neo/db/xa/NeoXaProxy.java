@@ -65,7 +65,7 @@ public class NeoXaProxy implements MethodInterceptor {
     public void openXa() throws SQLException, XAException {
         target.openXA();
         rm = XaConnectionFactory.getXaConnect(target.getConnection()).getXAResource();
-        xid = new MysqlXid("g123".getBytes(), String.valueOf(System.currentTimeMillis()).getBytes(), 1);
+        xid = new MysqlXid(UUID.randomUUID().toString().getBytes(), String.valueOf(System.currentTimeMillis()).getBytes(), 1);
         rm.start(xid, XAResource.TMNOFLAGS);
     }
 

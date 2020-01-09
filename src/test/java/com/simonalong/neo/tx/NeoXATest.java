@@ -1,8 +1,5 @@
 package com.simonalong.neo.tx;
 
-//import com.mysql.jdbc.Connection;
-//import com.mysql.jdbc.jdbc2.optional.MysqlXAConnection;
-//import com.mysql.jdbc.jdbc2.optional.MysqlXid;
 import com.mysql.cj.jdbc.JdbcConnection;
 import com.mysql.cj.jdbc.MysqlXAConnection;
 import com.mysql.cj.jdbc.MysqlXid;
@@ -12,7 +9,6 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoPool;
 import com.simonalong.neo.db.xa.NeoXa;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.sql.XAConnection;

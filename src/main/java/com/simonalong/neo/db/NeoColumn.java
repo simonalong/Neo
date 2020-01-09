@@ -93,8 +93,9 @@ public final class NeoColumn {
     }
 
     @Data
+    @SuppressWarnings("all")
     @Accessors(chain = true)
-    static class NeoInnerColumn {
+    public static class NeoInnerColumn {
 
         private static final String TABLE_CAT = "TABLE_CAT";
         private static final String TABLE_SCHEM = "TABLE_SCHEM";
