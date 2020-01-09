@@ -42,6 +42,7 @@ public class NeoXa {
      * @param kvs 参数是通过key-value-key-value等等这种
      * @return 生成的map数据
      */
+    @SuppressWarnings("all")
     public static NeoXa of(Object... kvs) {
         if (kvs.length % KV_NUM != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
