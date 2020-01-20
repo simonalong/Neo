@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import javax.sql.XAConnection;
+import org.postgresql.core.BaseConnection;
+import org.postgresql.xa.PGXAConnection;
 
 /**
  * @author zhouzhenyong
@@ -18,7 +20,7 @@ public class XaConnectionFactory {
 
     /**
      * 获取XA的connect
-     * <p> 通过将connect封装为XA的connect来进行使用
+     * <p> 通过将connect封装为XA的connect来进行使用，目前仅支持mysql和pgsql两种数据库
      * @param connection connect
      * @param dbType 数据库类型
      * @return XA的connect
@@ -29,8 +31,7 @@ public class XaConnectionFactory {
                 case MYSQL:
                     return new MysqlXAConnection(connection.unwrap(JdbcConnection.class), true);
                 case PGSQL:
-                    // todo 这里要采用postgresql的链接类型
-                    return new MysqlXAConnection(connection.unwrap(JdbcConnection.class), true);
+                    return new PGXAConnection(connection.unwrap(BaseConnection.class));
                 default:
                     throw new UnsupportedOperationException("Not supported by connect");
             }

@@ -7,6 +7,7 @@ import static com.simonalong.neo.NeoConstant.ORDER_BY;
 import static com.simonalong.neo.NeoConstant.LOG_PRE;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.*;
@@ -194,15 +195,15 @@ public class Neo extends AbstractBaseDb {
         this.pool.initFromHikariCP(properties);
         this.txStatusLocal = ThreadLocal.withInitial(() -> false);
         // 配置dbType
-        if(properties.contains("jdbc-url")){
+        if(properties.containsKey("jdbc-url")){
             this.dbType = DbType.parse(properties.getProperty("jdbc-url"));
-        }else if(properties.contains("datasource.jdbc-url")){
+        }else if(properties.containsKey("datasource.jdbc-url")){
             this.dbType = DbType.parse(properties.getProperty("datasource.jdbc-url"));
-        }else if(properties.contains("url")){
+        }else if(properties.containsKey("url")){
             this.dbType = DbType.parse(properties.getProperty("url"));
-        } else if(properties.contains("jdbcUrl")){
+        } else if(properties.containsKey("jdbcUrl")){
             this.dbType = DbType.parse(properties.getProperty("jdbcUrl"));
-        } else if(properties.contains("datasource.jdbcUrl")){
+        } else if(properties.containsKey("datasource.jdbcUrl")){
             this.dbType = DbType.parse(properties.getProperty("datasource.jdbcUrl"));
         } else{
             throw new NeoException("hikaricp 配置没有找到url");
@@ -1703,13 +1704,16 @@ public class Neo extends AbstractBaseDb {
     /**
      * 将转换符和占位符拆分开
      *
+     * <p>
+     *     这里借鉴mybatis的占位符和替换符的思想，用java的转换为作为替换符，目前替换支持%s
+     *
      * @param sqlOrigin 原始的sql
      * @param parameters 输入的参数
      * @return 将转换符和占位符拆分开后的数组对
      */
     private Pair<List<Object>, List<Object>> replaceHolderParameters(String sqlOrigin, List<Object> parameters) {
         // 转换符和占位符
-        String regex = "(%s|%c|%b|%d|%x|%o|%f|%a|%e|%g|%h|%%|%n|%tx|\\?)";
+        String regex = "(%s|\\?)";
         Matcher m = Pattern.compile(regex).matcher(sqlOrigin);
         int count = 0;
         List<Object> replaceOperatorList = new ArrayList<>();

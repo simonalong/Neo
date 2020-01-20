@@ -240,7 +240,7 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     getAllTables(con, tableSet, null, tablePres);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("getAllTables error", e);
                 }
             } else {
                 log.error("getAllTables error", e);
@@ -350,7 +350,7 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initPrimary(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("initPrimary error", ex);
                 }
             } else {
                 log.error("initPrimary error", e);
@@ -377,7 +377,7 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initIndex(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("initIndex error", ex);
                 }
             } else {
                 log.error("initIndex error", e);

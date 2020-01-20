@@ -259,6 +259,14 @@ public class NeoTest extends NeoBaseTest {
     }
 
     /**
+     * 测试时间
+     */
+    @Test
+    public void testExecute4_3(){
+        show(neo.execute("select DATE_FORMAT(NOW(),'%b %d %Y %h:%i %p') as time"));
+    }
+
+    /**
      * 测试多结果集
      * CREATE PROCEDURE `pro`()
      * BEGIN

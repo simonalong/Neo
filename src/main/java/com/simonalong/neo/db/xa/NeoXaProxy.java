@@ -49,7 +49,7 @@ class NeoXaProxy {
      */
     void openXa() throws SQLException, XAException {
         target.openXA();
-        rm = XaConnectionFactory.getXaConnect(target.getConnection()).getXAResource();
+        rm = XaConnectionFactory.getXaConnect(target.getConnection(), target.getDbType()).getXAResource();
         xid = new MysqlXid(UUID.randomUUID().toString().getBytes(), String.valueOf(System.currentTimeMillis()).getBytes(), 1);
         rm.start(xid, XAResource.TMNOFLAGS);
     }
