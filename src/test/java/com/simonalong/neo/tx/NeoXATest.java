@@ -22,6 +22,7 @@ import org.junit.Test;
  * @author zhouzhenyong
  * @since 2019/11/20 下午11:17
  */
+@SuppressWarnings("all")
 public class NeoXATest extends NeoBaseTest {
 
     public NeoXATest() throws SQLException {
@@ -71,7 +72,6 @@ public class NeoXATest extends NeoBaseTest {
      * 分布式XA的拆解测试
      */
     @Test
-    @SuppressWarnings("all")
     @SneakyThrows
     public void testXaRefer0() {
         Neo db1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123");
@@ -118,7 +118,6 @@ public class NeoXATest extends NeoBaseTest {
      * 原生分布式XA的使用
      */
     @Test
-    @SuppressWarnings("all")
     @SneakyThrows
     public void testXaRefer1(){
         Class.forName("com.mysql.cj.jdbc.Driver");
