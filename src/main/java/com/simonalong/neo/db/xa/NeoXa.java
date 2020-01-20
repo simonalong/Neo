@@ -74,6 +74,12 @@ public class NeoXa {
         return xa;
     }
 
+    /**
+     * 从db 池中获取指定的几个db作为XA事务的资源处理器
+     * @param neoPool db池
+     * @param dbs 多个db的名字
+     * @return 分布式XA对象
+     */
     public static NeoXa from(NeoPool neoPool, String... dbs) {
         NeoXa xa = new NeoXa();
         Stream.of(dbs).forEach(db -> xa.add(db, neoPool.get(db)));

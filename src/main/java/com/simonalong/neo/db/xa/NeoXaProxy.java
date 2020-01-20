@@ -13,22 +13,20 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Neo 的动态代理对象
+ * Neo 的XA代理对象
  *
  * @author zhouzhenyong
  * @since 2020/1/1 下午2:52
  */
 @Slf4j
+@Getter
 class NeoXaProxy {
 
-    @Getter
     private XAResource rm;
-    @Getter
     private Xid xid;
     /**
      * 目标代理对象
      */
-    @Getter
     private Neo target;
 
     NeoXaProxy(Object object) {
@@ -49,8 +47,8 @@ class NeoXaProxy {
      */
     void openXa() throws SQLException, XAException {
         target.openXA();
-        rm = XaConnectionFactory.getXaConnect(target.getConnection(), target.getDbType()).getXAResource();
-        xid = new MysqlXid(UUID.randomUUID().toString().getBytes(), String.valueOf(System.currentTimeMillis()).getBytes(), 1);
+        rm = XaConnectionFactory.getXaConnect(target.getDbType(), target.getConnection()).getXAResource();
+        xid = new NeoXid();
         rm.start(xid, XAResource.TMNOFLAGS);
     }
 

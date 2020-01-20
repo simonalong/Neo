@@ -16,16 +16,16 @@ import org.postgresql.xa.PGXAConnection;
  * @since 2019/11/20 下午11:49
  */
 @Slf4j
-public class XaConnectionFactory {
+class XaConnectionFactory {
 
     /**
      * 获取XA的connect
-     * <p> 通过将connect封装为XA的connect来进行使用，目前仅支持mysql和pgsql两种数据库
+     * <p> 通过将connect封装为XA的connect来进行使用，目前仅支持mysql和postgresql两种数据库
      * @param connection connect
      * @param dbType 数据库类型
      * @return XA的connect
      */
-    public static XAConnection getXaConnect(Connection connection, DbType dbType) {
+    static XAConnection getXaConnect(DbType dbType, Connection connection) {
         try {
             switch (dbType) {
                 case MYSQL:
