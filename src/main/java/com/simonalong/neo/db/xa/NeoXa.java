@@ -3,6 +3,8 @@ package com.simonalong.neo.db.xa;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoPool;
+import com.simonalong.neo.db.DbType;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.exception.xa.XaCommitException;
@@ -10,6 +12,7 @@ import com.simonalong.neo.exception.xa.XaEndException;
 import com.simonalong.neo.exception.xa.XaPrepareException;
 import com.simonalong.neo.exception.xa.XaStartException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +33,7 @@ public class NeoXa {
     /**
      * key为当前db的名字，value为Neo的动态代理对象
      */
-    private static Map<String, NeoXaProxy> dbMap = new ConcurrentHashMap<>(8);
+    private  Map<String, NeoXaProxy> dbMap = new ConcurrentHashMap<>(8);
     private static final Integer KV_NUM = 2;
 
     /**
@@ -39,24 +42,35 @@ public class NeoXa {
      * @param kvs 参数是通过key-value-key-value等等这种
      * @return 生成的map数据
      */
+    @SuppressWarnings("all")
     public static NeoXa of(Object... kvs) {
         if (kvs.length % KV_NUM != 0) {
             throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
         }
 
         NeoXa xa = new NeoXa();
+        NeoMap neoMap = NeoMap.of();
         for (int i = 0; i < kvs.length; i += KV_NUM) {
             Object key = kvs[i];
+            Object value = kvs[i+1];
             if (null == key) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
             }
 
             if (!(key instanceof String)) {
-                throw new RuntimeException("key 类型必须为String类型");
+                throw new NeoException("key 类型必须为String类型");
             }
 
-            dbMap.put((String) key, new NeoXaProxy(kvs[i + 1]));
+            if(value instanceof Neo) {
+                neoMap.put((String) key, value);
+            }
+
+            if(value instanceof DataSource){
+                neoMap.put((String) key, Neo.connect((DataSource) value));
+            }
+            throw new NeoException("value 类型必须为Neo或者Datasource类型");
         }
+
         return xa;
     }
 

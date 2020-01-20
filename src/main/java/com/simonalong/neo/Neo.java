@@ -9,13 +9,7 @@ import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
-import com.simonalong.neo.db.ConnectPool;
-import com.simonalong.neo.db.NeoColumn;
-import com.simonalong.neo.db.NeoDb;
-import com.simonalong.neo.db.NeoJoiner;
-import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.db.NeoTable;
-import com.simonalong.neo.db.TimeDateConverter;
+import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
@@ -65,6 +59,8 @@ public class Neo extends AbstractBaseDb {
     @Getter
     private NeoDb db;
     @Getter
+    private DbType dbType;
+    @Getter
     private ConnectPool pool;
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
@@ -77,23 +73,21 @@ public class Neo extends AbstractBaseDb {
     @Getter
     private Boolean explainFlag = true;
     /**
+     * sql监控开关
+     */
+    @Setter
+    @Getter
+    private Boolean monitorFlag = true;
+    /**
      * 规范校验开关
      */
     @Setter
     @Getter
     private Boolean standardFlag = true;
     /**
-     * sql监控开关
-     */
-    @Setter
-    @Getter
-    private Boolean monitorFlag = true;
-
-    /**
      * 事务开启关闭状态
      */
     private ThreadLocal<Boolean> txStatusLocal;
-
     /**
      * XA分布式事务开启关闭状态
      */
@@ -168,23 +162,27 @@ public class Neo extends AbstractBaseDb {
             baseProper.setProperty("dataSource.password", password);
         }
 
-        // 针对mysql的特殊设置，下面这个用于设置获取remarks信息
-        baseProper.setProperty("dataSource.remarks", "true");
-        baseProper.setProperty("dataSource.useInformationSchema", "true");
-        this.pool = new ConnectPool(this);
-        this.pool.initFromHikariCP(baseProper);
-        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
+        // 默认采用hikaricp
+        initFromHikariCP(baseProper);
     }
 
     public void init(DataSource dataSource){
         this.pool = new ConnectPool(this, dataSource);
         this.txStatusLocal = ThreadLocal.withInitial(() -> false);
+        Connection connection;
+        try {
+            connection = dataSource.getConnection();
+            this.dbType = DbType.parse(connection.getMetaData().getURL());
+        } catch (SQLException e) {
+            throw new NeoException(e);
+        }
     }
 
     public void initFromDruid(Properties properties) {
         this.pool = new ConnectPool(this);
         this.pool.initFromDruid(properties);
         this.txStatusLocal = ThreadLocal.withInitial(() -> false);
+        this.dbType = DbType.parse(properties.getProperty("druid.url"));
     }
 
     public void initFromHikariCP(Properties properties) {
@@ -195,6 +193,20 @@ public class Neo extends AbstractBaseDb {
         this.pool = new ConnectPool(this);
         this.pool.initFromHikariCP(properties);
         this.txStatusLocal = ThreadLocal.withInitial(() -> false);
+        // 配置dbType
+        if(properties.contains("jdbc-url")){
+            this.dbType = DbType.parse(properties.getProperty("jdbc-url"));
+        }else if(properties.contains("datasource.jdbc-url")){
+            this.dbType = DbType.parse(properties.getProperty("datasource.jdbc-url"));
+        }else if(properties.contains("url")){
+            this.dbType = DbType.parse(properties.getProperty("url"));
+        } else if(properties.contains("jdbcUrl")){
+            this.dbType = DbType.parse(properties.getProperty("jdbcUrl"));
+        } else if(properties.contains("datasource.jdbcUrl")){
+            this.dbType = DbType.parse(properties.getProperty("datasource.jdbcUrl"));
+        } else{
+            throw new NeoException("hikaricp 配置没有找到url");
+        }
     }
 
     public Connection getConnection(){
@@ -844,7 +856,7 @@ public class Neo extends AbstractBaseDb {
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         if (entity.getClass().isPrimitive()) {
-            log.error(LOG_PRE + "参数{}是基本类型");
+            log.error(LOG_PRE + "参数{}是基本类型", entity.getClass());
             return Collections.emptyList();
         }
         return NeoMap.asArray(page(tableName, columns, NeoMap.from(entity, NamingChg.UNDERLINE), page),
@@ -903,7 +915,7 @@ public class Neo extends AbstractBaseDb {
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
         NeoMap searchMapTem = searchMap.clone();
-        NeoMap result = execute(false, () -> generateCountSqlPair(tableName, searchMap), this::executeOne);
+        NeoMap result = execute(false, () -> generateCountSqlPair(tableName, searchMapTem), this::executeOne);
         if (null != result) {
             Iterator<Object> it = result.values().iterator();
             return it.hasNext() ? ObjectUtil.cast(Integer.class, it.next()) : null;
@@ -1803,8 +1815,7 @@ public class Neo extends AbstractBaseDb {
     private Pair<String, String> getTableAliasAndColumn(String columnLabel) {
         if (columnLabel.contains(ALIAS_DOM)) {
             int index = columnLabel.indexOf(ALIAS_DOM);
-            return new Pair<>(columnLabel.substring(0, index),
-                columnLabel.substring(index + ALIAS_DOM.length(), columnLabel.length()));
+            return new Pair<>(columnLabel.substring(0, index), columnLabel.substring(index + ALIAS_DOM.length()));
         }
         return new Pair<>(DEFAULT_TABLE, columnLabel);
     }
