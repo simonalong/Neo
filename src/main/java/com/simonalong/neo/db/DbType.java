@@ -10,15 +10,27 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public enum DbType {
+    /**
+     * mysql
+     */
     MYSQL("jdbc:mysql"),
+    /**
+     * sqlite
+     */
     SQLITE("jdbc:sqlite"),
+    /**
+     * postgresql
+     */
     PGSQL("jdbc:postgresql"),
+    /**
+     * oracle
+     */
     ORACLE("jdbc:oracle");
 
     private String name;
 
     public static DbType parse(String url) {
-        if (null == url || url.equals("")) {
+        if (null == url || "".equals(url)) {
             throw new NeoException("url 不可为空");
         }
         DbType[] dbList = DbType.values();

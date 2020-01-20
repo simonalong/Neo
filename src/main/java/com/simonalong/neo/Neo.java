@@ -59,7 +59,7 @@ public class Neo extends AbstractBaseDb {
     @Getter
     private NeoDb db;
     @Getter
-    private DbType dbType;
+    private DbType dbType = DbType.MYSQL;
     @Getter
     private ConnectPool pool;
     private SqlStandard standard = SqlStandard.getInstance();

@@ -104,7 +104,7 @@ public class NeoTxTest extends NeoBaseTest {
     }
 
     /**
-     * 事务的隔离级别
+     * 事务的隔离级别，需要返回值
      */
     @Test
     public void test6(){
@@ -113,5 +113,17 @@ public class NeoTxTest extends NeoBaseTest {
             neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
             return neo.one(TABLE_NAME, NeoMap.of("id", 11));
         }));
+    }
+
+    /**
+     * 事务的隔离级别，不需要返回值
+     */
+    @Test
+    public void test7(){
+        // {age=2, group=kk, id=11, name=name333}
+        neo.tx(TxIsolationEnum.TX_R_R, ()->{
+            neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
+            neo.one(TABLE_NAME, NeoMap.of("id", 11));
+        });
     }
 }
