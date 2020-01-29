@@ -24,12 +24,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据库的DO实体映射生成器
  * @author zhouzhenyong
  * @since 2019/3/23 下午10:48
  */
+@Slf4j
 @Setter
 @Accessors(chain = true)
 public class EntityCodeGen {
@@ -188,6 +190,7 @@ public class EntityCodeGen {
         neoMap.put("importTime", 0);
         neoMap.put("importTimestamp", 0);
         neoMap.put("importBigDecimal", 0);
+        neoMap.put("importBigInteger", 0);
         if(null != columnList && !columnList.isEmpty()){
             columnList.forEach(c->{
                 Class fieldClass = c.getJavaClass();
@@ -207,6 +210,10 @@ public class EntityCodeGen {
                     neoMap.put("importBigDecimal", 1);
                 }
 
+                if (java.math.BigInteger.class.isAssignableFrom(fieldClass)) {
+                    neoMap.put("importBigInteger", 1);
+                }
+
                 // 枚举类型
                 if ("ENUM".equals(c.getColumnTypeName())){
                     neoMap.put("enumFlag", 1);
@@ -224,7 +231,7 @@ public class EntityCodeGen {
                 template.process(dataMap, bufferedWriter);
             }
         } catch (TemplateException | IOException e) {
-            e.printStackTrace();
+            log.error("writeFile error", e);
         }
     }
 
@@ -254,7 +261,8 @@ public class EntityCodeGen {
         try {
             return configuration.getTemplate(templatePath);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("getTemplate error", e);
+
         }
         return null;
     }

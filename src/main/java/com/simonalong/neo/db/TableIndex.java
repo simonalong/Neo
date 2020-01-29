@@ -10,11 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/17 下午2:42
  */
+@Slf4j
 @Data
 public final class TableIndex {
 
@@ -51,7 +53,7 @@ public final class TableIndex {
                 }
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("add tableIndex error", e);
         }
     }
 
@@ -143,7 +145,7 @@ public final class TableIndex {
                     .setPages(rs.getLong(PAGES))
                     .setFilterCondition(rs.getString(FILTER_CONDITION));
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("parse index error", e);
             }
             return new Index();
         }

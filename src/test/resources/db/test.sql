@@ -104,6 +104,13 @@ CREATE TABLE `xx_test5` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项';
 
+CREATE TABLE `neo_ax_t1` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '任务name',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unq_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE PROCEDURE `pro`()
 BEGIN
    explain select * from neo_table1;

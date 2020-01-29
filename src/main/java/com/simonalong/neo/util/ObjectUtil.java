@@ -16,6 +16,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 将Object转换为指定的类型
@@ -23,6 +24,7 @@ import lombok.experimental.UtilityClass;
  * @author zhouzhenyong
  * @since 2019/5/4 下午12:30
  */
+@Slf4j
 @UtilityClass
 public class ObjectUtil {
 
@@ -76,7 +78,7 @@ public class ObjectUtil {
             }
             return Byte.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toByte error", e);
             return null;
         }
     }
@@ -92,7 +94,7 @@ public class ObjectUtil {
             }
             return Short.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toShort error", e);
             return null;
         }
     }
@@ -108,7 +110,7 @@ public class ObjectUtil {
             }
             return Integer.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toInt error", e);
             return null;
         }
     }
@@ -140,7 +142,7 @@ public class ObjectUtil {
             }
             return Long.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toLong error", e);
             return null;
         }
     }
@@ -156,7 +158,7 @@ public class ObjectUtil {
             }
             return Double.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toDouble error", e);
             return null;
         }
     }
@@ -172,7 +174,7 @@ public class ObjectUtil {
             }
             return Float.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            e.printStackTrace();
+            log.error("toFloat error", e);
             return null;
         }
     }
@@ -426,7 +428,7 @@ public class ObjectUtil {
                 }
                 return cls.cast(cls.getMethod("valueOf", String.class).invoke(null, data));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
+                log.error("castStr error", e);
             }
             return null;
         }

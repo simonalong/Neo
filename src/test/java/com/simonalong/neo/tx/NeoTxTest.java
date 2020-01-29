@@ -1,4 +1,4 @@
-package com.simonalong.neo.neo;
+package com.simonalong.neo.tx;
 
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
@@ -7,12 +7,14 @@ import com.simonalong.neo.sql.TxIsolationEnum;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/26 上午8:35
  */
+@Slf4j
 public class NeoTxTest extends NeoBaseTest {
 
     public NeoTxTest() throws SQLException {}
@@ -34,8 +36,8 @@ public class NeoTxTest extends NeoBaseTest {
      * 验证是否一起提交
      */
     @Test
-    public void test2(){
-        neo.tx(()->{
+    public void test2() {
+        neo.tx(() -> {
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group21"));
             neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group22"));
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group23"));
@@ -53,6 +55,7 @@ public class NeoTxTest extends NeoBaseTest {
      * 验证异常情况下的回退，并且不影响其他的执行
      */
     @Test
+    @SuppressWarnings("all")
     public void test3(){
         DemoEntity entity = null;
         neo.tx(()->{
@@ -101,7 +104,7 @@ public class NeoTxTest extends NeoBaseTest {
     }
 
     /**
-     * 事务的隔离级别
+     * 事务的隔离级别，需要返回值
      */
     @Test
     public void test6(){
@@ -110,5 +113,17 @@ public class NeoTxTest extends NeoBaseTest {
             neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
             return neo.one(TABLE_NAME, NeoMap.of("id", 11));
         }));
+    }
+
+    /**
+     * 事务的隔离级别，不需要返回值
+     */
+    @Test
+    public void test7(){
+        // {age=2, group=kk, id=11, name=name333}
+        neo.tx(TxIsolationEnum.TX_R_R, ()->{
+            neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
+            neo.one(TABLE_NAME, NeoMap.of("id", 11));
+        });
     }
 }

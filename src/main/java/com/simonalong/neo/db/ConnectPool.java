@@ -1,5 +1,6 @@
 package com.simonalong.neo.db;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.sql.TxIsolationEnum;
 import com.zaxxer.hikari.HikariConfig;
@@ -8,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.sql.DataSource;
+import lombok.Getter;
 
 /**
  * @author zhouzhenyong
@@ -16,7 +18,8 @@ import javax.sql.DataSource;
 public final class ConnectPool {
 
     private final Neo neo;
-    private final DataSource dataSource;
+    @Getter
+    private DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
     public ConnectPool(Neo neo, DataSource dataSource) {
@@ -24,14 +27,18 @@ public final class ConnectPool {
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo, String propertiesPath) {
+    public ConnectPool(Neo neo) {
         this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(propertiesPath));
     }
 
-    public ConnectPool(Neo neo, Properties properties) {
-        this.neo = neo;
-        this.dataSource = new HikariDataSource(new HikariConfig(properties));
+    public void initFromDruid(Properties properties){
+        DruidDataSource druidDataSource= new DruidDataSource();
+        druidDataSource.configFromPropety(properties);
+        this.dataSource = druidDataSource;
+    }
+
+    public void initFromHikariCP(Properties properties){
+        this.dataSource = new HikariDataSource(new HikariConfig(properties));;
     }
 
     /**
@@ -47,6 +54,14 @@ public final class ConnectPool {
         }
 
         con = dataSource.getConnection();
+        // XA事务获取可重用连接
+        if(neo.isXaTransaction()){
+            ReusableConnection reConnection = ReusableConnection.of(con);
+            connectLocal.set(reConnection);
+            return reConnection;
+        }
+
+        // 本机事务获取可重用连接，而且设置非自动提交
         if (neo.isTransaction()) {
             ReusableConnection reConnection = ReusableConnection.of(con);
             reConnection.setAutoCommit(false);

@@ -233,17 +233,17 @@ public final class NeoDb {
      */
     private Set<String> getAllTables(String... tablePres) {
         Set<String> tableSet = new HashSet<>();
-        try (Connection con = neo.getPool().getConnect()) {
+        try (Connection con = neo.getConnection()) {
             getAllTables(con, tableSet, con.getCatalog(), tablePres);
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = neo.getPool().getConnect()) {
+                try (Connection con = neo.getConnection()) {
                     getAllTables(con, tableSet, null, tablePres);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("getAllTables error", e);
                 }
             } else {
-                e.printStackTrace();
+                log.error("getAllTables error", e);
             }
         }
         return tableSet;
@@ -295,7 +295,7 @@ public final class NeoDb {
      */
     @SuppressWarnings("all")
     private void initColumnMeta(String tableName){
-        try (Connection con = neo.getPool().getConnect()) {
+        try (Connection con = neo.getConnection()) {
             Map<String, NeoInnerColumn> columnMap = generateColumnMetaMap(con, tableName);
             String sql = "select * from " + tableName + " limit 1";
 
@@ -312,10 +312,10 @@ public final class NeoDb {
                 }
                 addColumn(tableName, columnList);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("initColumnMeta error", e);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("initColumnMeta error", e);
         }
     }
 
@@ -334,7 +334,7 @@ public final class NeoDb {
                 columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("generateColumnMetaMap error", e);
         }
         return columnMap;
     }
@@ -343,17 +343,17 @@ public final class NeoDb {
      * 主要是初始化表的一些信息：主键，外键，索引：这里先添加主键，其他的后面再说
      */
     private void initPrimary(String tableName) {
-        try (Connection con = neo.getPool().getConnect()) {
+        try (Connection con = neo.getConnection()) {
             initPrimary(con, tableName, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = neo.getPool().getConnect()) {
+                try (Connection con = neo.getConnection()) {
                     initPrimary(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("initPrimary error", ex);
                 }
             } else {
-                e.printStackTrace();
+                log.error("initPrimary error", e);
             }
         }
     }
@@ -370,17 +370,17 @@ public final class NeoDb {
      * 主要是初始化表的索引信息：索引
      */
     private void initIndex(String tableName) {
-        try (Connection con = neo.getPool().getConnect()) {
+        try (Connection con = neo.getConnection()) {
             initIndex(con, tableName, con.getCatalog(), con.getSchema());
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
-                try (Connection con = neo.getPool().getConnect()) {
+                try (Connection con = neo.getConnection()) {
                     initIndex(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    log.error("initIndex error", ex);
                 }
             } else {
-                e.printStackTrace();
+                log.error("initIndex error", e);
             }
         }
     }

@@ -1,16 +1,20 @@
 package com.simonalong.neo.db;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/12 下午8:30
  */
+@Slf4j
 @Data
 @Accessors(chain = true)
 public final class NeoColumn {
@@ -59,7 +63,7 @@ public final class NeoColumn {
 
     private NeoColumn(){}
 
-    public static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
+    static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
         try {
             return new NeoColumn()
                 .setColumnName(metaData.getColumnName(index))
@@ -70,7 +74,7 @@ public final class NeoColumn {
                 .setColumnTypeName(metaData.getColumnTypeName(index))
                 .setIsAutoIncrement(metaData.isAutoIncrement(index));
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("parse column error", e);
         }
         return new NeoColumn();
     }
@@ -89,6 +93,7 @@ public final class NeoColumn {
     }
 
     @Data
+    @SuppressWarnings("all")
     @Accessors(chain = true)
     public static class NeoInnerColumn {
 
@@ -119,6 +124,9 @@ public final class NeoColumn {
         private static final String CHAR_OCTET_LENGTH = "CHAR_OCTET_LENGTH";
         private static final String ORDINAL_POSITION = "ORDINAL_POSITION";
         private static final String IS_NULLABLE = "IS_NULLABLE";
+        /**
+         * 该属性sqlite不支持
+         */
         private static final String SCOPE_CATALOG = "SCOPE_CATALOG";
         private static final String SCOPE_SCHEMA = "SCOPE_SCHEMA";
         private static final String SCOPE_TABLE = "SCOPE_TABLE";
@@ -194,7 +202,7 @@ public final class NeoColumn {
          */
         private String isNullable;
         /**
-         * String =>作为引用属性范围的表的目录（null如果DATA_TYPE不是REF）
+         * String =>作为引用属性范围的表的目录（null如果DATA_TYPE不是REF），该属性sqlite不支持
          */
         private String scopeCatalog;
         /**
@@ -226,34 +234,37 @@ public final class NeoColumn {
 
         private NeoInnerColumn(){}
 
-        public static NeoInnerColumn parse(ResultSet rs){
+        static NeoInnerColumn parse(ResultSet rs){
+            NeoInnerColumn innerColumn = null;
             try {
-                return new NeoInnerColumn()
-                    .setCatalog(rs.getString(TABLE_CAT))
-                    .setSchema(rs.getString(TABLE_SCHEM))
-                    .setColumnName(rs.getString(COLUMN_NAME))
-                    .setDataType(rs.getInt(DATA_TYPE))
-                    .setColumnJDBCType(JDBCType.valueOf(rs.getInt(DATA_TYPE)))
-                    .setTypeName(rs.getString(TYPE_NAME))
-                    .setColumnSize(rs.getInt(COLUMN_SIZE))
-                    .setDecimalDigits(rs.getInt(DECIMAL_DIGITS))
-                    .setNumPrecRadix(rs.getInt(NUM_PREC_RADIX))
-                    .setNullable(rs.getInt(NULLABLE))
-                    .setRemarks(rs.getString(REMARKS))
-                    .setColumnDef(rs.getString(COLUMN_DEF))
-                    .setCharOctetLength(rs.getInt(CHAR_OCTET_LENGTH))
-                    .setOrdinalPosition(rs.getInt(ORDINAL_POSITION))
-                    .setIsNullable(rs.getString(IS_NULLABLE))
-                    .setScopeCatalog(rs.getString(SCOPE_CATALOG))
-                    .setScopeSchema(rs.getString(SCOPE_SCHEMA))
-                    .setScopeTable(rs.getString(SCOPE_TABLE))
-                    .setSourceDataType(rs.getShort(SOURCE_DATA_TYPE))
-                    .setIsAutoIncrement(rs.getString(IS_AUTOINCREMENT))
-                    .setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
+                innerColumn =  new NeoInnerColumn();
+                innerColumn.setCatalog(rs.getString(TABLE_CAT));
+                innerColumn.setSchema(rs.getString(TABLE_SCHEM));
+                innerColumn.setColumnName(rs.getString(COLUMN_NAME));
+                innerColumn.setDataType(rs.getInt(DATA_TYPE));
+                innerColumn.setColumnJDBCType(JDBCType.valueOf(rs.getInt(DATA_TYPE)));
+                innerColumn.setTypeName(rs.getString(TYPE_NAME));
+                innerColumn.setColumnSize(rs.getInt(COLUMN_SIZE));
+                innerColumn.setDecimalDigits(rs.getInt(DECIMAL_DIGITS));
+                innerColumn.setNumPrecRadix(rs.getInt(NUM_PREC_RADIX));
+                innerColumn.setNullable(rs.getInt(NULLABLE));
+                innerColumn.setRemarks(rs.getString(REMARKS));
+                innerColumn.setColumnDef(rs.getString(COLUMN_DEF));
+                innerColumn.setCharOctetLength(rs.getInt(CHAR_OCTET_LENGTH));
+                innerColumn.setOrdinalPosition(rs.getInt(ORDINAL_POSITION));
+                innerColumn.setIsNullable(rs.getString(IS_NULLABLE));
+                innerColumn.setScopeSchema(rs.getString(SCOPE_SCHEMA));
+                innerColumn.setScopeTable(rs.getString(SCOPE_TABLE));
+                innerColumn.setSourceDataType(rs.getShort(SOURCE_DATA_TYPE));
+                innerColumn.setIsAutoIncrement(rs.getString(IS_AUTOINCREMENT));
+                innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
+
+                // sqlite 不支持该属性
+                innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.warn(LOG_PRE, e);
             }
-            return new NeoInnerColumn();
+            return innerColumn;
         }
     }
 

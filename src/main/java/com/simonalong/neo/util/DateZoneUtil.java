@@ -1,6 +1,7 @@
 package com.simonalong.neo.util;
 
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.exception.NeoException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -33,7 +34,7 @@ public class DateZoneUtil {
                 try {
                     dataMap.put(t, parse.parse(dataMap.getString(t)));
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    throw new NeoException(e);
                 }
             }
         });
