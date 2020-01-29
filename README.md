@@ -4,6 +4,7 @@ Neo是一个基于JDBC开发的至简化框架。开发源头，源于几个原�
 
 ## 使用文档
 [Neo文档介绍](https://simons.gitbook.io/neo/)
+[最新Neo文档介绍](https://www.yuque.com/simonalong/neo)
 
 ## 快速入门
 该框架接入比较简单，采用一个对象对应一个DataSource，然后这个对象拥有对表的各种操作
@@ -14,7 +15,7 @@ Neo是一个基于JDBC开发的至简化框架。开发源头，源于几个原�
 <dependency>
   <groupId>com.github.simonalong</groupId>
   <artifactId>Neo</artifactId>
-  <version>0.4.0</version>
+  <version>0.4.3</version>
 </dependency>
 ```
 
