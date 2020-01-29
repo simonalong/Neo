@@ -7,7 +7,6 @@ import static com.simonalong.neo.NeoConstant.ORDER_BY;
 import static com.simonalong.neo.NeoConstant.LOG_PRE;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
-import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.*;
@@ -106,6 +105,8 @@ public class Neo extends AbstractBaseDb {
 
     /**
      * 针对有些数据库不需要用户，比如SQLite，这里给这种数据库提供
+     * @param url url
+     * @return neo 实体
      */
     public static Neo connect(String url) {
         return connect(url, null, null);
