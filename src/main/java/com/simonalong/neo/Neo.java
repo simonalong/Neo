@@ -297,7 +297,7 @@ public class Neo extends AbstractBaseDb {
      *
      * @param tableName 表名
      * @param searchMap where 后面的条件数据
-     * @return 插入之后的返回值
+     * @return 影响的行数
      */
     @Override
     public Integer delete(String tableName, NeoMap searchMap) {

@@ -26,6 +26,7 @@ public class NeoTable extends AbstractBaseTable {
     /**
      * 实际获取数据的对象
      */
+    @Getter
     @Setter
     Neo neo;
     /**

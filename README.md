@@ -309,7 +309,9 @@ public class CodeGenTest {
 - 结构信息
 - 批量功能
 - 命名转换
-- 单机事务
+- 事务
+  - 单机事务
+  - 分布式XA事务
 - sql监控
 - 主从
 - join
@@ -317,7 +319,6 @@ public class CodeGenTest {
 - 分布式
     - 全局id
     - 分布式锁
-    - 分布式事务(待支持)
 - 动态分库分表(待支持)
 - 多数据源(待验证)
 

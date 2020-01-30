@@ -144,19 +144,27 @@ public class NeoTest extends NeoBaseTest {
     }
 
     /******************************修改******************************/
+    /**
+     * 待设置的和搜索的都为neomap
+     */
     @Test
     @SneakyThrows
     public void testUpdate1(){
-        neo.insert(TABLE_NAME, NeoMap.of("group", "group2", "name", "name"));
+        NeoMap dataMap = NeoMap.of("group", "ok2");
+        NeoMap searchMap = NeoMap.of("group", "group2", "name", "name");
         // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
-        show(neo.update(TABLE_NAME, NeoMap.of("group", "ok2"), NeoMap.of("group", "group2", "name", "name")));
+        show(neo.update(TABLE_NAME, dataMap, searchMap));
     }
 
+    /**
+     * 待设置的类型为neoMap，搜索条件为columns，其中的变量名为dataMap中的key
+     */
     @Test
     @SneakyThrows
     public void testUpdate2(){
+        NeoMap dataMap = NeoMap.of("group", "ok3", "name", "name");
         // update neo_table1 set `group`=?, `name`=? where `name` =  ?
-        show(neo.update(TABLE_NAME, NeoMap.of("group", "ok3", "name", "name"), Columns.of("name")));
+        show(neo.update(TABLE_NAME, dataMap, Columns.of("name")));
     }
 
     @Test
@@ -192,6 +200,7 @@ public class NeoTest extends NeoBaseTest {
 
     /**
      * 指定某个列作为查询条件
+     * 如果没有搜索条件，则默认按照主键作为搜索条件
      */
     @Test
     @SneakyThrows
@@ -202,6 +211,7 @@ public class NeoTest extends NeoBaseTest {
 
     /**
      * 指定某个列作为查询条件
+     * 如果没有搜索条件，则默认按照主键作为搜索条件
      */
     @Test
     @SneakyThrows
@@ -238,6 +248,7 @@ public class NeoTest extends NeoBaseTest {
 
     /**
      * 指定某个列作为查询条件
+     * 如果采用Columns作为搜索条件，则其中的入参需要根据前面的类型，如果是neoMap则key的值，如果为实体，则为实体名字
      */
     @Test
     @SneakyThrows
