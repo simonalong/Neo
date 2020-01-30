@@ -30,37 +30,67 @@ public class NeoTest extends NeoBaseTest {
     public NeoTest() throws SQLException {}
 
     /******************************插入******************************/
+    /**
+     * insert neoMap
+     * 单个列数据
+     */
     @Test
     @SneakyThrows
     public void testInsert1(){
         NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok"));
+        // {"name":"","id":22,"group":"ok"}
         show(result);
     }
 
+    /**
+     * insert neoMap
+     * 多个列数据
+     */
     @Test
     @SneakyThrows
     public void testInsert2(){
-        DemoEntity result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok", "name", "haode")).as(DemoEntity.class);
+        NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("user_name", "zhou", "group", "ok"));
+        // {"user_name":"zhou","name":"","id":23,"group":"ok"}
         show(result);
     }
 
+    /**
+     * neoMap和实体转换
+     */
     @Test
     @SneakyThrows
     public void testInsert3(){
+        DemoEntity result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok", "name", "haode")).as(DemoEntity.class);
+        // DemoEntity(group=ok, name=haode, userName=null, id=26, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
+        show(result);
+    }
+
+    /**
+     * insert entity
+     */
+    @Test
+    @SneakyThrows
+    public void testInsert4(){
         DemoEntity input = new DemoEntity();
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
         DemoEntity result = neo.insert(TABLE_NAME, input);
+        // DemoEntity(group=group1, name=name1, userName=user_name1, id=27, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
         show(result);
     }
 
+    /**
+     * 插入前后的实体变化
+     */
     @Test
     @SneakyThrows
-    public void testInsert4(){
+    public void testInsert5(){
         NeoMap data = NeoMap.of("group", "ok");
         NeoMap result = neo.insert(TABLE_NAME, data);
+        // {"name":"","id":28,"group":"ok"}
         show(result);
+        // {"group":"ok"}
         show(data);
     }
 
@@ -69,7 +99,7 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testInsert5(){
+    public void testInsert6(){
         Long time = new Date().getTime();
         NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
         NeoMap result = neo.insert("neo_table4", data);
@@ -82,7 +112,7 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     public void testInsertAsync1(){
-        CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, NeoMap.of("group", "ok"), pool);
+        CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, NeoMap.of("group", "ok"));
         future.thenAccept(r->{
             sleep(5);
             show(r);
