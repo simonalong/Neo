@@ -33,6 +33,7 @@
         <connection>scm:git:git@github.com:SimonAlong/Neo.git</connection>
         <developerConnection>scm:git:git@github.com:SimonAlong/Neo.git</developerConnection>
         <url>https://github.com/SimonAlong/Neo</url>
+        <tag>orm</tag>
     </scm>
 
     <properties>
