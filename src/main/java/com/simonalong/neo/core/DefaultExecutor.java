@@ -61,7 +61,7 @@ public class DefaultExecutor implements AsyncNeo {
             try {
                 executor.getQueue().put(r);
             } catch (InterruptedException e) {
-                throw new NeoException(e);
+                Thread.currentThread().interrupt();
             }
         }
     }
