@@ -4,6 +4,7 @@ import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
+import com.simonalong.neo.annotation.Table;
 import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.NeoException;
@@ -294,7 +295,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
-                        neoMap.putIfAbsent(neoMap.namingChg(f, false), value);
+                        neoMap.putIfAbsent(neoMap.namingChg(object.getClass(), f, false), value);
                     }
                 } catch (IllegalAccessException e) {
                     throw new NeoException(e);
@@ -516,7 +517,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        Object value = getValue(f);
+                        Object value = getValue(tClass, f);
                         if (null != value) {
                             f.set(finalT, value);
                         }
@@ -531,8 +532,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return t;
     }
 
-    private Object getValue(Field field) {
-        String key = namingChg(field, true);
+    private Object getValue(Class<?> tClass, Field field) {
+        String key = namingChg(tClass, field, true);
         Object value = toEntityValue(field, key);
 
         Class<?> fieldClass = field.getType();
@@ -840,17 +841,26 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      *     <li>1.当前的类的属性有指定注解{@link Column}的，则按照该注解中的属性对应，否则走下面</li>
      *     <li>2.如果指定了本次转换规则，则按照本次转换，否则按照全局小驼峰下划线转换</li>
      * </ul>
+     * @param tClass 目标类
      * @param field 对应属性的key
      * @param checkContain 是否关心当前的key在map中存在
+     * @return 转换后的属性名
      */
-    private String namingChg(Field field, Boolean checkContain) {
+    private String namingChg(Class<?> tClass, Field field, Boolean checkContain) {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (null != column) {
             String columnName = column.value();
             if (checkContain) {
                 String tableName = column.table();
+                if (tableName.equals(DEFAULT_TABLE)) {
+                    Table table = tClass.getDeclaredAnnotation(Table.class);
+                    if(null != table){
+                        tableName = table.value();
+                    }
+                }
                 if (containsKey(columnName)) {
-                    Node node = dataMap.get(columnName).getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
+                    String finalTableName = tableName;
+                    Node node = dataMap.get(columnName).getTableValues().stream().filter(n -> n.getKey().equals(finalTableName)).findFirst().orElse(null);
                     if (null != node) {
                         return columnName;
                     }

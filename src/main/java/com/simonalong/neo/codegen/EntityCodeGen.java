@@ -128,8 +128,9 @@ public class EntityCodeGen {
         if (null != tableNameList && tableNameList.size() > 0) {
             tableNameList.forEach(t->{
                 generateImport(neo, t, dataMap);
+                dataMap.put("tableName", t);
                 String tableName = StringConverter.underLineToBigCamel(t.substring(preFix.length()));
-                dataMap.put("tableName", tableName);
+                dataMap.put("TableName", tableName);
                 dataMap.put("tableRemark", neo.getTable(t).getTableMata().getRemarks());
                 dataMap.put("tableNamePost", entityPostFix);
                 List<NeoMap> list = getFieldInfoList(neo, t);

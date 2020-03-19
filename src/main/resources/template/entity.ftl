@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 </#if>
 import com.simonalong.neo.annotation.Column;
+import com.simonalong.neo.annotation.Table;
 import lombok.experimental.Accessors;
 import lombok.Data;
 <#if importInnerEnum == 1>
@@ -30,8 +31,9 @@ import lombok.Getter;
  * @author robot
  */
 @Data
+@Table("${tableName}")
 @Accessors(chain = true)
-public class ${tableName}${tableNamePost} {
+public class ${TableName}${tableNamePost} {
 
 <#list fieldList! as field>
     <#if field.fieldRemark??>
