@@ -14,13 +14,7 @@ import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -45,6 +39,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * key为数据对应的key，value里面对应的是不同情况下对应的值，通常情况下只有一个值，但是在多表情况下的多值时候，一个key可以有多个值
      */
     private ConcurrentSkipListMap<String, EntryValue> dataMap;
+    /**
+     * 当前的表名
+     */
+    private String currentTableName = DEFAULT_TABLE;
     /**
      * 全局的命名转换，默认不转换
      */
@@ -959,8 +957,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     /**
      * 添加含有指定表的列的数据
-     * @param key key
      * @param tableName 表名
+     * @param key key
      * @param value 值
      * @return value数据
      */
@@ -1097,6 +1095,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return JSON.toJSONString(result);
     }
 
+    public String toInnerString(){
+        return JSON.toJSONString(dataMap);
+    }
+
     /**
      * 这里采用深拷贝，浅拷贝存在集合并发修改问题
      */
@@ -1212,19 +1214,37 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
          * node 其中key为表名，value为数据对应的值
          */
         @Getter
-        private List<Node<String, Object>> tableValues = new ArrayList<>();
+        private Set<Node<String, Object>> tableValues = new HashSet<>();
 
         public EntryValue(Object object){
             tableValues.add(new Node<>(DEFAULT_TABLE, object));
         }
 
         public EntryValue(String tableName, Object object){
-            tableValues.add(new Node<>(tableName, object));
+            tableValues.add(new Node<>(tableNameChg(tableName), object));
         }
 
         public EntryValue addTable(String tableName, Object object){
-            tableValues.add(new Node<>(tableName, object));
+            tableValues.add(new Node<>(tableNameChg(tableName), object));
             return this;
+        }
+
+        /**
+         * 表名转换
+         * <p>
+         *     如果表名为默认，则要看当前存储的tableValues是否为为空，为空则返回_default_，不空，则选择数据中的第一个
+         * @param tableName 待转换的表名
+         * @return 返回转换后的表名
+         */
+        private String tableNameChg(String tableName) {
+            if (!tableName.equals(DEFAULT_TABLE)){
+                return tableName;
+            }
+            if (tableValues.size() == 0) {
+                return DEFAULT_TABLE;
+            } else {
+                return tableValues.get(0).getKey();
+            }
         }
 
         @SuppressWarnings("all")

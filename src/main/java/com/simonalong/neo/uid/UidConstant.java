@@ -17,7 +17,11 @@ public interface UidConstant {
     /**
      * 全局id生成器的表名
      */
-    String UUID_TABLE = "neo_id_generator";
+    String UUID_TABLE = "neo_uuid_generator";
+    /**
+     * 唯一表中的命名空间列
+     */
+    String UUID_TABLE_NAMESPACE = "namespace";
     /**
      * 全局id生成器表的唯一id
      */

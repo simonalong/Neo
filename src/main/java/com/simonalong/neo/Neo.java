@@ -14,7 +14,7 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UidGeneratorNotInitException;
 import com.simonalong.neo.sql.SqlBuilder;
 import com.simonalong.neo.sql.SqlStandard.LogType;
-import com.simonalong.neo.uid.UidGenerator;
+import com.simonalong.neo.uid.UuidGenerator;
 import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.sql.JoinType;
 import com.simonalong.neo.sql.SqlExplain;
@@ -65,7 +65,6 @@ public class Neo extends AbstractBaseDb {
     private SqlStandard standard = SqlStandard.getInstance();
     private SqlMonitor monitor = SqlMonitor.getInstance();
     private SqlExplain explain = SqlExplain.getInstance();
-    private UidGenerator uidGenerator;
     /**
      * sql解析开关
      */
@@ -341,7 +340,7 @@ public class Neo extends AbstractBaseDb {
         return tx(() -> {
             execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
             closeStandard();
-            NeoMap result = oneWithXMode(tableName, NeoMap.of().append(searchMap).append(dataMap));
+            NeoMap result = oneWithXMode(tableName, NeoMap.of().append(searchMapTem).append(dataMapTem));
             openStandard();
             return result;
         });
@@ -1290,11 +1289,11 @@ public class Neo extends AbstractBaseDb {
             }
             return result;
         } catch (Exception e) {
-            log.error(LOG_PRE + "[提交失败，事务回滚]");
+            log.error(LOG_PRE + "[提交失败，事务回滚]", e);
             try {
                 pool.rollback();
             } catch (SQLException e1) {
-                log.error(LOG_PRE + "[回滚失败]");
+                log.error(LOG_PRE + "[回滚失败]", e);
             }
         } finally {
             txStatusLocal.set(originalTxFlag);
@@ -1312,17 +1311,17 @@ public class Neo extends AbstractBaseDb {
         return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
     }
 
-    /**
-     * 获取全局id
-     *
-     * @return 当前分布式系统内的唯一id
-     */
-    public Long getUuid() {
-        if (null == uidGenerator) {
-            throw new UidGeneratorNotInitException();
-        }
-        return uidGenerator.getUuid();
-    }
+//    /**
+//     * 获取全局id
+//     *
+//     * @return 当前分布式系统内的唯一id
+//     */
+//    public Long getUuid() {
+//        if (null == UuidGenerator) {
+//            throw new UidGeneratorNotInitException();
+//        }
+//        return UuidGenerator.getUUid();
+//    }
 
     /**
      * 判断对应的表名是否存在
@@ -1352,12 +1351,12 @@ public class Neo extends AbstractBaseDb {
         xaStatus = true;
     }
 
-    /**
-     * 开启全局id生成器
-     */
-    public void openUidGenerator() {
-        uidGenerator = UidGenerator.getInstance(this);
-    }
+//    /**
+//     * 开启全局id生成器
+//     */
+//    public void openUidGenerator() {
+//        UuidGenerator = UuidGenerator.getInstance(this);
+//    }
 
     public Boolean isTransaction() {
         return txStatusLocal.get();
@@ -1535,9 +1534,9 @@ public class Neo extends AbstractBaseDb {
      * 生成插入的sql和参数 key: update xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
-        dataMap = filterNonDbColumn(tableName, dataMap);
-        return new Pair<>(SqlBuilder.buildUpdate(tableName, dataMap, searchMap), NeoMap.values(dataMap, searchMap));
+        NeoMap searchMapTem = filterNonDbColumn(tableName, searchMap);
+        NeoMap dataMapTemTem = filterNonDbColumn(tableName, dataMap);
+        return new Pair<>(SqlBuilder.buildUpdate(tableName, dataMapTemTem, searchMapTem), NeoMap.values(dataMapTemTem, searchMapTem));
     }
 
     /**
