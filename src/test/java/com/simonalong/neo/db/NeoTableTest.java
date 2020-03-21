@@ -149,13 +149,14 @@ public class NeoTableTest extends BaseNeoTableTest {
     /**
      * select neo_table2.`group` as group1, neo_table1.`group` as group2 from neo_table2 left join neo_table1 on neo_table2.`group`=neo_table1.`group`  order by sort desc
      */
-    @Test
-    public void rightJoinOneTest1() {
-        String otherTableName = "neo_table3";
-        show(tinaTest.leftJoin(otherTableName).on("group", "group")
-            .list(Columns.of().table(tinaTest.getTableName(), "group as group1").table(otherTableName, "group as group2"),
-                NeoMap.of().table(otherTableName, "order by", "sort desc")));
-    }
+    // todo chg
+//    @Test
+//    public void rightJoinOneTest1() {
+//        String otherTableName = "neo_table3";
+//        show(tinaTest.leftJoin(otherTableName).on("group", "group")
+//            .list(Columns.of().table(tinaTest.getTableName(), "group as group1").table(otherTableName, "group as group2"),
+//                NeoMap.of().table(otherTableName, "order by", "sort desc")));
+//    }
 
 
     /**

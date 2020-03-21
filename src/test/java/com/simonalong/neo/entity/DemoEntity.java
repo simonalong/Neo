@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(chain = true)
 @ToString
-@EqualsAndHashCode(of = {"group", "name", "id"})
+@EqualsAndHashCode
 public class DemoEntity {
 
     private String group;

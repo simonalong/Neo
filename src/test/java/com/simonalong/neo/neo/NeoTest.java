@@ -144,18 +144,19 @@ public class NeoTest extends NeoBaseTest {
     }
 
     /******************************修改******************************/
-    @Test
-    @SneakyThrows
-    public void testUpdate0(){
-        NeoMap dataMap = NeoMap.of("group", "ok2");
-        NeoMap dataMap2 = neo.insert(TABLE_NAME, dataMap);
-        show("insert 返回值：" + dataMap2.toInnerString());
-        dataMap2.put("group", "ok3");
-        show("update 入参：" + dataMap2);
-        NeoMap dataMap3 = neo.update(TABLE_NAME, dataMap2);
-        show("update 返回值：" + dataMap3);
-        show("update 执行后入参：" + dataMap2);
-    }
+    // todo chg
+//    @Test
+//    @SneakyThrows
+//    public void testUpdate0(){
+//        NeoMap dataMap = NeoMap.of("group", "ok2");
+//        NeoMap dataMap2 = neo.insert(TABLE_NAME, dataMap);
+//        show("insert 返回值：" + dataMap2.toInnerString());
+//        dataMap2.put("group", "ok3");
+//        show("update 入参：" + dataMap2);
+//        NeoMap dataMap3 = neo.update(TABLE_NAME, dataMap2);
+//        show("update 返回值：" + dataMap3);
+//        show("update 执行后入参：" + dataMap2);
+//    }
 
     /**
      * 待设置的和搜索的都为neomap

@@ -1829,7 +1829,8 @@ public class Neo extends AbstractBaseDb {
         Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(index));
         String tableAlis = pair.getKey();
         String columnLabel = pair.getValue();
-        row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(index)));
+        // todo chg
+//        row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(index)));
     }
 
     /**

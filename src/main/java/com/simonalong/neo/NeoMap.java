@@ -5,7 +5,6 @@ import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.annotation.Table;
-import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
@@ -16,12 +15,10 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -32,17 +29,14 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
+@NoArgsConstructor
 public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
     /**
-     * key为数据对应的key，value里面对应的是不同情况下对应的值，通常情况下只有一个值，但是在多表情况下的多值时候，一个key可以有多个值
+     * key为对应的表，value：key为数据对应的key，value为属性对应的值
      */
-    private ConcurrentSkipListMap<String, EntryValue> dataMap;
-    /**
-     * 当前的表名
-     */
-    private String currentTableName = DEFAULT_TABLE;
+    private ConcurrentSkipListMap<String, Object> dataMap = new ConcurrentSkipListMap<>();
     /**
      * 全局的命名转换，默认不转换
      */
@@ -53,10 +47,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Setter
     @Accessors(chain = true)
     private NamingChg namingChg = NamingChg.DEFAULT;
-
-    public NeoMap() {
-        dataMap = new ConcurrentSkipListMap<>();
-    }
 
     /**
      * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
@@ -102,19 +92,21 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return valueList;
     }
 
+    @SuppressWarnings("unchecked")
     public static NeoMap fromMap(Map<String, ?> dataMap) {
-        NeoMap data = NeoMap.of();
+        NeoMap map = NeoMap.of();
         if (null == dataMap) {
-            return data;
+            return map;
         }
-        data.putAll(dataMap);
-        return data;
+
+        map.putAll(dataMap);
+        return map;
     }
 
     /**
      * 对象转换为NeoMap
      *
-     * <p>转换规则为默认不转换
+     * <p>转换规则为默认不转换，放在默认表中
      *
      * @param object 待转换对象
      * @return 转换之后的NeoMap
@@ -145,11 +137,11 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return from(object, NamingChg.DEFAULT, Arrays.asList(columnsNames), new ArrayList<>());
     }
 
-    public static NeoMap from(Object object, Columns columns) {
+    private static NeoMap from(Object object, Columns columns) {
         if (Columns.isEmpty(columns)) {
             return from(object);
         }
-        return from(object, columns.getFieldSets().toArray(new String[]{}));
+        return from(object, columns.getMetaFieldSets().toArray(new String[]{}));
     }
 
     public static NeoMap from(Object object, Columns columns, NamingChg namingChg) {
@@ -178,8 +170,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param fields 对象的属性名列表
      * @return 转换之后的NeoMap
      */
-    static NeoMap fromInclude(Object object, NamingChg namingChg, String... fields) {
-        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>());
+    public static NeoMap fromInclude(Object object, NamingChg namingChg, String... fields) {
+        return from(object, namingChg, Arrays.asList(fields), new ArrayList<>());
     }
 
     /**
@@ -319,6 +311,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMaps.stream().map(m -> m.setNamingChg(namingChg).as(tClass)).collect(Collectors.toList());
     }
 
+    /**
+     * 从实体集合转换为NeoMap集合
+     * @param dataList 待转换的数据集合
+     * @param columns 数据列名
+     * @param <T> 实体类型
+     * @return NeoMap集合
+     */
     public static <T> List<NeoMap> fromArray(List<T> dataList, Columns columns) {
         if (null == dataList || dataList.isEmpty()) {
             return new ArrayList<>();
@@ -380,49 +379,51 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param kvs 表中对应的列和值的对应
      * @return 拼接后的数据，比如：table1.`group`=ok, table1.`name`=kk, table2.`age`=123
      */
-    public NeoMap table(String tableNameStr, Object... kvs){
-        String tableName = AliasParser.getAlias(tableNameStr);
-        NeoMap currentMap = NeoMap.of();
-        if (kvs.length % KV_NUM != 0) {
-            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
-        }
-
-        String orderByStr = "order by";
-        for (int i = 0; i < kvs.length; i += KV_NUM) {
-            if (null == kvs[i]) {
-                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
-            }
-            String key = (String) kvs[i];
-            Object valueObj = kvs[i + 1];
-            if (key.trim().equals(orderByStr) && valueObj instanceof String) {
-                String filterValue = toOrderByValueStr(tableName, String.class.cast(valueObj));
-                // 不包含order by对应的value，则设置转换的
-                if (!containsKey(key)) {
-                    currentMap.put(key, filterValue);
-                } else {
-                    // 已经包含过，则合并新的
-                    String orderByValue = String.class.cast(get(key));
-                    currentMap.put(key, orderByValue + ", " + filterValue);
-                }
-            } else {
-                currentMap.put(toColumnStr(tableName, (String) kvs[i]), kvs[i + 1]);
-            }
-        }
-
-        return append(currentMap);
-    }
+    // todo delete 这个功能切换到TableMap 中
+//    public NeoMap table(String tableNameStr, Object... kvs){
+//        String tableName = AliasParser.getAlias(tableNameStr);
+//        NeoMap currentMap = NeoMap.of();
+//        if (kvs.length % KV_NUM != 0) {
+//            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
+//        }
+//
+//        String orderByStr = "order by";
+//        for (int i = 0; i < kvs.length; i += KV_NUM) {
+//            if (null == kvs[i]) {
+//                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
+//            }
+//            String key = (String) kvs[i];
+//            Object valueObj = kvs[i + 1];
+//            if (key.trim().equals(orderByStr) && valueObj instanceof String) {
+//                String filterValue = toOrderByValueStr(tableName, String.class.cast(valueObj));
+//                // 不包含order by对应的value，则设置转换的
+//                if (!containsKey(key)) {
+//                    currentMap.put(key, filterValue);
+//                } else {
+//                    // 已经包含过，则合并新的
+//                    String orderByValue = String.class.cast(get(key));
+//                    currentMap.put(key, orderByValue + ", " + filterValue);
+//                }
+//            } else {
+//                currentMap.put(toColumnStr(tableName, (String) kvs[i]), kvs[i + 1]);
+//            }
+//        }
+//
+//        return append(currentMap);
+//    }
 
     /**
      * 将字段转变为sql中的字段名，即添加前后的引号``
      * @param key 表的列名
      * @return sql中对应的表的字段名
      */
-    private String toColumnStr(String tableName, String key){
-        if (null != tableName && !"".equals(tableName)) {
-            return tableName + "." + key + "";
-        }
-        return "`" + key + "`";
-    }
+    // todo 切换到 tableMap
+//    private String toColumnStr(String tableName, String key){
+//        if (null != tableName && !"".equals(tableName)) {
+//            return tableName + "." + key + "";
+//        }
+//        return "`" + key + "`";
+//    }
 
     /**
      * 对order by后面的字段添加表前缀，比如：{@code name desc --> table1.name desc}
@@ -431,23 +432,25 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param value order by 后面的字段
      * @return 添加表前缀
      */
-    private String toOrderByValueStr(String tableName, String value){
-        String comma = ",";
-        String dom = ".";
-        if(value.contains(comma)){
-            return Stream.of(value.split(comma)).map(v->{
-                v = v.trim();
-                if (!v.startsWith(tableName) && !v.contains(dom)) {
-                    return tableName + "." + v;
-                }
-                return v;
-            }).collect(Collectors.joining(comma + " "));
-        }
-        if (!value.startsWith(tableName) && !value.contains(dom)) {
-            return tableName + "." + value;
-        }
-        return value;
-    }
+
+    // todo 切换到 tableMap
+//    private String toOrderByValueStr(String tableName, String value){
+//        String comma = ",";
+//        String dom = ".";
+//        if(value.contains(comma)){
+//            return Stream.of(value.split(comma)).map(v->{
+//                v = v.trim();
+//                if (!v.startsWith(tableName) && !v.contains(dom)) {
+//                    return tableName + "." + v;
+//                }
+//                return v;
+//            }).collect(Collectors.joining(comma + " "));
+//        }
+//        if (!value.startsWith(tableName) && !value.contains(dom)) {
+//            return tableName + "." + value;
+//        }
+//        return value;
+//    }
 
     /**
      * key的命名风格从其他转到小驼峰
@@ -539,7 +542,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为事件类型，对于非时间类型的，则保持，然后再经过兼容类型
+     * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为时间类型，对于非时间类型的，则保持，然后再经过兼容类型
      *
      * @param f 属性
      * @param key 类型转换后的名字
@@ -547,18 +550,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private Object toEntityValue(Field f, String key) {
         Class<?> fieldClass = f.getType();
-        Object value = get(key);
-        if (value instanceof EntryValue) {
-            Column column = f.getDeclaredAnnotation(Column.class);
-            if (null != column) {
-                String tableName = column.table();
-                return EntryValue.class.cast(value).getTableValues().stream()
-                    .filter(n -> n.getKey().equals(tableName))
-                    .map(Node::getValue)
-                    .findFirst().orElse(null);
-            }
-        }
-        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, value));
+        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, get(key)));
     }
 
     /**
@@ -618,27 +610,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return assignExcept(Columns.of(keys));
     }
 
-    /**
-     * 对NeoMap中的key进行转换
-     *
-     * @param keys 新旧key的映射，key-value-key-value...的形式，比如：a, a1, b, b1
-     * @return key转换之后的NeoMap，比如：{@code a=ok, b=name} 到 {@code a1=ok, b1=name}
-     */
-    @SuppressWarnings("confusing")
-    public NeoMap keyConvert(String... keys) {
-        NeoMap keyChgMap = NeoMap.of(Arrays.asList(keys).toArray());
-        NeoMap neoMap = NeoMap.fromMap(this, NamingChg.DEFAULT);
-        keyChgMap.stream().forEach(e -> {
-            String oldKey = e.getKey();
-            String newKey = (String) e.getValue();
-            if (neoMap.containsKey(oldKey)) {
-                neoMap.put(newKey, neoMap.get(oldKey));
-                neoMap.remove(oldKey);
-            }
-        });
-        return neoMap;
-    }
-
     public NeoMap append(Map<String, ?> neoMap) {
         this.putAll(neoMap);
         return this;
@@ -654,22 +625,13 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return this;
     }
 
-    public NeoMap append(String tableName, String key, Object value) {
-        this.put(tableName, key, value);
-        return this;
-    }
-
     public NeoMap delete(String key){
         this.remove(key);
         return this;
     }
 
     public Stream<Entry<String, Object>> stream() {
-        return dataMap.entrySet().stream()
-            .flatMap(d -> d.getValue().getTableValues()
-                .stream()
-                .map(n-> new Node<>(d.getKey(), n.getValue()))
-            );
+        return dataMap.entrySet().stream();
     }
 
     public Stream<String> keyStream() {
@@ -677,7 +639,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public Stream<Object> valueStream() {
-        return dataMap.values().stream().flatMap(d-> d.getTableValues().stream().map(Node::getValue));
+        return dataMap.values().stream();
     }
 
     /**
@@ -849,19 +811,17 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         if (null != column) {
             String columnName = column.value();
             if (checkContain) {
-                String tableName = column.table();
-                if (tableName.equals(DEFAULT_TABLE)) {
-                    Table table = tClass.getDeclaredAnnotation(Table.class);
-                    if(null != table){
-                        tableName = table.value();
-                    }
-                }
+                // todo 看下tableMap是否需要
+//                String tableName = column.table();
+//                if (tableName.equals(DEFAULT_TABLE)) {
+//                    Table table = tClass.getDeclaredAnnotation(Table.class);
+//                    if(null != table){
+//                        tableName = table.value();
+//                        // todo
+//                    }
+//                }
                 if (containsKey(columnName)) {
-                    String finalTableName = tableName;
-                    Node node = dataMap.get(columnName).getTableValues().stream().filter(n -> n.getKey().equals(finalTableName)).findFirst().orElse(null);
-                    if (null != node) {
-                        return columnName;
-                    }
+                    return columnName;
                 }
             } else {
                 return columnName;
@@ -875,7 +835,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return globalNaming.smallCamelToOther(field.getName());
     }
 
-    public Map<String, EntryValue> getDataMap() {
+    public Map<String, Object> getDataMap() {
         return dataMap;
     }
 
@@ -915,7 +875,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 包含所有的key
      * @param keys keys的列表
-     * @return true： 包含所有的值，false，没有包含全部的key
+     * @return true： 包含所有的值，false：有某些key不包含
      */
     public boolean containsKeys(String... keys){
         return Stream.of(keys).allMatch(this::containsKey);
@@ -928,16 +888,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Object get(Object key) {
-        Object result = dataMap.get(key);
-        if (null != result) {
-            List<Node<String, Object>> dataList = EntryValue.class.cast(result).getTableValues();
-            if (dataList.size() == 1) {
-                return dataList.get(0).getValue();
-            }else{
-                return result;
-            }
-        }
-        return null;
+        return dataMap.get(key);
     }
 
     /**
@@ -948,73 +899,25 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     @Override
     public Object put(String key, Object value) {
-        return put(DEFAULT_TABLE, key, value);
-    }
-
-    public Object put(String key, Object value, Boolean timeTypeToLong) {
-        return put(DEFAULT_TABLE, key, value, timeTypeToLong);
-    }
-
-    /**
-     * 添加含有指定表的列的数据
-     * @param tableName 表名
-     * @param key key
-     * @param value 值
-     * @return value数据
-     */
-    public Object put(String tableName, String key, Object value) {
-        return put(tableName, key, value, true);
+        return put(key, value, true);
     }
 
     /**
      * 是否进行时间类型到Long类型的转换来放置数据
-     * @param tableName 表名
      * @param key key
      * @param value value
      * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
      * @return value的值
      */
-    private Object put(String tableName, String key, Object value, Boolean timeTypeToLong) {
+    public Object put(String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {
             if (timeTypeToLong) {
-                doPut(tableName, key, TimeDateConverter.entityTimeToLong(value));
+                dataMap.put(key, TimeDateConverter.entityTimeToLong(value));
             } else {
-                doPut(tableName, key, value);
+                dataMap.put(key, value);
             }
         }
         return value;
-    }
-
-    private void doPut(String tableName, String key, Object value) {
-        if (value instanceof EntryValue) {
-            dataMap.compute(key, (k, v) -> {
-                if (null == v) {
-                    return EntryValue.class.cast(value);
-                } else {
-                    Node<String, Object> node = v.getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
-                    if (null == node) {
-                        v.addTable(tableName, value);
-                    } else {
-                        node.setValue(value);
-                    }
-                    return v;
-                }
-            });
-        } else {
-            dataMap.compute(key, (k, v) -> {
-                if (null == v) {
-                    return new EntryValue(tableName, value);
-                } else {
-                    Node<String, Object> node = v.getTableValues().stream().filter(n -> n.getKey().equals(tableName)).findFirst().orElse(null);
-                    if (null == node) {
-                        v.addTable(tableName, value);
-                    } else {
-                        node.setValue(value);
-                    }
-                    return v;
-                }
-            });
-        }
     }
 
     @Override
@@ -1047,25 +950,18 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Collection<Object> values() {
-        Collection<Object> result = dataMap.entrySet().stream()
-            .flatMap(t -> t.getValue().getTableValues().stream().map(Node::getValue))
-            .collect(Collectors.toCollection(ArrayList::new));
-        return result;
+        return dataMap.values();
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet().stream()
-            .flatMap(t -> t.getValue().getTableValues().stream().map(v->new Node<>(t.getKey(), v.getValue())))
-            .collect(Collectors.toSet());
+        return dataMap.entrySet();
     }
 
     @Override
     public boolean equals(Object object) {
         if (object instanceof NeoMap) {
-            Map<String, EntryValue> d1 = this.clone().getDataMap();
-            Map<String, EntryValue> d2 = NeoMap.class.cast(object).getDataMap();
-            return d1.equals(d2);
+            return dataMap.equals(NeoMap.class.cast(object).getDataMap());
         }
         return false;
     }
@@ -1078,24 +974,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     @Override
     public String toString() {
-        AtomicBoolean multiValue = new AtomicBoolean(false);
-        Map<String, Object> result = new HashMap<>(12);
-        dataMap.forEach((key, value) -> {
-            List<Node<String, Object>> dataList = value.tableValues;
-            if (1 == dataList.size()) {
-                result.put(key, dataList.get(0).getValue());
-            } else {
-                multiValue.set(true);
-                dataList.forEach(d -> result.put(key, d.getValue()));
-            }
-        });
-        if (multiValue.get()) {
-            return JSON.toJSONString(dataMap);
-        }
-        return JSON.toJSONString(result);
-    }
-
-    public String toInnerString(){
         return JSON.toJSONString(dataMap);
     }
 
@@ -1106,7 +984,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
-        dataMap.forEach((key, value) -> neoMap.put(key, value.clone()));
+        neoMap.putAll(dataMap.clone());
         return neoMap;
     }
 
@@ -1207,52 +1085,52 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
-    @NoArgsConstructor
-    public static class EntryValue implements Serializable{
-
-        /**
-         * node 其中key为表名，value为数据对应的值
-         */
-        @Getter
-        private Set<Node<String, Object>> tableValues = new HashSet<>();
-
-        public EntryValue(Object object){
-            tableValues.add(new Node<>(DEFAULT_TABLE, object));
-        }
-
-        public EntryValue(String tableName, Object object){
-            tableValues.add(new Node<>(tableNameChg(tableName), object));
-        }
-
-        public EntryValue addTable(String tableName, Object object){
-            tableValues.add(new Node<>(tableNameChg(tableName), object));
-            return this;
-        }
-
-        /**
-         * 表名转换
-         * <p>
-         *     如果表名为默认，则要看当前存储的tableValues是否为为空，为空则返回_default_，不空，则选择数据中的第一个
-         * @param tableName 待转换的表名
-         * @return 返回转换后的表名
-         */
-        private String tableNameChg(String tableName) {
-            if (!tableName.equals(DEFAULT_TABLE)){
-                return tableName;
-            }
-            if (tableValues.size() == 0) {
-                return DEFAULT_TABLE;
-            } else {
-                return tableValues.get(0).getKey();
-            }
-        }
-
-        @SuppressWarnings("all")
-        @Override
-        public Object clone() {
-            EntryValue clone = new EntryValue();
-            tableValues.forEach(n-> clone.addTable(n.getKey(), n.getValue()));
-            return clone;
-        }
-    }
+//    @NoArgsConstructor
+//    public static class EntryValue implements Serializable{
+//
+//        /**
+//         * node 其中key为表名，value为数据对应的值
+//         */
+//        @Getter
+//        private List<Node<String, Object>> tableValues = new ArrayList<>();
+//
+//        public EntryValue(Object object){
+//            tableValues.add(new Node<>(DEFAULT_TABLE, object));
+//        }
+//
+//        public EntryValue(String tableName, Object object){
+//            tableValues.add(new Node<>(tableNameChg(tableName), object));
+//        }
+//
+//        public EntryValue addTable(String tableName, Object object){
+//            tableValues.add(new Node<>(tableNameChg(tableName), object));
+//            return this;
+//        }
+//
+//        /**
+//         * 表名转换
+//         * <p>
+//         *     如果表名为默认，则要看当前存储的tableValues是否为为空，为空则返回_default_，不空，则选择数据中的第一个
+//         * @param tableName 待转换的表名
+//         * @return 返回转换后的表名
+//         */
+//        private String tableNameChg(String tableName) {
+//            if (!tableName.equals(DEFAULT_TABLE)){
+//                return tableName;
+//            }
+//            if (tableValues.size() == 0) {
+//                return DEFAULT_TABLE;
+//            } else {
+//                return tableValues.get(0).getKey();
+//            }
+//        }
+//
+//        @SuppressWarnings("all")
+//        @Override
+//        public Object clone() {
+//            EntryValue clone = new EntryValue();
+//            tableValues.forEach(n-> clone.addTable(n.getKey(), n.getValue()));
+//            return clone;
+//        }
+//    }
 }
