@@ -36,7 +36,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid3(){
-        String sql = "select `group`, `name` from neo_table1 where `name` in('name1', 'name2')";
+        String sql = "select `group`, `name` from neo_table1 where `name` buildIn('name1', 'name2')";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -47,7 +47,7 @@ public class SqlStandTest {
      */
     @Test
     public void testValid4(){
-        String sql = "select `group`, `name` from neo_table1 where `name` in ('name1', 'name2')";
+        String sql = "select `group`, `name` from neo_table1 where `name` buildIn ('name1', 'name2')";
 
         SqlStandard sqlStandard = SqlStandard.getInstance();
         Assert.assertTrue(sqlStandard.valid(sql));
@@ -60,7 +60,7 @@ public class SqlStandTest {
     public void testValid5(){
         SqlStandard sqlStandard = SqlStandard.getInstance();
 
-        String sql1 = "select `group`, `name` from neo_table1 where `name` not in ('name1', 'name2')";
+        String sql1 = "select `group`, `name` from neo_table1 where `name` not buildIn ('name1', 'name2')";
         Assert.assertTrue(sqlStandard.valid(sql1));
 
         String sql2 = "select `group`, `name` from neo_table1 where `name` !='name1'";

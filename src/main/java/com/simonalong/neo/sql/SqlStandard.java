@@ -117,10 +117,10 @@ public final class SqlStandard {
         SELECT(new Standard("^.*(select |SELECT |Select)\\*.*$", "请不要使用select *，尽量使用具体的列", LogType.WARN)),
 
         /**
-         * where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like
+         * where子句中，尽量不要使用，!=,<>,not,not buildIn, not exists, not like
          */
-        WHERE_NOT(new Standard("^.*( where | WHERE | Where ).*(!=|<>| not | NOT | not in| NOT IN| not exists| NOT EXISTS| not like| NOT LIKE)+.*$",
-            "where子句中，尽量不要使用，!=,<>,not,not in, not exists, not like", LogType.WARN)),
+        WHERE_NOT(new Standard("^.*( where | WHERE | Where ).*(!=|<>| not | NOT | not buildIn| NOT IN| not exists| NOT EXISTS| not like| NOT LIKE)+.*$",
+            "where子句中，尽量不要使用，!=,<>,not,not buildIn, not exists, not like", LogType.WARN)),
 
         /**
          * where子句中，like 这里的模糊请尽量不要用通配符%开头匹配，即like '%xxx'
@@ -130,7 +130,7 @@ public final class SqlStandard {
         /**
          * where子句中有in操作，请谨慎使用
          */
-        IN(new Standard("^.*( where | WHERE | Where )+.*( in | in\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO)),
+        IN(new Standard("^.*( where | WHERE | Where )+.*( buildIn | buildIn\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO)),
 
         /**
          * update 语句，如果后面没有where语句，则进行日志显示

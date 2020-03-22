@@ -418,17 +418,6 @@ public class NeoMapTest extends BaseTest {
         Assert.assertEquals(neoMap2, neoMapResult);
     }
 
-    /**
-     * 测试setKeyPre：测试添加key前缀
-     */
-    @Test
-    public void setPreTest() {
-        NeoMap neoMap = NeoMap.of("a", "ok", "b", "name");
-        NeoMap expect = NeoMap.of("t1.a", "ok", "t1.b", "name");
-        // {"t1.a":"ok","t1.b":"name"}
-        Assert.assertEquals(expect, neoMap.setKeyPre("t1."));
-    }
-
     @Test
     public void getBooleanTest(){
         NeoMap neoMap = NeoMap.of("flag", "true", "test", "asdf", "test2", 2321);

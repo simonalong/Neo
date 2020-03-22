@@ -4,10 +4,12 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import com.simonalong.neo.sql.SqlBuilder;
+import com.simonalong.neo.sql.builder.SqlBuilder;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -80,8 +82,8 @@ public class NeoListTest extends NeoBaseTest {
     public void testExeList6(){
         neo.setExplainFlag(true);
         List<Integer> idList = Arrays.asList(310, 311);
-        // select * from neo_table1 where id in ('310','311')
-        show(neo.exeList("select * from %s where id in %s", TABLE_NAME, SqlBuilder.in(idList)));
+        // select * from neo_table1 where id buildIn ('310','311')
+        show(neo.exeList("select * from %s where id buildIn %s", TABLE_NAME, SqlBuilder.buildIn(idList)));
     }
 
     /**

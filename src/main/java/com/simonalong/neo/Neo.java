@@ -11,16 +11,10 @@ import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
-import com.simonalong.neo.exception.UidGeneratorNotInitException;
-import com.simonalong.neo.sql.SqlBuilder;
+import com.simonalong.neo.sql.*;
+import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
-import com.simonalong.neo.uid.UuidGenerator;
 import com.simonalong.neo.db.TableIndex.Index;
-import com.simonalong.neo.sql.JoinType;
-import com.simonalong.neo.sql.SqlExplain;
-import com.simonalong.neo.sql.SqlMonitor;
-import com.simonalong.neo.sql.SqlStandard;
-import com.simonalong.neo.sql.TxIsolationEnum;
 import com.simonalong.neo.util.ObjectUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -355,7 +348,7 @@ public class Neo extends AbstractBaseDb {
      * @return 返回值
      */
     private NeoMap oneWithXMode(String tableName, NeoMap params) {
-        String sql = SqlBuilder.buildOne(this, tableName, null, params) + " for update";
+        String sql = SelectSqlBuilder.buildOne(this, tableName, null, params) + " for update";
         List<Object> parameters = new ArrayList<>(params.values());
         return execute(false, () -> generateExeSqlPair(sql, parameters), this::executeOne).getNeoMap(tableName);
     }
@@ -1523,7 +1516,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap) {
         valueMap = filterNonDbColumn(tableName, valueMap);
-        return new Pair<>(SqlBuilder.buildInsert(tableName, valueMap), new ArrayList<>(valueMap.values()));
+        return new Pair<>(InsertSqlBuilder.build(tableName, valueMap), new ArrayList<>(valueMap.values()));
     }
 
     /**
@@ -1531,7 +1524,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildDelete(tableName, searchMap), new ArrayList<>(searchMap.values()));
+        return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), new ArrayList<>(searchMap.values()));
     }
 
     /**
@@ -1540,7 +1533,7 @@ public class Neo extends AbstractBaseDb {
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
         NeoMap searchMapTem = filterNonDbColumn(tableName, searchMap);
         NeoMap dataMapTemTem = filterNonDbColumn(tableName, dataMap);
-        return new Pair<>(SqlBuilder.buildUpdate(tableName, dataMapTemTem, searchMapTem), NeoMap.values(dataMapTemTem, searchMapTem));
+        return new Pair<>(UpdateSqlBuilder.build(tableName, dataMapTemTem, searchMapTem), NeoMap.values(dataMapTemTem, searchMapTem));
     }
 
     /**
@@ -1548,7 +1541,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1556,7 +1549,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1565,7 +1558,7 @@ public class Neo extends AbstractBaseDb {
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         Integer startIndex, Integer pageSize) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildPageList(this, tableName, columns, searchMap, startIndex, pageSize),
+        return new Pair<>(SelectSqlBuilder.buildPage(this, tableName, columns, searchMap, startIndex, pageSize),
             generateValueList(searchMap));
     }
 
@@ -1574,7 +1567,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildCount(tableName, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildCount(tableName, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1582,7 +1575,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildValue(tableName, field, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildValue(tableName, field, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1590,7 +1583,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SqlBuilder.buildValues(tableName, field, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildValues(tableName, field, searchMap), generateValueList(searchMap));
     }
 
     /**
@@ -1623,7 +1616,7 @@ public class Neo extends AbstractBaseDb {
      * 通过表名和查询参数生成查询一行数据的sql
      */
     private Pair<String, List<List<Object>>> generateBatchInsertPair(String tableName, List<NeoMap> parameters) {
-        return new Pair<>(SqlBuilder.buildInsert(tableName, parameters.get(0)),
+        return new Pair<>(InsertSqlBuilder.build(tableName, parameters.get(0)),
             parameters.stream().map(r -> filterNonDbColumn(tableName, r)).map(this::generateValueList)
                 .collect(Collectors.toList()));
     }
@@ -1633,7 +1626,7 @@ public class Neo extends AbstractBaseDb {
      */
     private Pair<String, List<List<Object>>> generateBatchUpdatePair(String tableName,
         List<Pair<NeoMap, NeoMap>> pairList) {
-        return new Pair<>(SqlBuilder.buildUpdate(tableName, pairList.get(0).getKey(), pairList.get(0).getValue()),
+        return new Pair<>(UpdateSqlBuilder.build(tableName, pairList.get(0).getKey(), pairList.get(0).getValue()),
             pairList.stream().map(p -> NeoMap.values(p.getKey(), p.getValue())).collect(Collectors.toList()));
     }
 
@@ -1685,8 +1678,7 @@ public class Neo extends AbstractBaseDb {
     private NeoMap filterNonDbColumn(String tableName, NeoMap dataMap) {
         // key为列名，value为：key为列的数据库类型名字，value为列对应的java中的类型
         Map<String, Pair<String, Class<?>>> columnMap = getColumnList(tableName).stream()
-            .collect(
-                Collectors.toMap(NeoColumn::getColumnName, r -> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
+            .collect(Collectors.toMap(NeoColumn::getColumnName, r -> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
         NeoMap result = NeoMap.of();
         dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()) || e.getKey().equals(ORDER_BY))
             .forEach(r -> {
@@ -1694,9 +1686,7 @@ public class Neo extends AbstractBaseDb {
                 Object value = r.getValue();
                 if (!key.equals(ORDER_BY)) {
                     Pair<String, Class<?>> typeAndClass = columnMap.get(key);
-                    result
-                        .put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value),
-                            false);
+                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value),false);
                 } else {
                     result.put(key, value, false);
                 }

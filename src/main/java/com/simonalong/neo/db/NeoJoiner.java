@@ -6,7 +6,7 @@
 //import com.simonalong.neo.NeoMap;
 //import com.simonalong.neo.TableMap;
 //import com.simonalong.neo.sql.JoinType;
-//import com.simonalong.neo.sql.SqlBuilder;
+//import com.simonalong.neo.sql.builder.SqlBuilder;
 //import java.util.List;
 //import lombok.Getter;
 //

@@ -484,18 +484,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMap;
     }
 
-    /**
-     * 给所有的key设置前缀
-     *
-     * @param preFix 前缀
-     * @return 所有的key替换之后的NeoMap
-     */
-    public NeoMap setKeyPre(String preFix) {
-        NeoMap neoMap = NeoMap.of();
-        stream().forEach(e -> neoMap.put(preFix + e.getKey(), e.getValue()));
-        return neoMap;
-    }
-
     public <T> T as(Class<T> tClass, NamingChg namingChg) {
         this.setNamingChg(namingChg);
         return as(tClass);
