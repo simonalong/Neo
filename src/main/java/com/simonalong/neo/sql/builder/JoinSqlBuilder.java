@@ -5,8 +5,6 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoJoiner;
-import com.simonalong.neo.db.NeoTable;
-import com.simonalong.neo.sql.JoinType;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collections;
@@ -14,9 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.simonalong.neo.sql.JoinType.LEFT_JOIN_EXCEPT_INNER;
-import static com.simonalong.neo.sql.JoinType.OUTER_JOIN_EXCEPT_INNER;
-import static com.simonalong.neo.sql.JoinType.RIGHT_JOIN_EXCEPT_INNER;
+import static com.simonalong.neo.NeoConstant.ORDER_BY;
 
 /**
  * @author shizi
@@ -27,7 +23,7 @@ public class JoinSqlBuilder {
 
 
     public String build(Columns columns, NeoJoiner joiner, TableMap searchMap) {
-        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) +" where " + buildJoinCondition(searchMap);
+        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) +" where " + buildConditionWithWhere(searchMap);
     }
 
     /**
@@ -53,10 +49,13 @@ public class JoinSqlBuilder {
         return neoJoiner.getJoinSql();
     }
 
-    public String buildJoinCondition(TableMap tableMap) {
-        return buildWhereCondition(tableMap);
+    public String buildConditionWithWhere(TableMap tableMap) {
+        tableMap = tableMap.assignExceptKeys(ORDER_BY);
+        if (!TableMap.isEmpty(tableMap)) {
+            return " where " + buildWhereCondition(tableMap);
+        }
+        return "";
     }
-
 
     /**
      * 返回where后面的带有占位符的条件sql
@@ -80,13 +79,6 @@ public class JoinSqlBuilder {
             return SqlBuilder.buildConditionMeta(valueMap).stream().map(v->tableName + "." + v);
         }).collect(Collectors.toList());
     }
-
-
-
-
-
-
-
 
     /**
      * join的head 部分对应的sql，主要是选择的列
@@ -173,7 +165,7 @@ public class JoinSqlBuilder {
 //     * @param joinType join的类型
 //     * @return rightTableName.key is null 或者 leftTableName.key is null 或者 (leftTableName.key is null or rightTableName.key is null)
 //     */
-//    public String buildJoinCondition(Neo neo, String leftTableName, String rightTableName, JoinType joinType) {
+//    public String buildConditionWithWhere(Neo neo, String leftTableName, String rightTableName, JoinType joinType) {
 //        if (joinType.equals(LEFT_JOIN_EXCEPT_INNER)) {
 //            NeoTable table = neo.getTable(rightTableName);
 //            if (null != table) {

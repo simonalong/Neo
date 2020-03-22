@@ -35,7 +35,7 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group`, `user_name` from  where `id` =  ? and `name` =  ?
      */
     public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
-        return "select " + buildColumns(neo, tableName, columns) + " from " + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
+        return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
     }
 
     /**
@@ -98,9 +98,9 @@ public class SelectSqlBuilder {
      */
     public String buildColumns(Neo neo, String tableName, Columns columns) {
         if (!Columns.isEmpty(columns)) {
-            return columns.toString();
+            return columns.toSelectString();
         } else {
-            return Columns.of(neo).table(tableName).toString();
+            return Columns.of(neo).table(tableName).toSelectString();
         }
     }
 

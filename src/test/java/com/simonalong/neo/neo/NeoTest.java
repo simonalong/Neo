@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -49,7 +50,7 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testInsert2(){
+    public void testInsert2() {
         NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("user_name", "zhou", "group", "ok"));
         // {"user_name":"zhou","name":"","id":23,"group":"ok"}
         show(result);
@@ -100,31 +101,40 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testInsert6(){
+    public void testInsert6() {
+        String tableName = "neo_table4";
         Long time = new Date().getTime();
-        NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
-        NeoMap result = neo.insert("neo_table4", data);
-        show(result);
-        show(data);
+        Integer id = neo.value(tableName, Integer.class, "id", NeoMap.of("id", 111));
+        if (null != id) {
+            NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
+            NeoMap result = neo.insert(tableName, data);
+            show(result);
+            show(data);
+        } else {
+            show(neo.one(tableName, NeoMap.of("id", 111)));
+        }
     }
 
     /**
      * 测试异步的数据插入
      */
     @Test
+    @SneakyThrows
     public void testInsertAsync1(){
         CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, NeoMap.of("group", "ok"));
+        CountDownLatch latch = new CountDownLatch(1);
         future.thenAccept(r->{
-            sleep(5);
             show(r);
+            latch.countDown();
         });
-        sleep(10);
+        latch.await();
     }
 
     /******************************删除******************************/
     @Test
     @SneakyThrows
     public void testDelete1(){
+        neo.insert(TABLE_NAME, NeoMap.of("group", "ok"));
         show(neo.delete(TABLE_NAME, NeoMap.of("group", "ok")));
     }
 
@@ -135,29 +145,31 @@ public class NeoTest extends NeoBaseTest {
         input.setGroup("group1");
         input.setName("name1");
         input.setUserName("user_name1");
+        neo.insert(TABLE_NAME, input);
         show(neo.delete(TABLE_NAME, input));
     }
 
     @Test
     @SneakyThrows
     public void testDelete3(){
-        show(neo.delete(TABLE_NAME, 14L));
+        DemoEntity input = new DemoEntity();
+        DemoEntity result = neo.insert(TABLE_NAME, input);
+        show(neo.delete(TABLE_NAME, result));
     }
 
     /******************************修改******************************/
-    // todo chg
-//    @Test
-//    @SneakyThrows
-//    public void testUpdate0(){
-//        NeoMap dataMap = NeoMap.of("group", "ok2");
-//        NeoMap dataMap2 = neo.insert(TABLE_NAME, dataMap);
-//        show("insert 返回值：" + dataMap2.toInnerString());
-//        dataMap2.put("group", "ok3");
-//        show("update 入参：" + dataMap2);
-//        NeoMap dataMap3 = neo.update(TABLE_NAME, dataMap2);
-//        show("update 返回值：" + dataMap3);
-//        show("update 执行后入参：" + dataMap2);
-//    }
+    @Test
+    @SneakyThrows
+    public void testUpdate0(){
+        NeoMap dataMap = NeoMap.of("group", "ok2");
+        NeoMap dataMap2 = neo.insert(TABLE_NAME, dataMap);
+        show("insert 返回值：" + dataMap2.toString());
+        dataMap2.put("group", "ok3");
+        show("update 入参：" + dataMap2);
+        NeoMap dataMap3 = neo.update(TABLE_NAME, dataMap2);
+        show("update 返回值：" + dataMap3);
+        show("update 执行后入参：" + dataMap2);
+    }
 
     /**
      * 待设置的和搜索的都为neomap

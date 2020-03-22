@@ -1416,7 +1416,7 @@ public class Neo extends AbstractBaseDb {
                     monitor.calculate();
                 }
                 return result;
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 log.error(LOG_PRE + "sql=> " + sql);
                 throw new NeoException(e);
             }

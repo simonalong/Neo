@@ -698,6 +698,11 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return getNeoMap(tableName).assignExcept(keys);
     }
 
+    public TableMap assignExceptKeys(String... keys) {
+        entrySet().stream().map(e -> (NeoMap) e.getValue()).forEach(m -> m.assignExcept(keys));
+        return this;
+    }
+
     public TableMap append(String tableName, Map<String, ?> neoMap) {
         if (containsKey(tableName)) {
             getNeoMap(tableName).append(neoMap);
