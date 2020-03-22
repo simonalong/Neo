@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 
@@ -124,11 +125,11 @@ public interface DbSync extends SyncNeo{
     <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns);
 
 
-    NeoMap exeOne(String sql, Object... parameters);
+    TableMap exeOne(String sql, Object... parameters);
 
     <T> T exeOne(Class<T> tClass, String sql, Object... parameters);
 
-    List<NeoMap> exeList(String sql, Object... parameters);
+    List<TableMap> exeList(String sql, Object... parameters);
 
     <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters);
 
@@ -140,11 +141,11 @@ public interface DbSync extends SyncNeo{
 
     List<String> exeValues(String sql, Object... parameters);
 
-    List<NeoMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+    List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
 
-    List<NeoMap> exePage(String sql, NeoPage neoPage, Object... parameters);
+    List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters);
 
     Integer exeCount(String sql, Object... parameters);
 
-    List<List<NeoMap>> execute(String sql, Object... parameters);
+    List<List<TableMap>> execute(String sql, Object... parameters);
 }

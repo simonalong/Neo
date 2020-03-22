@@ -1,10 +1,8 @@
 package com.simonalong.neo;
 
-import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
-import com.simonalong.neo.annotation.Table;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
@@ -12,7 +10,9 @@ import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
@@ -207,7 +207,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     @SuppressWarnings("unchecked")
-    private static NeoMap from(Object object, NamingChg namingChg, List<String> inFieldList, List<String> exFieldList) {
+    public static NeoMap from(Object object, NamingChg namingChg, List<String> inFieldList, List<String> exFieldList) {
         NeoMap neoMap = NeoMap.of().setNamingChg(namingChg);
         if (null == object) {
             return neoMap;
@@ -243,7 +243,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return null：普通对象；文本：非普通对象
      */
     @SuppressWarnings("unchecked")
-    private static String valueCheck(Object value){
+    public static String valueCheck(Object value){
         Class vClass = value.getClass();
         if(vClass.isEnum()){
             return "对象是枚举类型";
@@ -285,7 +285,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
                     if (null != value) {
-                        neoMap.putIfAbsent(neoMap.namingChg(object.getClass(), f, false), value);
+                        neoMap.putIfAbsent(neoMap.namingChg(f, false), value);
                     }
                 } catch (IllegalAccessException e) {
                     throw new NeoException(e);
@@ -371,6 +371,14 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     public static boolean isEmpty(Collection<NeoMap> neoMaps) {
         return neoMaps == null || neoMaps.isEmpty() || neoMaps.stream().allMatch(Map::isEmpty);
+    }
+
+    public static boolean isUnEmpty(NeoMap neoMap) {
+        return !isEmpty(neoMap);
+    }
+
+    public static boolean isUnEmpty(Collection<NeoMap> neoMaps) {
+        return !isEmpty(neoMaps);
     }
 
     /**
@@ -509,32 +517,33 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         if (NeoMap.class.isAssignableFrom(tClass)) {
             return (T) this;
         }
-        T t = null;
+        T t;
         try {
-            t = tClass.newInstance();
+            Constructor<T> constructor = tClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            t = constructor.newInstance();
             Field[] fields = tClass.getDeclaredFields();
             if (fields.length != 0) {
-                T finalT = t;
                 Stream.of(fields).forEach(f -> {
                     f.setAccessible(true);
                     try {
-                        Object value = getValue(tClass, f);
+                        Object value = getValue(f);
                         if (null != value) {
-                            f.set(finalT, value);
+                            f.set(t, value);
                         }
                     } catch (IllegalAccessException e) {
                         throw new NeoException(e);
                     }
                 });
             }
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new NeoException(e);
         }
         return t;
     }
 
-    private Object getValue(Class<?> tClass, Field field) {
-        String key = namingChg(tClass, field, true);
+    private Object getValue(Field field) {
+        String key = namingChg(field, true);
         Object value = toEntityValue(field, key);
 
         Class<?> fieldClass = field.getType();
@@ -640,6 +649,29 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     public Stream<Object> valueStream() {
         return dataMap.values().stream();
+    }
+
+    /**
+     * 获取第一个value
+     *
+     * <p>
+     * 在不知道key情况下获取一个值
+     * @return value
+     */
+    public Object getFirst() {
+        Entry<String, Object> entry = dataMap.entrySet().stream().findFirst().orElse(null);
+        if (null != entry) {
+            return entry.getValue();
+        }
+        return null;
+    }
+
+    public <T> T getFirst(Class<T> tClass) {
+        Object object = getFirst();
+        if (null != object) {
+            return ObjectUtil.cast(tClass, null);
+        }
+        return null;
     }
 
     /**
@@ -801,25 +833,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      *     <li>1.当前的类的属性有指定注解{@link Column}的，则按照该注解中的属性对应，否则走下面</li>
      *     <li>2.如果指定了本次转换规则，则按照本次转换，否则按照全局小驼峰下划线转换</li>
      * </ul>
-     * @param tClass 目标类
      * @param field 对应属性的key
      * @param checkContain 是否关心当前的key在map中存在
      * @return 转换后的属性名
      */
-    private String namingChg(Class<?> tClass, Field field, Boolean checkContain) {
+    private String namingChg(Field field, Boolean checkContain) {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (null != column) {
             String columnName = column.value();
             if (checkContain) {
-                // todo 看下tableMap是否需要
-//                String tableName = column.table();
-//                if (tableName.equals(DEFAULT_TABLE)) {
-//                    Table table = tClass.getDeclaredAnnotation(Table.class);
-//                    if(null != table){
-//                        tableName = table.value();
-//                        // todo
-//                    }
-//                }
                 if (containsKey(columnName)) {
                     return columnName;
                 }

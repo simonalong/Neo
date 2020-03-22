@@ -6,6 +6,7 @@ import static com.simonalong.neo.sql.JoinType.*;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.db.NeoTable;
 import java.util.ArrayList;
@@ -402,6 +403,16 @@ public class SqlBuilder {
             }
             return v;
         }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    public List<Object> buildValueList(TableMap searchMap) {
+        if (TableMap.isEmpty(searchMap)) {
+            return Collections.emptyList();
+        }
+
+        String orderByStr = "order by";
+        // todo
+        return null;
     }
 
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){

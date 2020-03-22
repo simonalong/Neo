@@ -30,5 +30,5 @@ public @interface Column {
      *    如果{@link Table}中也设置了，则会覆盖其中的名字
      * @return 对应表的别名
      */
-    String table() default DEFAULT_TABLE;
+    String table() default "";
 }

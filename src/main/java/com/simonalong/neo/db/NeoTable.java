@@ -68,85 +68,85 @@ public class NeoTable extends AbstractBaseTable {
         return this.tableName;
     }
 
-    /**
-     * 默认的join采用的是innerJoin
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner join(String rightTableName){
-        return neo.innerJoin(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner leftJoin(String rightTableName){
-        return neo.leftJoin(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner rightJoin(String rightTableName){
-        return neo.rightJoin(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner innerJoin(String rightTableName){
-        return neo.innerJoin(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner outerJoin(String rightTableName){
-        return neo.outerJoin(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner leftJoinExceptInner(String rightTableName){
-        return neo.leftJoinExceptInner(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner rightJoinExceptInner(String rightTableName){
-        return neo.rightJoinExceptInner(tableName, rightTableName);
-    }
-
-    /**
-     * 左关联，只保留左表的信息
-     *
-     * @param rightTableName 右表表名
-     * @return 做关联的关联器
-     */
-    public NeoJoiner outerJoinExceptInner(String rightTableName){
-        return neo.outerJoinExceptInner(tableName, rightTableName);
-    }
+//    /**
+//     * 默认的join采用的是innerJoin
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner join(String rightTableName){
+//        return neo.innerJoin(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner leftJoin(String rightTableName){
+//        return neo.leftJoin(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner rightJoin(String rightTableName){
+//        return neo.rightJoin(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner innerJoin(String rightTableName){
+//        return neo.innerJoin(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner outerJoin(String rightTableName){
+//        return neo.outerJoin(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner leftJoinExceptInner(String rightTableName){
+//        return neo.leftJoinExceptInner(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner rightJoinExceptInner(String rightTableName){
+//        return neo.rightJoinExceptInner(tableName, rightTableName);
+//    }
+//
+//    /**
+//     * 左关联，只保留左表的信息
+//     *
+//     * @param rightTableName 右表表名
+//     * @return 做关联的关联器
+//     */
+//    public NeoJoiner outerJoinExceptInner(String rightTableName){
+//        return neo.outerJoinExceptInner(tableName, rightTableName);
+//    }
 
 
     public void initIndex(ResultSet resultSet){

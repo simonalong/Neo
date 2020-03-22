@@ -20,5 +20,5 @@ public @interface Table {
      *     如果{@link Column}中设置了tableName，则会覆盖该名字
      * @return 表的列名
      */
-    String value() default DEFAULT_TABLE;
+    String value() default "";
 }

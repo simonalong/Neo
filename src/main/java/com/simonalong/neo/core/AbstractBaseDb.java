@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -259,7 +260,7 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     }
 
     @Override
-    public CompletableFuture<NeoMap> exeOneAsync(String sql, Executor executor, Object... parameters){
+    public CompletableFuture<TableMap> exeOneAsync(String sql, Executor executor, Object... parameters){
         return CompletableFuture.supplyAsync(() -> exeOne(sql, parameters), executor);
     }
 
@@ -269,7 +270,7 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exeListAsync(String sql, Executor executor, Object... parameters){
+    public CompletableFuture<List<TableMap>> exeListAsync(String sql, Executor executor, Object... parameters){
         return CompletableFuture.supplyAsync(() -> exeList(sql, parameters), executor);
     }
 
@@ -299,12 +300,12 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters){
+    public CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters){
         return CompletableFuture.supplyAsync(() -> exePage(sql, startIndex, pageSize, parameters), executor);
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters){
+    public CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters){
         return CompletableFuture.supplyAsync(() -> exePage(sql, neoPage, parameters), executor);
     }
 
@@ -314,7 +315,7 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     }
 
     @Override
-    public CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Executor executor, Object... parameters){
+    public CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Executor executor, Object... parameters){
         return CompletableFuture.supplyAsync(() -> execute(sql, parameters), executor);
     }
 }

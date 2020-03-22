@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -212,18 +213,18 @@ public interface DbAsync extends AsyncNeo {
     <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, Executor executor);
 
 
-    CompletableFuture<NeoMap> exeOneAsync(String sql, Executor executor, Object... parameters);
+    CompletableFuture<TableMap> exeOneAsync(String sql, Executor executor, Object... parameters);
 
-    CompletableFuture<NeoMap> exeOneAsync(String sql, Object... parameters);
+    CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters);
 
     <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
 
     <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters);
 
 
-    CompletableFuture<List<NeoMap>> exeListAsync(String sql, Executor executor, Object... parameters);
+    CompletableFuture<List<TableMap>> exeListAsync(String sql, Executor executor, Object... parameters);
 
-    CompletableFuture<List<NeoMap>> exeListAsync(String sql, Object... parameters);
+    CompletableFuture<List<TableMap>> exeListAsync(String sql, Object... parameters);
 
     <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Executor executor, Object... parameters);
 
@@ -248,13 +249,13 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters);
 
 
-    CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters);
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters);
 
-    CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
 
-    CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters);
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters);
 
-    CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
 
 
     CompletableFuture<Integer> exeCountAsync(String sql, Executor executor, Object... parameters);
@@ -262,7 +263,7 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters);
 
 
-    CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Executor executor, Object... parameters);
+    CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Executor executor, Object... parameters);
 
-    CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Object... parameters);
+    CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Object... parameters);
 }
