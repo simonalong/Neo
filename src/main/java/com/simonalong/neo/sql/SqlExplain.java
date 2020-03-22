@@ -2,6 +2,7 @@ package com.simonalong.neo.sql;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.util.EncryptUtil;
 import java.math.BigInteger;
 import java.util.List;
@@ -74,11 +75,11 @@ public final class SqlExplain {
         neo.setStandardFlag(false);
 
         Explain explain = null;
-        List<List<NeoMap>> explainList = neo.execute("explain " + sql, parameters.toArray());
+        List<List<TableMap>> explainList = neo.execute("explain " + sql, parameters.toArray());
         if (null != explainList && !explainList.isEmpty()) {
-            List<NeoMap> mExplain = explainList.get(0);
+            List<TableMap> mExplain = explainList.get(0);
             if (null != mExplain && !mExplain.isEmpty()) {
-                explain = Explain.parse(mExplain.get(0));
+                explain = Explain.parse(mExplain.get(0).getFirst());
             }
         }
 

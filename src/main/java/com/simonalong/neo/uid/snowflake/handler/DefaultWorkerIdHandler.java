@@ -2,6 +2,7 @@ package com.simonalong.neo.uid.snowflake.handler;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.uid.snowflake.entity.UuidGeneratorDO;
 import com.simonalong.neo.uid.snowflake.exception.WorkerIdFullException;
 import lombok.extern.slf4j.Slf4j;
@@ -165,7 +166,11 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
         }
 
         return neo.tx(() -> {
-            NeoMap selectOne = neo.exeOne("select id, work_id, last_expire_time from %s where id = ? for update", UUID_TABLE, minId);
+            TableMap result = neo.exeOne("select id, work_id, last_expire_time from %s where id = ? for update", UUID_TABLE, minId);
+            if (null == result) {
+                return false;
+            }
+            NeoMap selectOne = result.getNeoMap(UUID_TABLE);
             if (null != selectOne && selectOne.get(Date.class, "last_expire_time").compareTo(new Date()) < 0) {
                 uuidGeneratorDO = neo.update(UUID_TABLE, generateUuidGeneratorDo(selectOne.getLong("id"), selectOne.getInteger("work_id")));
                 return true;

@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -223,7 +224,7 @@ public abstract class AbstractDbAsync implements DbAsync {
 
 
     @Override
-    public CompletableFuture<NeoMap> exeOneAsync(String sql, Object... parameters) {
+    public CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters) {
         return exeOneAsync(sql, getExecutor(), parameters);
     }
 
@@ -233,7 +234,7 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exeListAsync(String sql, Object... parameters) {
+    public CompletableFuture<List<TableMap>> exeListAsync(String sql, Object... parameters) {
         return exeListAsync(sql, getExecutor(), parameters);
     }
 
@@ -263,13 +264,13 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize,
+    public CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize,
         Object... parameters) {
         return exePageAsync(sql, startIndex, pageSize, getExecutor(), parameters);
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters) {
+    public CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters) {
         return exePageAsync(sql, neoPage, getExecutor(), parameters);
     }
 
@@ -279,7 +280,7 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<List<NeoMap>>> executeAsync(String sql, Object... parameters) {
+    public CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Object... parameters) {
         return executeAsync(sql, getExecutor(), parameters);
     }
 

@@ -100,6 +100,7 @@ public class NeoMapTest extends BaseTest {
         expect.setName("name1");
         expect.setUserName("userName1");
         Assert.assertEquals(expect, neoMapAsEntity);
+        NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
     }
 
     /**
@@ -606,8 +607,8 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void getNeoMapTest2() {
         NeoMapGetNeoMapEntity demoEntity = new NeoMapGetNeoMapEntity().setName("name").setAge(12).setUserName("user");
-        NeoMap data = NeoMap.of("a", NeoMap.of("name", "name", "id", 12L, "userName", "user"));
-        Assert.assertEquals(demoEntity, data.get(DemoEntity.class, "a"));
+        NeoMap data = NeoMap.of("a", NeoMap.of("name", "name", "age", 12L, "userName", "user"));
+        Assert.assertEquals(demoEntity, data.get(NeoMapGetNeoMapEntity.class, "a"));
     }
 
     /**
@@ -644,12 +645,12 @@ public class NeoMapTest extends BaseTest {
      */
     @Test
     public void keyChgToOtherTest(){
-        NeoMap neoMap1 = NeoMap.of("dataBaseUser", "a", "userName", "b");
-        NeoMap neoMap2 = NeoMap.of("data_user_base", "a", "user_name", "b");
+        NeoMap neoMap = NeoMap.of("dataBaseUser", "a", "userName", "b");
 
-        NeoMap expect = NeoMap.of("DataBaseUser", "a", "UserName", "b");
-        Assert.assertEquals(expect, neoMap1.keyChgFromSmallCamelTo(NamingChg.BIGCAMEL));
-        Assert.assertEquals(expect, neoMap2.keyChgFromSmallCamelTo(NamingChg.UNDERLINE));
+        NeoMap expect1 = NeoMap.of("DataBaseUser", "a", "UserName", "b");
+        NeoMap expect2 = NeoMap.of("data_base_user", "a", "user_name", "b");
+        Assert.assertEquals(expect1, neoMap.keyChgFromSmallCamelTo(NamingChg.BIGCAMEL));
+        Assert.assertEquals(expect2, neoMap.keyChgFromSmallCamelTo(NamingChg.UNDERLINE));
     }
 
 

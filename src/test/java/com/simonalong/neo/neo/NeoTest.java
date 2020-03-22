@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -336,7 +337,7 @@ public class NeoTest extends NeoBaseTest {
 
     @Test
     public void testExecute6(){
-        NeoMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
+        TableMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
         show("****");
         show(sql.get("Create Table"));
     }
