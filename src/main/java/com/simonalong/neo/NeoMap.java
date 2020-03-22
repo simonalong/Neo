@@ -8,6 +8,7 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
+import com.simonalong.neo.util.ClassUtil;
 import com.simonalong.neo.util.ObjectUtil;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -38,8 +40,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private ConcurrentSkipListMap<String, Object> dataMap = new ConcurrentSkipListMap<>();
     /**
-     * 全局的命名转换，默认不转换
+     * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
      */
+    @Getter
+    @Setter
     private static NamingChg globalNaming = NamingChg.DEFAULT;
     /**
      * 本次的默认转换规则
@@ -47,15 +51,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Setter
     @Accessors(chain = true)
     private NamingChg namingChg = NamingChg.DEFAULT;
-
-    /**
-     * 设置全局名称转换字符，请注意，该转换会对所有NeoMap生效
-     *
-     * @param namingChg 转换类型
-     */
-    public static void setDefaultNamingChg(NamingChg namingChg) {
-        globalNaming = namingChg;
-    }
 
     /**
      * 通过key-value-key-value生成
@@ -148,7 +143,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         if (Columns.isEmpty(columns)) {
             return from(object, namingChg);
         }
-        return from(object, namingChg, new ArrayList<>(columns.getFieldSets()), new ArrayList<>());
+        return from(object, namingChg, new ArrayList<>(columns.getMetaFieldSets()), new ArrayList<>());
     }
 
     /**
@@ -245,12 +240,17 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @SuppressWarnings("unchecked")
     public static String valueCheck(Object value){
         Class vClass = value.getClass();
-        if(vClass.isEnum()){
+
+        if (vClass.isEnum()) {
             return "对象是枚举类型";
         }
 
-        if(vClass.isArray()){
+        if (vClass.isArray()) {
             return "对象是数组类型";
+        }
+
+        if (ClassUtil.isBaseField(vClass)) {
+            return "对象是基本类型";
         }
 
         if (Collection.class.isAssignableFrom(vClass)) {

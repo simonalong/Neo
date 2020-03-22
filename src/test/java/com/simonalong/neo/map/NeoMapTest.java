@@ -4,23 +4,20 @@ import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.entity.DemoEntity;
-import com.simonalong.neo.entity.DemoEntity2;
 import com.simonalong.neo.entity.EnumEntity;
-import com.simonalong.neo.entity.TestEntity;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import com.simonalong.neo.exception.NeoMapChgException;
+import com.simonalong.neo.map.table.NeoMapEnum;
 import com.simonalong.neo.util.Maps;
-import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -91,7 +88,7 @@ public class NeoMapTest extends BaseTest {
      */
     @Test
     public void testAs2() {
-        NeoMap.setDefaultNamingChg(NamingChg.MIDDLELINE);
+        NeoMap.setGlobalNaming(NamingChg.MIDDLELINE);
         // 注意其中有个属性是为中划线的
         NeoMap neoMap = NeoMap.of("name", "name1", "user-name", "userName1");
         NeoMapAsEntity neoMapAsEntity = neoMap.as(NeoMapAsEntity.class);
@@ -100,7 +97,7 @@ public class NeoMapTest extends BaseTest {
         expect.setName("name1");
         expect.setUserName("userName1");
         Assert.assertEquals(expect, neoMapAsEntity);
-        NeoMap.setDefaultNamingChg(NamingChg.DEFAULT);
+        NeoMap.setGlobalNaming(NamingChg.DEFAULT);
     }
 
     /**
@@ -293,6 +290,26 @@ public class NeoMapTest extends BaseTest {
         expect.setName("name1");
         expect.setAge(12);
         Assert.assertEquals(expect, neoMap.as(NeoMapFromEntity.class));
+    }
+
+    /**
+     * 测试：from：基本类型转换失败
+     */
+    @Test(expected = NeoMapChgException.class)
+    public void testFrom4_1(){
+        NeoMap neoMap = NeoMap.from(1);
+        // {"name":"name","userName":"username1"}
+        show(neoMap);
+    }
+
+    /**
+     * 测试：from：基本类型转换失败
+     */
+    @Test(expected = NeoMapChgException.class)
+    public void testFrom4_2(){
+        NeoMap neoMap = NeoMap.from(NeoMapEnum.TEST1);
+        // {"name":"name","userName":"username1"}
+        show(neoMap);
     }
 
     /**
@@ -714,7 +731,7 @@ public class NeoMapTest extends BaseTest {
     }
 
     @Test
-    public void putTest(){
+    public void appendTest(){
         Date now = new Date();
         NeoMap neoMap = NeoMap.of().append("t", now);
 
@@ -820,7 +837,7 @@ public class NeoMapTest extends BaseTest {
      */
     @Test
     public void dbToJavaStrTest1() {
-        NeoMap.setDefaultNamingChg(NamingChg.UNDERLINE);
+        NeoMap.setGlobalNaming(NamingChg.UNDERLINE);
         // dataUser
         show(NeoMap.dbToJavaStr("data_user"));
     }
