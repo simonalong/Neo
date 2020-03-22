@@ -188,7 +188,41 @@ public class SqlBuilder {
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    /**
+     * 将对应的值进行拼接
+     * <p>
+     *     数值有两种情况：
+     *     <ul>
+     *         <li>1. like xx这种值要单独解析出来</li>
+     *         <li>2. >= xx这种符号的值也要解析出来</li>
+     *     </ul>
+     * @param searchMap 条件map
+     * @param entry 不是order by这样的数据
+     * @return 条件元数据：比如：a=? 或者 a >= ? 或者 a like xxx%
+     */
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
+        Object value = entry.getValue();
+        String key = toDbField(entry.getKey());
+        if (value instanceof String) {
+            String valueStr = String.class.cast(value);
+
+            // 处理模糊搜索，like
+            if (valueStr.startsWith(LIKE_PRE)) {
+                return key + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "'" + getLikeValue(valueStr) + "'");
+            }
+
+            // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
+            if (haveThanPre(valueStr)) {
+                Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
+                searchMap.put(entry.getKey(), symbolAndValue.getValue().trim());
+                return key + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+            }
+            return key + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+        }
+        return key + " = " + ((withValueFlag.get() ? value : " ?"));
+    }
+
+    private String valueFix(TableMap searchMap, Entry<String, Object> entry){
         Object value = entry.getValue();
         String key = toDbField(entry.getKey());
         if (value instanceof String) {
@@ -213,7 +247,7 @@ public class SqlBuilder {
     /**
      * 搜索的数据是否有比较类型的前缀
      */
-    private boolean haveThanPre(String value){
+    public boolean haveThanPre(String value){
         if (null == value || "".equals(value)) {
             return false;
         }
@@ -240,7 +274,7 @@ public class SqlBuilder {
      * @return key为比较符，value为字符数据
      */
     @SuppressWarnings("all")
-    private Pair<String, String> getSymbolAndValue(String valueStr) {
+    public Pair<String, String> getSymbolAndValue(String valueStr) {
         valueStr = valueStr.trim();
         if (valueStr.startsWith(">")) {
             if (valueStr.startsWith(">=")) {

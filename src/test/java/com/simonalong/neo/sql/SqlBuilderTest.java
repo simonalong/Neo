@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.sql.builder.InsertSqlBuilder;
 import com.simonalong.neo.sql.builder.SelectSqlBuilder;
 import com.simonalong.neo.sql.builder.SqlBuilder;
@@ -129,8 +130,6 @@ public class SqlBuilderTest extends NeoBaseTest {
         // [`age` > ?, `group` =  ?, `name` like 'haode%']
         show(SqlBuilder.buildConditionMeta(neoMap));
     }
-
-
 
 
 }

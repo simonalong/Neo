@@ -209,6 +209,10 @@ public final class Columns {
      */
     @Override
     public String toString() {
+        return tableFieldsMap.toString();
+    }
+
+    public String toSelectString(){
         return String.join(", ", tableFieldsMap.values().stream()
             .flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
     }

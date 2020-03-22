@@ -1,6 +1,11 @@
 package com.simonalong.neo.neo.join;
 
+import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.TableMap;
+import com.simonalong.neo.db.NeoJoiner;
+import com.simonalong.neo.sql.builder.JoinSqlBuilder;
+import org.junit.Test;
 
 import java.sql.SQLException;
 
@@ -52,17 +57,39 @@ public class NeoJoinTest extends NeoBaseTest {
     /**
      * 比较复杂的例子
      */
-//    @Test
-//    public void joinOneTest1_1(){
-//        String table1 = "neo_table1";
-//        String table2 = "neo_table2";
-//        neo.exeOne(
-//            "select % % where % order by neo_table1.`sort` desc",
-//            SqlBuilder.buildColumns(Columns.of().table(table1, "id", "name").table(table2, "id")),
-//            SqlBuilder.buildJoin(Joinner.of().join().on().join().on()),
-//            SqlBuilder.buildJoinCondition(TableMap.of().append(table1, "name", "group").append(table2, "age", 12))
-//        );
-//    }
+    @Test
+    public void joinOneTest1_1(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String table3 = "neo_table3";
+
+        // 生成多个表的展示字段
+        Columns columns = Columns.of(neo);
+        columns.table(table1, "id", "name");
+        columns.table(table2, "id");
+
+        // 多表的join关系
+        NeoJoiner joinner = new NeoJoiner(neo, table1);
+        joinner.leftJoin(table1, table2).on("id", "a_id");
+        joinner.leftJoin(table1, table2).on("id", "a_id");
+        joinner.rightJoin(table2, table3).on("id", "b_id");
+
+        // 多表的搜索条件
+        TableMap searchMap = TableMap.of();
+        searchMap.put(table1, "name", "group");
+        searchMap.put(table2, "age", 12);
+        searchMap.put(table2, "order by", "name desc");
+        searchMap.put(table1, "order by", "group asc");
+
+        neo.exeOne(
+            "select % % where % order by neo_table1.`sort` desc",
+            JoinSqlBuilder.buildColumns(columns),
+            JoinSqlBuilder.buildJoinOn(joinner),
+            JoinSqlBuilder.buildJoinCondition(searchMap)
+        );
+    }
+
+
 //
 //    /**
 //     * join 采用的是innerJoin
