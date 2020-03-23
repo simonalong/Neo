@@ -1,17 +1,16 @@
-package com.simonalong.neo.uid.snowflake.allocator;
-
+package com.simonalong.neo.uid.allocator;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.uid.snowflake.TimeAdjuster;
-import com.simonalong.neo.uid.snowflake.entity.PaddedLong;
-import com.simonalong.neo.uid.snowflake.exception.SnowflakeException;
-import com.simonalong.neo.uid.snowflake.handler.DefaultWorkerIdHandler;
-import com.simonalong.neo.uid.snowflake.handler.WorkerIdHandler;
+import com.simonalong.neo.uid.TimeAdjuster;
+import com.simonalong.neo.uid.entity.PaddedLong;
+import com.simonalong.neo.exception.UuidException;
+import com.simonalong.neo.uid.handler.DefaultWorkerIdHandler;
+import com.simonalong.neo.uid.handler.WorkerIdHandler;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.SEQ_MARK;
+import static com.simonalong.neo.uid.UuidConstant.SEQ_MARK;
 
 /**
  * @author shizi
@@ -91,7 +90,7 @@ public class DefaultBitAllocator implements BitAllocator {
         }
         long now = System.currentTimeMillis();
         if (now >= lastExpireTime) {
-            throw new SnowflakeException("数据库链接崩溃，超过最大过期时间");
+            throw new UuidException("数据库链接崩溃，超过最大过期时间");
         }
     }
 
@@ -100,7 +99,7 @@ public class DefaultBitAllocator implements BitAllocator {
      */
     private void check(String namespace) {
         if (!workerIdHandlerMap.containsKey(namespace)) {
-            throw new SnowflakeException("命名空间" + namespace + "不存在");
+            throw new UuidException("命名空间" + namespace + "不存在");
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.simonalong.neo.uid.snowflake.exception;
+package com.simonalong.neo.uid.exception;
 
 import com.simonalong.neo.exception.NeoException;
 

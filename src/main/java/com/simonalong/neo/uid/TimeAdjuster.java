@@ -1,12 +1,12 @@
-package com.simonalong.neo.uid.snowflake;
+package com.simonalong.neo.uid;
 
-import com.simonalong.neo.uid.snowflake.entity.PaddedLong;
-import com.simonalong.neo.uid.snowflake.exception.SnowflakeException;
+import com.simonalong.neo.uid.entity.PaddedLong;
+import com.simonalong.neo.exception.UuidException;
 import lombok.experimental.UtilityClass;
 
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.DELAY_THREAD_HOLD;
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.START_TIME;
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.TIME_BACK;
+import static com.simonalong.neo.uid.UuidConstant.DELAY_THREAD_HOLD;
+import static com.simonalong.neo.uid.UuidConstant.START_TIME;
+import static com.simonalong.neo.uid.UuidConstant.TIME_BACK;
 
 /**
  * 时间调整工具
@@ -43,13 +43,13 @@ public class TimeAdjuster {
                     //时间偏差大于门限值，则等待两倍
                     Thread.sleep(offset << 1);
                     if (currentUsedTime > System.currentTimeMillis()) {
-                        throw new SnowflakeException("回拨补偿尝试失败");
+                        throw new UuidException("回拨补偿尝试失败");
                     }
                 } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
                 }
             } else {
-                throw new SnowflakeException("回拨时间过大");
+                throw new UuidException("回拨时间过大");
             }
         }
     }
@@ -59,7 +59,7 @@ public class TimeAdjuster {
      */
     public long getRelativeTime(long currentTime) {
         if (currentTime <= START_TIME) {
-            throw new SnowflakeException("回拨时间超过2019-11-9 0.0.0.000");
+            throw new UuidException("回拨时间超过2019-11-9 0.0.0.000");
         }
         return currentTime - START_TIME;
     }

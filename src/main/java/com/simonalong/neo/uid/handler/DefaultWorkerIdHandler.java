@@ -1,10 +1,10 @@
-package com.simonalong.neo.uid.snowflake.handler;
+package com.simonalong.neo.uid.handler;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.uid.snowflake.entity.UuidGeneratorDO;
-import com.simonalong.neo.uid.snowflake.exception.WorkerIdFullException;
+import com.simonalong.neo.uid.entity.UuidGeneratorDO;
+import com.simonalong.neo.uid.exception.WorkerIdFullException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.management.ManagementFactory;
@@ -18,10 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.simonalong.neo.NeoConstant.LOG_PRE;
-import static com.simonalong.neo.uid.UidConstant.UUID_TABLE;
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.HEART_INTERVAL_TIME;
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.KEEP_EXPIRE_TIME;
-import static com.simonalong.neo.uid.snowflake.SnowflakeConstant.WORKER_MAX_SIZE;
+import static com.simonalong.neo.uid.UuidConstant.*;
 
 /**
  * @author shizi
@@ -122,7 +119,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info(LOG_PRE + "进程即将退出，清理本次启动申请的db资源");
-//            neo.delete(UUID_TABLE, uuidGeneratorDO.getId());
+            neo.delete(UUID_TABLE, uuidGeneratorDO.getId());
             if (null != scheduler) {
                 scheduler.shutdown();
             }

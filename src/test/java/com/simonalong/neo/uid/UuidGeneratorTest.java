@@ -28,30 +28,24 @@ public class UuidGeneratorTest extends UuidBaseTest {
         }
     });
 
-    @Test
-    public void generateTest1() {
-        UuidGenerator generator = UuidGenerator.getInstance(neo);
-        generator.addNamespaces("test1", "test2");
-        show(parseUid(generator.getUUid("test1")));
-        show(parseUid(generator.getUUid("test1")));
-        show(parseUid(generator.getUUid("test2")));
-        show(parseUid(generator.getUUid("test2")));
-        show(parseUid(generator.getUUid("test2")));
-        show(parseUid(generator.getUUid("test2")));
-        show(parseUid(generator.getUUid("test2")));
-        show(parseUid(generator.getUUid("test2")));
-    }
-
     /**
      * 基本测试
      */
     @Test
-    public void test1() {
+    public void generateTest1() {
         UuidGenerator generator = UuidGenerator.getInstance(neo);
-        generator.addNamespaces("biz0");
-        show(parseUid(generator.getUUid("biz0")));
-        show(parseUid(generator.getUUid("biz0")));
-        show(parseUid(generator.getUUid("biz0")));
+        generator.addNamespaces("test1", "test2");
+        show(generator.getUUid("test1"));
+
+        // 添加解析，查看生成的
+        show(parseUid(generator.getUUid("test1")));
+        show(parseUid(generator.getUUid("test1")));
+        show(parseUid(generator.getUUid("test2")));
+        show(parseUid(generator.getUUid("test2")));
+        show(parseUid(generator.getUUid("test2")));
+        show(parseUid(generator.getUUid("test2")));
+        show(parseUid(generator.getUUid("test2")));
+        show(parseUid(generator.getUUid("test2")));
     }
 
     /**
@@ -127,16 +121,16 @@ public class UuidGeneratorTest extends UuidBaseTest {
             Thread.sleep(1000);
         }
 
-        //biz=biz0, qps = 51.28994204236549单位（w/s）
-        //biz=biz0, qps = 53.960716598316424单位（w/s）
-        //biz=biz0, qps = 53.96654074473826单位（w/s）
-        //biz=biz0, qps = 53.96654074473826单位（w/s）
-        //biz=biz0, qps = 53.963628514381305单位（w/s）
-        //biz=biz0, qps = 53.98110661268556单位（w/s）
-        //biz=biz0, qps = 53.963628514381305单位（w/s）
+        //biz=biz0, qps = 51.956149010235364单位（w/s）
+        //biz=biz0, qps = 53.98402072986396单位（w/s）
+        //biz=biz0, qps = 53.97527932207049单位（w/s）
+        //biz=biz0, qps = 53.972366148531954单位（w/s）
+        //biz=biz0, qps = 53.97527932207049单位（w/s）
         //biz=biz0, qps = 53.978192810104716单位（w/s）
         //biz=biz0, qps = 53.97527932207049单位（w/s）
-        //biz=biz0, qps = 53.96654074473826单位（w/s）
+        //biz=biz0, qps = 53.97527932207049单位（w/s）
+        //biz=biz0, qps = 53.972366148531954单位（w/s）
+        //biz=biz0, qps = 53.98402072986396单位（w/s）
     }
 
     /**
@@ -146,7 +140,7 @@ public class UuidGeneratorTest extends UuidBaseTest {
     @SneakyThrows
     public void testQps4() {
         UuidGenerator generator = UuidGenerator.getInstance(neo);
-        generator.addNamespaces("biz0");
+        generator.addNamespaces("biz0", "biz1");
         int count = 10;
         int callNum = 10;
         int concurrentNum = 100;
@@ -157,27 +151,27 @@ public class UuidGeneratorTest extends UuidBaseTest {
             Thread.sleep(1000);
         }
 
-        //biz=biz0, qps = 7.6923076923076925单位（w/s）
-        //biz=biz0, qps = 121.0单位（w/s）
-        //biz=biz0, qps = 179.375单位（w/s）
-        //biz=biz0, qps = 523.939393939394单位（w/s）
-        //biz=biz0, qps = 686.2295081967213单位（w/s）
-        //biz=biz0, qps = 1021.5116279069767单位（w/s）
-        //biz=biz0, qps = 1297.34375单位（w/s）
-        //biz=biz0, qps = 68.85904444972665单位（w/s）
-        //biz=biz0, qps = 58.99017535132446单位（w/s）
-        //biz=biz0, qps = 56.42278287461774单位（w/s）
+        //biz=biz0, qps = 1.492537313432836单位（w/s）
+        //biz=biz0, qps = 20.862068965517242单位（w/s）
+        //biz=biz0, qps = 119.58333333333333单位（w/s）
+        //biz=biz0, qps = 402.09302325581393单位（w/s）
+        //biz=biz0, qps = 581.3888888888889单位（w/s）
+        //biz=biz0, qps = 660.5263157894736单位（w/s）
+        //biz=biz0, qps = 751.4027149321267单位（w/s）
+        //biz=biz0, qps = 85.83407407407407单位（w/s）
+        //biz=biz0, qps = 60.890885750962774单位（w/s）
+        //biz=biz0, qps = 57.79700837966951单位（w/s）
 
-        //biz=biz1, qps = 14.285714285714286单位（w/s）
-        //biz=biz1, qps = 110.0单位（w/s）
-        //biz=biz1, qps = 574.0单位（w/s）
-        //biz=biz1, qps = 864.5单位（w/s）
-        //biz=biz1, qps = 890.6382978723404单位（w/s）
-        //biz=biz1, qps = 1220.138888888889单位（w/s）
-        //biz=biz1, qps = 1277.3846153846155单位（w/s）
-        //biz=biz1, qps = 1334.9769585253457单位（w/s）
-        //biz=biz1, qps = 1437.3939393939395单位（w/s）
-        //biz=biz1, qps = 1543.9539748953976单位（w/s）
+        //biz=biz1, qps = 5.882352941176471单位（w/s）
+        //biz=biz1, qps = 21.228070175438596单位（w/s）
+        //biz=biz1, qps = 260.90909090909093单位（w/s）
+        //biz=biz1, qps = 367.8723404255319单位（w/s）
+        //biz=biz1, qps = 709.4915254237288单位（w/s）
+        //biz=biz1, qps = 574.1830065359477单位（w/s）
+        //biz=biz1, qps = 646.147859922179单位（w/s）
+        //biz=biz1, qps = 616.3617021276596单位（w/s）
+        //biz=biz1, qps = 738.8473520249221单位（w/s）
+        //biz=biz1, qps = 775.2205882352941单位（w/s）
     }
 
     /**

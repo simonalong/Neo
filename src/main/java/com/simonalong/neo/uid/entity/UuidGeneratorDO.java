@@ -1,6 +1,4 @@
-package com.simonalong.neo.uid.snowflake.entity;
-
-import java.sql.Timestamp;
+package com.simonalong.neo.uid.entity;
 
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.annotation.Table;

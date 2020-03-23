@@ -1,4 +1,4 @@
-package com.simonalong.neo.uid.snowflake.allocator;
+package com.simonalong.neo.uid.allocator;
 
 /**
  * 序列中的bit对应的值的分配器
