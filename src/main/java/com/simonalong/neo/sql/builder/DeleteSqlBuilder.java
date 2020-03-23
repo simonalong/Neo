@@ -13,6 +13,4 @@ public class DeleteSqlBuilder {
     public String build(String tableName, NeoMap valueMap) {
         return "delete from " + tableName + SqlBuilder.buildWhere(valueMap);
     }
-
-
 }

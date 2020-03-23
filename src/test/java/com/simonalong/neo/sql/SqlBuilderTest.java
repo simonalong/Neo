@@ -1,17 +1,10 @@
 package com.simonalong.neo.sql;
 
-import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import com.simonalong.neo.TableMap;
-import com.simonalong.neo.sql.builder.InsertSqlBuilder;
-import com.simonalong.neo.sql.builder.SelectSqlBuilder;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import org.junit.Test;
 

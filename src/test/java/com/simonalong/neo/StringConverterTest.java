@@ -1,6 +1,5 @@
 package com.simonalong.neo;
 
-import com.simonalong.neo.StringConverter;
 import org.junit.Assert;
 import org.junit.Test;
 
