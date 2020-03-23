@@ -7,11 +7,11 @@ import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoJoiner;
 import lombok.experimental.UtilityClass;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.simonalong.neo.NeoConstant.ASC;
+import static com.simonalong.neo.NeoConstant.DESC;
 import static com.simonalong.neo.NeoConstant.ORDER_BY;
 
 /**
@@ -23,7 +23,7 @@ public class JoinSqlBuilder {
 
 
     public String build(Columns columns, NeoJoiner joiner, TableMap searchMap) {
-        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) +" where " + buildConditionWithWhere(searchMap);
+        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
     }
 
     /**
@@ -72,7 +72,6 @@ public class JoinSqlBuilder {
     }
 
     public List<String> buildConditionMeta(TableMap searchMap) {
-        String orderByStr = "order by";
         return searchMap.clone().entrySet().stream().flatMap(e->{
             String tableName = e.getKey();
             NeoMap valueMap = (NeoMap) e.getValue();
@@ -202,28 +201,60 @@ public class JoinSqlBuilder {
         return null == searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).findAny().orElse(null);
     }
 
-    public List<Object> buildValueList(NeoMap searchMap) {
-        if (NeoMap.isEmpty(searchMap)) {
+    public List<Object> buildValueList(TableMap searchMap) {
+        if (TableMap.isEmpty(searchMap)) {
             return Collections.emptyList();
         }
 
-        String orderByStr = "order by";
-        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(o->{
-            Object v = o.getValue();
-            if (v instanceof String) {
-                String valueStr = String.class.cast(v);
+        return searchMap.clone().entrySet().stream().flatMap(e-> SqlBuilder.buildValueList((NeoMap) e.getValue()).stream()).collect(Collectors.toList());
+    }
 
-                // 处理模糊搜索，like
-                if (valueStr.startsWith("like ")) {
-                    return null;
+    /**
+     * 构造order by 语句
+     * <p>
+     *     注意：该函数只处理order by属性其他的不处理
+     *
+     * @param searchMap 多表的包含order by的语句
+     * @return 比如：order by neo_table1.`group` asc, neo_table2.`name` desc
+     */
+    public String buildOrderBy(TableMap searchMap) {
+        if (!TableMap.isEmpty(searchMap)) {
+            List<String> orderByStrList = searchMap.clone().entrySet().stream().flatMap(e-> {
+                String tableName = e.getKey();
+                NeoMap valueMap = (NeoMap) e.getValue();
+                if (valueMap.containsKey(ORDER_BY)) {
+                    return getOrderByStrList(tableName, valueMap.getString(ORDER_BY)).stream();
                 }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return " " + ORDER_BY + " " + String.join(", ", orderByStrList);
+        }
+        return "";
+    }
 
-                // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
-                if (SqlBuilder.haveThanPre(valueStr)) {
-                    return SqlBuilder.getSymbolAndValue(valueStr).getValue();
-                }
+    /**
+     * 获取order by 后面的字符转换集合
+     * <p>
+     *     {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
+     *
+     * @param orderByValueStr order by后面的字符
+     * @return 转换后的字符，比如：[neo_table1.`name` desc]
+     */
+    public List<String> getOrderByStrList(String tableName, String orderByValueStr) {
+        if (null == orderByValueStr) {
+            return Collections.emptyList();
+        }
+        List<String> values = Arrays.asList(orderByValueStr.split(","));
+        List<String> valueList = new ArrayList<>();
+        values.forEach(v -> {
+            v = v.trim();
+            if (v.contains(DESC) || v.contains(ASC)) {
+                Integer index = v.indexOf(" ");
+                valueList.add(tableName + "." + SqlBuilder.toDbField(v.substring(0, index)) + " " + v.substring(index + 1));
+            } else {
+                valueList.add(tableName + "." + SqlBuilder.toDbField(v));
             }
-            return v;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        });
+        return valueList;
     }
 }

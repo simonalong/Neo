@@ -111,8 +111,15 @@ public class SqlBuilderTest extends NeoBaseTest {
     }
 
     @Test
-    public void buildValueListTest(){
+    public void buildValueListTest1(){
         NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
+        // {`group`=ok, `name`=haode}
+        show(SqlBuilder.buildValueList(neoMap));
+    }
+
+    @Test
+    public void buildValueListTest2(){
+        NeoMap neoMap = NeoMap.of("name", "like haode", "age", ">12");
         // {`group`=ok, `name`=haode}
         show(SqlBuilder.buildValueList(neoMap));
     }
@@ -131,5 +138,17 @@ public class SqlBuilderTest extends NeoBaseTest {
         show(SqlBuilder.buildConditionMeta(neoMap));
     }
 
+    /**
+     * 测试 buildOrderBy 该函数
+     *
+     * <p>
+     *     该函数只识别order by的内容
+     */
+    @Test
+    public void buildOrderByTest1() {
+        NeoMap neoMap = NeoMap.of("name", "nana", "order by", "age desc, user asc");
+        //   order by `age` desc, `user` asc
+        show(SqlBuilder.buildOrderBy(neoMap));
+    }
 
 }

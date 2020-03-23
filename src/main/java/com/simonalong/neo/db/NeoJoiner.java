@@ -179,20 +179,20 @@ public final class NeoJoiner {
         }
     }
 
-    /**
-     * 构造join的执行的sql和对应的参数
-     *
-     * @param columns 要展示的列
-     * @param searchMap 搜索条件
-     * @return Pair对象：key为拼接的含有占位符的原始sql， value为对应的填充参数
-     */
-    private String generatePageSql(Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
-        String sqlOrigin = generateSql(columns, searchMap);
-        if (!sqlOrigin.contains("limit")){
-            sqlOrigin += " limit " + startIndex + ", " + pageSize;
-        }
-        return sqlOrigin;
-    }
+//    /**
+//     * 构造join的执行的sql和对应的参数
+//     *
+//     * @param columns 要展示的列
+//     * @param searchMap 搜索条件
+//     * @return Pair对象：key为拼接的含有占位符的原始sql， value为对应的填充参数
+//     */
+//    private String generatePageSql(Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
+//        String sqlOrigin = generateSql(columns, searchMap);
+//        if (!sqlOrigin.contains("limit")){
+//            sqlOrigin += " limit " + startIndex + ", " + pageSize;
+//        }
+//        return sqlOrigin;
+//    }
 
     private String generateValueSql(String tableName, String columnName, String joinTailSql){
         return "select " + tableName + "." + SqlBuilder.toDbField(columnName) + " " + joinSql + " " + joinTailSql;

@@ -23,15 +23,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -453,12 +445,14 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public TableMap exeOne(String sql, Object... parameters) {
-        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        return execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
     }
 
     @Override
     public <T> T exeOne(Class<T> tClass, String sql, Object... parameters) {
-        return exeOne(sql, parameters).as(tClass);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        return exeOne(finalSql, parameters).as(tClass);
     }
 
     /**
@@ -553,15 +547,17 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<TableMap> exeList(String sql, Object... parameters) {
-        if (startWithSelect(sql)) {
-            return execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeList);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        if (startWithSelect(finalSql)) {
+            return execute(true, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeList);
         }
         return new ArrayList<>();
     }
 
     @Override
     public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters) {
-        return exeList(sql, parameters).stream().map(table->table.as(tClass)).collect(Collectors.toList());
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        return exeList(finalSql, parameters).stream().map(table->table.as(tClass)).collect(Collectors.toList());
     }
 
     /**
@@ -621,7 +617,8 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        TableMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        TableMap result = execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
         if (null != result) {
             return result.getFirst().getFirst(tClass);
         }
@@ -717,7 +714,8 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        List<TableMap> resultList = execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)),
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        List<TableMap> resultList = execute(true, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)),
             this::executeList);
 
         if (null != resultList && !resultList.isEmpty()) {
@@ -814,8 +812,9 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters) {
-        if (startWithSelect(sql)) {
-            return execute(true, () -> generateExePageSqlPair(sql, Arrays.asList(parameters), startIndex, pageSize),
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        if (startWithSelect(finalSql)) {
+            return execute(true, () -> generateExePageSqlPair(finalSql, Arrays.asList(parameters), startIndex, pageSize),
                 this::executeList);
         }
         return new ArrayList<>();
@@ -902,7 +901,8 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public Integer exeCount(String sql, Object... parameters) {
-        TableMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        TableMap result = execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
         return doCount(result);
     }
 
@@ -940,7 +940,8 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<List<TableMap>> execute(String sql, Object... parameters) {
-        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
+        String finalSql = sql.toLowerCase(Locale.getDefault());
+        return execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::execute);
     }
 
     public Set<String> getColumnNameList(String tableName) {
@@ -1703,7 +1704,7 @@ public class Neo extends AbstractBaseDb {
      *
      * @param sqlOrigin 原始的sql
      * @param parameters 输入的参数
-     * @return 将转换符和占位符拆分开后的数组对
+     * @return 将转换符和占位符拆分开后的数组对：%s替换数据，?占位数据
      */
     private Pair<List<Object>, List<Object>> replaceHolderParameters(String sqlOrigin, List<Object> parameters) {
         // 转换符和占位符
@@ -1714,12 +1715,20 @@ public class Neo extends AbstractBaseDb {
         List<Object> placeHolderList = new ArrayList<>();
         while (m.find()) {
             if ("?".equals(m.group())) {
+                // 承接 ? 的数据
                 placeHolderList.add(parameters.get(count));
             } else {
+                // 要替换%s 的数据
                 replaceOperatorList.add(parameters.get(count));
             }
             count++;
         }
+
+        if (count > 0 && parameters.size() > count) {
+            placeHolderList.addAll((Collection) parameters.get(count));
+        }
+
+        // %s替换数据，?占位数据
         return new Pair<>(replaceOperatorList, placeHolderList);
     }
 

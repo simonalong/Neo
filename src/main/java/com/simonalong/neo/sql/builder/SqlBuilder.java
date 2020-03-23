@@ -222,28 +222,6 @@ public class SqlBuilder {
         return key + " = " + ((withValueFlag.get() ? value : " ?"));
     }
 
-    private String valueFix(TableMap searchMap, Entry<String, Object> entry){
-        Object value = entry.getValue();
-        String key = toDbField(entry.getKey());
-        if (value instanceof String) {
-            String valueStr = String.class.cast(value);
-
-            // 处理模糊搜索，like
-            if (valueStr.startsWith(LIKE_PRE)) {
-                return key + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "'" + getLikeValue(valueStr) + "'");
-            }
-
-            // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
-            if (haveThanPre(valueStr)) {
-                Pair<String, String> symbolAndValue = getSymbolAndValue(valueStr);
-                searchMap.put(entry.getKey(), symbolAndValue.getValue().trim());
-                return key + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
-            }
-            return key + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
-        }
-        return key + " = " + ((withValueFlag.get() ? value : " ?"));
-    }
-
     /**
      * 搜索的数据是否有比较类型的前缀
      */

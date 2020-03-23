@@ -72,6 +72,26 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
     }
 
     @Test
+    public void buildOrderByTest1(){
+        String table1 = "neo_table1";
+        String table2 = "neo_table2";
+        String table3 = "neo_table3";
+
+        TableMap searchMap = TableMap.of();
+        searchMap.put(table2, "name", "12");
+        searchMap.put(table2, "order by", "name desc");
+        searchMap.put(table1, "order by", "group asc");
+        // [table1.`ke1` like 'valeu%', table2.`name` > ?]
+        show(JoinSqlBuilder.buildOrderBy(searchMap));
+    }
+
+    @Test
+    public void getOrderByStrListTest1(){
+        // [neo_table1.`name` desc]
+        show(JoinSqlBuilder.getOrderByStrList("neo_table1", "name desc"));
+    }
+
+    @Test
     public void buildTest(){
         String table1 = "neo_table1";
         String table2 = "neo_table2";
@@ -97,10 +117,11 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         searchMap.put(table1, "order by", "group asc");
 
         // select neo_table1.`name` as neo_table1_NDom_name, neo_table1.`id` as neo_table1_NDom_id, neo_table2.`id` as neo_table2_NDom_id
-        //  from    neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`a_id`
-        //          left join neo_table2 on neo_table1.`id`=neo_table2.`a_id`
-        //          right join neo_table3 on neo_table2.`id`=neo_table3.`b_id`
-        //  where neo_table1.`name` =  ? and neo_table2.`age` =  ?
+        // from neo_table1  left join neo_table2 on neo_table1.`id`=neo_table2.`id`
+        //                  left join neo_table3 on neo_table2.`id`=neo_table3.`id`
+        //                  right join neo_table4 on neo_table2.`id`=neo_table4.`id`
+        // where  where neo_table1.`name` =  ? and neo_table2.`age` =  ?
+        // order by neo_table1.`group` asc, neo_table2.`name` desc
         show(JoinSqlBuilder.build(columns, joinner, searchMap));
     }
 }
