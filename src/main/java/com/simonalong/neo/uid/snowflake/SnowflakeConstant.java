@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
  * @since 2020/2/3 11:54 上午
  */
 @UtilityClass
-public class SnowflakeConstant
-{
+public class SnowflakeConstant {
+
     public static final String LOG_PRE = "[ggj_snowflake]:";
     /**
      * 应用二方包名字
@@ -62,9 +62,9 @@ public class SnowflakeConstant
      */
     public static final long KEEP_EXPIRE_TIME = TimeUnit.HOURS.toMillis(24);
     /**
-     * 2019-11-9 0.0.0.000 对应的long型时间，作为回拨时间的最低进行计算
+     * 2020-02-22 00:00:00.000 对应的long型时间，作为回拨时间的最低进行计算
      */
-    public static final long START_TIME = 1573228800000L;
+    public static final long START_TIME = 1582300800000L;
 
     /**
      * 机器id增加占用的bit数
@@ -85,6 +85,11 @@ public class SnowflakeConstant
     public static final long TIME_LEFT_SHIFT = SEQ_BITS + SEQ_LEFT_SHIFT;
 
     /**
+     * 符号位
+     */
+    public static final long SYMBOL_LEFT_SHIFT = TIME_BITS + TIME_LEFT_SHIFT;
+
+    /**
      * 时间过慢后域当前时间的门限，当前暂时设置为20个小时
      */
     public static final long DELAY_THREAD_HOLD = TimeUnit.HOURS.toMillis(20);
@@ -101,33 +106,27 @@ public class SnowflakeConstant
      */
     public static final long HEART_INTERVAL_TIME = 5L;
 
-    public String getNamespacePath(String namespace)
-    {
+    public String getNamespacePath(String namespace) {
         return ROOT_PATH + "/" + namespace;
     }
 
-    public String getConfigPath(String namespace)
-    {
+    public String getConfigPath(String namespace) {
         return getNamespacePath(namespace) + CONFIG_NODE;
     }
 
-    public String getWorkerPath(String namespace, Integer workerId)
-    {
+    public String getWorkerPath(String namespace, Integer workerId) {
         return getNamespacePath(namespace) + "/worker_" + workerId;
     }
 
-    public String getSession(String namespace, Integer workerId)
-    {
+    public String getSession(String namespace, Integer workerId) {
         return getWorkerPath(namespace, workerId) + SESSION_NODE;
     }
 
-    public String getBizExpandLock(String namespace)
-    {
+    public String getBizExpandLock(String namespace) {
         return ROOT_PATH + "/" + namespace + BIZ_EXPAND_LOCK;
     }
 
-    public String getSessionCreateLock(String namespace)
-    {
+    public String getSessionCreateLock(String namespace) {
         return ROOT_PATH + "/" + namespace + SESSION_CREATE_LOCK;
     }
 }

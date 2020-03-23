@@ -657,7 +657,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     public <T> T getFirst(Class<T> tClass) {
         Object object = getFirst();
         if (null != object) {
-            return ObjectUtil.cast(tClass, null);
+            return ObjectUtil.cast(tClass, object);
         }
         return null;
     }

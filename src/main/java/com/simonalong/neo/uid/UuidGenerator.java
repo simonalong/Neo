@@ -62,8 +62,12 @@ public final class UuidGenerator {
         }
     }
 
+    /**
+     * 添加命名空间
+     * @param namespaces 命名空间
+     */
     public void addNamespaces(String... namespaces) {
-        Arrays.stream(namespaces).peek(this::checkNamespace).forEach(n -> addUUidSplicer(n, new DefaultUuidSplicer(n, neo)));
+        Arrays.stream(namespaces).forEach(n -> addUUidSplicer(n, new DefaultUuidSplicer(n, neo)));
     }
 
     /**

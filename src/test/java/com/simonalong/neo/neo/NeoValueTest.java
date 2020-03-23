@@ -43,7 +43,7 @@ public class NeoValueTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeValue3(){
-        show(neo.exeValue(Integer.class, "select `age` from %s where `group`=? order by name desc", TABLE_NAME, "nihao1"));
+        show(neo.exeValue(Integer.class, "select `age` from %s where `group`=? order by name desc", TABLE_NAME, "nana"));
     }
 
     /**
