@@ -173,46 +173,6 @@ public class NeoMapTest extends BaseTest {
         Assert.assertEquals(expect, neoMapAsEntity);
     }
 
-
-    /**
-     * 在指定表字段时候的映射
-     */
-    // todo tablemap
-//    @Test
-//    public void testAs9() {
-//        String table1 = "neo_table1";
-//        String table2 = "neo_table2";
-//        NeoMap neoMap = NeoMap.of()
-//            .append("age", 123)
-//            .append(table1, "user_address", "puyang")
-//            .append(table2, "data_user", "zhou")
-//            .append(table1, "name", "simon")
-//            ;
-//        NeoMapEntity2 entity = neoMap.as(NeoMapEntity2.class);
-//
-//        // {"age":123,"dataNameUser":"zhou","userAddress":"puyang","userName":"simon"}
-//        show(entity);
-//    }
-
-    /**
-     * as的db字段和实体字段映射
-     */
-    // todo chg
-//    @Test
-//    public void testAs10() {
-//        String table1 = "neo_table1";
-//        String table2 = "neo_table2";
-//        NeoMap neoMap = NeoMap.of();
-//        neoMap.put("age", 123);
-//        neoMap.put(table1, "user_address", "puyang");
-//        neoMap.put(table2, "data_user", "zhou");
-//        neoMap.put(table1, "name", "simon");
-//        NeoMapEntity2 entity = neoMap.as(NeoMapEntity2.class);
-//
-//        // {"age":123,"dataNameUser":"zhou","userAddress":"puyang","userName":"simon"}
-//        show(entity);
-//    }
-
     /**
      * 测试from：转换规则同as，默认key不转换
      */
@@ -659,22 +619,6 @@ public class NeoMapTest extends BaseTest {
         Assert.assertEquals(expect2, neoMap.keyChgFromSmallCamelTo(NamingChg.UNDERLINE));
     }
 
-
-    // todo chg
-//    @Test
-//    public void andTest(){
-//        String table1 = "table1";
-//        String table2 = "table2";
-//        String table3 = "table3";
-//
-//        NeoMap result = NeoMap.of().table(table1, "name", "a", "age", 123)
-//            .table(table2, "group", "g1")
-//            .table(table3, "name", "k");
-//
-//        // table1.`group`=ok, table1.`name`=kk, table2.`age`=123
-//        show(result);
-//    }
-
     @Test
     public void containsKeysTest(){
         Assert.assertTrue(NeoMap.of("a", 1, "b", 2, "c", 3).containsKeys("a", "b"));
@@ -859,14 +803,4 @@ public class NeoMapTest extends BaseTest {
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
         neoMap.keyStream().forEach(this::show);
     }
-
-    // todo chg
-//    @Test
-//    public void testPut1(){
-//        NeoMap data = NeoMap.of();
-//        data.put("t1", "a", 1);
-//        data.put("t1", "b", 2);
-//        data.put("t1", "c", 3);
-//        show(data);
-//    }
 }

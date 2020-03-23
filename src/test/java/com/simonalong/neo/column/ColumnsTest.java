@@ -1,7 +1,6 @@
 package com.simonalong.neo.column;
 
 import com.simonalong.neo.Columns;
-import com.simonalong.neo.Columns.ColumnValue;
 import com.simonalong.neo.entity.TestEntity;
 import com.simonalong.neo.NeoBaseTest;
 import java.sql.SQLException;
