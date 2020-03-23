@@ -16,6 +16,7 @@ public class ClassUtil {
      * 注意:
      * 其中void.class.isPrimitive() 返回true，我们这里不核查这种
      */
+    @SuppressWarnings("all")
     public boolean isBaseField(Class<?> cls) {
         if ((cls.isPrimitive() && !cls.equals(void.class)) || cls.equals(String.class)) {
             return true;

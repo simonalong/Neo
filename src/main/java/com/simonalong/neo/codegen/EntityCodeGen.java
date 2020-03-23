@@ -26,6 +26,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * 数据库的DO实体映射生成器
  * @author zhouzhenyong
@@ -232,7 +234,7 @@ public class EntityCodeGen {
                 template.process(dataMap, bufferedWriter);
             }
         } catch (TemplateException | IOException e) {
-            log.error("writeFile error", e);
+            log.error(LOG_PRE + "writeFile error", e);
         }
     }
 
@@ -262,7 +264,7 @@ public class EntityCodeGen {
         try {
             return configuration.getTemplate(templatePath);
         } catch (IOException e) {
-            log.error("getTemplate error", e);
+            log.error(LOG_PRE + "getTemplate error", e);
 
         }
         return null;

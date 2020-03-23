@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * 该抽象类做三件事情
  * <ul>
@@ -538,7 +540,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     private DbSync getDbInner() {
         DbSync db = getDb();
         if (null == db) {
-            log.error("DB not set");
+            log.error(LOG_PRE + "DB not set");
             throw new DbNotSetException();
         }
         return db;

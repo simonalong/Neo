@@ -16,6 +16,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
@@ -218,7 +220,7 @@ public class NeoTable extends AbstractBaseTable {
                     .setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME))
                     .setRefGeneration(rs.getString(REF_GENERATION));
             } catch (SQLException e) {
-                log.error("parse error", e);
+                log.error(LOG_PRE + "parse error", e);
             }
             return new Table();
         }

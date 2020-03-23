@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * sql的监控
  *
@@ -16,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SqlMonitor {
 
-    private static final String PRE_LOG = "[Neo-monitor] ";
+    private static final String PRE_LOG = LOG_PRE + "[Neo-monitor] ";
     private static final Integer ONE_MILLION = 1;
     private static final Integer ONE_SECOND = 1000 * ONE_MILLION;
     private static final Integer THREE_SECOND = 3 * ONE_SECOND;

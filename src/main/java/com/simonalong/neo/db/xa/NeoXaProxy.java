@@ -1,10 +1,8 @@
 package com.simonalong.neo.db.xa;
 
-import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.exception.ParameterUnValidException;
 import java.sql.SQLException;
-import java.util.UUID;
 import javax.sql.DataSource;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;

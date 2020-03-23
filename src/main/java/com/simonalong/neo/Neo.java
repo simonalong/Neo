@@ -200,7 +200,7 @@ public class Neo extends AbstractBaseDb {
         try {
             return getPool().getConnect();
         } catch (SQLException e) {
-            log.error("get connect fail", e);
+            log.error(LOG_PRE + "get connect fail", e);
             return null;
         }
     }
@@ -1198,7 +1198,7 @@ public class Neo extends AbstractBaseDb {
                 monitor.calculate();
             }
             return result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error(LOG_PRE + "[提交失败，事务回滚]", e);
             try {
                 pool.rollback();
@@ -1310,7 +1310,7 @@ public class Neo extends AbstractBaseDb {
                     monitor.calculate();
                 }
                 return result;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error(LOG_PRE + "sql=> " + sql);
                 throw new NeoException(e);
             }
@@ -1360,7 +1360,7 @@ public class Neo extends AbstractBaseDb {
                     monitor.calculate();
                 }
                 return batchCount;
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]");
                 try {
                     // 出现异常，进行回滚

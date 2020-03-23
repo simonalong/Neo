@@ -29,7 +29,7 @@ public class InsertSqlBuilder {
      * @param valueMap map
      * @return tableName后面括号中的sql
      */
-    private String buildInsertTable(NeoMap valueMap) {
+    public String buildInsertTable(NeoMap valueMap) {
         return String.join(", ", valueMap.keySet());
     }
 

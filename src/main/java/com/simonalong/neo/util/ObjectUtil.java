@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * 将Object转换为指定的类型
  *
@@ -78,7 +80,7 @@ public class ObjectUtil {
             }
             return Byte.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toByte error", e);
+            log.error(LOG_PRE + "toByte error", e);
             return null;
         }
     }
@@ -94,7 +96,7 @@ public class ObjectUtil {
             }
             return Short.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toShort error", e);
+            log.error(LOG_PRE + "toShort error", e);
             return null;
         }
     }
@@ -110,7 +112,7 @@ public class ObjectUtil {
             }
             return Integer.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toInt error", e);
+            log.error(LOG_PRE + "toInt error", e);
             return null;
         }
     }
@@ -142,7 +144,7 @@ public class ObjectUtil {
             }
             return Long.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toLong error", e);
+            log.error(LOG_PRE + "toLong error", e);
             return null;
         }
     }
@@ -158,7 +160,7 @@ public class ObjectUtil {
             }
             return Double.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toDouble error", e);
+            log.error(LOG_PRE + "toDouble error", e);
             return null;
         }
     }
@@ -174,7 +176,7 @@ public class ObjectUtil {
             }
             return Float.valueOf(String.valueOf(value));
         }catch (NumberFormatException | ClassCastException e){
-            log.error("toFloat error", e);
+            log.error(LOG_PRE + "toFloat error", e);
             return null;
         }
     }
@@ -428,7 +430,7 @@ public class ObjectUtil {
                 }
                 return cls.cast(cls.getMethod("valueOf", String.class).invoke(null, data));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                log.error("castStr error", e);
+                log.error(LOG_PRE + "castStr error", e);
             }
             return null;
         }

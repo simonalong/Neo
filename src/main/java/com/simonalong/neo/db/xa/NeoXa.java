@@ -23,6 +23,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author zhouzhenyong
  * @since 2019/11/20 下午11:17
@@ -118,7 +120,7 @@ public class NeoXa {
      */
     public Neo get(String alias) {
         if (!dbMap.containsKey(alias)) {
-            log.warn("没有找到名字为{} 的db", alias);
+            log.warn(LOG_PRE + "没有找到名字为{} 的db", alias);
             return null;
         }
         return dbMap.get(alias).getTarget();
@@ -133,17 +135,17 @@ public class NeoXa {
             commitXid();
         } catch (Throwable e) {
             if (e instanceof XaStartException) {
-                log.error("start xid fail");
+                log.error(LOG_PRE + "start xid fail");
             } else if (e instanceof XaEndException) {
-                log.error("end xid fail");
+                log.error(LOG_PRE + "end xid fail");
             } else if (e instanceof XaPrepareException) {
-                log.error("prepare xid fail");
+                log.error(LOG_PRE + "prepare xid fail");
                 rollbackXid();
             } else if (e instanceof XaCommitException) {
-                log.error("commit xid fail");
+                log.error(LOG_PRE + "commit xid fail");
                 rollbackXid();
             }
-            log.error("xa run fail, xid={}", getXidStr(), e);
+            log.error(LOG_PRE + "xa run fail, xid={}", getXidStr(), e);
         }
     }
 
@@ -219,7 +221,7 @@ public class NeoXa {
                 proxy.getRm().rollback(proxy.getXid());
             }
         } catch (XAException e) {
-            log.error("rollback error", e);
+            log.error(LOG_PRE + "rollback error", e);
         }
     }
 }

@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author zhouzhenyong
  * @since 2019/3/17 下午2:42
@@ -53,7 +55,7 @@ public final class TableIndex {
                 }
             });
         } catch (SQLException e) {
-            log.error("add tableIndex error", e);
+            log.error(LOG_PRE + "add tableIndex error", e);
         }
     }
 
@@ -145,7 +147,7 @@ public final class TableIndex {
                     .setPages(rs.getLong(PAGES))
                     .setFilterCondition(rs.getString(FILTER_CONDITION));
             } catch (SQLException e) {
-                log.error("parse index error", e);
+                log.error(LOG_PRE + "parse index error", e);
             }
             return new Index();
         }

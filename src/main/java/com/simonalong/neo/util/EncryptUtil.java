@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * 文本压缩加密
  *
@@ -74,7 +76,7 @@ public class EncryptUtil {
             }
             encodeStr = stringBuffer.toString();
         } catch (NoSuchAlgorithmException e) {
-            log.error("encrypt error", e);
+            log.error(LOG_PRE + "encrypt error", e);
         }
         return encodeStr;
     }

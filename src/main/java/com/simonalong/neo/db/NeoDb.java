@@ -1,6 +1,7 @@
 package com.simonalong.neo.db;
 
 import static com.simonalong.neo.NeoConstant.ALL_FIELD;
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.db.NeoColumn.NeoInnerColumn;
@@ -177,7 +178,7 @@ public final class NeoDb {
                 .findFirst().orElse(null);
         }
         if (null == table) {
-            log.warn("表" + tableName + "没有找到");
+            log.warn(LOG_PRE + "表" + tableName + "没有找到");
         }
         return table;
     }
@@ -240,10 +241,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     getAllTables(con, tableSet, null, tablePres);
                 } catch (SQLException ex) {
-                    log.error("getAllTables error", e);
+                    log.error(LOG_PRE + "getAllTables error", e);
                 }
             } else {
-                log.error("getAllTables error", e);
+                log.error(LOG_PRE + "getAllTables error", e);
             }
         }
         return tableSet;
@@ -312,10 +313,10 @@ public final class NeoDb {
                 }
                 addColumn(tableName, columnList);
             } catch (SQLException e) {
-                log.error("initColumnMeta error", e);
+                log.error(LOG_PRE + "initColumnMeta error", e);
             }
         } catch (SQLException e) {
-            log.error("initColumnMeta error", e);
+            log.error(LOG_PRE + "initColumnMeta error", e);
         }
     }
 
@@ -334,7 +335,7 @@ public final class NeoDb {
                 columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
-            log.error("generateColumnMetaMap error", e);
+            log.error(LOG_PRE + "generateColumnMetaMap error", e);
         }
         return columnMap;
     }
@@ -350,10 +351,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initPrimary(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error("initPrimary error", ex);
+                    log.error(LOG_PRE + "initPrimary error", ex);
                 }
             } else {
-                log.error("initPrimary error", e);
+                log.error(LOG_PRE + "initPrimary error", e);
             }
         }
     }
@@ -377,10 +378,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initIndex(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error("initIndex error", ex);
+                    log.error(LOG_PRE + "initIndex error", ex);
                 }
             } else {
-                log.error("initIndex error", e);
+                log.error(LOG_PRE + "initIndex error", e);
             }
         }
     }
@@ -392,7 +393,7 @@ public final class NeoDb {
         while (rs.next()) {
             NeoTable table = getTable(tableName);
             if(null == table) {
-                log.warn("表" + tableName + "没有找到");
+                log.warn(LOG_PRE + "表" + tableName + "没有找到");
             }else{
                 table.initIndex(rs);
             }

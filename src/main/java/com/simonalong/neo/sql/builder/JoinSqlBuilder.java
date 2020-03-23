@@ -133,63 +133,6 @@ public class JoinSqlBuilder {
         return sb.toString();
     }
 
-//    /**
-//     * join 的join 部分对应的sql
-//     *
-//     * @param leftTableName 左表名
-//     * @param leftColumnName 左表的on列名
-//     * @param rightTableName 右表名
-//     * @param rightColumnName 右表的on列名
-//     * @param joinType join的类型
-//     * @return join对应的部分sql，比如：from leftTableName xxJoin rightTableName on leftTableName.`leftColumnName` = rightTableName.`rightColumnName`
-//     */
-//    private String buildJoin(String joinLeftTableName, String leftTableName, String leftColumnName,
-//        String rightTableName, String rightColumnName, JoinType joinType) {
-//        if(null != joinLeftTableName){
-//            return joinLeftTableName + " " + joinType.getSql() + " " + rightTableName
-//                + " on " + leftTableName + "." + SqlBuilder.toDbField(leftColumnName) + "=" + rightTableName + "." + SqlBuilder.toDbField(rightColumnName);
-//        }else{
-//            return " " + joinType.getSql() + " " + rightTableName
-//                + " on " + leftTableName + "." + SqlBuilder.toDbField(leftColumnName) + "=" + rightTableName + "." + SqlBuilder.toDbField(rightColumnName);
-//        }
-//    }
-
-//    /**
-//     * 创建在排除公共部分的join中对应的where条件
-//     *
-//     * 比如：对于left_join_except_inner，则是排除右表的key
-//     * @param neo 库对象
-//     * @param leftTableName 左表的表名
-//     * @param rightTableName 右表的表名
-//     * @param joinType join的类型
-//     * @return rightTableName.key is null 或者 leftTableName.key is null 或者 (leftTableName.key is null or rightTableName.key is null)
-//     */
-//    public String buildConditionWithWhere(Neo neo, String leftTableName, String rightTableName, JoinType joinType) {
-//        if (joinType.equals(LEFT_JOIN_EXCEPT_INNER)) {
-//            NeoTable table = neo.getTable(rightTableName);
-//            if (null != table) {
-//                return rightTableName + "." + table.getPrimary() + " is null";
-//            }
-//        } else if (joinType.equals(RIGHT_JOIN_EXCEPT_INNER)) {
-//            NeoTable table = neo.getTable(leftTableName);
-//            if (null != table) {
-//                return leftTableName + "." + table.getPrimary() + " is null";
-//            }
-//        } else if (joinType.equals(OUTER_JOIN_EXCEPT_INNER)) {
-//            NeoTable leftTable = neo.getTable(leftTableName);
-//            NeoTable rightTable = neo.getTable(rightTableName);
-//            StringBuilder result = new StringBuilder();
-//            if (null != leftTable) {
-//                result.append(leftTableName).append(".").append(leftTable.getPrimary()).append(" is null");
-//            }
-//            if (null != rightTable) {
-//                result.append(leftTableName).append(".").append(rightTable.getPrimary()).append(" is null");
-//            }
-//            return result.toString();
-//        }
-//        return "";
-//    }
-
     /**
      * 不算order by来判断搜索条件是否为空
      *
