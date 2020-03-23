@@ -1,6 +1,5 @@
 package com.simonalong.neo;
 
-
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.TimeDateConverter;

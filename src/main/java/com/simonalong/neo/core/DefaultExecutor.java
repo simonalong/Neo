@@ -1,6 +1,5 @@
 package com.simonalong.neo.core;
 
-import com.simonalong.neo.exception.NeoException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;

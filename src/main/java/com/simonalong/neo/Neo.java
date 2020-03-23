@@ -980,94 +980,6 @@ public class Neo extends AbstractBaseDb {
         return getTable(null, tableName);
     }
 
-//    /**
-//     * 默认的join采用的是innerJoin
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner join(String leftTableName, String rightTableName) {
-//        return innerJoin(leftTableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner leftJoin(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.LEFT_JOIN);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner rightJoin(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.RIGHT_JOIN);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner innerJoin(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.INNER_JOIN);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner outerJoin(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.OUTER_JOIN);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.LEFT_JOIN_EXCEPT_INNER);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.RIGHT_JOIN_EXCEPT_INNER);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param leftTableName 左表表名
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName) {
-//        return new NeoJoiner(this, leftTableName, rightTableName, JoinType.OUTER_JOIN_EXCEPT_INNER);
-//    }
-
     /**
      * 批量插入NeoMap列表数据
      *
@@ -1306,20 +1218,8 @@ public class Neo extends AbstractBaseDb {
      * @return 表的创建语句
      */
     public String getTableCreate(String tableName) {
-        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).getFirst().getFirst());
     }
-
-//    /**
-//     * 获取全局id
-//     *
-//     * @return 当前分布式系统内的唯一id
-//     */
-//    public Long getUuid() {
-//        if (null == UuidGenerator) {
-//            throw new UidGeneratorNotInitException();
-//        }
-//        return UuidGenerator.getUUid();
-//    }
 
     /**
      * 判断对应的表名是否存在
@@ -1348,13 +1248,6 @@ public class Neo extends AbstractBaseDb {
     public void openXA() {
         xaStatus = true;
     }
-
-//    /**
-//     * 开启全局id生成器
-//     */
-//    public void openUidGenerator() {
-//        UuidGenerator = UuidGenerator.getInstance(this);
-//    }
 
     public Boolean isTransaction() {
         return txStatusLocal.get();

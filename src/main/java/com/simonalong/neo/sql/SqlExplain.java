@@ -66,7 +66,7 @@ public final class SqlExplain {
      * <p>
      * @return 返回sql的explain中的解析数据
      */
-    private Explain exeSqlExplain(Neo neo, String sql, List<Object> parameters){
+    private Explain exeSqlExplain(Neo neo, String sql, List<Object> parameters) {
         Boolean oldMonitorFlag = neo.getMonitorFlag();
         Boolean standardFlag = neo.getStandardFlag();
 

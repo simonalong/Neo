@@ -23,7 +23,7 @@ public void test1(){
         // 设置要排除的表
         //.setExcludes("xx_test")
         // 设置只要的表
-        .setIncludes("xx_test5")
+        .setIncludes("neo_table4")
         // 设置属性中数据库列名字向属性名字的转换，这里设置下划线，比如：data_user_base -> dataUserBase
         .setFieldNamingChg(NamingChg.UNDERLINE);
 

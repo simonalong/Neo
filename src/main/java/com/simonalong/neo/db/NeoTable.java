@@ -6,10 +6,10 @@ import com.simonalong.neo.core.DbSync;
 import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,87 +68,6 @@ public class NeoTable extends AbstractBaseTable {
         return this.tableName;
     }
 
-//    /**
-//     * 默认的join采用的是innerJoin
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner join(String rightTableName){
-//        return neo.innerJoin(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner leftJoin(String rightTableName){
-//        return neo.leftJoin(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner rightJoin(String rightTableName){
-//        return neo.rightJoin(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner innerJoin(String rightTableName){
-//        return neo.innerJoin(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner outerJoin(String rightTableName){
-//        return neo.outerJoin(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner leftJoinExceptInner(String rightTableName){
-//        return neo.leftJoinExceptInner(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner rightJoinExceptInner(String rightTableName){
-//        return neo.rightJoinExceptInner(tableName, rightTableName);
-//    }
-//
-//    /**
-//     * 左关联，只保留左表的信息
-//     *
-//     * @param rightTableName 右表表名
-//     * @return 做关联的关联器
-//     */
-//    public NeoJoiner outerJoinExceptInner(String rightTableName){
-//        return neo.outerJoinExceptInner(tableName, rightTableName);
-//    }
-
-
     public void initIndex(ResultSet resultSet){
         index.add(resultSet);
     }
@@ -161,8 +80,8 @@ public class NeoTable extends AbstractBaseTable {
         return index.getIndexList();
     }
 
-    public List<String> getColumnNameList(){
-        return getColumnList().stream().map(NeoColumn::getColumnName).collect(Collectors.toList());
+    public List<String> getColumnNameList() {
+        return new ArrayList<>(neo.getColumnNameList(tableName));
     }
 
     /**
@@ -175,8 +94,8 @@ public class NeoTable extends AbstractBaseTable {
      * <p>
      * @return 表创建的sql语句
      */
-    public String getTableCreate(){
-        return (String) (neo.execute("show create table `" + tableName + "`").get(0).get(0).get("Create Table"));
+    public String getTableCreate() {
+        return neo.getTableCreate(tableName);
     }
 
     /**

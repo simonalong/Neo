@@ -1,7 +1,5 @@
 package com.simonalong.neo.annotation;
 
-import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

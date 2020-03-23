@@ -22,14 +22,12 @@ import lombok.experimental.Accessors;
  */
 final class EnumInfo {
 
-    private String tableName;
     @Getter
     private Map<String, EnumInner> enumInnerMap;
     private EnumInfo(){}
 
-    static EnumInfo build(String tableName, String tableCreateSql){
+    static EnumInfo build(String tableCreateSql){
         EnumInfo info = new EnumInfo();
-        info.tableName = tableName;
         info.enumInnerMap = info.buildEnumMap(tableCreateSql);
         return info;
     }
@@ -40,6 +38,9 @@ final class EnumInfo {
      * @return key为枚举的名字，value为枚举对应的信息
      */
     private Map<String, EnumInner> buildEnumMap(String tableCreateSql){
+        if(null == tableCreateSql){
+            return new HashMap<>();
+        }
         List<String> statusList = Arrays.asList(tableCreateSql.split(",\n"));
         if(statusList.isEmpty()){
             return new HashMap<>();

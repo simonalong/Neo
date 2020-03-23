@@ -2,8 +2,6 @@ package com.simonalong.neo.annotation;
 
 import java.lang.annotation.*;
 
-import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
-
 /**
  * @author shizi
  * @since 2020/3/19 下午1:04

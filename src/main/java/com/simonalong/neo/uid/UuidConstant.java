@@ -1,7 +1,5 @@
 package com.simonalong.neo.uid;
 
-import com.simonalong.neo.NeoConstant;
-
 import java.util.concurrent.TimeUnit;
 
 /**

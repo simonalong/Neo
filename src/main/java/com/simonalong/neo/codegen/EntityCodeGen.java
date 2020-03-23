@@ -150,7 +150,7 @@ public class EntityCodeGen {
      * 设置外部和内部的枚举类型，如果有共同的类名和枚举类型，则作为公共的外部共同枚举，如果有同名的，但是内部属性不同，则作为内部枚举
      */
     private void generateEnum(Neo neo, String tableName, NeoMap dataMap){
-        EnumInfo enumInfo = EnumInfo.build(tableName, neo.getTableCreate(tableName));
+        EnumInfo enumInfo = EnumInfo.build(neo.getTableCreate(tableName));
 
         // 先清理设置
         dataMap.put("enumType", null);
