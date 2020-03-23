@@ -47,7 +47,7 @@ public interface NeoConstant {
     /**
      * 多表时候中间的分割
      */
-    String ALIAS_DOM = "_NDom_";
+    String ALIAS_DOM = "_dom_";
     /**
      * SQL 的as
      */

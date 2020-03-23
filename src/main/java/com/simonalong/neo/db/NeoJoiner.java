@@ -1,14 +1,8 @@
 package com.simonalong.neo.db;
 
 import static com.simonalong.neo.db.AliasParser.*;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.TableMap;
 import com.simonalong.neo.sql.JoinType;
-import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import com.simonalong.neo.sql.builder.SqlBuilder;
-import java.util.List;
 import lombok.Getter;
 
 /**
@@ -17,11 +11,6 @@ import lombok.Getter;
  */
 public final class NeoJoiner {
 
-    private Neo neo;
-    /**
-     * 起始表的joiner
-     */
-    private TableJoiner tableJoiner;
     /**
      * 中间表的joiner
      */
@@ -31,14 +20,8 @@ public final class NeoJoiner {
      */
     @Getter
     private String joinSql = " ";
-    /**
-     * 在一些join中，会有一些额外的条件， 比如leftOuterJoin，这种就是leftJoin和other表的key为空情况，sqlCondition为：tableb.key is null
-     */
-    private String sqlCondition;
 
-
-    public NeoJoiner(Neo neo, String tableName) {
-        this.neo = neo;
+    public NeoJoiner(String tableName) {
         this.joinSql += tableName;
     }
 
@@ -151,52 +134,11 @@ public final class NeoJoiner {
     }
 
     private String buildJoin(String leftColumnName, String rightColumnName) {
-        if(null == innerTableJoiner){
-            return tableJoiner.getLeftTableName() + " " + tableJoiner.getJoinType().getSql() + " " + tableJoiner.getRightTableName()
-                + " on " + tableJoiner.getLeftTableNameAlias() + "." + SqlBuilder.toDbField(leftColumnName)
-                + "=" + tableJoiner.getRightTableNameAlias() + "." + SqlBuilder.toDbField(rightColumnName);
-        }else{
-            return " " + innerTableJoiner.getJoinType().getSql() + " " + innerTableJoiner.getRightTableName()
-                + " on " + innerTableJoiner.getLeftTableNameAlias() + "." + SqlBuilder.toDbField(leftColumnName)
-                + "=" + innerTableJoiner.getRightTableNameAlias() + "." + SqlBuilder.toDbField(rightColumnName);
-        }
+        return " " + innerTableJoiner.getJoinType()
+            .getSql() + " " + innerTableJoiner.getRightTableName() + " on " + innerTableJoiner.getLeftTableNameAlias() + "." + SqlBuilder.toDbField(
+            leftColumnName) + "=" + innerTableJoiner.getRightTableNameAlias() + "." + SqlBuilder.toDbField(rightColumnName);
     }
 
-    /**
-     * 根据列和搜索条件，生成sql
-     *
-     * @param columns 列名
-     * @param searchMap 表的搜索条件
-     * @return 拼接后的sql
-     */
-    private String generateSql(Columns columns, NeoMap searchMap){
-        String joinHeadSql = JoinSqlBuilder.buildJoinHead(neo, columns);
-        String joinTailSql = JoinSqlBuilder.buildJoinTail(sqlCondition, searchMap);
-        if(null != joinSql && !"".equals(joinSql)){
-            return joinHeadSql + " " + joinSql + " " + joinTailSql;
-        }else {
-            return joinHeadSql + " " + joinTailSql;
-        }
-    }
-
-//    /**
-//     * 构造join的执行的sql和对应的参数
-//     *
-//     * @param columns 要展示的列
-//     * @param searchMap 搜索条件
-//     * @return Pair对象：key为拼接的含有占位符的原始sql， value为对应的填充参数
-//     */
-//    private String generatePageSql(Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize){
-//        String sqlOrigin = generateSql(columns, searchMap);
-//        if (!sqlOrigin.contains("limit")){
-//            sqlOrigin += " limit " + startIndex + ", " + pageSize;
-//        }
-//        return sqlOrigin;
-//    }
-
-    private String generateValueSql(String tableName, String columnName, String joinTailSql){
-        return "select " + tableName + "." + SqlBuilder.toDbField(columnName) + " " + joinSql + " " + joinTailSql;
-    }
 
     @Getter
     class TableJoiner{

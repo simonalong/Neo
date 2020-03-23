@@ -65,7 +65,7 @@ public class NeoJoinTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(neo, table1);
+        NeoJoiner joinner = new NeoJoiner(table1);
         joinner.leftJoin(table1, table2).on("id", "n_id");
         joinner.leftJoin(table2, table3).on("n_id", "n_id");
 
@@ -104,7 +104,7 @@ public class NeoJoinTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(neo, table1);
+        NeoJoiner joinner = new NeoJoiner(table1);
         joinner.leftJoin(table1, table2).on("id", "n_id");
         joinner.leftJoin(table2, table3).on("n_id", "n_id");
 
@@ -138,7 +138,7 @@ public class NeoJoinTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(neo, table1);
+        NeoJoiner joinner = new NeoJoiner(table1);
         joinner.leftJoin(table1, table2).on("id", "n_id");
         joinner.leftJoin(table2, table3).on("n_id", "n_id");
 
@@ -179,7 +179,7 @@ public class NeoJoinTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(neo, table1);
+        NeoJoiner joinner = new NeoJoiner(table1);
         joinner.leftJoin(table1, table2).on("id", "n_id");
         joinner.leftJoin(table2, table3).on("n_id", "n_id");
 
