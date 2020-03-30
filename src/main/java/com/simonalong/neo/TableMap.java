@@ -221,6 +221,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public int size(String tableName) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).size();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).size();
         }
         return 0;
     }
@@ -233,6 +235,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public boolean isEmpty(String tableName) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).isEmpty();
+        } else if(dataMap.containsKey(DEFAULT_TABLE)){
+            return dataMap.get(DEFAULT_TABLE).isEmpty();
         }
         return true;
     }
@@ -245,8 +249,14 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public boolean containsKey(String tableName, Object key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).containsKey(key);
+        } else if(dataMap.containsKey(DEFAULT_TABLE)){
+            return dataMap.get(DEFAULT_TABLE).containsValue(key);
         }
         return false;
+    }
+
+    public boolean haveTable(String tableName){
+        return dataMap.containsKey(tableName);
     }
 
     @Override
@@ -257,6 +267,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public boolean containsValue(String tableName, Object value) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).containsValue(value);
+        } else if(dataMap.containsKey(DEFAULT_TABLE)){
+            return dataMap.get(DEFAULT_TABLE).containsValue(value);
         }
         return false;
     }
@@ -269,6 +281,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Object get(String tableName, String key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).get(key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).containsValue(key);
         }
         return null;
     }
@@ -308,6 +322,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public NeoMap getValueNeoMap(String tableName, String key) {
         if (dataMap.containsKey(tableName)) {
             return getNeoMap(tableName).get(NeoMap.class, key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).get(NeoMap.class, key);
         }
         return NeoMap.of();
     }
@@ -315,6 +331,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public <T> T get(Class<T> tClass, String tableName, String key) {
         if (dataMap.containsKey(tableName)) {
             return getNeoMap(tableName).get(tClass, key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return getNeoMap(DEFAULT_TABLE).get(tClass, key);
         }
         return null;
     }
@@ -370,6 +388,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Object remove(String tableName, Object key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).remove(key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).remove(key);
         }
         return null;
     }
@@ -394,6 +414,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public void clear(String tableName) {
         if (dataMap.containsKey(tableName)) {
             dataMap.get(tableName).clear();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            dataMap.get(DEFAULT_TABLE).clear();
         }
     }
 
@@ -405,6 +427,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Set<String> keySet(String tableName) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).keySet();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).keySet();
         }
         return null;
     }
@@ -417,6 +441,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Collection<Object> values(String tableName) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).values();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).values();
         }
         return Collections.emptyList();
     }
@@ -437,6 +463,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Set<Entry<String, Object>> entrySet(String tableName) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).entrySet();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).entrySet();
         }
         return null;
     }
@@ -449,6 +477,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public boolean equals(String tableName, Object o) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).equals(o);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).equals(o);
         }
         return false;
     }
@@ -478,7 +508,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public <T> T as(Class<T> tClass, NeoMap.NamingChg namingChg) {
-        return as(tClass, null, namingChg);
+        return as(tClass, DEFAULT_TABLE, namingChg);
     }
 
     /**
@@ -761,6 +791,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public Stream<String> keyStream(String tableName) {
         if (containsKey(tableName)) {
             getNeoMap(tableName).keyStream();
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE).keyStream();
         }
         return Stream.of();
     }

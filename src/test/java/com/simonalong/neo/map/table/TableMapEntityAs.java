@@ -1,6 +1,5 @@
 package com.simonalong.neo.map.table;
 
-import com.simonalong.neo.annotation.Table;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,7 +9,6 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@Table("table1")
 public class TableMapEntityAs {
 
     private String name;

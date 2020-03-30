@@ -88,6 +88,20 @@ public class NeoListTest extends NeoBaseTest {
 
     /**
      * 查询一行数据
+     * 采用直接执行sql方式，设定返回实体类型
+     */
+    @Test
+    @SneakyThrows
+    public void testExeList7(){
+        neo.setExplainFlag(true);
+        List<Integer> idList = Arrays.asList(310, 311);
+        // select * from neo_table1 where id buildIn ('310','311')
+        show(neo.exeList("select name  from %s where name <> ''", TABLE_NAME));
+        show(neo.exeList(TestEntity2.class, "select name  from %s where name <> ''", TABLE_NAME));
+    }
+
+    /**
+     * 查询一行数据
      * 条件通过NeoMap设置
      * 相当于：select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
      * from neo_table1 where `group` =  ?

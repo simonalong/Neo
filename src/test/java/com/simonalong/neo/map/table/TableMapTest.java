@@ -4,13 +4,14 @@ import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.db.NeoTable;
 import com.simonalong.neo.exception.NeoMapChgException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 
 /**
  * @author shizi
@@ -289,9 +290,9 @@ public class TableMapTest extends BaseTest {
     @Test
     public void testAs1(){
         TableMap tableMap = TableMap.of();
-        tableMap.put("table1", "name", "nana");
-        tableMap.put("table1", "age", 12);
-        tableMap.put("table1", "userName", "user");
+        tableMap.put(DEFAULT_TABLE, "name", "nana");
+        tableMap.put(DEFAULT_TABLE, "age", 12);
+        tableMap.put(DEFAULT_TABLE, "userName", "user");
 
         // {"table1":{"age":12,"name":"nana","userName":"user"}}
         TableMapEntityAs result = tableMap.as(TableMapEntityAs.class);

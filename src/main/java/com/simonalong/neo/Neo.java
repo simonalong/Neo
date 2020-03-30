@@ -445,14 +445,12 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public TableMap exeOne(String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        return execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
+        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
     }
 
     @Override
     public <T> T exeOne(Class<T> tClass, String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        return exeOne(finalSql, parameters).as(tClass);
+        return exeOne(sql, parameters).as(tClass);
     }
 
     /**
@@ -547,17 +545,15 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<TableMap> exeList(String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        if (startWithSelect(finalSql)) {
-            return execute(true, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeList);
+        if (startWithSelect(sql)) {
+            return execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeList);
         }
         return new ArrayList<>();
     }
 
     @Override
     public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        return exeList(finalSql, parameters).stream().map(table->table.as(tClass)).collect(Collectors.toList());
+        return exeList(sql, parameters).stream().map(table->table.as(tClass)).collect(Collectors.toList());
     }
 
     /**
@@ -617,8 +613,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        TableMap result = execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
+        TableMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
         if (null != result) {
             return result.getFirst().getFirst(tClass);
         }
@@ -647,7 +642,7 @@ public class Neo extends AbstractBaseDb {
             TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem),
                 this::executeOne);
             if (null != result) {
-                result.get(tClass, tableName, field);
+                return result.get(tClass, tableName, field);
             }
         }
         return null;
@@ -714,8 +709,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        List<TableMap> resultList = execute(true, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)),
+        List<TableMap> resultList = execute(true, () -> generateExeSqlPair(sql, Arrays.asList(parameters)),
             this::executeList);
 
         if (null != resultList && !resultList.isEmpty()) {
@@ -745,8 +739,13 @@ public class Neo extends AbstractBaseDb {
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         NeoMap searchMapTem = searchMap.clone();
-        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem),
-            this::executeList).stream().map(table->table.getNeoMap(tableName)).collect(Collectors.toList());
+        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
+            if (table.haveTable(DEFAULT_TABLE)) {
+                return table.getNeoMap(DEFAULT_TABLE);
+            } else {
+                return table.getNeoMap(tableName);
+            }
+        }).collect(Collectors.toList());
 
         if (!NeoMap.isEmpty(resultList)) {
             return resultList.stream()
@@ -754,7 +753,7 @@ public class Neo extends AbstractBaseDb {
                 .filter(Objects::nonNull).distinct()
                 .collect(Collectors.toList());
         }
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -812,9 +811,8 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        if (startWithSelect(finalSql)) {
-            return execute(true, () -> generateExePageSqlPair(finalSql, Arrays.asList(parameters), startIndex, pageSize),
+        if (startWithSelect(sql)) {
+            return execute(true, () -> generateExePageSqlPair(sql, Arrays.asList(parameters), startIndex, pageSize),
                 this::executeList);
         }
         return new ArrayList<>();
@@ -901,8 +899,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public Integer exeCount(String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        TableMap result = execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::executeOne);
+        TableMap result = execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::executeOne);
         return doCount(result);
     }
 
@@ -940,8 +937,7 @@ public class Neo extends AbstractBaseDb {
      */
     @Override
     public List<List<TableMap>> execute(String sql, Object... parameters) {
-        String finalSql = sql.toLowerCase(Locale.getDefault());
-        return execute(false, () -> generateExeSqlPair(finalSql, Arrays.asList(parameters)), this::execute);
+        return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
     }
 
     public Set<String> getColumnNameList(String tableName) {
@@ -1725,7 +1721,10 @@ public class Neo extends AbstractBaseDb {
         Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(index));
         String tableAlis = pair.getKey();
         String columnLabel = pair.getValue();
-        row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(rs.getObject(index)));
+        Object result = rs.getObject(index);
+        if(null != result) {
+            row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(result));
+        }
     }
 
     /**
