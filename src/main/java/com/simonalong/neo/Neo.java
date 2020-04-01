@@ -716,7 +716,7 @@ public class Neo extends AbstractBaseDb {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
                 return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
-            }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -750,7 +750,7 @@ public class Neo extends AbstractBaseDb {
         if (!NeoMap.isEmpty(resultList)) {
             return resultList.stream()
                 .map(r -> r.get(tClass, field))
-                .filter(Objects::nonNull).distinct()
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         }
         return new ArrayList<>();
