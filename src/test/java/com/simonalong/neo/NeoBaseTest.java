@@ -20,8 +20,6 @@ public class NeoBaseTest extends BaseTest {
 
     public static Neo neo;
 
-    public NeoBaseTest() throws SQLException {}
-
     static {
         System.setProperty("LOG_LEVEL", "debug");
     }

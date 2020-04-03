@@ -1,7 +1,10 @@
 package com.simonalong.neo;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
 /**
@@ -38,6 +41,40 @@ public final class NeoPool {
     public NeoPool add(String alias, Neo neo){
         neoMap.putIfAbsent(alias, neo);
         return this;
+    }
+
+    /**
+     * 添加分库
+     *
+     * @param devideDbNames 分库的db分库表达式，{0, 12}作为后缀。比如：xxx{0, 12}
+     * @param neoList db的列表
+     * @return pool对象
+     */
+    public NeoPool addDevideDbList(String devideDbNames, List<Neo> neoList) {
+        String regex = "^(.*)\\{(\\d),.*(\\d)}$";
+        Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
+
+        while (matcher.find()) {
+            String dbName = matcher.group(1);
+            Integer min = Integer.valueOf(matcher.group(2));
+            Integer max = Integer.valueOf(matcher.group(3));
+            for (Integer index = min, indexJ = 0; index <= max; index++, indexJ++) {
+                add(dbName + index, neoList.get(indexJ));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 根据列获取对应的分库
+     *
+     * @param devideDb 分库的库名
+     * @param devideColumn 分库的列名
+     * @return 库
+     */
+    public Neo getDevideDb(String devideDb, String devideColumn) {
+        // todo
+        return null;
     }
 
     /**
