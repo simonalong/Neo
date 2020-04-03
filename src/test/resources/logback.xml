@@ -1,38 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="true" scanPeriod="60000" debug="false">
 
-    <property name="APP_NAME" value="Neo"/>
-    <property name="LOG_HOME" value="/data/logs/neo"/>
+    <property name="APP_NAME" value="${app.name}"/>
+    <property name="LOG_HOME" value="${LOG_HOME}"/>
     <property name="LOG_LEVEL" value="${LOG_LEVEL}"/>
-    <property name="LOG_KEEP_TIME" value="30"/>
 
+    <property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n"/>
     <contextName>${APP_NAME}</contextName>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!--记录warn和Error级别-->
+    <appender name="RollingWarnOrErrorLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}/warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${APP_NAME}/neo_warnOrError.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-4level] [%logger{36}] [%msg]%n</pattern>
+            <pattern>${pattern}</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <appender name="NEO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-4level] [%logger{36}] [%msg]%n</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/neo.%d{yyyy-MM-dd}.log</FileNamePattern>
-            <MaxHistory>${LOG_KEEP_TIME}</MaxHistory>
+    <!--记录info级别-->
+    <appender name="RollingInfoLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}/info.log</file>
+        <!--文件可能多，按照日期和尺寸配置-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${APP_NAME}/neo_info.%i.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- 每个文件最大100M，保存60天，但是最大20G -->
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>${LOG_LEVEL}</level>
+            <level>INFO</level>
             <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
     </appender>
-    <logger name="ch.qos.logback" level="ERROR" additivity="true"/>
 
-    <root level="INFO">
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="com.simonalong.neo" level="${log.level}" additivity="false">
         <appender-ref ref="STDOUT"/>
-    </root>
+        <appender-ref ref="RollingInfoLogger"/>
+        <appender-ref ref="RollingWarnOrErrorLogger"/>
+    </logger>
 
+    <root level="${log.level}">
+        <appender-ref ref="RollingWarnOrErrorLogger"/>
+        <appender-ref ref="RollingInfoLogger"/>
+    </root>
 </configuration>
