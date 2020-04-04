@@ -25,11 +25,11 @@ public class NeoDevideTest extends NeoBaseTest {
         List<Neo> neoList = new ArrayList<>();
         NeoPool neoPool = NeoPool.getInstance();
         // 添加分库
-        neoPool.addDevideDbList("db1{0, 12}", neoList);
+        neoPool.addDevideDbList("neo_devide_{0, 12}", neoList, "user_id");
         // 获取分库
 //        Neo devideDb = neoPool.getDevideDb("db1", "user_id");
 
-//        devideDb.insert("neo_table1", NeoMap.of("group", "name"));
+        neoPool.insert("neo_devide_", NeoMap.of("group", "name"));
     }
 
     /**

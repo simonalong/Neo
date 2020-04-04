@@ -54,11 +54,9 @@ public class NeoXATest extends NeoBaseTest {
         Neo db1 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo", "neo_test", "neo@Test123");
         Neo db2 = Neo.connect("jdbc:mysql://127.0.0.1:3306/neo2", "neo_test", "neo@Test123");
 
-        NeoPool neoPool = NeoPool.getInstance();
-        neoPool.add("d1", db1);
-        neoPool.add("d2", db2);
-
-        NeoXa xa = NeoXa.from(neoPool, "d1", "d2");
+        NeoXa xa = NeoXa.of();
+        xa.add("d1", db1);
+        xa.add("d2", db2);
 
         xa.run(() -> {
             Neo d1 = xa.get("d1");
