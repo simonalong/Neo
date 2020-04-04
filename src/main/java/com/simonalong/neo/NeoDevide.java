@@ -1,10 +1,10 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.core.AbstractBaseDb;
+import com.simonalong.neo.core.ExecuteSql;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.util.ObjectUtil;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author zhouzhenyong
  * @since 2019/6/21 下午3:48
  */
-public final class NeoDevide extends AbstractBaseDb {
+public final class NeoDevide extends AbstractBaseDb implements ExecuteSql {
 
     /**
      * 待分库的db的名字
