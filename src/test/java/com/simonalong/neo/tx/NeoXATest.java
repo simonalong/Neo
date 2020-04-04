@@ -6,7 +6,6 @@ import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoPool;
 import com.simonalong.neo.db.xa.NeoXa;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

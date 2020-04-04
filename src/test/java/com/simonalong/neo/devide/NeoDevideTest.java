@@ -2,8 +2,8 @@ package com.simonalong.neo.devide;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.NeoDevide;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoPool;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,13 +23,11 @@ public class NeoDevideTest extends NeoBaseTest {
     @Test
     public void testDevideDb() {
         List<Neo> neoList = new ArrayList<>();
-        NeoPool neoPool = NeoPool.getInstance();
-        // 添加分库
-        neoPool.addDevideDbList("neo_devide_{0, 12}", neoList, "user_id");
+        NeoDevide neoDevide = new NeoDevide("neo_devide_{0, 12}", neoList, "neo_table", "user_id");
         // 获取分库
-//        Neo devideDb = neoPool.getDevideDb("db1", "user_id");
+//        Neo devideDb = neoDevide.getDevideDb("db1", "user_id");
 
-        neoPool.insert("neo_devide_", NeoMap.of("group", "name"));
+        neoDevide.insert("neo_table", NeoMap.of("group", "name"));
     }
 
     /**
@@ -47,11 +45,11 @@ public class NeoDevideTest extends NeoBaseTest {
     @Test
     public void testDevideDbAndTable() {
         List<Neo> neoList = new ArrayList<>();
-        NeoPool neoPool = NeoPool.getInstance();
+        NeoDevide neoDevide = NeoDevide.getInstance();
         // 添加分库
-        neoPool.addDevideDbList("db1{0, 10}", neoList);
+        neoDevide.addDevideDbList("db1{0, 10}", neoList);
         // 获取分库
-        Neo devideDb = neoPool.getDevideDb("db1", "user_id");
+        Neo devideDb = neoDevide.getDevideDb("db1", "user_id");
 
 
 //        devideDb.addDevideTable("neo_table1[0, 100]", "order_id");

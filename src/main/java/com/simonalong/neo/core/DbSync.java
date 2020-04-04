@@ -73,7 +73,7 @@ public interface DbSync extends SyncNeo{
 
     String value(String tableName, String field, Object entity);
 
-    String value(String tableName, String field, Number entity);
+    String value(String tableName, String field, Number id);
 
 
     <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap);
@@ -123,29 +123,4 @@ public interface DbSync extends SyncNeo{
     <T> Integer batchUpdateEntity(String tableName, List<T> dataList);
 
     <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns);
-
-
-    TableMap exeOne(String sql, Object... parameters);
-
-    <T> T exeOne(Class<T> tClass, String sql, Object... parameters);
-
-    List<TableMap> exeList(String sql, Object... parameters);
-
-    <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters);
-
-    <T> T exeValue(Class<T> tClass, String sql, Object... parameters);
-
-    String exeValue(String sql, Object... parameters);
-
-    <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters);
-
-    List<String> exeValues(String sql, Object... parameters);
-
-    List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
-
-    List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters);
-
-    Integer exeCount(String sql, Object... parameters);
-
-    List<List<TableMap>> execute(String sql, Object... parameters);
 }

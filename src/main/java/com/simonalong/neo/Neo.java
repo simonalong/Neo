@@ -9,6 +9,7 @@ import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
+import com.simonalong.neo.core.ExecuteSql;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.sql.*;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo extends AbstractBaseDb {
+public class Neo extends AbstractBaseDb implements ExecuteSql {
 
     @Getter
     private NeoDb db;
@@ -688,11 +689,11 @@ public class Neo extends AbstractBaseDb {
     }
 
     @Override
-    public String value(String tableName, String field, Number entity) {
+    public String value(String tableName, String field, Number id) {
         checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         if (null != primaryKey && !"".equals(primaryKey)) {
-            return value(tableName, String.class, field, NeoMap.of(primaryKey, entity));
+            return value(tableName, String.class, field, NeoMap.of(primaryKey, id));
         }
         log.warn(LOG_PRE + "db {}'s primary key is null, please set", tableName);
         return null;
