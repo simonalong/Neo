@@ -89,8 +89,6 @@ public interface DbSync extends SyncNeo{
 
     List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page);
 
-    List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap);
-
     <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page);
 
     List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page);
@@ -100,8 +98,6 @@ public interface DbSync extends SyncNeo{
     List<NeoMap> page(String tableName, Columns columns, NeoPage page);
 
     List<NeoMap> page(String tableName, NeoPage page);
-
-    List<NeoMap> page(String tableName, NeoMap searchMap);
 
 
     Integer count(String tableName, NeoMap searchMap);

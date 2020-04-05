@@ -274,9 +274,4 @@ public class NeoPageTest extends NeoBaseTest {
         // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
         show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc"), NeoPage.of(1, 12)));
     }
-
-    @Test
-    public void testOrderBy4(){
-        show(neo.page(TABLE_NAME, NeoMap.of("order by", "name", "pager", NeoMap.of("pageNo", 1, "pageSize", 20))));
-    }
 }

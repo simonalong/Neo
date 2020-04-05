@@ -844,11 +844,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap) {
-        return page(tableName, columns, searchMap.delete("pager"), NeoPage.from(searchMap));
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         if (entity.getClass().isPrimitive()) {
@@ -877,18 +872,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public List<NeoMap> page(String tableName, NeoPage page) {
         return page(tableName, Columns.of().setNeo(this).table(tableName), NeoMap.of(), page);
-    }
-
-    /**
-     * 分页搜索
-     *
-     * @param tableName 表名
-     * @param searchMap 搜索条件，其中默认searchMap中包含key为：'pager'的数据，里面是pageNo和pageSize
-     * @return 分页数据
-     */
-    @Override
-    public List<NeoMap> page(String tableName, NeoMap searchMap) {
-        return page(tableName, searchMap.assignExcept("pager"), NeoPage.from(searchMap));
     }
 
     /**
