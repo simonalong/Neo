@@ -247,6 +247,10 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         return db.getTable(tableName);
     }
 
+    public void addDevideTable(){
+        // todo 添加分表的配置
+    }
+
     /**
      * 数据插入
      *

@@ -35,8 +35,8 @@ public class NeoDevideTest extends NeoBaseTest {
      */
     @Test
     public void testDevideTable() {
-//        neo.addDevideTable("neo_table1_{0, 100}", "order_id");
-//        neo.insert("neo_table1_", NeoMap.of("group", "name"));
+        neo.addDevideTable("neo_table1_{0, 100}", "order_id");
+        neo.insert("neo_table1_", NeoMap.of("group", "name"));
     }
 
 //    /**
