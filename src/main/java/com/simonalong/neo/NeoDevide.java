@@ -98,6 +98,7 @@ public final class NeoDevide extends AbstractBaseDb {
     }
 
     private Object getDevideColumnValue(String tableName, NeoMap dataMap) {
+        // todo 我觉得如果分库没有分配成功，则抛出异常
         if (devideTableName.equals(tableName)) {
             return dataMap.get(devideColumnName);
         }
