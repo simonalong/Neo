@@ -792,7 +792,7 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Getter
     @AllArgsConstructor
-    static class InnerHashTable {
+    private static class InnerHashTable {
 
         /**
          * 哈希的下标索引
