@@ -39,8 +39,28 @@ public class NeoDevideTest extends NeoBaseTest {
     public void testDevideTable() {
         NeoDevide neoDevide = new NeoDevide();
         // 设置分表的分表参数
-        neoDevide.setDevideTable("neo_table{0, 100}", "user_id");
+        neoDevide.addDevideTable("neo_table{0, 100}", "user_id");
         neoDevide.insert("neo_table", NeoMap.of("group", "name"));
+    }
+
+    /**
+     * 测试分库分表
+     */
+    @Test
+    public void testDevideDbAndTable1() {
+        // todo
+        List<Neo> neoList = new ArrayList<>();
+        NeoDevide neoDevide = new NeoDevide();
+        // 设置分库
+        neoDevide.setDevideDb("neo_devide_[0, 12)", neoList);
+        // 添加分库的分库参数
+        neoDevide.addDbDevideParameter("neo_table", "user_id");
+
+        // 设置分表
+        neoDevide.addDevideTable("neo_table{0, 100}", "user_id");
+
+        // 添加数据
+        neoDevide.insert("neo_table1", NeoMap.of("group", "name"));
     }
 
     /**
@@ -50,7 +70,7 @@ public class NeoDevideTest extends NeoBaseTest {
      * 其中库分为12个，
      */
     @Test
-    public void testDevideDbAndTable() {
+    public void testDevideDbAndTable2() {
         // todo
         List<Neo> neoList = new ArrayList<>();
         NeoDevide neoDevide = new NeoDevide();
@@ -61,8 +81,8 @@ public class NeoDevideTest extends NeoBaseTest {
         neoDevide.addDbDevideParameter("neo_order", "order_id");
 
         // 设置分表
-        neoDevide.setDevideTable("neo_table{0, 100}", "user_id");
-        neoDevide.setDevideTable("neo_order{0, 200}", "order_id");
+        neoDevide.addDevideTable("neo_table{0, 100}", "user_id");
+        neoDevide.addDevideTable("neo_order{0, 200}", "order_id");
 
         // 添加数据
         neoDevide.insert("neo_table1", NeoMap.of("group", "name"));

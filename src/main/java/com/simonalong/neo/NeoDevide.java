@@ -94,7 +94,7 @@ public final class NeoDevide extends AbstractBaseDb {
      * @param devideTableNames 分表的表达式，{0, 12}作为后缀。比如：xxx{0, 12}
      * @param columnName 分表的列名
      */
-    public void setDevideTable(String devideTableNames, String columnName) {
+    public void addDevideTable(String devideTableNames, String columnName) {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideTableNames);
         if (matcher.find()) {
