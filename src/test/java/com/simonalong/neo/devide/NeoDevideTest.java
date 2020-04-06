@@ -23,9 +23,8 @@ public class NeoDevideTest extends NeoBaseTest {
     @Test
     public void testDevideDb() {
         List<Neo> neoList = new ArrayList<>();
-        NeoDevide neoDevide = new NeoDevide("neo_devide_{0, 12}", neoList, "neo_table", "user_id");
-        // 获取分库
-//        Neo devideDb = neoDevide.getDevideDb("db1", "user_id");
+        NeoDevide neoDevide = new NeoDevide("neo_devide_{0, 12}", neoList);
+        neoDevide.addDevideTable("neo_table", "user_id");
 
         neoDevide.insert("neo_table", NeoMap.of("group", "name"));
     }

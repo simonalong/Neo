@@ -3,6 +3,7 @@ package com.simonalong.neo;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoException;
+import com.simonalong.neo.exception.NotFindDevideDbException;
 import com.simonalong.neo.util.ObjectUtil;
 
 import java.util.ArrayList;
@@ -31,13 +32,9 @@ public final class NeoDevide extends AbstractBaseDb {
      */
     private Map<String, Pair<Integer, Neo>> devideNeoMap = new ConcurrentHashMap<>(8);
     /**
-     * 分库字段对应的表名
+     * 分库字段表名和字段
      */
-    private String devideTableName;
-    /**
-     * 分库字段
-     */
-    private String devideColumnName;
+    private Map<String, String> devideTableAndColumnMap = new ConcurrentHashMap<>(8);
     /**
      * 分库的最小值
      */
@@ -53,10 +50,8 @@ public final class NeoDevide extends AbstractBaseDb {
      *
      * @param devideDbNames 分库的db分库表达式，{0, 12}作为后缀。比如：xxx{0, 12}
      * @param neoList       db的列表
-     * @param tableName     待分库的表名
-     * @param columnName    列名
      */
-    public NeoDevide(String devideDbNames, List<Neo> neoList, String tableName, String columnName) {
+    public NeoDevide(String devideDbNames, List<Neo> neoList) {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
         if (matcher.find()) {
@@ -70,11 +65,13 @@ public final class NeoDevide extends AbstractBaseDb {
             for (Integer index = min, indexJ = 0; index <= max; index++, indexJ++) {
                 devideNeoMap.putIfAbsent(dbName + index, new Pair<>(indexJ, neoList.get(indexJ)));
             }
-            this.devideTableName = tableName;
-            this.devideColumnName = columnName;
         } else {
             throw new NeoException("没有发现要分库的数据");
         }
+    }
+
+    public void addDevideTable(String tableName, String columnName){
+        devideTableAndColumnMap.putIfAbsent(tableName, columnName);
     }
 
     /**
@@ -98,16 +95,17 @@ public final class NeoDevide extends AbstractBaseDb {
     }
 
     private Object getDevideColumnValue(String tableName, NeoMap dataMap) {
-        // todo 我觉得如果分库没有分配成功，则抛出异常
-        if (devideTableName.equals(tableName)) {
-            return dataMap.get(devideColumnName);
+        if (devideTableAndColumnMap.containsKey(tableName)) {
+            return dataMap.get(devideTableAndColumnMap.get(tableName));
         }
         return null;
     }
 
     private Object getDevideColumnValue(String tableName, Object object) {
-        if (devideTableName.equals(tableName)) {
-            return NeoMap.from(object).get(devideColumnName);
+        if (devideTableAndColumnMap.containsKey(tableName)) {
+            if (null != object) {
+                return NeoMap.from(object).get(devideTableAndColumnMap.get(tableName));
+            }
         }
         return null;
     }
@@ -125,12 +123,12 @@ public final class NeoDevide extends AbstractBaseDb {
         List<NeoMap> dataMapList = dataList.stream().map(d -> NeoMap.from(d, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList());
 
         // 非分库的表，则返回所有的数据
-        if (!tableName.equals(devideTableName)) {
+        if (!devideTableAndColumnMap.containsKey(tableName)) {
             return devideNeoMap.values().stream().map(m -> new Pair<>(m.getValue(), dataMapList)).collect(Collectors.toList());
         } else {
             Collection<Pair<Integer, Neo>> indexAndNeoCollection = devideNeoMap.values();
             for (Pair<Integer, Neo> indexNeoPair : indexAndNeoCollection) {
-                mapList.add(new Pair<>(indexNeoPair.getValue(), getDevideMapList(indexNeoPair.getKey(), dataMapList)));
+                mapList.add(new Pair<>(indexNeoPair.getValue(), getDevideMapList(tableName, indexNeoPair.getKey(), dataMapList)));
             }
         }
 
@@ -144,13 +142,16 @@ public final class NeoDevide extends AbstractBaseDb {
      * @param dataList 数据
      * @return 该哈希对应的数据
      */
-    private List<NeoMap> getDevideMapList(Integer index, List<NeoMap> dataList) {
+    private List<NeoMap> getDevideMapList(String tableName, Integer index, List<NeoMap> dataList) {
         List<NeoMap> resultList = new ArrayList<>();
         for (NeoMap neoMap : dataList) {
-            if (neoMap.containsKey(devideColumnName)) {
-                Integer value = ObjectUtil.cast(Integer.class, neoMap.get(devideColumnName));
-                if (null != value && value.equals(index)) {
-                    resultList.add(neoMap);
+            if (devideTableAndColumnMap.containsKey(tableName)) {
+                String columnName = devideTableAndColumnMap.get(tableName);
+                if (neoMap.containsKey(columnName)) {
+                    Integer value = ObjectUtil.cast(Integer.class, neoMap.get(columnName));
+                    if (null != value && value.equals(index)) {
+                        resultList.add(neoMap);
+                    }
                 }
             } else {
                 resultList.add(neoMap);
@@ -169,8 +170,7 @@ public final class NeoDevide extends AbstractBaseDb {
         if (null != neo) {
             return neo.insert(tableName, dataMap);
         } else {
-            getNeoList().forEach(n -> n.insert(tableName, dataMap));
-            return NeoMap.of();
+            throw new NotFindDevideDbException("table: " + tableName + ", columns: " + dataMap);
         }
     }
 
@@ -180,8 +180,7 @@ public final class NeoDevide extends AbstractBaseDb {
         if (null != neo) {
             return neo.insert(tableName, object);
         } else {
-            getNeoList().forEach(n -> n.insert(tableName, object));
-            return object;
+            throw new NotFindDevideDbException("table: " + tableName + ", columns: " + object);
         }
     }
 
@@ -720,8 +719,7 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns) {
-        List<Pair<Neo, List<NeoMap>>> dbAndDataList = getDevideDbAndData(tableName,
-            dataList.stream().map(d -> NeoMap.from(d, columns, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList()));
+        List<Pair<Neo, List<NeoMap>>> dbAndDataList = getDevideDbAndData(tableName, dataList.stream().map(d -> NeoMap.from(d, columns, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList()));
         Integer result = 0;
         for (Pair<Neo, List<NeoMap>> dataPair : dbAndDataList) {
             result += dataPair.getKey().batchUpdate(tableName, dataPair.getValue(), columns);
