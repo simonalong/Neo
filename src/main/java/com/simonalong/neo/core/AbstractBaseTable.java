@@ -219,11 +219,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public List<NeoMap> page(Columns columns, NeoMap searchMap){
-        return getDbInner().page(getTableName(), columns, searchMap);
-    }
-
-    @Override
     public <T> List<T> page(Columns columns, T entity, NeoPage page){
         return getDbInner().page(getTableName(), columns, entity, page);
     }
@@ -246,11 +241,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public List<NeoMap> page(NeoPage page){
         return getDbInner().page(getTableName(), page);
-    }
-
-    @Override
-    public List<NeoMap> page(NeoMap searchMap){
-        return getDbInner().page(getTableName(), searchMap);
     }
 
     @Override
@@ -456,10 +446,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return CompletableFuture.supplyAsync(() -> page(columns, searchMap, page), executor);
     }
 
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(columns, searchMap), executor);
-    }
 
     @Override
     public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page, Executor executor) {
@@ -484,11 +470,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public CompletableFuture<List<NeoMap>> pageAsync(NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(page), executor);
-    }
-
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(searchMap), executor);
     }
 
     @Override

@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
  * @author zhouzhenyong
  * @since 2019-08-17 17:17
  */
-public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
+public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync, ExecuteSql{
 
     @Override
     public Executor getExecutor() {
@@ -180,11 +180,6 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchMap), executor);
-    }
-
-    @Override
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, entity, page), executor);
     }
@@ -207,11 +202,6 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync{
     @Override
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, page), executor);
-    }
-
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> page(tableName, searchMap), executor);
     }
 
     @Override

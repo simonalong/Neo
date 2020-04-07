@@ -87,8 +87,6 @@ public interface TableSync extends SyncNeo{
 
     List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page);
 
-    List<NeoMap> page(Columns columns, NeoMap searchMap);
-
     <T> List<T> page(Columns columns, T entity, NeoPage page);
 
     List<NeoMap> page(NeoMap searchMap, NeoPage page);
@@ -98,8 +96,6 @@ public interface TableSync extends SyncNeo{
     List<NeoMap> page(Columns columns, NeoPage page);
 
     List<NeoMap> page(NeoPage page);
-
-    List<NeoMap> page(NeoMap searchMap);
 
 
     Integer count(NeoMap searchMap);

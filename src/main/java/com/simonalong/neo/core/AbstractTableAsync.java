@@ -170,11 +170,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap) {
-        return pageAsync(columns, searchMap, getExecutor());
-    }
-
-    @Override
     public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page) {
         return pageAsync(columns, entity, page, getExecutor());
     }
@@ -197,11 +192,6 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public CompletableFuture<List<NeoMap>> pageAsync(NeoPage page) {
         return pageAsync(page, getExecutor());
-    }
-
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap) {
-        return pageAsync(searchMap, getExecutor());
     }
 
     @Override

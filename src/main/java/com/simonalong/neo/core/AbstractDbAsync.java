@@ -173,11 +173,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap) {
-        return pageAsync(tableName, columns, searchMap, getExecutor());
-    }
-
-    @Override
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page) {
         return pageAsync(tableName, columns, entity, page, getExecutor());
     }
@@ -200,11 +195,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     @Override
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page) {
         return pageAsync(tableName, page, getExecutor());
-    }
-
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap) {
-        return pageAsync(tableName, searchMap, getExecutor());
     }
 
     @Override
