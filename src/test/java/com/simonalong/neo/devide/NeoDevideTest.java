@@ -40,7 +40,7 @@ public class NeoDevideTest extends NeoBaseTest {
         NeoDevide neoDevide = new NeoDevide();
         // 设置分表的分表参数
         neoDevide.addDevideTable("neo_table{0, 100}", "user_id");
-        neoDevide.insert("neo_table", NeoMap.of("group", "name"));
+        neoDevide.insert("neo_table", NeoMap.of("group", "name", "user_id", 12));
     }
 
     /**

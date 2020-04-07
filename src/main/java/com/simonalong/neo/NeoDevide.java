@@ -6,6 +6,7 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NotFindDevideDbException;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,7 +39,7 @@ public final class NeoDevide extends AbstractBaseDb {
     /**
      * 表名以及对应的分表的名字，比如：key：xxx1，value：哈希值：1， xxx
      */
-    private Map<String, List<InnerHashTable>> devideTableMap = new ConcurrentHashMap<>(8);
+    private Map<String, TableHashInfo> devideTableMap = new ConcurrentHashMap<>(8);
     /**
      * 分库的字段表名和字段
      */
@@ -51,15 +52,11 @@ public final class NeoDevide extends AbstractBaseDb {
      * 分库的最小值
      */
     private Integer min = 0;
-    /**
-     * 分库的最大值
-     */
-    private Integer max = 0;
     private Integer devideSize = 0;
 
     /**
      * 设置分库
-     *
+     * <p>
      * <p>
      * 最后得到的库名，举例比如：db0, db1, ... db11
      *
@@ -71,12 +68,13 @@ public final class NeoDevide extends AbstractBaseDb {
         Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
         if (matcher.find()) {
             dbName = matcher.group(1);
-            min = Integer.valueOf(matcher.group(2));
-            max = Integer.valueOf(matcher.group(3));
+            Integer min = Integer.valueOf(matcher.group(2));
+            Integer max = Integer.valueOf(matcher.group(3));
             if (min >= max) {
                 throw new NeoException("数据配置错误: 最大值不能小于最小值");
             }
-            devideSize = max - min;
+            this.min = min;
+            this.devideSize = max - min;
             for (Integer index = min, indexJ = 0; index < max; index++, indexJ++) {
                 devideDbMap.putIfAbsent(dbName + index, new Pair<>(indexJ, neoList.get(indexJ)));
             }
@@ -87,12 +85,12 @@ public final class NeoDevide extends AbstractBaseDb {
 
     /**
      * 设置分表
-     *
+     * <p>
      * <p>
      * 最后得到的表名，举例比如：xxx0, xxx1, ... xxx11
      *
      * @param devideTableNames 分表的表达式，{0, 12}作为后缀。比如：xxx{0, 12}
-     * @param columnName 分表的列名
+     * @param columnName       分表的列名
      */
     public void addDevideTable(String devideTableNames, String columnName) {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
@@ -105,16 +103,24 @@ public final class NeoDevide extends AbstractBaseDb {
                 throw new NeoException("数据配置错误: 最大值不能小于最小值");
             }
 
+            Integer size = max - min;
             for (Integer index = min, indexJ = 0; index < max; index++, indexJ++) {
                 Integer finalIndexJ = indexJ;
                 Integer finalIndex = index;
                 devideTableMap.compute(tableName, (k, v) -> {
                     if (null == v) {
-                        List<InnerHashTable> innerHashTableList = new ArrayList<>();
-                        innerHashTableList.add(new InnerHashTable(finalIndexJ, tableName + finalIndex));
-                        return innerHashTableList;
+                        TableHashInfo tableHashInfo = new TableHashInfo();
+
+                        List<TableHashMeta> innerHashTableList = new ArrayList<>();
+                        innerHashTableList.add(new TableHashMeta(finalIndexJ, tableName + finalIndex));
+                        tableHashInfo.setMin(min);
+                        tableHashInfo.setSize(size);
+                        tableHashInfo.setInnerHashTableList(innerHashTableList);
+                        return tableHashInfo;
                     } else {
-                        v.add(new InnerHashTable(finalIndex, tableName + finalIndex));
+                        List<TableHashMeta> innerHashTableList = v.getInnerHashTableList();
+                        innerHashTableList.add(new TableHashMeta(finalIndexJ, tableName + finalIndex));
+                        v.setInnerHashTableList(innerHashTableList);
                         return v;
                     }
                 });
@@ -136,16 +142,32 @@ public final class NeoDevide extends AbstractBaseDb {
         devideDbParameterMap.putIfAbsent(tableName, columnName);
     }
 
+    private Neo getDevideDb(String tableName, NeoMap dataMap) {
+        return doGetDevideDb(getDevideDbColumnValue(tableName, dataMap));
+    }
+
+    private Neo getDevideDb(String tableName, Object object) {
+        return doGetDevideDb(getDevideDbColumnValue(tableName, object));
+    }
+
+    private String getDevideTable(String tableName, NeoMap dataMap) {
+        return doGetDevideTable(tableName, getDevideTableColumnValue(tableName, dataMap));
+    }
+
+    private String getDevideTable(String tableName, Object object) {
+        return doGetDevideTable(tableName, getDevideTableColumnValue(tableName, object));
+    }
+
     /**
      * 根据对应字段的值获取分库对应的DB
      *
      * @param value 分库字段对应的值
      * @return 分库db
      */
-    private Neo getDevideDb(Object value) {
+    private Neo doGetDevideDb(Object value) {
         Number index = ObjectUtil.cast(Number.class, value);
         if (null == index) {
-            throw new NeoException("数据转换失败");
+            return null;
         }
 
         String tableDevideStr = dbName + ((index.intValue() % devideSize) + min);
@@ -156,14 +178,46 @@ public final class NeoDevide extends AbstractBaseDb {
         }
     }
 
-    private Object getDevideColumnValue(String tableName, NeoMap dataMap) {
+    private String doGetDevideTable(String tableName, Object value) {
+        Number index = ObjectUtil.cast(Number.class, value);
+        if (null == index) {
+            return tableName;
+        }
+
+        TableHashInfo tableHashInfo = devideTableMap.get(tableName);
+        List<TableHashMeta> innerHashTableList = tableHashInfo.getInnerHashTableList();
+        for (TableHashMeta hashMeta : innerHashTableList) {
+            if (index.equals(hashMeta.getIndex())) {
+                return hashMeta.getTableNameWithIndex();
+            }
+        }
+        throw new NeoException("没有找到对应的分表");
+    }
+
+    private Object getDevideTableColumnValue(String tableName, NeoMap dataMap) {
+        if (devideTableParameterMap.containsKey(tableName)) {
+            return dataMap.get(devideTableParameterMap.get(tableName));
+        }
+        return null;
+    }
+
+    private Object getDevideTableColumnValue(String tableName, Object object) {
+        if (devideTableParameterMap.containsKey(tableName)) {
+            if (null != object) {
+                return NeoMap.from(object).get(devideTableParameterMap.get(tableName));
+            }
+        }
+        return null;
+    }
+
+    private Object getDevideDbColumnValue(String tableName, NeoMap dataMap) {
         if (devideDbParameterMap.containsKey(tableName)) {
             return dataMap.get(devideDbParameterMap.get(tableName));
         }
         return null;
     }
 
-    private Object getDevideColumnValue(String tableName, Object object) {
+    private Object getDevideDbColumnValue(String tableName, Object object) {
         if (devideDbParameterMap.containsKey(tableName)) {
             if (null != object) {
                 return NeoMap.from(object).get(devideDbParameterMap.get(tableName));
@@ -228,9 +282,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap insert(String tableName, NeoMap dataMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, dataMap));
+        Neo neo = getDevideDb(tableName, dataMap);
         if (null != neo) {
-            return neo.insert(tableName, dataMap);
+            return neo.insert(getDevideTable(tableName, dataMap), dataMap);
         } else {
             throw new NotFindDevideDbException("table: " + tableName + ", columns: " + dataMap);
         }
@@ -238,9 +292,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T insert(String tableName, T object) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, object));
+        Neo neo = getDevideDb(tableName, object);
         if (null != neo) {
-            return neo.insert(tableName, object);
+            return neo.insert(getDevideTable(tableName, object), object);
         } else {
             throw new NotFindDevideDbException("table: " + tableName + ", columns: " + object);
         }
@@ -248,9 +302,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public Integer delete(String tableName, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.delete(tableName, searchMap);
+            return neo.delete(getDevideTable(tableName, searchMap), searchMap);
         } else {
             getNeoList().forEach(n -> n.delete(tableName, searchMap));
             return getNeoList().size();
@@ -259,9 +313,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> Integer delete(String tableName, T object) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, object));
+        Neo neo = getDevideDb(tableName, object);
         if (null != neo) {
-            return neo.delete(tableName, object);
+            return neo.delete(getDevideTable(tableName, object), object);
         } else {
             getNeoList().forEach(n -> n.delete(tableName, object));
             return getNeoList().size();
@@ -276,9 +330,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.update(tableName, dataMap, searchMap);
+            return neo.update(getDevideTable(tableName, searchMap), dataMap, searchMap);
         } else {
             getNeoList().forEach(n -> n.update(tableName, dataMap, searchMap));
             return NeoMap.of();
@@ -287,9 +341,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.update(tableName, setEntity, searchMap);
+            return neo.update(getDevideTable(tableName, searchMap), setEntity, searchMap);
         } else {
             getNeoList().forEach(n -> n.update(tableName, setEntity, searchMap));
             return null;
@@ -298,9 +352,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T setEntity, T searchEntity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchEntity));
+        Neo neo = getDevideDb(tableName, searchEntity);
         if (null != neo) {
-            return neo.update(tableName, setEntity, searchEntity);
+            return neo.update(getDevideTable(tableName, searchEntity), setEntity, searchEntity);
         } else {
             getNeoList().forEach(n -> n.update(tableName, setEntity, searchEntity));
             return null;
@@ -309,9 +363,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchEntity));
+        Neo neo = getDevideDb(tableName, searchEntity);
         if (null != neo) {
-            return neo.update(tableName, setMap, searchEntity);
+            return neo.update(getDevideTable(tableName, searchEntity), setMap, searchEntity);
         } else {
             getNeoList().forEach(n -> n.update(tableName, setMap, searchEntity));
             return NeoMap.of();
@@ -320,9 +374,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, dataMap.assign(columns)));
+        Neo neo = getDevideDb(tableName, dataMap.assign(columns));
         if (null != neo) {
-            return neo.update(tableName, dataMap, columns);
+            return neo.update(getDevideTable(tableName, dataMap.assign(columns)), dataMap, columns);
         } else {
             getNeoList().forEach(n -> n.update(tableName, dataMap, columns));
             return NeoMap.of();
@@ -331,9 +385,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T entity, Columns columns) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE)));
+        Neo neo = getDevideDb(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE));
         if (null != neo) {
-            return neo.update(tableName, entity, columns);
+            return neo.update(getDevideTable(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE)), entity, columns);
         } else {
             getNeoList().forEach(n -> n.update(tableName, entity, columns));
             return null;
@@ -342,9 +396,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, dataMap));
+        Neo neo = getDevideDb(tableName, dataMap);
         if (null != neo) {
-            return neo.update(tableName, dataMap);
+            return neo.update(getDevideTable(tableName, dataMap), dataMap);
         } else {
             getNeoList().forEach(n -> n.update(tableName, dataMap));
             return NeoMap.of();
@@ -353,9 +407,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T update(String tableName, T entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.update(tableName, entity);
+            return neo.update(getDevideTable(tableName, entity), entity);
         } else {
             getNeoList().forEach(n -> n.update(tableName, entity));
             return null;
@@ -364,9 +418,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.one(tableName, columns, searchMap);
+            return neo.one(getDevideTable(tableName, searchMap), columns, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -381,9 +435,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T one(String tableName, Columns columns, T entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.one(tableName, columns, entity);
+            return neo.one(getDevideTable(tableName, entity), columns, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -410,9 +464,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public NeoMap one(String tableName, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.one(tableName, searchMap);
+            return neo.one(getDevideTable(tableName, searchMap), searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -427,9 +481,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> T one(String tableName, T entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.one(tableName, entity);
+            return neo.one(getDevideTable(tableName, entity), entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -456,9 +510,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.list(tableName, columns, searchMap);
+            return neo.list(getDevideTable(tableName, searchMap), columns, searchMap);
         } else {
             return getNeoList().stream().flatMap(db -> db.list(tableName, columns, searchMap).stream()).collect(Collectors.toList());
         }
@@ -466,9 +520,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.list(tableName, columns, entity);
+            return neo.list(getDevideTable(tableName, entity), columns, entity);
         } else {
             return getNeoList().stream().flatMap(db -> db.list(tableName, columns, entity).stream()).collect(Collectors.toList());
         }
@@ -476,9 +530,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public List<NeoMap> list(String tableName, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.list(tableName, searchMap);
+            return neo.list(getDevideTable(tableName, searchMap), searchMap);
         } else {
             return getNeoList().stream().flatMap(db -> db.list(tableName, searchMap).stream()).collect(Collectors.toList());
         }
@@ -486,9 +540,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> list(String tableName, T entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.list(tableName, entity);
+            return neo.list(getDevideTable(tableName, entity), entity);
         } else {
             return getNeoList().stream().flatMap(db -> db.list(tableName, entity).stream()).collect(Collectors.toList());
         }
@@ -502,9 +556,9 @@ public final class NeoDevide extends AbstractBaseDb {
     @SuppressWarnings("all")
     @Override
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.value(tableName, tClass, field, searchMap);
+            return neo.value(getDevideTable(tableName, searchMap), tClass, field, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -520,9 +574,9 @@ public final class NeoDevide extends AbstractBaseDb {
     @SuppressWarnings("all")
     @Override
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.value(tableName, tClass, field, entity);
+            return neo.value(getDevideTable(tableName, entity), tClass, field, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -538,9 +592,9 @@ public final class NeoDevide extends AbstractBaseDb {
     @SuppressWarnings("all")
     @Override
     public String value(String tableName, String field, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.value(tableName, field, searchMap);
+            return neo.value(getDevideTable(tableName, searchMap), field, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -556,9 +610,9 @@ public final class NeoDevide extends AbstractBaseDb {
     @SuppressWarnings("all")
     @Override
     public String value(String tableName, String field, Object entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.value(tableName, field, entity);
+            return neo.value(getDevideTable(tableName, entity), field, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
@@ -585,9 +639,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.values(tableName, tClass, field, searchMap);
+            return neo.values(getDevideTable(tableName, searchMap), tClass, field, searchMap);
         } else {
             return getNeoList().stream().flatMap(db -> db.values(tableName, tClass, field, searchMap).stream()).collect(Collectors.toList());
         }
@@ -595,9 +649,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.values(tableName, tClass, field, entity);
+            return neo.values(getDevideTable(tableName, entity), tClass, field, entity);
         } else {
             return getNeoList().stream().flatMap(db -> db.values(tableName, tClass, field, entity).stream()).collect(Collectors.toList());
         }
@@ -605,9 +659,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public List<String> values(String tableName, String field, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.values(tableName, field, searchMap);
+            return neo.values(getDevideTable(tableName, searchMap), field, searchMap);
         } else {
             return getNeoList().stream().flatMap(db -> db.values(tableName, field, searchMap).stream()).collect(Collectors.toList());
         }
@@ -615,9 +669,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public List<String> values(String tableName, String field, Object entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.values(tableName, field, entity);
+            return neo.values(getDevideTable(tableName, entity), field, entity);
         } else {
             return getNeoList().stream().flatMap(db -> db.values(tableName, field, entity).stream()).collect(Collectors.toList());
         }
@@ -630,9 +684,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.page(tableName, columns, searchMap, page);
+            return neo.page(getDevideTable(tableName, searchMap), columns, searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(tableName, columns, searchMap, aggregate).stream()).collect(Collectors.toList());
@@ -644,9 +698,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.page(tableName, columns, entity, page);
+            return neo.page(getDevideTable(tableName, entity), columns, entity, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(tableName, columns, entity, aggregate).stream()).collect(Collectors.toList());
@@ -659,9 +713,9 @@ public final class NeoDevide extends AbstractBaseDb {
     @SuppressWarnings("all")
     @Override
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.page(tableName, searchMap, page);
+            return neo.page(getDevideTable(tableName, searchMap), searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(tableName, searchMap, aggregate).stream()).collect(Collectors.toList());
@@ -673,9 +727,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.page(tableName, entity, page);
+            return neo.page(getDevideTable(tableName, entity), entity, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(tableName, entity, aggregate).stream()).collect(Collectors.toList());
@@ -706,9 +760,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, searchMap));
+        Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.count(tableName, searchMap);
+            return neo.count(getDevideTable(tableName, searchMap), searchMap);
         } else {
             return getNeoList().stream().map(db -> db.count(tableName, searchMap)).reduce((a, b) -> a + b).orElse(0);
         }
@@ -716,9 +770,9 @@ public final class NeoDevide extends AbstractBaseDb {
 
     @Override
     public Integer count(String tableName, Object entity) {
-        Neo neo = getDevideDb(getDevideColumnValue(tableName, entity));
+        Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.count(tableName, entity);
+            return neo.count(getDevideTable(tableName, entity), entity);
         } else {
             return getNeoList().stream().map(db -> db.count(tableName, entity)).reduce((a, b) -> a + b).orElse(0);
         }
@@ -729,6 +783,7 @@ public final class NeoDevide extends AbstractBaseDb {
         return getNeoList().stream().map(db -> db.count(tableName)).reduce((a, b) -> a + b).orElse(0);
     }
 
+    // todo
     @Override
     public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {
         List<Pair<Neo, List<NeoMap>>> dbAndDataList = getDevideDbAndData(tableName, dataMapList);
@@ -790,9 +845,17 @@ public final class NeoDevide extends AbstractBaseDb {
         return result;
     }
 
+    @Data
+    private static class TableHashInfo {
+
+        private Integer min;
+        private Integer size;
+        private List<TableHashMeta> innerHashTableList;
+    }
+
     @Getter
     @AllArgsConstructor
-    private static class InnerHashTable {
+    private static class TableHashMeta {
 
         /**
          * 哈希的下标索引
