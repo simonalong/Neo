@@ -234,8 +234,8 @@ public final class NeoDevide extends AbstractBaseDb {
      * @param <T>       类型
      * @return 返回值：key为db对象，value为db对应的数据集
      */
-    private <T> List<Pair<Neo, List<NeoMap>>> getDevideDbAndData(String tableName, List<T> dataList) {
-        List<Pair<Neo, List<NeoMap>>> mapList = new ArrayList<>();
+    private <T> List<DevideDbBatch> getDevideDbAndData(String tableName, List<T> dataList) {
+        List<DevideDbBatch> devideDbBatchList = new ArrayList<>();
         List<NeoMap> dataMapList = dataList.stream().map(d -> NeoMap.from(d, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList());
 
         // 非分库的表，则返回所有的数据
@@ -246,6 +246,14 @@ public final class NeoDevide extends AbstractBaseDb {
             for (Pair<Integer, Neo> indexNeoPair : indexAndNeoCollection) {
                 mapList.add(new Pair<>(indexNeoPair.getValue(), getDevideMapList(tableName, indexNeoPair.getKey(), dataMapList)));
             }
+        }
+
+        if (devideDbParameterMap.containsKey(tableName)) {
+            DevideDbBatch devideDbBatch = new DevideDbBatch();
+            devideDbBatch.setDb();
+            devideDbBatch.setDevideTableBatcheList();
+        }else{
+
         }
 
         return mapList;
@@ -843,6 +851,20 @@ public final class NeoDevide extends AbstractBaseDb {
             result += dataPair.getKey().batchUpdate(tableName, dataPair.getValue(), columns);
         }
         return result;
+    }
+
+    @Data
+    private static class DevideDbBatch {
+
+        private Neo db;
+        private List<DevideTableBatch> devideTableBatcheList;
+    }
+
+    @Data
+    private static class DevideTableBatch {
+
+        private String tableName;
+        private List<NeoMap> dataMapList;
     }
 
     @Data
