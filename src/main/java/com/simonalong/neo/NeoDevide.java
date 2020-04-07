@@ -238,25 +238,28 @@ public final class NeoDevide extends AbstractBaseDb {
         List<DevideDbBatch> devideDbBatchList = new ArrayList<>();
         List<NeoMap> dataMapList = dataList.stream().map(d -> NeoMap.from(d, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList());
 
-        // 非分库的表，则返回所有的数据
-        if (!devideDbParameterMap.containsKey(tableName)) {
+//        // 非分库的表，则返回所有的数据
+//        if (!devideDbParameterMap.containsKey(tableName)) {
             return devideDbMap.values().stream().map(m -> new Pair<>(m.getValue(), dataMapList)).collect(Collectors.toList());
-        } else {
-            Collection<Pair<Integer, Neo>> indexAndNeoCollection = devideDbMap.values();
-            for (Pair<Integer, Neo> indexNeoPair : indexAndNeoCollection) {
-                mapList.add(new Pair<>(indexNeoPair.getValue(), getDevideMapList(tableName, indexNeoPair.getKey(), dataMapList)));
-            }
-        }
+//        } else {
+//            Collection<Pair<Integer, Neo>> indexAndNeoCollection = devideDbMap.values();
+//            for (Pair<Integer, Neo> indexNeoPair : indexAndNeoCollection) {
+//                mapList.add(new Pair<>(indexNeoPair.getValue(), getDevideMapList(tableName, indexNeoPair.getKey(), dataMapList)));
+//            }
+//        }
 
         if (devideDbParameterMap.containsKey(tableName)) {
             DevideDbBatch devideDbBatch = new DevideDbBatch();
             devideDbBatch.setDb();
-            devideDbBatch.setDevideTableBatcheList();
-        }else{
+            devideDbBatch.setDevideTableBatchList();
+            for (NeoMap dataMap : dataMapList) {
 
+            }
+        } else {
+            throw new NeoException("没有找到对应的分库");
         }
 
-        return mapList;
+        return devideDbBatchList;
     }
 
     /**
@@ -857,7 +860,7 @@ public final class NeoDevide extends AbstractBaseDb {
     private static class DevideDbBatch {
 
         private Neo db;
-        private List<DevideTableBatch> devideTableBatcheList;
+        private List<DevideTableBatch> devideTableBatchList;
     }
 
     @Data
