@@ -15,6 +15,9 @@ public class ClassUtil {
      * 2.String 类型
      * 注意:
      * 其中void.class.isPrimitive() 返回true，我们这里不核查这种
+     *
+     * @param cls 类型
+     * @return true：基类，false：非基类
      */
     @SuppressWarnings("all")
     public boolean isBaseField(Class<?> cls) {

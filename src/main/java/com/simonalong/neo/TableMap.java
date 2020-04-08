@@ -118,6 +118,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 指定包括的属性进行对象转换为TableMap
      *
+     * @param tableName 表名
      * @param object 待转换对象
      * @param fields 对象的属性名列表
      * @return 转换之后的TableMap
@@ -131,6 +132,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 指定包括的属性进行对象转换为TableMap
      *
+     * @param tableName 表名
      * @param object    待转换对象
      * @param namingChg 命名转换风格
      * @param fields    对象的属性名列表
@@ -145,6 +147,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 指定排除的属性进行对象转换为TableMap
      *
+     * @param tableName 表名
      * @param object 待转换对象
      * @param fields 排除的对象的属性名列表
      * @return 转换之后的TableMap
@@ -158,6 +161,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 指定排除的属性进行对象转换为TableMap
      *
+     * @param tableName 表名
      * @param object    待转换对象
      * @param namingChg 转换规则
      * @param fields    排除的对象的属性名列表
@@ -179,6 +183,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 从实体集合转换为TableMap
      *
+     * @param tableName 表名
      * @param dataList 待转换的数据集合
      * @param columns  只转换的数据列名
      * @param <T>      实体类型
@@ -362,6 +367,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 是否进行时间类型到Long类型的转换来放置数据
      *
+     * @param tableName      表名
      * @param key            key
      * @param value          value
      * @param timeTypeToLong 是否时间类型转Long：true：转换，false: 不转换
@@ -514,10 +520,11 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 多表情况下转换为一个实体
      * <p>
-     * tableName的优先级：入参 > @Column中的tableName > @Table
+     * tableName的优先级：入参 大于 @Column中的tableName 大于 @Table
      *
      * @param tClass    目标实体，属性可能包含@Column，其中属性tableName有值
      * @param tableName 表名。如果入参不空，则采用实体的@Table注解或者@Column中有tableName，否则采用入参
+     * @param namingChg 命名转换规则
      * @param <T>       类型
      * @return 对应类型的实体
      */
@@ -629,7 +636,6 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 将TableMap集合转成实体集合
      * <p>
-     * <p>
      * 注意，这里会从Class对应的注解@Table中获取表名，否则会数据不会设置
      *
      * @param tClass       实体类型
@@ -652,10 +658,10 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 将TableMap集合转成实体集合
      * <p>
-     * <p>
      * 注意，这里会从Class可以不用注解@Table和@Column，如果有也会被tableName给覆盖
      *
      * @param tClass       实体类型
+     * @param tableName    表名
      * @param tableMapList 表map集合
      * @param <T>          类型
      * @return 实体集合
@@ -700,6 +706,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      * 获取指定的一些列，得到新的数据
      * {@code {"a":12, "b":"ok"} ---->  {"a":12}}
      *
+     * @param tableName 表名
      * @param keys 要获取的key，比如上面的a
      * @return 返回包含指定key对应的map
      */
@@ -710,6 +717,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 排除指定的列
      *
+     * @param tableName 表名
      * @param columns 其中的列值为map中的key
      * @return 排除指定列后的map
      */
@@ -770,12 +778,6 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return (NeoMap) remove(tableName);
     }
 
-    /**
-     * 删除
-     *
-     * @param tableName 表名
-     * @return 表名下个月
-     */
     public Object delete(String tableName, String key) {
         getNeoMap(tableName).remove(key);
         return this;
@@ -807,6 +809,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 获取字符
      *
+     * @param tableName 表名
      * @param key map的key
      * @return 字符，如果是字符串，则返回字符串的第一个字符
      */
@@ -822,6 +825,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 返回值为String类型的值
      *
+     * @param tableName 表名
      * @param key map的key
      * @return String类型的值
      */
@@ -837,6 +841,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 获取值类型为Boolean的值
      *
+     * @param tableName 表名
      * @param key map中对应的key
      * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
      */

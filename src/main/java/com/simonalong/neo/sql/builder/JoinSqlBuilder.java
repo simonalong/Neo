@@ -180,6 +180,7 @@ public class JoinSqlBuilder {
      * <p>
      *     {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
      *
+     * @param tableName 表名
      * @param orderByValueStr order by后面的字符
      * @return 转换后的字符，比如：[neo_table1.`name` desc]
      */

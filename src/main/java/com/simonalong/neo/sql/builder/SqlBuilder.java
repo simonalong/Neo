@@ -115,11 +115,13 @@ public class SqlBuilder {
     /**
      * 转换后的条件元数据
      *
-     * <li>1.如果值为like开头，则支持模糊查询</li>
-     * <li>2.如果为比较符号（>、>=、<、<=）这种，则表示有比较操作</li>
+     * <ul>
+     *      <li>1.如果值为like开头，则支持模糊查询</li>
+     *      <li>2.如果为比较符号{@code >、>=、<、<=}这种，则表示有比较操作</li>
+     * </ul>
      *
      * @param searchMap 搜索条件
-     * @return 返回sql中的多个字段：[`age` > ?, `group` =  ?, `name` like 'haode%']
+     * @return 返回sql中的多个字段：{@code [`age` > ?, `group` =  ?, `name` like 'haode%']}
      */
     public List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
@@ -218,6 +220,9 @@ public class SqlBuilder {
 
     /**
      * 搜索的数据是否有比较类型的前缀
+     *
+     * @param value 值
+     * @return 是否包含比较符
      */
     public boolean haveThanPre(String value){
         if (null == value || "".equals(value)) {
