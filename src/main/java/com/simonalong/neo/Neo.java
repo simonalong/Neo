@@ -720,7 +720,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         if (null != resultList && !resultList.isEmpty()) {
             return resultList.stream().map(r -> {
                 Iterator<Object> it = r.values().iterator();
-                return it.hasNext() ? ObjectUtil.cast(tClass, it.next()) : null;
+                return it.hasNext() ? ObjectUtil.cast(tClass, ((NeoMap)it.next()).getFirst()) : null;
             }).filter(Objects::nonNull).collect(Collectors.toList());
         }
         return new ArrayList<>();
