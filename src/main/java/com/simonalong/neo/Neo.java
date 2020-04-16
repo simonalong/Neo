@@ -330,9 +330,10 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         NeoMap searchMapTem = searchMap.clone();
         return tx(() -> {
             execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
+            Boolean oldStandard = getStandardFlag();
             closeStandard();
             NeoMap result = oneWithXMode(tableName, NeoMap.of().append(searchMapTem).append(dataMapTem));
-            openStandard();
+            setStandardFlag(oldStandard);
             return result;
         });
     }
