@@ -39,6 +39,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private ConcurrentSkipListMap<String, Object> dataMap = new ConcurrentSkipListMap<>();
     /**
+     * 添加条件过滤器
+     * <p>
+     * 在sql进行拼接的时候，通过条件过滤Map进行判断，哪些属性是可以不用填充的
+     */
+    @Setter
+    @Getter
+    // todo 这里针对条件表达式的map处理还没有做，这周做下
+    private ConditionMap conditionMap;
+    /**
      * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
      */
     @Getter
