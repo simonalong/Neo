@@ -1,10 +1,8 @@
 package com.simonalong.neo.condition;
 
-import com.simonalong.neo.Columns;
 import com.simonalong.neo.ConditionMap;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.sql.builder.SelectSqlBuilder;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import org.junit.Test;
 
