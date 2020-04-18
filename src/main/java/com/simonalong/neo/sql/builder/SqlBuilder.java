@@ -125,7 +125,9 @@ public class SqlBuilder {
      */
     public List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        return searchMap.clone().entrySet().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
+        return searchMap.clone().entrySet().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).filter(e->{
+            return searchMap.satisfyCondition(e.getKey());
+        }).map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
     }
 
     /**
@@ -165,7 +167,9 @@ public class SqlBuilder {
         }
 
         String orderByStr = "order by";
-        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(o->{
+        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).filter(e->{
+            return searchMap.satisfyCondition(e.getKey());
+        }).map(o->{
             Object v = o.getValue();
             if (v instanceof String) {
                 String valueStr = String.class.cast(v);

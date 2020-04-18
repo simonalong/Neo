@@ -16,7 +16,7 @@ public class ConditionMap {
     private static final String ROOT = "#root";
     private static final String CURRENT = "#current";
     private static final Integer KV_NUM = 2;
-    private NeoMap dataMap = NeoMap.of();
+    private NeoMap metaMap = NeoMap.of();
 
     public static ConditionMap of(String... kvs) {
         if (kvs.length % KV_NUM != 0) {
@@ -49,7 +49,7 @@ public class ConditionMap {
             parser.setBinding(parseConditionExpress(scriptValue, dataMap, currentKey));
             return parser.parse("import static java.lang.Math.*\n", rmvFix(scriptValue));
         };
-        dataMap.put(key, predicate);
+        metaMap.put(key, predicate);
         return this;
     }
 
@@ -62,11 +62,11 @@ public class ConditionMap {
      */
     @SuppressWarnings("unchecked")
     public Boolean condition(NeoMap dataMap, String key) {
-        if (!dataMap.containsKey(key)) {
+        if (!metaMap.containsKey(key)) {
             return true;
         }
 
-        return dataMap.get(BiPredicate.class, key).test(dataMap, key);
+        return metaMap.get(BiPredicate.class, key).test(dataMap, key);
     }
 
     private NeoMap parseConditionExpress(String scriptValue, NeoMap dataMap, String currentKey) {

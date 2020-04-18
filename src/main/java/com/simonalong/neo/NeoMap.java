@@ -45,7 +45,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     @Setter
     @Getter
-    // todo 这里针对条件表达式的map处理还没有做，这周做下
     private ConditionMap conditionMap;
     /**
      * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
@@ -895,6 +894,20 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return dataMap.entrySet();
+    }
+
+    /**
+     * key是否满足条件
+     *
+     * @param key 待校验的key
+     * @return 如果key不包含，则返回true，如果包含，则只有满足条件才会返回true，否则返回false
+     */
+    public Boolean satisfyCondition(String key) {
+        if(null == conditionMap){
+            return true;
+        }
+
+        return conditionMap.condition(this, key);
     }
 
     @Override
