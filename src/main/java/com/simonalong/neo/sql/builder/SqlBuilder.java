@@ -125,9 +125,10 @@ public class SqlBuilder {
      */
     public List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        return searchMap.clone().entrySet().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).filter(e->{
-            return searchMap.satisfyCondition(e.getKey());
-        }).map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
+        return searchMap.clone().entrySet().stream()
+            .filter(r -> !r.getKey().trim().equals(orderByStr))
+            .filter(e-> searchMap.satisfyCondition(e.getKey()))
+            .map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
     }
 
     /**
