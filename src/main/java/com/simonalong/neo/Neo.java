@@ -25,6 +25,8 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -908,6 +910,26 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public List<NeoMap> page(String tableName, NeoPage page) {
         return page(tableName, Columns.of().setNeo(this).table(tableName), NeoMap.of(), page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return NeoMap.asArray(page(tableName, columns, searchMap, page), tClass);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return NeoMap.asArray(page(tableName, searchMap, page), tClass);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return NeoMap.asArray(page(tableName, columns, page), tClass);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
+        return NeoMap.asArray(page(tableName, page), tClass);
     }
 
     /**

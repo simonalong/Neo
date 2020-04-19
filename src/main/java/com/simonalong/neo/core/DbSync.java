@@ -113,6 +113,14 @@ public interface DbSync extends SyncNeo{
 
     List<NeoMap> page(String tableName, NeoPage page);
 
+    <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, String tableName, NeoPage page);
+
 
     Integer count(String tableName, NeoMap searchMap);
 

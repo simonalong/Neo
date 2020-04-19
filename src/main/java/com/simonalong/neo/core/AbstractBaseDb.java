@@ -232,6 +232,26 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync, 
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, page), executor);
+    }
+
+    @Override
     public CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> count(tableName, searchMap), executor);
     }

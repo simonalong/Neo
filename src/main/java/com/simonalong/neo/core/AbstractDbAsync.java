@@ -227,6 +227,26 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return pageAsync(tClass, tableName, columns, searchMap, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return pageAsync(tClass, tableName, searchMap, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return pageAsync(tClass, tableName, columns, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page) {
+        return pageAsync(tClass, tableName, page, getExecutor());
+    }
+
+    @Override
     public CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap) {
         return countAsync(tableName, searchMap, getExecutor());
     }

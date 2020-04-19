@@ -111,6 +111,14 @@ public interface TableSync extends SyncNeo{
 
     List<NeoMap> page(NeoPage page);
 
+    <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, NeoPage page);
+
 
     Integer count(NeoMap searchMap);
 

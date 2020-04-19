@@ -185,6 +185,22 @@ public interface DbAsync extends AsyncNeo {
 
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page);
 
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page);
+
 
     CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap, Executor executor);
 
