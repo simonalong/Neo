@@ -279,6 +279,26 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), columns, searchMap, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), searchMap, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), columns, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), page);
+    }
+
+    @Override
     public Integer count(NeoMap searchMap){
         return getDbInner().count(getTableName(), searchMap);
     }
@@ -531,6 +551,28 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     public CompletableFuture<List<NeoMap>> pageAsync(NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(page), executor);
     }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, page), executor);
+    }
+
 
     @Override
     public CompletableFuture<Integer> countAsync(NeoMap searchMap, Executor executor) {

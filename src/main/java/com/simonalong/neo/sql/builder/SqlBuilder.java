@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.simonalong.neo.sql.InList;
 import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
 
@@ -184,6 +185,8 @@ public class SqlBuilder {
                 if (haveThanPre(valueStr)) {
                     return getSymbolAndValue(valueStr).getValue();
                 }
+            } else if (v instanceof InList) {
+                return null;
             }
             return v;
         }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -219,6 +222,8 @@ public class SqlBuilder {
                 return key + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
             }
             return key + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+        } else if (value instanceof InList) {
+            return ((InList) value).buildSql(key);
         }
         return key + " = " + ((withValueFlag.get() ? value : " ?"));
     }
