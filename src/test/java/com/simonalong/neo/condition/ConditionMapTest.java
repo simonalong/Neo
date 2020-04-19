@@ -4,6 +4,7 @@ import com.simonalong.neo.ConditionMap;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.sql.builder.SqlBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -19,7 +20,7 @@ public class ConditionMapTest extends NeoBaseTest {
     public void test1() {
         NeoMap searchMap = NeoMap.of();
         searchMap.put("name", "nihao");
-        searchMap.put("age", 17);
+        searchMap.put("age", 1);
         searchMap.put("group", "group_test");
         searchMap.put("user_name", "chenzhen");
 
@@ -32,10 +33,10 @@ public class ConditionMapTest extends NeoBaseTest {
         // 设置过滤条件
         searchMap.setConditionMap(conditionMap);
 
-        show("name: " + searchMap.satisfyCondition("name"));
-        show("age: " + searchMap.satisfyCondition("age"));
-        show("group: " + searchMap.satisfyCondition("group"));
-        show("user_name: " + searchMap.satisfyCondition("user_name"));
+        Assert.assertTrue(searchMap.satisfyCondition("name"));
+        Assert.assertFalse(searchMap.satisfyCondition("age"));
+        Assert.assertFalse(searchMap.satisfyCondition("group"));
+        Assert.assertTrue(searchMap.satisfyCondition("user_name"));
 
         show(SqlBuilder.buildWhere(searchMap));
         show(SqlBuilder.buildValueList(searchMap));
