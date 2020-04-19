@@ -1,6 +1,7 @@
 package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.DbNotSetException;
 import com.simonalong.neo.db.NeoPage;
@@ -35,7 +36,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取当前处理该表的DB数据库
      * @return db同步库对象
      */
-    abstract public DbSync getDb();
+    abstract public Neo getDb();
 
     /**
      * 获取当前处理的表名

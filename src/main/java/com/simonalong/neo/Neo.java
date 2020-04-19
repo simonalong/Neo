@@ -1622,6 +1622,8 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
                 }
             });
         dataMap.clear();
+        result.setConditionMap(dataMap.getConditionMap());
+        result.setNamingChg(dataMap.getNamingChg());
         return result;
     }
 

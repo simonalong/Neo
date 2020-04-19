@@ -57,7 +57,10 @@ public class SqlBuilder {
     public String buildWhere(NeoMap searchMap) {
         NeoMap conditionMap = searchMap.assignExcept(ORDER_BY);
         if (!NeoMap.isEmpty(conditionMap)) {
-            return " where " + buildWhereCondition(searchMap);
+            String whereCondition = buildWhereCondition(searchMap);
+            if (!"".equals(whereCondition)) {
+                return " where " + whereCondition;
+            }
         }
         return "";
     }
@@ -82,11 +85,13 @@ public class SqlBuilder {
      * @return 比如：`group` = ? and `name` = ?
      */
     public String buildWhereCondition(NeoMap searchMap) {
-        StringBuilder stringBuilder = new StringBuilder();
         if (!NeoMap.isEmpty(searchMap)) {
-            return stringBuilder.append(String.join(" and ", buildConditionMeta(searchMap))).toString();
+            List<String> conditionList = buildConditionMeta(searchMap);
+            if (!conditionList.isEmpty()) {
+                return String.join(" and ", conditionList);
+            }
         }
-        return stringBuilder.toString();
+        return "";
     }
 
     /**

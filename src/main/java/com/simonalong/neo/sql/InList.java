@@ -10,12 +10,13 @@ import java.util.List;
  */
 public class InList {
 
-    private List<Object> dataList;
+    private List dataList;
 
-    public InList(List<Object> collection) {
+    public InList(List collection) {
         this.dataList = collection;
     }
 
+    @SuppressWarnings("unchecked")
     public String buildSql(String key) {
         if (null == dataList || dataList.isEmpty()) {
             return null;

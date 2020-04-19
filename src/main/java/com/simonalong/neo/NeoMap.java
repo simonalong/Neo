@@ -44,6 +44,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 在sql进行拼接的时候，通过条件过滤Map进行判断，哪些属性是可以不用填充的
      */
     @Setter
+    @Getter
     private ConditionMap conditionMap;
     /**
      * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
@@ -55,6 +56,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 本次的默认转换规则
      */
     @Setter
+    @Getter
     @Accessors(chain = true)
     private NamingChg namingChg = NamingChg.DEFAULT;
 
@@ -936,6 +938,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
         neoMap.putAll(dataMap.clone());
+        neoMap.setNamingChg(namingChg);
+        neoMap.setConditionMap(conditionMap);
         return neoMap;
     }
 

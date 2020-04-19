@@ -2,7 +2,6 @@ package com.simonalong.neo.db;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.core.AbstractBaseTable;
-import com.simonalong.neo.core.DbSync;
 import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,7 +60,7 @@ public class NeoTable extends AbstractBaseTable {
     }
 
     @Override
-    public DbSync getDb() {
+    public Neo getDb() {
         return this.neo;
     }
 
