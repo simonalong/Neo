@@ -15,7 +15,7 @@ import java.util.List;
  * @author shizi
  * @since 2020/4/19 3:59 PM
  */
-public class InTest extends BaseTest {
+public class InListTest extends BaseTest {
 
     @Test
     public void test1() {
@@ -23,7 +23,7 @@ public class InTest extends BaseTest {
         searchMap.put("name", "nihao");
         searchMap.put("group_id", new InList(Arrays.asList(12, 21)));
 
-        String expectSql = "where `group_id` in ('12','21') and `name` =  ?";
+        String expectSql = " where `group_id` in ('12','21') and `name` =  ?";
         Assert.assertEquals(expectSql, SqlBuilder.buildWhere(searchMap));
 
         List<String> dataList = Collections.singletonList("nihao");
