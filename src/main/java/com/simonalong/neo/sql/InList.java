@@ -17,6 +17,9 @@ public class InList {
     }
 
     public String buildSql(String key) {
+        if (null == dataList || dataList.isEmpty()) {
+            return null;
+        }
         return key + " in " + SqlBuilder.buildIn(dataList);
     }
 }

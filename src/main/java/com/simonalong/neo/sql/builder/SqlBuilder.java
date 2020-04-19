@@ -129,7 +129,9 @@ public class SqlBuilder {
         return searchMap.clone().entrySet().stream()
             .filter(r -> !r.getKey().trim().equals(orderByStr))
             .filter(e-> searchMap.satisfyCondition(e.getKey()))
-            .map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
+            .map(e -> valueFix(searchMap, e))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     /**
