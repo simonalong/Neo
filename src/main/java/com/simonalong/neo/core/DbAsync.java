@@ -85,6 +85,18 @@ public interface DbAsync extends AsyncNeo {
 
     CompletableFuture<NeoMap> oneAsync(String tableName, Number id);
 
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, NeoMap searchMap);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Number id, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Number id);
+
 
     CompletableFuture<List<NeoMap>> listAsync(String tableName, Columns columns, NeoMap searchMap, Executor executor);
 
@@ -101,6 +113,14 @@ public interface DbAsync extends AsyncNeo {
     <T> CompletableFuture<List<T>> listAsync(String tableName, T entity, Executor executor);
 
     <T> CompletableFuture<List<T>> listAsync(String tableName, T entity);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, NeoMap searchMap);
 
 
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor);

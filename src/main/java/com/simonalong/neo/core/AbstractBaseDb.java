@@ -110,6 +110,22 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync, 
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, tableName, columns, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, tableName, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Number id, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, tableName, id), executor);
+    }
+
+
+    @Override
     public CompletableFuture<List<NeoMap>> listAsync(String tableName, Columns columns, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> list(tableName, columns, searchMap), executor);
     }
@@ -128,6 +144,17 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync, 
     public <T> CompletableFuture<List<T>> listAsync(String tableName, T entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> list(tableName, entity), executor);
     }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, tableName, columns, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, tableName, searchMap), executor);
+    }
+
 
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor){

@@ -209,7 +209,7 @@ public class SqlBuilder {
 
             // 处理模糊搜索，like
             if (valueStr.startsWith(LIKE_PRE)) {
-                return key + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "'" + getLikeValue(valueStr) + "'");
+                return key + " like " +  "'" + getLikeValue(valueStr) + "'";
             }
 
             // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
@@ -243,10 +243,16 @@ public class SqlBuilder {
     }
 
     /**
-     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> 'xxx%'
+     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> '%xxx%'，like #xxx -> '%xxx'
      */
     private String getLikeValue(String likeValue) {
-        return likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length()) + "%";
+        String value = likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length());
+        if (value.contains("#")) {
+            value = value.replaceAll("#", "%");
+        } else {
+            value = "%" + value + "%";
+        }
+        return value;
     }
 
     /**

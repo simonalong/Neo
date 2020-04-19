@@ -112,7 +112,7 @@ public class SqlBuilderTest extends NeoBaseTest {
 
     @Test
     public void buildValueListTest2(){
-        NeoMap neoMap = NeoMap.of("name", "like haode", "age", ">12");
+        NeoMap neoMap = NeoMap.of("name", "like haode#", "age", ">12");
         // {`group`=ok, `name`=haode}
         show(SqlBuilder.buildValueList(neoMap));
     }

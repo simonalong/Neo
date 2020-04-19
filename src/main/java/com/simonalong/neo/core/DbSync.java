@@ -53,6 +53,14 @@ public interface DbSync extends SyncNeo{
 
     NeoMap one(String tableName, Number id);
 
+    <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
+
+    <T> T  one(Class<T> tClass, String tableName, Columns columns, Number key);
+
+    <T> T  one(Class<T> tClass, String tableName, NeoMap searchMap);
+
+    <T> T  one(Class<T> tClass, String tableName, Number id);
+
 
     List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap);
 
@@ -63,6 +71,12 @@ public interface DbSync extends SyncNeo{
     <T> List<T> list(String tableName, T entity);
 
     List<NeoMap> list(String tableName, Columns columns);
+
+    <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
+
+    <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap);
+
+    <T> List<T> list(Class<T> tClass, String tableName, Columns columns);
 
 
     <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap);

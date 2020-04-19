@@ -247,10 +247,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         return db.getTable(tableName);
     }
 
-    public void addDevideTable(){
-        // todo 添加分表的配置
-    }
-
     /**
      * 数据插入
      *
@@ -542,6 +538,26 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         return neoMap;
     }
 
+    @Override
+    public <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        return one(tableName, columns, searchMap).as(tClass);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, String tableName, Columns columns, Number key) {
+        return one(tableName, columns, key).as(tClass);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, String tableName, NeoMap searchMap) {
+        return one(tableName, searchMap).as(tClass);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, String tableName, Number id) {
+        return one(tableName, id).as(tClass);
+    }
+
     /**
      * 查询一行的数据
      *
@@ -606,6 +622,21 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public List<NeoMap> list(String tableName, Columns columns) {
         return list(tableName, columns, NeoMap.of());
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        return NeoMap.asArray(list(tableName, columns, searchMap), tClass);
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap) {
+        return NeoMap.asArray(list(tableName, searchMap), tClass);
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns) {
+        return NeoMap.asArray(list(tableName, columns), tClass);
     }
 
     /**

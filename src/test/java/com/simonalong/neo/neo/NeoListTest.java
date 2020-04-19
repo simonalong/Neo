@@ -227,7 +227,7 @@ public class NeoListTest extends NeoBaseTest {
     @SneakyThrows
     public void testList10(){
         // select `group`, `name` from neo_table1 where `group` like 'group%'
-        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like group")));
+        show(neo.list(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "like group#")));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * 填充线程池参数
@@ -100,6 +101,21 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, NeoMap searchMap) {
+        return oneAsync(tClass, columns, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap) {
+        return oneAsync(tClass, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id) {
+        return oneAsync(tClass, id, getExecutor());
+    }
+
+    @Override
     public CompletableFuture<List<NeoMap>> listAsync(Columns columns, NeoMap searchMap) {
         return listAsync(columns, searchMap, getExecutor());
     }
@@ -117,6 +133,16 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public <T> CompletableFuture<List<T>> listAsync(T entity) {
         return listAsync(entity, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap) {
+        return listAsync(tClass, columns, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap) {
+        return listAsync(tClass, searchMap, getExecutor());
     }
 
     @Override
