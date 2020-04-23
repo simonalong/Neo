@@ -540,22 +540,38 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
-        return one(tableName, columns, searchMap).as(tClass);
+        NeoMap data = one(tableName, columns, searchMap);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Columns columns, Number key) {
-        return one(tableName, columns, key).as(tClass);
+        NeoMap data = one(tableName, columns, key);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, NeoMap searchMap) {
-        return one(tableName, searchMap).as(tClass);
+        NeoMap data = one(tableName, searchMap);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Number id) {
-        return one(tableName, id).as(tClass);
+        NeoMap data = one(tableName, id);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
     }
 
     /**
