@@ -12,6 +12,7 @@ import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.core.ExecuteSql;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
+import com.simonalong.neo.exception.NeoTxException;
 import com.simonalong.neo.sql.*;
 import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
@@ -1146,6 +1147,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * 事务的执行 注意： 1.这里的事务传播机制采用，如果已经有事务在运行，则挂接在高层事务里面，这里进行最外层统一提交 2.隔离级别采用数据库默认 3.读写的事务
      *
      * @param runnable 待执行的任务
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public void tx(Runnable runnable) {
         tx(null, null, () -> {
@@ -1160,6 +1162,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @param supplier 待执行的任务
      * @param <T> 目标类型
      * @return 事务执行完成返回的数据
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public <T> T tx(Supplier<T> supplier) {
         return tx(null, null, supplier);
@@ -1170,6 +1173,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      *
      * @param readOnly 事务的只读属性，默认为false
      * @param runnable 待执行的任务
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public void tx(Boolean readOnly, Runnable runnable) {
         tx(null, readOnly, () -> {
@@ -1185,6 +1189,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @param supplier 待执行的任务
      * @param <T> 待返回值的类型
      * @return 事务执行之后的返回值
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public <T> T tx(Boolean readOnly, Supplier<T> supplier) {
         return tx(null, readOnly, supplier);
@@ -1195,6 +1200,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      *
      * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
      * @param runnable 待执行的任务
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public void tx(TxIsolationEnum isolationEnum, Runnable runnable) {
         tx(isolationEnum, false, () -> {
@@ -1210,6 +1216,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @param supplier 待执行的任务
      * @param <T> 待返回值的类型
      * @return 事务执行之后的返回值
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Supplier<T> supplier) {
         return tx(isolationEnum, false, supplier);
@@ -1221,6 +1228,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @param isolationEnum 事务的隔离级别，如果为null，则采用数据库的默认隔离级别
      * @param readOnly 事务的只读属性，默认为false
      * @param runnable 待执行的任务
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public void tx(TxIsolationEnum isolationEnum, Boolean readOnly, Runnable runnable) {
         tx(isolationEnum, readOnly, () -> {
@@ -1237,6 +1245,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @param supplier 待执行的任务
      * @param <T> 目标类型
      * @return 事务执行完成返回的数据
+     * @throws NeoTxException 事务出现异常会抛出
      */
     public <T> T tx(TxIsolationEnum isolationEnum, Boolean readOnly, Supplier<T> supplier) {
         // 由于XA事务和本机事务不兼容，如果开启XA，则优先运行XA
@@ -1264,13 +1273,14 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
             log.error(LOG_PRE + "[提交失败，事务回滚]", e);
             try {
                 pool.rollback();
+                throw new NeoTxException(e);
             } catch (SQLException e1) {
                 log.error(LOG_PRE + "[回滚失败]", e);
+                throw new NeoTxException(e);
             }
         } finally {
             txStatusLocal.set(originalTxFlag);
         }
-        return null;
     }
 
     /**

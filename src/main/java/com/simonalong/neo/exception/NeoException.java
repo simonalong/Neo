@@ -7,11 +7,11 @@ package com.simonalong.neo.exception;
 public class NeoException extends RuntimeException {
 
     public NeoException(String msg, Throwable throwable){
-        super("Neo异常：" + msg, throwable);
+        super(msg, throwable);
     }
 
     public NeoException(String msg){
-        super("Neo异常：" + msg);
+        super(msg);
     }
 
     public NeoException(Throwable e){
