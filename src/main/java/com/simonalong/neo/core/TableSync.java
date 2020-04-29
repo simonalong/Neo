@@ -127,6 +127,11 @@ public interface TableSync extends SyncNeo{
     Integer count();
 
 
+    Boolean exist(NeoMap searchMap);
+
+    Boolean exist(Object entity);
+
+
     Integer batchInsert(List<NeoMap> dataMapList);
 
     <T> Integer batchInsertEntity(List<T> dataList);

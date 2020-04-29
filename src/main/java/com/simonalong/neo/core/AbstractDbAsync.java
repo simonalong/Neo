@@ -261,6 +261,15 @@ public abstract class AbstractDbAsync implements DbAsync {
         return countAsync(tableName, getExecutor());
     }
 
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap){
+        return existAsync(tableName, searchMap, getExecutor());
+    }
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Object entity){
+        return existAsync(tableName, entity, getExecutor());
+    }
+
 
     @Override
     public CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters) {

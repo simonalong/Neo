@@ -215,6 +215,15 @@ public interface DbAsync extends AsyncNeo {
     CompletableFuture<Integer> countAsync(String tableName);
 
 
+    CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap);
+
+    CompletableFuture<Boolean> existAsync(String tableName, Object entity, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(String tableName, Object entity);
+
+
     CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList);
 
     CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList, Executor executor);

@@ -129,6 +129,11 @@ public interface DbSync extends SyncNeo{
     Integer count(String tableName);
 
 
+    Boolean exist(String tableName, NeoMap searchMap);
+
+    Boolean exist(String tableName, Object entity);
+
+
     Integer batchInsert(String tableName, List<NeoMap> dataMapList);
 
     <T> Integer batchInsertEntity(String tableName, List<T> dataList);

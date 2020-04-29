@@ -214,6 +214,14 @@ public interface TableAsync extends AsyncNeo{
     CompletableFuture<Integer> countAsync();
 
 
+    CompletableFuture<Boolean> existAsync(NeoMap searchMap, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(NeoMap searchMap);
+
+    CompletableFuture<Boolean> existAsync(Object entity, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(Object entity);
+
 
     CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList);
 

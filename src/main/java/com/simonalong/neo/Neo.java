@@ -984,6 +984,16 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         return count(tableName, NeoMap.of());
     }
 
+    @Override
+    public Boolean exist(String tableName, NeoMap searchMap) {
+        return NeoMap.isUnEmpty(one(tableName, searchMap));
+    }
+
+    @Override
+    public Boolean exist(String tableName, Object entity) {
+        return null != one(tableName, entity);
+    }
+
     /**
      * 该函数用于执行sql，该函数支持多结果集
      *
