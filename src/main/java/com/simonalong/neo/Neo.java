@@ -1561,7 +1561,9 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         String sql = sqlOrigin;
 
         if (null != keys && !keys.isEmpty()) {
-            sql = String.format(sqlOrigin, keys.toArray());
+            for (Object key : keys) {
+                sql = sql.replaceFirst("%s", key.toString());
+            }
         }
 
         return new Pair<>(sql, pair.getValue());
