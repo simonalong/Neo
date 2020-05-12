@@ -140,18 +140,6 @@ public class SqlBuilder {
     }
 
     /**
-     * 对于NeoMap的key含有表名的进行转换，比如{@code name} 到 {@code `name`}
-     *
-     * @param neoMap 原map
-     * @return 转换之后的map： {`group`=ok, `name`=haode}
-     */
-    public NeoMap toDbField(NeoMap neoMap) {
-        NeoMap resultMap = NeoMap.of();
-        neoMap.stream().forEach(e -> resultMap.put(toDbField(e.getKey()), e.getValue()));
-        return resultMap;
-    }
-
-    /**
      * 将普通的列名转换为sql语句中的列，{@code group --> `group`}
      * @param column 原列名
      * @return 转换后的列名，比如name 到 `name`

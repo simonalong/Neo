@@ -15,14 +15,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -187,9 +180,12 @@ public final class NeoDb {
         return getTable(null, tableName);
     }
 
-    public List<NeoTable> getTableList(String schema){
+    public List<NeoTable> getTableList(String schema) {
         schema = base(schema);
-        return new ArrayList<>(schemaToTableMap.get(schema).values());
+        if (schemaToTableMap.containsKey(schema)) {
+            return new ArrayList<>(schemaToTableMap.get(schema).values());
+        }
+        return Collections.emptyList();
     }
 
     public List<NeoTable> getTableList(){
@@ -201,7 +197,7 @@ public final class NeoDb {
         if (!tableList.isEmpty()){
             return tableList.stream().map(NeoTable::getTableName).collect(Collectors.toList());
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     public List<String> getTableNameList(){

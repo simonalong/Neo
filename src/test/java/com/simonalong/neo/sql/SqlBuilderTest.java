@@ -64,45 +64,6 @@ public class SqlBuilderTest extends NeoBaseTest {
         show(SqlBuilder.buildWhereCondition(searchMap));
     }
 
-//    @Test
-//    public void buildJoinHeadTest1(){
-//        String table1 = "table1";
-//        String table2 = "table2";
-//        Columns columns = Columns.of().table(table1, "c1", "c11").table(table2, "c2", "c22");
-//        // select table1.`c11`, table1.`c1`, table2.`c22`, table2.`c2`
-//        show(SqlBuilder.buildJoinHead(neo, columns));
-//    }
-//
-//    @Test
-//    public void buildJoinHeadTest2(){
-//        String table1 = "table1";
-//        String columnName = "c1";
-//        // select table1.c1
-//        show(SqlBuilder.buildJoinHead(table1, columnName));
-//    }
-
-//    @Test
-//    public void buildJoinTailTest(){
-//        NeoMap neoMap = NeoMap.of("name", "ok");
-//        String sqlCondition = "table2.id is null";
-//        //  where (table2.id is null) and `table1.name` = 'ok' order by sort
-//        show(SqlBuilder.buildJoinTail(sqlCondition, neoMap));
-//    }
-
-    @Test
-    public void mapToTableFilterTest1(){
-        NeoMap neoMap = NeoMap.of("table1.name", "haode", "table1.group", "ok");
-        // {table1.`group`=ok, table1.`name`=haode}
-        show(SqlBuilder.toDbField(neoMap));
-    }
-
-    @Test
-    public void mapToTableFilterTest2(){
-        NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
-        // {`group`=ok, `name`=haode}
-        show(SqlBuilder.toDbField(neoMap));
-    }
-
     @Test
     public void buildValueListTest1(){
         NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
