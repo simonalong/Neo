@@ -209,15 +209,27 @@ public final class NeoDb {
     }
 
     public List<NeoColumn> getColumnList(String tableName){
-        return new ArrayList<>(getTable(tableName).getColumnList());
+        NeoTable neoTable = getTable(tableName);
+        if (null == neoTable) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(neoTable.getColumnList());
     }
 
     public List<Index> getIndexList(String tableName){
-        return getTable(tableName).getIndexList();
+        NeoTable neoTable = getTable(tableName);
+        if (null == neoTable) {
+            return Collections.emptyList();
+        }
+        return neoTable.getIndexList();
     }
 
     public List<String> getIndexNameList(String tableName){
-        return getTable(tableName).getIndexNameList();
+        NeoTable neoTable = getTable(tableName);
+        if (null == neoTable) {
+            return Collections.emptyList();
+        }
+        return neoTable.getIndexNameList();
     }
 
     private String base(String data){
