@@ -56,10 +56,12 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
     private List<NeoMap> getFieldInfoList(CreateTable createTable) {
         return createTable.getColumnDefinitions().stream().map(c -> {
             try {
-                return NeoMap.from(new FieldInfo().setFieldType(Class.forName(MysqlType.getByName(c.getColDataType().getDataType()).getClassName()).getSimpleName())
-                    .setFieldRemark(getNameFilterDb(getColumnNameCn(c)))
-                    .setFieldName(getNameFilterDb(configContext.getFieldNamingChg().otherToSmallCamel(c.getColumnName())))
-                    .setColumnName(getNameFilterDb(c.getColumnName())));
+                FieldInfo fieldInfo = new FieldInfo();
+                fieldInfo.setFieldType(Class.forName(MysqlType.getByName(c.getColDataType().getDataType()).getClassName()).getSimpleName());
+                fieldInfo.setFieldRemark(getNameFilterDb(getColumnNameCn(c)));
+                fieldInfo.setFieldName(getNameFilterDb(configContext.getFieldNamingChg().otherToSmallCamel(c.getColumnName())));
+                fieldInfo.setColumnName(getNameFilterDb(c.getColumnName()));
+                return NeoMap.from(fieldInfo, NeoMap.NamingChg.DEFAULT);
             } catch (ClassNotFoundException e) {
                 throw new NeoException(e);
             }

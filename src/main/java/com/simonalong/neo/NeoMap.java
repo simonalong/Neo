@@ -58,7 +58,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Setter
     @Getter
     @Accessors(chain = true)
-    private NamingChg namingChg = NamingChg.DEFAULT;
+    private NamingChg namingChg = null;
 
     /**
      * 通过key-value-key-value生成
@@ -767,11 +767,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             }
         }
 
-        if (!namingChg.equals(NamingChg.DEFAULT)) {
+        if (null != namingChg) {
             return namingChg.smallCamelToOther(field.getName());
         }
 
-        return globalNaming.smallCamelToOther(field.getName());
+        if (null != globalNaming) {
+            return globalNaming.smallCamelToOther(field.getName());
+        }
+
+        return NamingChg.DEFAULT.smallCamelToOther(field.getName());
     }
 
     public Map<String, Object> getDataMap() {
