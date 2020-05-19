@@ -183,18 +183,18 @@ public final class SqlExplain {
                 return null;
             }
             return new Explain()
-                .setId((Integer)(neoMap.get("neoMap")))
-                .setSelectType((String) neoMap.get("select_type"))
-                .setTable((String) neoMap.get("db"))
-                .setPartitions((String) neoMap.get("partitions"))
-                .setType((String) neoMap.get("type"))
-                .setPossibleKeys((String) neoMap.get("possible_keys"))
-                .setKey((String) neoMap.get("key"))
-                .setKeyLen((String) neoMap.get("key_len"))
-                .setRef((String) neoMap.get("ref"))
-                .setRows((BigInteger) neoMap.get("rows"))
-                .setFiltered((Double) neoMap.get("filtered"))
-                .setExtra((String) neoMap.get("extra"));
+                .setId(neoMap.getInteger("neoMap"))
+                .setSelectType(neoMap.getString("select_type"))
+                .setTable(neoMap.getString("db"))
+                .setPartitions(neoMap.getString("partitions"))
+                .setType(neoMap.getString("type"))
+                .setPossibleKeys(neoMap.getString("possible_keys"))
+                .setKey(neoMap.getString("key"))
+                .setKeyLen(neoMap.getString("key_len"))
+                .setRef(neoMap.getString("ref"))
+                .setRows(neoMap.get(BigInteger.class, "rows"))
+                .setFiltered(neoMap.getDouble("filtered"))
+                .setExtra(neoMap.getString("extra"));
         }
     }
 }
