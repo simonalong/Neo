@@ -27,8 +27,6 @@ import org.junit.Test;
  */
 public class NeoMapTest extends BaseTest {
 
-    private static final String TABLE_NAME = "neo_table1";
-
     /**
      * 测试of
      */

@@ -31,6 +31,14 @@ public class NeoTest extends NeoBaseTest {
 
     public NeoTest() throws SQLException {}
 
+    /**
+     * 链接测试
+     */
+    @Test
+    public void connectTest() {
+        neo.test();
+    }
+
     /******************************插入******************************/
     /**
      * insert neoMap

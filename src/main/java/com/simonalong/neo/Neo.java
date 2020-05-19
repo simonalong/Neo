@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -72,9 +73,9 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Getter
     private Boolean standardFlag = true;
     /**
-     * 事务开启关闭状态
+     * 事务开启开启个数
      */
-    private ThreadLocal<Boolean> txStatusLocal;
+    private ThreadLocal<AtomicInteger> txNum = ThreadLocal.withInitial(AtomicInteger::new);
     /**
      * XA分布式事务开启关闭状态
      */
@@ -126,9 +127,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public void finalize() throws Throwable {
         super.finalize();
-        if (null != txStatusLocal) {
-            txStatusLocal.remove();
-        }
+        txNumClear();
     }
 
     /**
@@ -157,7 +156,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
 
     public void init(DataSource dataSource){
         this.pool = new ConnectPool(this, dataSource);
-        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
         Connection connection;
         try {
             connection = dataSource.getConnection();
@@ -170,7 +168,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     public void initFromDruid(Properties properties) {
         this.pool = new ConnectPool(this);
         this.pool.initFromDruid(properties);
-        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
         this.dbType = DbType.parse(properties.getProperty("druid.url"));
     }
 
@@ -181,7 +178,6 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
 
         this.pool = new ConnectPool(this);
         this.pool.initFromHikariCP(properties);
-        this.txStatusLocal = ThreadLocal.withInitial(() -> false);
         // 配置dbType
         if(properties.containsKey("jdbc-url")){
             this.dbType = DbType.parse(properties.getProperty("jdbc-url"));
@@ -246,6 +242,13 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     public NeoTable asTable(String tableName) {
         checkDb(tableName);
         return db.getTable(tableName);
+    }
+
+    /**
+     * 测试链接
+     */
+    public void test() {
+        execute("select 1");
     }
 
     /**
@@ -1252,20 +1255,16 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         if (isXaTransaction()) {
             return supplier.get();
         }
-        // 针对事务嵌套这里采用最外层事务提交
-        Boolean originalTxFlag = txStatusLocal.get();
-        txStatusLocal.set(true);
+        txNumIncrement();
         try {
             pool.setTxConfig(isolationEnum, readOnly);
             if (openTxMonitor()) {
-                // 统计sql
                 monitor.startTx();
             }
             T result = supplier.get();
             pool.submit();
 
             if (openTxMonitor()) {
-                // 统计sql信息
                 monitor.calculate();
             }
             return result;
@@ -1279,8 +1278,20 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
                 throw new NeoTxException(e);
             }
         } finally {
-            txStatusLocal.set(originalTxFlag);
+            txNumClear();
         }
+    }
+
+    private void txNumIncrement() {
+        txNum.get().incrementAndGet();
+    }
+
+    private void txNumClear() {
+        txNum.get().set(0);
+    }
+
+    public boolean txIsRoot() {
+        return txNum.get().get() == 1;
     }
 
     /**
@@ -1322,7 +1333,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     }
 
     public Boolean isTransaction() {
-        return txStatusLocal.get();
+        return txNum.get().get() > 0;
     }
 
     public Boolean isXaTransaction() {
@@ -1460,14 +1471,14 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
     private Boolean openMonitor() {
-        return !txStatusLocal.get() && monitorFlag;
+        return !isTransaction() && monitorFlag;
     }
 
     /**
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
     private Boolean openTxMonitor() {
-        return txStatusLocal.get();
+        return isTransaction();
     }
 
     /**
