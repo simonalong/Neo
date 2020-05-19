@@ -127,7 +127,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public void finalize() throws Throwable {
         super.finalize();
-        txNumClear();
+        txNum.get().set(0);
     }
 
     /**
@@ -1278,7 +1278,7 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
                 throw new NeoTxException(e);
             }
         } finally {
-            txNumClear();
+            txNumDecrement();
         }
     }
 
@@ -1286,8 +1286,8 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         txNum.get().incrementAndGet();
     }
 
-    private void txNumClear() {
-        txNum.get().set(0);
+    private void txNumDecrement() {
+        txNum.get().decrementAndGet();
     }
 
     public boolean txIsRoot() {
