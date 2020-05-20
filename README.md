@@ -302,6 +302,36 @@ public class CodeGenTest {
 }
 ```
 
+### 分布式ID生成器
+我们这里也提供了分布式ID生成器方案，采用的是改进版雪花算法，彻底解决了雪花算法存在的常见问题（时间回拨问题，workerId回收问题），对于如何解决的，具体方案可见文档，也可见我的另外一个项目[Butterfly](https://github.com/SimonAlong/Butterfly)（Neo框架中的发号器方案是Butterfly中的一个使用选项）
+
+#### 使用
+先建表，如果没有请创建
+```sql
+CREATE TABLE `neo_uuid_generator` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `namespace` varchar(128) DEFAULT '' COMMENT '命名空间',
+  `work_id` int(16) NOT NULL DEFAULT '0' COMMENT '工作id',
+  `last_expire_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下次失效时间',
+  `uid` varchar(128) DEFAULT '0' COMMENT '本次启动唯一id',
+  `ip` bigint(20) NOT NULL DEFAULT '0' COMMENT 'ip',
+  `process_id` varchar(128) NOT NULL DEFAULT '0' COMMENT '进程id',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_name_work` (`namespace`,`work_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
+```java
+@Test
+public void generateTest1() {
+    UuidGenerator generator = UuidGenerator.getInstance(neo);
+    // 注册（声明）命令空间（在业务空间对应的集群，最多可以有8192台机器跑同一个业务，对大部分业务来说，足够了）
+    generator.addNamespaces("test1", "test2");
+    
+    System.out.println(generator.getUUid("test1"));
+}
+```
+
 ### 更多功能
 - 数据库连接
 - 基本功能
