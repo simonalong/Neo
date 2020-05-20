@@ -303,7 +303,9 @@ public class CodeGenTest {
 ```
 
 ### 分布式ID生成器
-我们这里也提供了分布式ID生成器方案，采用的是改进版雪花算法，彻底解决了雪花算法存在的常见问题（时间回拨问题，workerId回收问题），对于如何解决的，具体方案可见文档，也可见我的另外一个项目[Butterfly](https://github.com/SimonAlong/Butterfly)（Neo框架中的发号器方案是Butterfly中的一个使用选项）
+我们这里也提供了分布式ID生成器方案，采用的是改进版雪花算法，彻底解决了雪花算法存在的常见问题（时间回拨问题，workerId回收问题），对于如何解决的，具体方案可见文档，也可见我的另外一个项目[Butterfly](https://github.com/SimonAlong/Butterfly)（Neo框架中的发号器方案是Butterfly中的一个使用选项）。
+
+采用的是改进版雪花算法，不仅没有时间回拨问题，性能还比雪花算法还要高十几倍，普通机器QPS都可以达到1000w/s。
 
 #### 使用
 先建表，如果没有请创建
