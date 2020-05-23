@@ -1573,7 +1573,14 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
 
         if (null != keys && !keys.isEmpty()) {
             for (Object key : keys) {
-                sql = sql.replaceFirst("%s", key.toString());
+                int index = sql.indexOf("%s");
+                if (index > 1) {
+                    if (sql.charAt(index - 1) == '\'') {
+                        sql = sql.substring(index + "%s".length());
+                    } else {
+                        sql = sql.replaceFirst("%s", key.toString());
+                    }
+                }
             }
         }
 
@@ -1687,8 +1694,8 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
      * @return 将转换符和占位符拆分开后的数组对：%s替换数据，?占位数据
      */
     private Pair<List<Object>, List<Object>> replaceHolderParameters(String sqlOrigin, List<Object> parameters) {
-        // 转换符和占位符
-        String regex = "(%s|\\?)";
+        // 匹配替换符：%s（不匹配'%s，后者可能是like中的数据）和占位符：?
+        String regex = "((?<!')%s|\\?)";
         Matcher m = Pattern.compile(regex).matcher(sqlOrigin);
         int count = 0;
         List<Object> replaceOperatorList = new ArrayList<>();
