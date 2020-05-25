@@ -30,7 +30,11 @@ public interface ExecuteSql {
 
     List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters);
 
+    <T> List<T> exePage(Class<T> tClass, String sql, Integer startIndex, Integer pageSize, Object... parameters);
+
     List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters);
+
+    <T> List<T> exePage(Class<T> tClass, String sql, NeoPage neoPage, Object... parameters);
 
     Integer exeCount(String sql, Object... parameters);
 

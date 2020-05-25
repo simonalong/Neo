@@ -3,7 +3,7 @@ package com.simonalong.neo.sql;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.db.NeoJoiner;
+import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         String table2 = "table2";
         String table3 = "table3";
         String table4 = "table4";
-        NeoJoiner joiner = new NeoJoiner(table1);
+        TableJoinOn joiner = new TableJoinOn(table1);
         joiner.leftJoin(table1, table2).on("a_id", "id");
         joiner.leftJoin(table1, table3).on("c_id", "id");
         joiner.rightJoin(table2, table4).on("d_id", "id");
@@ -113,7 +113,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(table1);
+        TableJoinOn joinner = new TableJoinOn(table1);
         joinner.leftJoin(table1, table2).on("id", "id");
         joinner.leftJoin(table2, table3).on("id", "id");
         joinner.rightJoin(table2, table4).on("id", "id");

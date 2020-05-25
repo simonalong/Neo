@@ -251,6 +251,10 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
         execute("select 1");
     }
 
+    public NeoJoiner joiner() {
+        return new NeoJoiner(this);
+    }
+
     /**
      * 数据插入
      *
@@ -869,15 +873,24 @@ public class Neo extends AbstractBaseDb implements ExecuteSql {
     @Override
     public List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters) {
         if (startWithSelect(sql)) {
-            return execute(true, () -> generateExePageSqlPair(sql, Arrays.asList(parameters), startIndex, pageSize),
-                this::executeList);
+            return execute(true, () -> generateExePageSqlPair(sql, Arrays.asList(parameters), startIndex, pageSize), this::executeList);
         }
         return new ArrayList<>();
     }
 
     @Override
+    public <T> List<T> exePage(Class<T> tClass, String sql, Integer startIndex, Integer pageSize, Object... parameters) {
+        return exePage(sql, startIndex, pageSize, parameters).stream().map(table -> table.as(tClass)).collect(Collectors.toList());
+    }
+
+    @Override
     public List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters) {
         return exePage(sql, neoPage.getStartIndex(), neoPage.getPageSize(), parameters);
+    }
+
+    @Override
+    public <T> List<T> exePage(Class<T> tClass, String sql, NeoPage neoPage, Object... parameters) {
+        return exePage(sql, neoPage, parameters).stream().map(table -> table.as(tClass)).collect(Collectors.toList());
     }
 
     /**

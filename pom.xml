@@ -69,6 +69,7 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
 
         <!--连接池-->

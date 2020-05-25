@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
 public @interface Column {
 
     /**
-     * 表中的列名
-     * @return 表的列名
+     * 列名
+     * @return 列名
      */
     String value() default "";
 
