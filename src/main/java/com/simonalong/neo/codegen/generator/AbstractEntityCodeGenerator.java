@@ -51,6 +51,10 @@ abstract class AbstractEntityCodeGenerator implements Generator{
 
     /**
      * 根据属性的Java类型映射，进行类型的判断和生成
+     *
+     * @param neo 数据库对象
+     * @param tableName 表名
+     * @param neoMap 数据
      */
     @SuppressWarnings("all")
     protected void generateImport(Neo neo, String tableName, NeoMap neoMap){
