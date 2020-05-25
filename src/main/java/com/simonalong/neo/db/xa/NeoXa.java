@@ -119,14 +119,14 @@ public class NeoXa {
             commitXid();
         } catch (Throwable e) {
             if (e instanceof XaStartException) {
-                log.error(LOG_PRE + "start xid fail");
+                log.error(LOG_PRE + "start xid fail", e);
             } else if (e instanceof XaEndException) {
-                log.error(LOG_PRE + "end xid fail");
+                log.error(LOG_PRE + "end xid fail", e);
             } else if (e instanceof XaPrepareException) {
-                log.error(LOG_PRE + "prepare xid fail");
+                log.error(LOG_PRE + "prepare xid fail", e);
                 rollbackXid();
             } else if (e instanceof XaCommitException) {
-                log.error(LOG_PRE + "commit xid fail");
+                log.error(LOG_PRE + "commit xid fail", e);
                 rollbackXid();
             }
             log.error(LOG_PRE + "xa run fail, xid={}", getXidStr(), e);
