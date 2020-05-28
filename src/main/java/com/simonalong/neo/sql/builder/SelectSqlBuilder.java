@@ -100,7 +100,7 @@ public class SelectSqlBuilder {
         if (!Columns.isEmpty(columns)) {
             return columns.toSelectString();
         } else {
-            return Columns.of(neo).table(tableName).toSelectString();
+            return Columns.of().setNeo(neo).table(tableName).toSelectString();
         }
     }
 
