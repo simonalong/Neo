@@ -30,7 +30,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
     @Test
     public void buildColumnsTest2() {
         // select `group`, `name`
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("table1", "name", "group");
         columns.table("table2", "id", "user_name");
         // table2.`id` as table2_NDom_id, table1.`name` as table1_NDom_name, table2.`user_name` as table2_NDom_user_name, table1.`group` as table1_NDom_group
@@ -108,7 +108,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         String table4 = "neo_table4";
 
         // 生成多个表的展示字段
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table(table1, "id", "name");
         columns.table(table2, "id");
 
