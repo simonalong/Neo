@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Accessors(chain = true)
-final class FieldInfo {
+public final class FieldInfo {
 
     /**
      * 属性的类的类型
@@ -33,7 +33,7 @@ final class FieldInfo {
     @Setter
     private String columnName;
 
-    FieldInfo setFieldRemark(String fieldRemark) {
+    public FieldInfo setFieldRemark(String fieldRemark) {
         if (null != fieldRemark && !"".equals(fieldRemark)) {
             this.fieldRemark = fieldRemark;
             this.fieldRemarkFlag = 1;

@@ -39,6 +39,14 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     private ConcurrentSkipListMap<String, Object> dataMap = new ConcurrentSkipListMap<>();
     /**
+     * 添加条件过滤器
+     * <p>
+     * 在sql进行拼接的时候，通过条件过滤Map进行判断，哪些属性是可以不用填充的
+     */
+    @Setter
+    @Getter
+    private ConditionMap conditionMap;
+    /**
      * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
      */
     @Getter
@@ -48,8 +56,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * 本次的默认转换规则
      */
     @Setter
+    @Getter
     @Accessors(chain = true)
-    private NamingChg namingChg = NamingChg.DEFAULT;
+    private NamingChg namingChg = null;
 
     /**
      * 通过key-value-key-value生成
@@ -758,11 +767,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             }
         }
 
-        if (!namingChg.equals(NamingChg.DEFAULT)) {
+        if (null != namingChg) {
             return namingChg.smallCamelToOther(field.getName());
         }
 
-        return globalNaming.smallCamelToOther(field.getName());
+        if (null != globalNaming) {
+            return globalNaming.smallCamelToOther(field.getName());
+        }
+
+        return NamingChg.DEFAULT.smallCamelToOther(field.getName());
     }
 
     public Map<String, Object> getDataMap() {
@@ -888,6 +901,20 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return dataMap.entrySet();
     }
 
+    /**
+     * key是否满足条件
+     *
+     * @param key 待校验的key
+     * @return 如果key不包含，则返回true，如果包含，则只有满足条件才会返回true，否则返回false
+     */
+    public Boolean satisfyCondition(String key) {
+        if(null == conditionMap){
+            return true;
+        }
+
+        return conditionMap.condition(this, key);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object instanceof NeoMap) {
@@ -915,6 +942,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
         neoMap.putAll(dataMap.clone());
+        neoMap.setNamingChg(namingChg);
+        neoMap.setConditionMap(conditionMap);
         return neoMap;
     }
 

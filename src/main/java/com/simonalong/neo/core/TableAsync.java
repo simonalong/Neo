@@ -84,6 +84,18 @@ public interface TableAsync extends AsyncNeo{
 
     CompletableFuture<NeoMap> oneAsync(Number id);
 
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id);
+
 
     CompletableFuture<List<NeoMap>> listAsync(Columns columns, NeoMap searchMap, Executor executor);
 
@@ -100,6 +112,14 @@ public interface TableAsync extends AsyncNeo{
     <T> CompletableFuture<List<T>> listAsync(T entity, Executor executor);
 
     <T> CompletableFuture<List<T>> listAsync(T entity);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap);
 
 
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor);
@@ -164,6 +184,22 @@ public interface TableAsync extends AsyncNeo{
 
     CompletableFuture<List<NeoMap>> pageAsync(NeoPage page);
 
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoPage page);
+
 
     CompletableFuture<Integer> countAsync(NeoMap searchMap, Executor executor);
 
@@ -177,6 +213,14 @@ public interface TableAsync extends AsyncNeo{
 
     CompletableFuture<Integer> countAsync();
 
+
+    CompletableFuture<Boolean> existAsync(NeoMap searchMap, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(NeoMap searchMap);
+
+    CompletableFuture<Boolean> existAsync(Object entity, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(Object entity);
 
 
     CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList);

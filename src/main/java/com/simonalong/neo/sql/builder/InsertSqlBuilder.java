@@ -3,6 +3,7 @@ package com.simonalong.neo.sql.builder;
 import com.simonalong.neo.NeoMap;
 import lombok.experimental.UtilityClass;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -20,17 +21,16 @@ public class InsertSqlBuilder {
      * @return 拼接的sql，比如：insert into table1 (`age`, `name`) values (?, ?)
      */
     public String build(String tableName, NeoMap valueMap) {
-        valueMap = SqlBuilder.toDbField(valueMap);
-        return "insert into " + tableName + " (" + buildInsertTable(valueMap) + ") values (" + buildInsertValues(valueMap) + ")";
+        return "insert into " + tableName + " (" + buildInsertTable(valueMap.keySet()) + ") values (" + buildInsertValues(valueMap) + ")";
     }
 
     /**
      * `name`, `group`
-     * @param valueMap map
+     * @param keys keys
      * @return tableName后面括号中的sql
      */
-    public String buildInsertTable(NeoMap valueMap) {
-        return String.join(", ", valueMap.keySet());
+    public String buildInsertTable(Set<String> keys) {
+        return keys.stream().map(SqlBuilder::toDbField).collect(Collectors.joining(", "));
     }
 
     /**

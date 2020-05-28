@@ -27,8 +27,6 @@ import org.junit.Test;
  */
 public class NeoMapTest extends BaseTest {
 
-    private static final String TABLE_NAME = "neo_table1";
-
     /**
      * 测试of
      */
@@ -309,6 +307,25 @@ public class NeoMapTest extends BaseTest {
         NeoMap expect = NeoMap.of("name", "name1", "userName", "userName1", "friend_name", "nana");
         Assert.assertEquals(expect, NeoMap.from(demo, "name", "userName", "myFriendName"));
         Assert.assertEquals(expect, NeoMap.fromInclude(demo, "name", "userName", "myFriendName"));
+    }
+
+    /**
+     * 测试from：转换规则
+     */
+    @Test
+    public void testFrom7() {
+        // 即使这里添加了全局转化规则，但是对于局部规则转换这里是不生效的
+        NeoMap.setGlobalNaming(NamingChg.UNDERLINE);
+        NeoMapFromEntity demo = new NeoMapFromEntity();
+        demo.setName("name1");
+        demo.setUserName("username1");
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demo, NamingChg.DEFAULT);
+        // {"group":"group1","user_name":"userName1"}
+        show(neoMap);
+        NeoMap expectMap = NeoMap.of("name", "name1", "userName", "username1");
+        Assert.assertEquals(expectMap, neoMap);
     }
 
     /**

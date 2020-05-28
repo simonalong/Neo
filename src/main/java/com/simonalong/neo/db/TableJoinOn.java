@@ -9,7 +9,7 @@ import lombok.Getter;
  * @author zhouzhenyong
  * @since 2019/4/20 下午9:46
  */
-public final class NeoJoiner {
+public final class TableJoinOn {
 
     /**
      * 中间表的joiner
@@ -21,7 +21,7 @@ public final class NeoJoiner {
     @Getter
     private String joinSql = " ";
 
-    public NeoJoiner(String tableName) {
+    public TableJoinOn(String tableName) {
         this.joinSql += tableName;
     }
 
@@ -32,7 +32,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner join(String leftTableName, String rightTableName){
+    public TableJoinOn join(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.INNER_JOIN);
         return this;
     }
@@ -44,7 +44,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner leftJoin(String leftTableName, String rightTableName){
+    public TableJoinOn leftJoin(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.LEFT_JOIN);
         return this;
     }
@@ -56,7 +56,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner rightJoin(String leftTableName, String rightTableName){
+    public TableJoinOn rightJoin(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.RIGHT_JOIN);
         return this;
     }
@@ -68,7 +68,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner innerJoin(String leftTableName, String rightTableName){
+    public TableJoinOn innerJoin(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.INNER_JOIN);
         return this;
     }
@@ -80,7 +80,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner outerJoin(String leftTableName, String rightTableName){
+    public TableJoinOn outerJoin(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.OUTER_JOIN);
         return this;
     }
@@ -92,7 +92,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName){
+    public TableJoinOn leftJoinExceptInner(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.LEFT_JOIN_EXCEPT_INNER);
         return this;
     }
@@ -104,7 +104,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName){
+    public TableJoinOn rightJoinExceptInner(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.RIGHT_JOIN_EXCEPT_INNER);
         return this;
     }
@@ -116,7 +116,7 @@ public final class NeoJoiner {
      * @param rightTableName 右表表名
      * @return 做关联的关联器
      */
-    public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName){
+    public TableJoinOn outerJoinExceptInner(String leftTableName, String rightTableName){
         this.innerTableJoiner = new TableJoiner(leftTableName, rightTableName, JoinType.OUTER_JOIN_EXCEPT_INNER);
         return this;
     }
@@ -128,7 +128,7 @@ public final class NeoJoiner {
      * @param rightColumnName 右表的列名
      * @return 返回关联之后的Joiner
      */
-    public NeoJoiner on(String leftColumnName, String rightColumnName) {
+    public TableJoinOn on(String leftColumnName, String rightColumnName) {
         this.joinSql += buildJoin(leftColumnName, rightColumnName);
         return this;
     }

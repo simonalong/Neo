@@ -30,12 +30,15 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 
 /**
  * 数据库的DO实体映射生成器
+ *
+ * 采用 {@link com.simonalong.neo.codegen.generator.DbEntityCodeGenerator}替代
  * @author zhouzhenyong
  * @since 2019/3/23 下午10:48
  */
 @Slf4j
 @Setter
 @Accessors(chain = true)
+@Deprecated
 public class EntityCodeGen {
 
     /**

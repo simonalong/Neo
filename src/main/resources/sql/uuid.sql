@@ -8,4 +8,4 @@ CREATE TABLE `neo_uuid_generator` (
   `process_id` varchar(128) NOT NULL DEFAULT '0' COMMENT '进程id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_name_work` (`namespace`,`work_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

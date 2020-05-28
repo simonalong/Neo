@@ -3,7 +3,7 @@ package com.simonalong.neo.sql;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.db.NeoJoiner;
+import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         String table2 = "table2";
         String table3 = "table3";
         String table4 = "table4";
-        NeoJoiner joiner = new NeoJoiner(table1);
+        TableJoinOn joiner = new TableJoinOn(table1);
         joiner.leftJoin(table1, table2).on("a_id", "id");
         joiner.leftJoin(table1, table3).on("c_id", "id");
         joiner.rightJoin(table2, table4).on("d_id", "id");
@@ -65,9 +65,9 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
     @Test
     public void buildConditionMetaTest2() {
         TableMap tableMap = new TableMap();
-        tableMap.put("table1", "ke1", "like value");
+        tableMap.put("table1", "ke1", "like value#");
         tableMap.put("table2", "name", "> 12");
-        // [table1.`ke1` like 'valeu%', table2.`name` > ?]
+        // [table1.`ke1` like 'value%', table2.`name` > ?]
         show(JoinSqlBuilder.buildConditionMeta(tableMap));
     }
 
@@ -75,13 +75,22 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
     public void buildOrderByTest1(){
         String table1 = "neo_table1";
         String table2 = "neo_table2";
-        String table3 = "neo_table3";
 
         TableMap searchMap = TableMap.of();
         searchMap.put(table2, "name", "12");
         searchMap.put(table2, "order by", "name desc");
         searchMap.put(table1, "order by", "group asc");
-        // [table1.`ke1` like 'valeu%', table2.`name` > ?]
+        // order by neo_table1.`group` asc, neo_table2.`name` desc
+        show(JoinSqlBuilder.buildOrderBy(searchMap));
+    }
+
+    @Test
+    public void buildOrderByTest2(){
+        String table1 = "neo_table1";
+
+        TableMap searchMap = TableMap.of();
+        searchMap.put(table1, "order by", "name desc, group asc");
+        // order by neo_table1.`name` desc, neo_table1.`group` asc
         show(JoinSqlBuilder.buildOrderBy(searchMap));
     }
 
@@ -104,7 +113,7 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         columns.table(table2, "id");
 
         // 多表的join关系
-        NeoJoiner joinner = new NeoJoiner(table1);
+        TableJoinOn joinner = new TableJoinOn(table1);
         joinner.leftJoin(table1, table2).on("id", "id");
         joinner.leftJoin(table2, table3).on("id", "id");
         joinner.rightJoin(table2, table4).on("id", "id");

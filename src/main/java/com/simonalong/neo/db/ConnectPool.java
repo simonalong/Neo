@@ -94,17 +94,19 @@ public final class ConnectPool {
 
     public void submit() throws SQLException {
         ReusableConnection con = connectLocal.get();
-        if (null != con) {
-            try {
-                con.commit();
-                con.setAutoCommit(true);
-                con.handleClose();
-            } finally {
-                connectLocal.remove();
+        // 针对事务嵌套这里采用最外层事务提交
+        if (neo.txIsRoot()) {
+            if (null != con) {
+                try {
+                    con.commit();
+                    con.setAutoCommit(true);
+                    con.handleClose();
+                } finally {
+                    connectLocal.remove();
+                }
             }
         }
     }
-
     public void rollback() throws SQLException {
         ReusableConnection con = connectLocal.get();
         if (null != con) {

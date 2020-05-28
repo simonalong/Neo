@@ -52,6 +52,14 @@ public interface TableSync extends SyncNeo{
 
     NeoMap one(Number id);
 
+    <T> T one(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> T one(Class<T> tClass, Columns columns, Number key);
+
+    <T> T one(Class<T> tClass, NeoMap searchMap);
+
+    <T> T one(Class<T> tClass, Number id);
+
 
     List<NeoMap> list(Columns columns, NeoMap searchMap);
 
@@ -62,6 +70,12 @@ public interface TableSync extends SyncNeo{
     <T> List<T> list(T entity);
 
     List<NeoMap> list(Columns columns);
+
+    <T> List<T> list(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> List<T> list(Class<T> tClass, NeoMap searchMap);
+
+    <T> List<T> list(Class<T> tClass, Columns columns);
 
 
     <T> T value(Class<T> tClass, String field, NeoMap searchMap);
@@ -97,12 +111,25 @@ public interface TableSync extends SyncNeo{
 
     List<NeoMap> page(NeoPage page);
 
+    <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, NeoPage page);
+
 
     Integer count(NeoMap searchMap);
 
     Integer count(Object entity);
 
     Integer count();
+
+
+    Boolean exist(NeoMap searchMap);
+
+    Boolean exist(Object entity);
 
 
     Integer batchInsert(List<NeoMap> dataMapList);

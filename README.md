@@ -7,10 +7,10 @@ Neo是一个基于JDBC开发的至简化框架，名字源于《黑客帝国》�
 [最新Neo文档介绍](https://www.yuque.com/simonalong/neo)
 
 ## 快速入门
-该框架接入比较简单，采用一个对象对应一个DataSource，然后这个对象拥有对表的各种操作
+该框架秉承大道至简理念，采用一个Neo对象对应一个DataSource方式，然后这个Neo对象拥有对表的各种操作。
 
 ### maven引入
-当前已经发布到maven中央仓库，直接使用即可，目前最低版本0.3.0，不同版本的api差距不小，建议从0.4.0版本开始
+当前已经发布到maven中央仓库，直接使用即可，目前最低版本0.3.0，不同版本的api差距不小，建议使用最新版本。目前版本还未脱离实验阶段，还未到达稳定版，如果有什么问题请及时反馈
 ```xml
 <dependency>
   <groupId>com.github.simonalong</groupId>
@@ -55,6 +55,9 @@ public void testDemo1() {
 
     // 查询分页
     neo.page(tableName, data, NeoPage.of(1, 20));
+    
+    // 分页个数
+    table.count(tableName, data);
 
     // 执行sql
     neo.execute("select * from %s where `group` =?", tableName, "group1");
@@ -73,6 +76,9 @@ public void testDemo1() {
     list.add(NeoMap.of("group", "v3"));
     list.add(NeoMap.of("group", "v4"));
     neo.batchInsert(tableName, list);
+    
+    // 批量更新
+    table.batchUpdate(tableName, list, Columns.of("group"));
 }
 ```
 
@@ -112,14 +118,20 @@ public void testDemo2() {
 
     // 查询分页
     table.page(data, NeoPage.of(1, 20));
+    
+    // 分页个数
+    table.count(data);
 
-    // 批量
+    // 批量插入
     List<NeoMap> list = new ArrayList<>();
     list.add(NeoMap.of("group", "v1"));
     list.add(NeoMap.of("group", "v2"));
     list.add(NeoMap.of("group", "v3"));
     list.add(NeoMap.of("group", "v4"));
     table.batchInsert(list);
+    
+    // 批量更新
+    table.batchUpdate(list, Columns.of("group"));
 }
 ```
 
@@ -174,14 +186,20 @@ public void testDemo3() {
 
     // 查询分页，第一个参数是搜索条件
     table.page(NeoMap.of("user_name", "name2"), NeoPage.of(1, 20));
+    
+    // 分页个数
+    table.count(data);
 
-    // 批量
+    // 批量插入
     List<DemoEntity3> list = new ArrayList<>();
     list.add(new DemoEntity3().setGroup("group1").setUsName("name1"));
     list.add(new DemoEntity3().setGroup("group2").setUsName("name2"));
     list.add(new DemoEntity3().setGroup("group3").setUsName("name3"));
     list.add(new DemoEntity3().setGroup("group4").setUsName("name4"));
     table.batchInsertEntity(list);
+    
+    // 批量更新
+    table.batchUpdateEntity(list, Columns.of("group"));
 }
 ```
 ### 实体和DB字段映射
@@ -300,6 +318,111 @@ public class CodeGenTest {
         codeGen.generate();
     }
 }
+```
+
+### 分布式ID生成器
+我们这里也提供了分布式ID生成器方案，采用的是改进版雪花算法，彻底解决了雪花算法存在的常见问题（时间回拨问题，workerId回收问题），对于如何解决的，具体方案可见文档，也可见我的另外一个项目[Butterfly](https://github.com/SimonAlong/Butterfly)（Neo框架中的发号器方案是Butterfly中的一个使用选项）。
+
+采用的是改进版雪花算法，不仅没有时间回拨问题，性能还比雪花算法还要高十几倍，普通机器QPS都可以达到1000w/s。
+
+#### 使用
+先建表，如果没有请创建
+```sql
+CREATE TABLE `neo_uuid_generator` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `namespace` varchar(128) DEFAULT '' COMMENT '命名空间',
+  `work_id` int(16) NOT NULL DEFAULT '0' COMMENT '工作id',
+  `last_expire_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下次失效时间',
+  `uid` varchar(128) DEFAULT '0' COMMENT '本次启动唯一id',
+  `ip` bigint(20) NOT NULL DEFAULT '0' COMMENT 'ip',
+  `process_id` varchar(128) NOT NULL DEFAULT '0' COMMENT '进程id',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_name_work` (`namespace`,`work_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
+```java
+@Test
+public void generateTest1() {
+    UuidGenerator generator = UuidGenerator.getInstance(neo);
+    // 注册（声明）命令空间（在业务空间对应的集群，最多可以有8192台机器跑同一个业务，对大部分业务来说，足够了）
+    generator.addNamespaces("test1", "test2");
+    
+    System.out.println(generator.getUUid("test1"));
+}
+```
+
+### 多表join
+
+```java
+@Test
+public void testJoin1() {
+    // 首先获取join的处理器，支持查询one，list, value, values, page, count
+    NeoJoiner neoJoiner = neo.joiner();
+
+    // 配置的列
+    Columns columns = Columns.of(neo);
+    columns.table("neo_table1", "age");
+    // 配置所有列，可以为columns.table("neo_table2", "*")
+    columns.table("neo_table2", "name", "group");
+
+    // 配置多表join
+    TableJoinOn tableJoinOn = new TableJoinOn("neo_table1");
+    tableJoinOn.leftJoin("neo_table1", "neo_table2").on("id", "n_id");
+    tableJoinOn.leftJoin("neo_table2", "neo_table3").on("n_id", "n_id");
+
+    // 配置查询条件
+    TableMap searchMap = TableMap.of();
+    searchMap.put("neo_table1", "name", "nihao");
+    searchMap.put("neo_table2", "group", "ok");
+
+    // select
+    // neo_table1.`age` as neo_table1_dom_age,
+    // neo_table2.`group` as neo_table2_dom_group,
+    // neo_table2.`name` as neo_table2_dom_name
+    //
+    // from
+    // neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+    // left join neo_table3 on neo_table2.`n_id`=neo_table3.`n_id`
+    //
+    // where neo_table2.`group` =  ? and neo_table1.`name` =  ?
+
+    // [ok, nihao]
+    show(neoJoiner.one(columns, tableJoinOn, searchMap));
+}
+```
+
+### 异步
+所有的api都有对应的异步api，列举其中几个接口api，接口太多，这里不再列举。其中线程池中的默认方式中，拒绝策略采用新的方式（重写了拒绝策略），即：如果线程池全部都满了，则任务阻塞在任务队列中
+```java
+    CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap, Executor executor);
+
+    CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap);
+
+    <T> CompletableFuture<T> insertAsync(String tableName, T object, Executor executor);
+
+    <T> CompletableFuture<T> insertAsync(String tableName, T object);
+
+
+    CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor);
+
+    CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap);
+
+    <T> CompletableFuture<Integer> deleteAsync(String tableName, T object, Executor executor);
+
+    <T> CompletableFuture<Integer> deleteAsync(String tableName, T object);
+
+    CompletableFuture<Integer> deleteAsync(String tableName, Number id, Executor executor);
+
+    CompletableFuture<Integer> deleteAsync(String tableName, Number id);
+
+
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap, Executor executor);
+
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap);
+
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, Executor executor);
+...
 ```
 
 ### 更多功能
