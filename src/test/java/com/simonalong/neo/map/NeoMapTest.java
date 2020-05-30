@@ -1,7 +1,5 @@
 package com.simonalong.neo.map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
@@ -19,7 +17,6 @@ import java.util.Map;
 
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.map.table.NeoMapEnum;
-import com.simonalong.neo.neo.TestEntity2;
 import com.simonalong.neo.util.Maps;
 import org.junit.Assert;
 import org.junit.Test;
