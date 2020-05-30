@@ -1,5 +1,7 @@
 package com.simonalong.neo.map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.map.table.NeoMapEnum;
+import com.simonalong.neo.neo.TestEntity2;
 import com.simonalong.neo.util.Maps;
 import org.junit.Assert;
 import org.junit.Test;
@@ -819,5 +822,29 @@ public class NeoMapTest extends BaseTest {
     public void keyStream(){
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
         neoMap.keyStream().forEach(this::show);
+    }
+
+    @Test
+    public void gsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toGsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromGsonStr(gsonString).as(NeoMapEntity.class));
+    }
+
+    @Test
+    public void fastJsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toFastJsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromFastJsonStr(gsonString).as(NeoMapEntity.class));
     }
 }
