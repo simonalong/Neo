@@ -1,6 +1,7 @@
 package com.simonalong.neo;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.NeoException;
@@ -237,6 +238,35 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         NeoMap targetMap = NeoMap.of();
         sourceMap.stream().forEach(c -> targetMap.putIfAbsent(namingChg.smallCamelToOther(c.getKey()), c.getValue()));
         return targetMap;
+    }
+
+    /**
+     * 反解析数据
+     * @param fastJsonString {@link com.alibaba.fastjson}的序列化字符串
+     * @return 解析后的数据
+     */
+    public static NeoMap fromFastJsonStr(String fastJsonString) {
+        NeoMap resultMap = NeoMap.of();
+        if (null == fastJsonString || "".equals(fastJsonString)) {
+            return resultMap;
+        }
+        resultMap.putAll(JSON.parseObject(fastJsonString));
+        return resultMap;
+    }
+
+    /**
+     * 反解析数据
+     * @param gsonString {@link com.google.gson}的序列化字符串
+     * @return 解析后的数据
+     */
+    @SuppressWarnings("unchecked")
+    public static NeoMap fromGsonStr(String gsonString) {
+        NeoMap resultMap = NeoMap.of();
+        if (null == gsonString || "".equals(gsonString)) {
+            return resultMap;
+        }
+        resultMap.putAll(new Gson().fromJson(gsonString, Map.class));
+        return resultMap;
     }
 
     /**
@@ -932,6 +962,22 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public String toString() {
         return JSON.toJSONString(dataMap);
+    }
+
+    /**
+     * fastJson格式的序列化字符
+     * @return 字符串
+     */
+    public String toFastJsonString() {
+        return JSON.toJSONString(dataMap);
+    }
+
+    /**
+     * gson格式的序列化字符
+     * @return 字符串
+     */
+    public String toGsonString() {
+        return new Gson().toJson(dataMap);
     }
 
     /**

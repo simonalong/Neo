@@ -56,10 +56,6 @@ public final class Columns {
         return columns.table(DEFAULT_TABLE, fields);
     }
 
-    public static Columns of(Neo neo){
-        return Columns.of().setNeo(neo);
-    }
-
     public static Columns from(Class tClass) {
         return Columns.from(tClass, "");
     }

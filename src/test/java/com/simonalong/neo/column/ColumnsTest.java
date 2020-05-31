@@ -81,7 +81,7 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void testFrom1() {
         // `data_base_name`, `group`, `user_name`, `name`, `id`
-        show(Columns.from(TestEntity.class));
+        show(Columns.from(TestEntity.class).toSelectString());
         Assert.assertEquals(Columns.of("`data_base_name`", "`group`", "`user_name`", "`name`", "`id`"), Columns.from(TestEntity.class));
     }
 
@@ -152,8 +152,8 @@ public class ColumnsTest extends NeoBaseTest {
 
     @Test
     public void appendTest5() {
-        Columns aColumns = Columns.of(neo).table("neo_table1", "group");
-        Columns bColumns = Columns.of(neo).table("neo_table2", "group");
+        Columns aColumns = Columns.of().setNeo(neo).table("neo_table1", "group");
+        Columns bColumns = Columns.of().setNeo(neo).table("neo_table2", "group");
         show(aColumns);
         show(bColumns);
         show(aColumns.append(bColumns));
@@ -173,7 +173,7 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest1() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of(neo).table("neo_table1", "*");
+        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*");
         show(columns);
 
         Assert.assertEquals(Columns.of().table("neo_table1",
@@ -193,7 +193,7 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest2() {
         // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of(neo).table("neo_table1", "*", "group");
+        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*", "group");
         Assert.assertEquals(Columns.of().table("neo_table1",
             "group",
             "name",
@@ -211,7 +211,7 @@ public class ColumnsTest extends NeoBaseTest {
     @Test
     public void allColumnTest3() {
         // neo_table1.`user_name`, neo_table1.`age`, neo_table1.`group` as g, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of(neo).table("neo_table1", "*", "group");
+        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*", "group");
         Assert.assertEquals(Columns.of().table("neo_table1",
             "group",
             "name",
@@ -228,12 +228,12 @@ public class ColumnsTest extends NeoBaseTest {
      */
     @Test
     public void allColumnTest4() {
-        Columns aColumn = Columns.of(neo).table("neo_table1", "*");
+        Columns aColumn = Columns.of().setNeo(neo).table("neo_table1", "*");
         show(aColumn);
-        Columns bColumn = Columns.of(neo).table("neo_table2", "*");
+        Columns bColumn = Columns.of().setNeo(neo).table("neo_table2", "*");
         show(bColumn);
         show(aColumn.append(bColumn));
-        Columns totalColumn = Columns.of(neo).table("neo_table1", "*").table("neo_table2", "*");
+        Columns totalColumn = Columns.of().setNeo(neo).table("neo_table1", "*").table("neo_table2", "*");
         Assert.assertEquals(aColumn.append(bColumn), totalColumn);
     }
 

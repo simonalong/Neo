@@ -820,4 +820,28 @@ public class NeoMapTest extends BaseTest {
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
         neoMap.keyStream().forEach(this::show);
     }
+
+    @Test
+    public void gsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toGsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromGsonStr(gsonString).as(NeoMapEntity.class));
+    }
+
+    @Test
+    public void fastJsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toFastJsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromFastJsonStr(gsonString).as(NeoMapEntity.class));
+    }
 }

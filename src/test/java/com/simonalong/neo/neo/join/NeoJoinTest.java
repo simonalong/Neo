@@ -48,7 +48,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "age");
         columns.table("neo_table2", "name");
         columns.table("neo_table2", "group");
@@ -86,7 +86,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "age");
         columns.table("neo_table2", "name");
         columns.table("neo_table2", "group");
@@ -131,7 +131,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "age");
         columns.table("neo_table2", "name");
         columns.table("neo_table2", "group");
@@ -175,7 +175,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "age");
         columns.table("neo_table2", "name", "group", "user_name");
 
@@ -214,7 +214,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "*");
         columns.table("neo_table2", "name");
 
@@ -256,7 +256,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "group");
         columns.table("neo_table2", "name");
 
@@ -298,7 +298,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "group");
         columns.table("neo_table2", "name");
 
@@ -338,7 +338,7 @@ public class NeoJoinTest extends NeoBaseTest {
         NeoJoiner neoJoiner = neo.joiner();
 
         // 配置的列
-        Columns columns = Columns.of(neo);
+        Columns columns = Columns.of().setNeo(neo);
         columns.table("neo_table1", "group");
         columns.table("neo_table2", "name");
 
