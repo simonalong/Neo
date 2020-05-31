@@ -6,6 +6,8 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.Date;
+
+import com.simonalong.neo.neo.entity.OneEntity;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -170,6 +172,11 @@ public class NeoOneTest extends NeoBaseTest {
     public void testOne8(){
         DemoEntity search = new DemoEntity().setGroup("group2");
         show(neo.one(TABLE_NAME, Columns.of("group", "name"), search));
+    }
+
+    @Test
+    public void testOne9() {
+        show(neo.one(OneEntity.class, TABLE_NAME, NeoMap.of("group", "ok")));
     }
 
     /**

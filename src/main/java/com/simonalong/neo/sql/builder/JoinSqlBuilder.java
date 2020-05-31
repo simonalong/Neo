@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.db.NeoJoiner;
+import com.simonalong.neo.db.TableJoinOn;
 import lombok.experimental.UtilityClass;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import static com.simonalong.neo.NeoConstant.ORDER_BY;
 public class JoinSqlBuilder {
 
 
-    public String build(Columns columns, NeoJoiner joiner, TableMap searchMap) {
+    public String build(Columns columns, TableJoinOn joiner, TableMap searchMap) {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
     }
 
@@ -42,11 +42,11 @@ public class JoinSqlBuilder {
     /**
      * 获取多表join的sql部分
      *
-     * @param neoJoiner joiner
+     * @param tableJoinOn joiner
      * @return table1 left join table2 on table1.`id` = table2.`a_id` inner join table3.`id` on table2.`c_id` = table3.`id`
      */
-    public String buildJoinOn(NeoJoiner neoJoiner) {
-        return neoJoiner.getJoinSql();
+    public String buildJoinOn(TableJoinOn tableJoinOn) {
+        return tableJoinOn.getJoinSql();
     }
 
     public String buildConditionWithWhere(TableMap tableMap) {
@@ -162,7 +162,7 @@ public class JoinSqlBuilder {
      */
     public String buildOrderBy(TableMap searchMap) {
         if (!TableMap.isEmpty(searchMap)) {
-            List<String> orderByStrList = searchMap.clone().entrySet().stream().flatMap(e-> {
+            List<String> orderByStrList = searchMap.clone().entrySet().stream().flatMap(e -> {
                 String tableName = e.getKey();
                 NeoMap valueMap = (NeoMap) e.getValue();
                 if (valueMap.containsKey(ORDER_BY)) {
@@ -170,7 +170,9 @@ public class JoinSqlBuilder {
                 }
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.toList());
-            return " " + ORDER_BY + " " + String.join(", ", orderByStrList);
+            if (null != orderByStrList && !orderByStrList.isEmpty()) {
+                return " " + ORDER_BY + " " + String.join(", ", orderByStrList);
+            }
         }
         return "";
     }
@@ -180,6 +182,7 @@ public class JoinSqlBuilder {
      * <p>
      *     {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
      *
+     * @param tableName 表名
      * @param orderByValueStr order by后面的字符
      * @return 转换后的字符，比如：[neo_table1.`name` desc]
      */

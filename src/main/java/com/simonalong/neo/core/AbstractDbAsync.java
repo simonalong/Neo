@@ -6,6 +6,7 @@ import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * 填充默认线程池
@@ -101,6 +102,22 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        return oneAsync(tClass, tableName, columns, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, NeoMap searchMap) {
+        return oneAsync(tClass, tableName, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Number id) {
+        return oneAsync(tClass, tableName, id, getExecutor());
+    }
+
+
+    @Override
     public CompletableFuture<List<NeoMap>> listAsync(String tableName, Columns columns, NeoMap searchMap) {
         return listAsync(tableName, columns, searchMap, getExecutor());
     }
@@ -119,6 +136,18 @@ public abstract class AbstractDbAsync implements DbAsync {
     public <T> CompletableFuture<List<T>> listAsync(String tableName, T entity) {
         return listAsync(tableName, entity, getExecutor());
     }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        return listAsync(tClass, tableName, columns, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, NeoMap searchMap) {
+        return listAsync(tClass, tableName, searchMap, getExecutor());
+    }
+
 
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field,
@@ -173,11 +202,6 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap) {
-        return pageAsync(tableName, columns, searchMap, getExecutor());
-    }
-
-    @Override
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page) {
         return pageAsync(tableName, columns, entity, page, getExecutor());
     }
@@ -203,8 +227,23 @@ public abstract class AbstractDbAsync implements DbAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap) {
-        return pageAsync(tableName, searchMap, getExecutor());
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return pageAsync(tClass, tableName, columns, searchMap, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return pageAsync(tClass, tableName, searchMap, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return pageAsync(tClass, tableName, columns, page, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page) {
+        return pageAsync(tClass, tableName, page, getExecutor());
     }
 
     @Override
@@ -220,6 +259,15 @@ public abstract class AbstractDbAsync implements DbAsync {
     @Override
     public CompletableFuture<Integer> countAsync(String tableName) {
         return countAsync(tableName, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap){
+        return existAsync(tableName, searchMap, getExecutor());
+    }
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Object entity){
+        return existAsync(tableName, entity, getExecutor());
     }
 
 

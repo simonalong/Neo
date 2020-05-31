@@ -119,7 +119,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info(LOG_PRE + "进程即将退出，清理本次启动申请的db资源");
-            neo.delete(UUID_TABLE, uuidGeneratorDO.getId());
+            neo.delete(NEO_UUID_TABLE, uuidGeneratorDO.getId());
             if (null != scheduler) {
                 scheduler.shutdown();
             }
@@ -136,7 +136,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
         UuidGeneratorDO newGenerate = new UuidGeneratorDO();
         newGenerate.setId(uuidGeneratorDO.getId());
         newGenerate.setLastExpireTime(lastExpireTime);
-        newGenerate = neo.update(UUID_TABLE, newGenerate);
+        newGenerate = neo.update(NEO_UUID_TABLE, newGenerate);
         if (null != newGenerate && null != newGenerate.getId()) {
             uuidGeneratorDO.setLastExpireTime(lastExpireTime);
         }
@@ -157,19 +157,19 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     @SuppressWarnings("all")
     private Boolean applyWorkerFromExistExpire() {
-        Integer minId = neo.exeValue(Integer.class, "select min(id) from %s where namespace =? and last_expire_time < ?", UUID_TABLE, namespace, new Date());
+        Integer minId = neo.exeValue(Integer.class, "select min(id) from %s where namespace =? and last_expire_time < ?", NEO_UUID_TABLE, namespace, new Date());
         if (null == minId) {
             return false;
         }
 
         return neo.tx(() -> {
-            TableMap result = neo.exeOne("select id, work_id, last_expire_time from %s where id = ? for update", UUID_TABLE, minId);
+            TableMap result = neo.exeOne("select id, work_id, last_expire_time from %s where id = ? for update", NEO_UUID_TABLE, minId);
             if (null == result) {
                 return false;
             }
-            NeoMap selectOne = result.getNeoMap(UUID_TABLE);
+            NeoMap selectOne = result.getNeoMap(NEO_UUID_TABLE);
             if (null != selectOne && selectOne.get(Date.class, "last_expire_time").compareTo(new Date()) < 0) {
-                uuidGeneratorDO = neo.update(UUID_TABLE, generateUuidGeneratorDo(selectOne.getLong("id"), selectOne.getInteger("work_id")));
+                uuidGeneratorDO = neo.update(NEO_UUID_TABLE, generateUuidGeneratorDo(selectOne.getLong("id"), selectOne.getInteger("work_id")));
                 return true;
             }
             return false;
@@ -183,12 +183,12 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     private void insertWorker() {
         Integer result = neo.tx(() -> {
-            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ? for update", UUID_TABLE, namespace);
+            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ? for update", NEO_UUID_TABLE, namespace);
             if (null == maxWorkerId) {
-                uuidGeneratorDO = neo.insert(UUID_TABLE, generateUuidGeneratorDo(null, 0));
+                uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, 0));
             } else {
                 if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
-                    uuidGeneratorDO = neo.insert(UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
+                    uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
                     log.error(LOG_PRE + "namespace {} have full worker, init fail");
                     return 0;

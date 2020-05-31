@@ -27,6 +27,7 @@ public class UuidBaseTest extends NeoBaseTest {
     public String parseUid(Long uid) {
         StringBuilder result = new StringBuilder();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        result.append("uuid：" + uid + "; ");
         result.append("符号位是：" + ((uid & symbolMark) >>> SYMBOL_LEFT_SHIFT) + "; ");
         result.append("time是：" + ((uid & timeMark) >> TIME_LEFT_SHIFT) + "; ");
         result.append("相对时间是：" + dateFormat.format(new Date(((uid & timeMark) >> TIME_LEFT_SHIFT) + START_TIME)) + "; ");

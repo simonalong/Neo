@@ -1,6 +1,7 @@
 package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
+import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.DbNotSetException;
 import com.simonalong.neo.db.NeoPage;
@@ -35,7 +36,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取当前处理该表的DB数据库
      * @return db同步库对象
      */
-    abstract public DbSync getDb();
+    abstract public Neo getDb();
 
     /**
      * 获取当前处理的表名
@@ -139,6 +140,26 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> T one(Class<T> tClass, Columns columns, NeoMap searchMap) {
+        return getDbInner().one(tClass, getTableName(), searchMap);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, Columns columns, Number key) {
+        return getDbInner().one(tClass, getTableName(), columns, key);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, NeoMap searchMap) {
+        return getDbInner().one(tClass, getTableName(), searchMap);
+    }
+
+    @Override
+    public <T> T one(Class<T> tClass, Number id) {
+        return getDbInner().one(tClass, getTableName(), id);
+    }
+
+    @Override
     public List<NeoMap> list(Columns columns, NeoMap searchMap){
         return getDbInner().list(getTableName(), columns, searchMap);
     }
@@ -161,6 +182,21 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public List<NeoMap> list(Columns columns){
         return getDbInner().list(getTableName(), columns);
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, Columns columns, NeoMap searchMap) {
+        return getDbInner().list(tClass, getTableName(), columns, searchMap);
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, NeoMap searchMap) {
+        return getDbInner().list(tClass, getTableName(), searchMap);
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, Columns columns) {
+        return getDbInner().list(tClass, getTableName(), columns);
     }
 
     @Override
@@ -219,11 +255,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public List<NeoMap> page(Columns columns, NeoMap searchMap){
-        return getDbInner().page(getTableName(), columns, searchMap);
-    }
-
-    @Override
     public <T> List<T> page(Columns columns, T entity, NeoPage page){
         return getDbInner().page(getTableName(), columns, entity, page);
     }
@@ -249,8 +280,23 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public List<NeoMap> page(NeoMap searchMap){
-        return getDbInner().page(getTableName(), searchMap);
+    public <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), columns, searchMap, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), searchMap, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), columns, page);
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), page);
     }
 
     @Override
@@ -267,6 +313,18 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     public Integer count(){
         return getDbInner().count(getTableName());
     }
+
+
+    @Override
+    public Boolean exist(NeoMap searchMap) {
+        return getDbInner().exist(getTableName(), searchMap);
+    }
+
+    @Override
+    public Boolean exist(Object entity) {
+        return getDbInner().exist(getTableName(), entity);
+    }
+
 
     @Override
     public Integer batchInsert(List<NeoMap> dataMapList){
@@ -385,6 +443,21 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, columns, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, id), executor);
+    }
+
+    @Override
     public CompletableFuture<List<NeoMap>> listAsync(Columns columns, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> list(columns, searchMap), executor);
     }
@@ -402,6 +475,16 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public <T> CompletableFuture<List<T>> listAsync(T entity, Executor executor) {
         return CompletableFuture.supplyAsync(() -> list(entity), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, columns, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, searchMap), executor);
     }
 
     @Override
@@ -456,10 +539,6 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return CompletableFuture.supplyAsync(() -> page(columns, searchMap, page), executor);
     }
 
-    @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(columns, searchMap), executor);
-    }
 
     @Override
     public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page, Executor executor) {
@@ -486,10 +565,27 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return CompletableFuture.supplyAsync(() -> page(page), executor);
     }
 
+
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(searchMap), executor);
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchMap, page), executor);
     }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, page), executor);
+    }
+
 
     @Override
     public CompletableFuture<Integer> countAsync(NeoMap searchMap, Executor executor) {
@@ -504,6 +600,17 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public CompletableFuture<Integer> countAsync(Executor executor) {
         return CompletableFuture.supplyAsync(this::count, executor);
+    }
+
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(()-> exist(searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(Object entity, Executor executor) {
+        return CompletableFuture.supplyAsync(()-> exist(entity), executor);
     }
 
 

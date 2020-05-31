@@ -27,8 +27,6 @@ import org.junit.Test;
  */
 public class NeoMapTest extends BaseTest {
 
-    private static final String TABLE_NAME = "neo_table1";
-
     /**
      * 测试of
      */
@@ -309,6 +307,25 @@ public class NeoMapTest extends BaseTest {
         NeoMap expect = NeoMap.of("name", "name1", "userName", "userName1", "friend_name", "nana");
         Assert.assertEquals(expect, NeoMap.from(demo, "name", "userName", "myFriendName"));
         Assert.assertEquals(expect, NeoMap.fromInclude(demo, "name", "userName", "myFriendName"));
+    }
+
+    /**
+     * 测试from：转换规则
+     */
+    @Test
+    public void testFrom7() {
+        // 即使这里添加了全局转化规则，但是对于局部规则转换这里是不生效的
+        NeoMap.setGlobalNaming(NamingChg.UNDERLINE);
+        NeoMapFromEntity demo = new NeoMapFromEntity();
+        demo.setName("name1");
+        demo.setUserName("username1");
+
+        // 将map的key全部转换为下划线
+        NeoMap neoMap = NeoMap.from(demo, NamingChg.DEFAULT);
+        // {"group":"group1","user_name":"userName1"}
+        show(neoMap);
+        NeoMap expectMap = NeoMap.of("name", "name1", "userName", "username1");
+        Assert.assertEquals(expectMap, neoMap);
     }
 
     /**
@@ -802,5 +819,29 @@ public class NeoMapTest extends BaseTest {
     public void keyStream(){
         NeoMap neoMap = NeoMap.of("a", 12, "b", "ok");
         neoMap.keyStream().forEach(this::show);
+    }
+
+    @Test
+    public void gsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toGsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromGsonStr(gsonString).as(NeoMapEntity.class));
+    }
+
+    @Test
+    public void fastJsonTest(){
+        NeoMapEntity entity = new NeoMapEntity();
+        entity.setAge(12);
+        entity.setUserAddress("nihao");
+
+        NeoMap dataMap = NeoMap.from(entity);
+        String gsonString = dataMap.toFastJsonString();
+
+        Assert.assertEquals(entity, NeoMap.fromFastJsonStr(gsonString).as(NeoMapEntity.class));
     }
 }

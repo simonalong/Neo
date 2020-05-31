@@ -20,7 +20,7 @@ import lombok.experimental.Accessors;
  * @author zhouzhenyong
  * @since 2019/3/28 下午11:04
  */
-final class EnumInfo {
+public final class EnumInfo {
 
     @Getter
     private Map<String, EnumInner> enumInnerMap;

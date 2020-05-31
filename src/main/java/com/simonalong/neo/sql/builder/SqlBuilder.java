@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.simonalong.neo.sql.InList;
 import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
 
@@ -56,7 +57,10 @@ public class SqlBuilder {
     public String buildWhere(NeoMap searchMap) {
         NeoMap conditionMap = searchMap.assignExcept(ORDER_BY);
         if (!NeoMap.isEmpty(conditionMap)) {
-            return " where " + buildWhereCondition(searchMap);
+            String whereCondition = buildWhereCondition(searchMap);
+            if (!"".equals(whereCondition)) {
+                return " where " + whereCondition;
+            }
         }
         return "";
     }
@@ -81,11 +85,13 @@ public class SqlBuilder {
      * @return 比如：`group` = ? and `name` = ?
      */
     public String buildWhereCondition(NeoMap searchMap) {
-        StringBuilder stringBuilder = new StringBuilder();
         if (!NeoMap.isEmpty(searchMap)) {
-            return stringBuilder.append(String.join(" and ", buildConditionMeta(searchMap))).toString();
+            List<String> conditionList = buildConditionMeta(searchMap);
+            if (!conditionList.isEmpty()) {
+                return String.join(" and ", conditionList);
+            }
         }
-        return stringBuilder.toString();
+        return "";
     }
 
     /**
@@ -115,27 +121,22 @@ public class SqlBuilder {
     /**
      * 转换后的条件元数据
      *
-     * <li>1.如果值为like开头，则支持模糊查询</li>
-     * <li>2.如果为比较符号（>、>=、<、<=）这种，则表示有比较操作</li>
+     * <ul>
+     *      <li>1.如果值为like开头，则支持模糊查询</li>
+     *      <li>2.如果为比较符号{@code >、>=、<、<=}这种，则表示有比较操作</li>
+     * </ul>
      *
      * @param searchMap 搜索条件
-     * @return 返回sql中的多个字段：[`age` > ?, `group` =  ?, `name` like 'haode%']
+     * @return 返回sql中的多个字段：{@code [`age` > ?, `group` =  ?, `name` like 'haode%']}
      */
     public List<String> buildConditionMeta(NeoMap searchMap) {
         String orderByStr = "order by";
-        return searchMap.clone().entrySet().stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(e -> valueFix(searchMap, e)).collect(Collectors.toList());
-    }
-
-    /**
-     * 对于NeoMap的key含有表名的进行转换，比如{@code name} 到 {@code `name`}
-     *
-     * @param neoMap 原map
-     * @return 转换之后的map： {`group`=ok, `name`=haode}
-     */
-    public NeoMap toDbField(NeoMap neoMap) {
-        NeoMap resultMap = NeoMap.of();
-        neoMap.stream().forEach(e -> resultMap.put(toDbField(e.getKey()), e.getValue()));
-        return resultMap;
+        return searchMap.clone().entrySet().stream()
+            .filter(r -> !r.getKey().trim().equals(orderByStr))
+            .filter(e-> searchMap.satisfyCondition(e.getKey()))
+            .map(e -> valueFix(searchMap, e))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -163,7 +164,9 @@ public class SqlBuilder {
         }
 
         String orderByStr = "order by";
-        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).map(o->{
+        return searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).filter(e->{
+            return searchMap.satisfyCondition(e.getKey());
+        }).map(o->{
             Object v = o.getValue();
             if (v instanceof String) {
                 String valueStr = String.class.cast(v);
@@ -177,6 +180,8 @@ public class SqlBuilder {
                 if (haveThanPre(valueStr)) {
                     return getSymbolAndValue(valueStr).getValue();
                 }
+            } else if (v instanceof InList) {
+                return null;
             }
             return v;
         }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -202,7 +207,7 @@ public class SqlBuilder {
 
             // 处理模糊搜索，like
             if (valueStr.startsWith(LIKE_PRE)) {
-                return key + " like " + (withValueFlag.get() ? "'" + valueStr + "'" : "'" + getLikeValue(valueStr) + "'");
+                return key + " like " +  "'" + getLikeValue(valueStr) + "'";
             }
 
             // 大小比较设置，针对 ">", "<", ">=", "<=" 这么几个进行比较
@@ -212,12 +217,17 @@ public class SqlBuilder {
                 return key + " " + symbolAndValue.getKey() + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
             }
             return key + " = " + ((withValueFlag.get() ? "'" + valueStr + "'" : " ?"));
+        } else if (value instanceof InList) {
+            return ((InList) value).buildSql(key);
         }
         return key + " = " + ((withValueFlag.get() ? value : " ?"));
     }
 
     /**
      * 搜索的数据是否有比较类型的前缀
+     *
+     * @param value 值
+     * @return 是否包含比较符
      */
     public boolean haveThanPre(String value){
         if (null == value || "".equals(value)) {
@@ -233,10 +243,16 @@ public class SqlBuilder {
     }
 
     /**
-     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> 'xxx%'
+     * 将传入的包含有like前缀的字符串，提取出value，然后拼接，比如：like xxx -> '%xxx%'，like #xxx -> '%xxx'
      */
     private String getLikeValue(String likeValue) {
-        return likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length()) + "%";
+        String value = likeValue.substring(likeValue.indexOf(LIKE_PRE) + LIKE_PRE.length());
+        if (value.contains("#")) {
+            value = value.replaceAll("#", "%");
+        } else {
+            value = "%" + value + "%";
+        }
+        return value;
     }
 
     /**

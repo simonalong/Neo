@@ -19,6 +19,10 @@ public enum DbType {
      */
     SQLITE("jdbc:sqlite"),
     /**
+     * H2
+     */
+    H2("jdbc:h2"),
+    /**
      * postgresql
      */
     PGSQL("jdbc:postgresql"),

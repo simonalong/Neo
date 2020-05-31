@@ -58,6 +58,33 @@ public class NeoBatchTest extends NeoBaseTest {
         neo.batchInsertEntity(TABLE_NAME, entities);
     }
 
+    /**
+     * 测试每一项在不一样的情况下的插入
+     */
+    @Test
+    public void batchInsertTest4(){
+        List<NeoMap> maps = Arrays.asList(
+            NeoMap.of("group", "group2", "name", "name2"),
+            NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3"),
+            NeoMap.of("group", "group5", "name", "name5", "user_name", "user_name5")
+        );
+        show(neo.batchInsert(TABLE_NAME, maps));
+        show(maps);
+    }
+
+    @Test
+    public void batchInsertTest5(){
+        List<DemoEntity> entities = Arrays.asList(
+            new DemoEntity().setGroup("group11").setName("name11").setAge(123),
+            new DemoEntity().setGroup("group12").setName("name12"),
+            new DemoEntity().setGroup("group13").setName("name13"),
+            new DemoEntity().setGroup("group14").setName("name14"),
+            new DemoEntity().setGroup("group15").setName("name15"),
+            new DemoEntity().setGroup("group16").setName("name16")
+        );
+        show(neo.batchInsertEntity(TABLE_NAME, entities));
+    }
+
     @Test
     public void batchUpdateTest1(){
         List<NeoMap> maps = Arrays.asList(
@@ -139,5 +166,31 @@ public class NeoBatchTest extends NeoBaseTest {
         );
         show(neo.batchUpdate(TABLE_NAME, maps));
         show(maps);
+    }
+
+    /**
+     * 字段不固定
+     */
+    @Test
+    public void batchUpdateTest7(){
+        List<NeoMap> maps = Arrays.asList(
+            NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"),
+            NeoMap.of("group", "group4", "name", "name4chg"),
+            NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
+        );
+        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("user_name")));
+    }
+
+    /**
+     * 字段不固定
+     */
+    @Test
+    public void batchUpdateTest8(){
+        List<NeoMap> maps = Arrays.asList(
+            NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"),
+            NeoMap.of("group", "group4", "name", "name4chg"),
+            NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
+        );
+        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("user_name")));
     }
 }

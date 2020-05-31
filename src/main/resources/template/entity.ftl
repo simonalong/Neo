@@ -19,10 +19,6 @@ import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.annotation.Table;
 import lombok.experimental.Accessors;
 import lombok.Data;
-<#if importInnerEnum == 1>
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-</#if>
 
 /**
 <#if tableRemark != "">
@@ -44,26 +40,5 @@ public class ${TableName}${tableNamePost} {
     </#if>
     @Column("${field.columnName}")
     private ${field.fieldType} ${field.fieldName};
-</#list>
-<#list innerEnumList! as inner>
-    /**
-<#if inner.enumRemark??>
-    * ${inner.enumRemark}
-</#if>
-    */
-    @Getter
-    @AllArgsConstructor
-    public enum ${inner.enumType} {
-<#list inner.enumList! as enumMeta>
-<#if enumMeta.desc??>
-        /**
-        * ${enumMeta.desc}
-        */
-</#if>
-        ${enumMeta.enumData}("${enumMeta.enumData}"),
-</#list>
-        ;
-        private String value;
-    }
 </#list>
 }

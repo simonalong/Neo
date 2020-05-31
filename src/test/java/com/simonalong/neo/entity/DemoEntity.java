@@ -28,6 +28,7 @@ public class DemoEntity {
     @Column("data_name")
     private String dataBaseName;
     private Integer a;
+    private Integer age;
     private long sl = 0;
     private Date utilDate;
     private java.sql.Date sqlDate;

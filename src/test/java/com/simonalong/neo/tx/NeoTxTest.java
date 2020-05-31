@@ -126,4 +126,14 @@ public class NeoTxTest extends NeoBaseTest {
             neo.one(TABLE_NAME, NeoMap.of("id", 11));
         });
     }
+
+    /**
+     * 事务的异常返回
+     */
+    @Test(expected = Throwable.class)
+    public void test8(){
+        neo.tx(()->{
+            neo.insert(TABLE_NAME, NeoMap.of("id", 12));
+        });
+    }
 }

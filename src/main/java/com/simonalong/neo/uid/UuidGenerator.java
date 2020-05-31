@@ -11,7 +11,7 @@ import com.simonalong.neo.uid.splicer.DefaultUuidSplicer;
 import com.simonalong.neo.uid.splicer.UuidSplicer;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.uid.UuidConstant.UUID_TABLE;
+import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
 
 /**
  * 分布式全局id生成器
@@ -54,7 +54,7 @@ public final class UuidGenerator {
         if (null == neo) {
             throw new UuidException("数据库对象为空");
         }
-        if (!neo.tableExist(UUID_TABLE)) {
+        if (!neo.tableExist(NEO_UUID_TABLE)) {
             throw new UuidException("数据库uuid表不存在，请创建表 neo_uuid_generator");
         }
     }
