@@ -2,7 +2,7 @@ package com.simonalong.neo.core.join;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.TableMap;
-import com.simonalong.neo.core.AsyncNeo;
+import com.simonalong.neo.core.Async;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
  * @author shizi
  * @since 2020/5/23 6:32 PM
  */
-public interface JoinnerAsync extends AsyncNeo {
+public interface JoinnerAsync extends Async {
 
     CompletableFuture<TableMap> oneAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor);
 

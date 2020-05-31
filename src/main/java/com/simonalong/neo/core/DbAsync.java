@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
  * @author zhouzhenyong
  * @since 2019-08-17 18:09
  */
-public interface DbAsync extends AsyncNeo {
+public interface DbAsync extends Async {
 
     CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap, Executor executor);
 

@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
  * @author zhouzhenyong
  * @since 2019-08-17 18:18
  */
-public interface TableAsync extends AsyncNeo{
+public interface TableAsync extends Async {
 
     CompletableFuture<NeoMap> insertAsync(NeoMap dataMap, Executor executor);
 
