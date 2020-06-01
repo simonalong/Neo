@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo extends AbstractBaseDb implements ExecuteSql {
+public class Neo extends AbstractBaseDb {
 
     @Getter
     private NeoDb db;

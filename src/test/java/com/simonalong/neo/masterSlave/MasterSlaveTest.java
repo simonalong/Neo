@@ -4,6 +4,7 @@ import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.replication.MasterSlaveNeo;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -31,6 +32,6 @@ public class MasterSlaveTest extends BaseTest {
         msNeo.addSlaveDb(slave1, "slave1");
 
         msNeo.insert(tableName, NeoMap.of("name", "name1"));
-        show(msNeo.one(tableName, NeoMap.of("name", "name1")));
+        Assert.assertEquals(msNeo.one(tableName, NeoMap.of("name", "name1")), slave1.one(tableName, NeoMap.of("name", "name1")));
     }
 }
