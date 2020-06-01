@@ -1,7 +1,5 @@
 package com.simonalong.neo.replication;
 
-import com.simonalong.neo.core.AbstractBaseDb;
-
 /**
  * @author shizi
  * @since 2020/5/31 5:54 PM
@@ -13,12 +11,16 @@ public interface MasterSlaveSelector {
      *
      * @return 主库db
      */
-    AbstractBaseDb getMasterDb();
+    MasterSlaveNeo.InnerActiveDb selectMasterDb();
 
     /**
      * 获取从库db
      *
      * @return 从库db
      */
-    AbstractBaseDb getSlaveDb();
+    MasterSlaveNeo.InnerActiveDb selectSlaveDb();
+
+    void deActiveMaster(String alias);
+
+    void deActiveSlave(String alias);
 }

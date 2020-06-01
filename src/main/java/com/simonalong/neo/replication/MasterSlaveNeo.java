@@ -1,9 +1,9 @@
 package com.simonalong.neo.replication;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.exception.NeoException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -12,10 +12,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author shizi
  * @since 2020/5/31 5:54 PM
  */
+@Slf4j
 public class MasterSlaveNeo extends AbstractMasterSlaveDb {
 
     private Map<String, InnerActiveDb> masterDbMap = new ConcurrentHashMap<>();
@@ -70,24 +73,6 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         currentMasterDb = innerActiveDb;
     }
 
-    /**
-     * 设置主库不可用
-     *
-     * @param alias 主库的db别名
-     */
-    public void deActiveMasterDb(String alias) {
-        if (!masterDbMap.containsKey(alias)) {
-            throw new NeoException("没有找到别名为" + alias + "的库");
-        }
-
-        // 去激活的是当前正在使用的
-        if (currentMasterDb.getName().equals(alias)) {
-            currentMasterDb = getRandomMaster();
-        }
-
-        masterDbMap.get(alias).setActiveFlag(false);
-    }
-
     public void activeSlave(String alias) {
         if (!slaveDbMap.containsKey(alias)) {
             throw new NeoException("没有找到别名为" + alias + "的库");
@@ -102,11 +87,31 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
     }
 
     /**
+     * 设置主库不可用
+     *
+     * @param alias 主库的db别名
+     */
+    @Override
+    public void deActiveMaster(String alias) {
+        if (!masterDbMap.containsKey(alias)) {
+            throw new NeoException("没有找到别名为" + alias + "的库");
+        }
+
+        // 去激活的是当前正在使用的
+        if (currentMasterDb.getName().equals(alias)) {
+            currentMasterDb = getRandomMaster();
+        }
+
+        masterDbMap.get(alias).setActiveFlag(false);
+    }
+
+    /**
      * 设置某个从库中的db不可用
      *
      * @param alias 从库的db别名
      */
-    public void deActiveSlaveDb(String alias) {
+    @Override
+    public void deActiveSlave(String alias) {
         if (!slaveDbMap.containsKey(alias)) {
             throw new NeoException("没有找到别名为" + alias + "的库");
         }
@@ -150,9 +155,9 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
      * @return 主库db
      */
     @Override
-    public AbstractBaseDb getMasterDb() {
+    public InnerActiveDb selectMasterDb() {
         if (null != currentMasterDb) {
-            return currentMasterDb.getDb();
+            return currentMasterDb;
         }
 
         throw new NeoException("主库没有设置或者不可用");
@@ -164,21 +169,18 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
      * @return 从库db
      */
     @Override
-    public AbstractBaseDb getSlaveDb() {
-        if (0 == slaveKeys.size()) {
-            throw new NeoException("请先添加从库");
-        }
-
+    public InnerActiveDb selectSlaveDb() {
         Integer index = getIndex();
         if (null != index) {
             InnerActiveDb innerActiveDb = slaveDbMap.get(slaveKeys.get(index));
             if (null == innerActiveDb) {
                 throw new NeoException("从库获取失败");
             }
-            return innerActiveDb.getDb();
+            return innerActiveDb;
         } else {
+            log.info(LOG_PRE + "从库不可用，走主库");
             // 从库都不可用，则走主库
-            return getMasterDb();
+            return selectMasterDb();
         }
     }
 
