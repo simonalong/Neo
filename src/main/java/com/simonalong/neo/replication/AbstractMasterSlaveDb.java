@@ -5,6 +5,7 @@ import com.simonalong.neo.*;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoException;
+import com.simonalong.neo.util.ExceptionUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLTransientConnectionException;
@@ -413,12 +414,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
             deActiveMaster(db.getName());
             log.warn("call error", e);
             // 这两个异常为链接类的异常
-            if (e.getCause() instanceof SQLTransientConnectionException || e.getCause() instanceof CommunicationsException) {
+            if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
                 return doMasterCall(function);
             }
             throw e;
         }
-        // todo 有异常没有拦截到
     }
 
     /**
@@ -431,16 +431,18 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
     private <T> T doSlaveCall(Function<AbstractBaseDb, T> function) {
         MasterSlaveNeo.InnerActiveDb db = selectSlaveDb();
         try {
+            // todo 后续需要删除
+            log.info("db name = {}", db.getName());
             return function.apply(db.getDb());
         } catch (NeoException e) {
             deActiveSlave(db.getName());
             log.warn("call error", e);
             // 这两个异常为链接类的异常
-            if (e.getCause() instanceof SQLTransientConnectionException || e.getCause() instanceof CommunicationsException) {
+            if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
+                log.warn("从库{}异常，切库", db.getName());
                 return doSlaveCall(function);
             }
             throw e;
         }
-        // todo 有异常没有拦截到
     }
 }

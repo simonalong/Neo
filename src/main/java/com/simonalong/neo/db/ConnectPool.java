@@ -75,7 +75,6 @@ public final class ConnectPool {
             }
             return con;
         } catch (SQLTransientConnectionException e) {
-            log.error("error", e);
             throw new NeoException(e);
         }
     }

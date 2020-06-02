@@ -20,7 +20,17 @@ public interface MasterSlaveSelector {
      */
     MasterSlaveNeo.InnerActiveDb selectSlaveDb();
 
+    /**
+     * 去激活主库
+     *
+     * @param alias 主库名
+     */
     void deActiveMaster(String alias);
 
+    /**
+     * 去激活从库
+     *
+     * @param alias 从库名
+     */
     void deActiveSlave(String alias);
 }

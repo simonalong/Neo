@@ -9,8 +9,9 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static com.simonalong.neo.NeoConstant.LOG_PRE;
 
@@ -21,11 +22,27 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public class MasterSlaveNeo extends AbstractMasterSlaveDb {
 
+    private static final String MS_LOG_PRE = LOG_PRE + "[master-slave]";
     private Map<String, InnerActiveDb> masterDbMap = new ConcurrentHashMap<>();
     private Map<String, InnerActiveDb> slaveDbMap = new ConcurrentHashMap<>();
+    /**
+     * 临时从库，用于在从库都不可用情况下的添加的主库
+     */
+    private Map<String, InnerActiveDb> slaveDbMapTem = new ConcurrentHashMap<>();
     private InnerActiveDb currentMasterDb;
     private AtomicInteger slaveIndex = new AtomicInteger(0);
     private List<String> slaveKeys = new ArrayList<>();
+    /**
+     * 库断开后重连任务
+     */
+    private Executor restoreTask = new ThreadPoolExecutor(0, 1, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1), new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r, "Neo-Restore-Db");
+            thread.setDaemon(true);
+            return thread;
+        }
+    }, new ThreadPoolExecutor.DiscardPolicy());
 
     public void addMasterDb(Neo db, String alias) {
         addMasterDb(db, alias, true);
@@ -86,6 +103,14 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         }
     }
 
+    private void addSlaveDbTem(InnerActiveDb innerActiveDb) {
+        if (null != innerActiveDb) {
+            slaveDbMapTem.put(innerActiveDb.getName(), innerActiveDb);
+            slaveKeys.add(innerActiveDb.getName());
+            startRestore();
+        }
+    }
+
     /**
      * 设置主库不可用
      *
@@ -97,12 +122,15 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
             throw new NeoException("没有找到别名为" + alias + "的库");
         }
 
+        masterDbMap.get(alias).setActiveFlag(false);
+
         // 去激活的是当前正在使用的
         if (currentMasterDb.getName().equals(alias)) {
             currentMasterDb = getRandomMaster();
         }
 
-        masterDbMap.get(alias).setActiveFlag(false);
+        // 启动恢复线程
+        startRestore();
     }
 
     /**
@@ -120,9 +148,13 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         assert null != innerActiveDb;
         innerActiveDb.setActiveFlag(false);
         slaveKeys.remove(alias);
+        slaveIndex.set(0);
+
+        // 启动恢复线程
+        startRestore();
     }
 
-    private Integer getIndex() {
+    private Integer getNextIndex() {
         int keySize = slaveKeys.size();
         if (0 == keySize) {
             return null;
@@ -134,6 +166,71 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
             }
             return index;
         });
+    }
+
+    /**
+     * 启动恢复程序
+     */
+    private void startRestore() {
+        restoreTask.execute(() -> {
+            while (haveUnActiveDb()) {
+                try {
+                    Thread.sleep(10 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                doRestore(true, masterDbMap.values().stream().filter(e -> !e.getActiveFlag()).collect(Collectors.toList()));
+                doRestore(false, slaveDbMap.values().stream().filter(e -> !e.getActiveFlag()).collect(Collectors.toList()));
+            }
+        });
+    }
+
+    private Boolean haveUnActiveDb() {
+        return masterDbMap.values().stream().anyMatch(e -> !e.getActiveFlag()) || slaveDbMap.values().stream().anyMatch(e -> !e.getActiveFlag());
+    }
+
+    private void doRestore(Boolean masterOrSlave, List<InnerActiveDb> unActiveDbs) {
+        if (!unActiveDbs.isEmpty()) {
+            for (InnerActiveDb innerActiveDb : unActiveDbs) {
+                String dbAlias = innerActiveDb.getName();
+                try {
+                    innerActiveDb.getDb().test();
+                    // 从库如果有恢复的，则之前用主库作为从库使用的，重新作为主库使用
+                    if (masterOrSlave) {
+                        log.warn(MS_LOG_PRE + "主库{}回复正常", dbAlias);
+                    } else {
+                        // 激活从库
+                        activeSlave(dbAlias);
+
+                        if (slaveDbMapTem.isEmpty()) {
+                            log.warn(MS_LOG_PRE + "从库[{}]恢复正常", dbAlias);
+                        } else {
+                            // 主库不空，则说明当前恢复的是从库中的第一个库
+                            List<String> masterNameList = slaveDbMapTem.values().stream().map(InnerActiveDb::getName).collect(Collectors.toList());
+                            cleanSlaveTemOfMaster(masterNameList);
+
+                            log.warn(MS_LOG_PRE + "从库[{}]恢复正常，主库[{}]不再担任读取职责", dbAlias, masterNameList);
+                        }
+                    }
+                } catch (Throwable ignore) {
+                    if (masterOrSlave) {
+                        log.info(MS_LOG_PRE + "尝试恢复主库{}失败", dbAlias);
+                    } else {
+                        log.info(MS_LOG_PRE + "尝试恢复从库{}失败", dbAlias);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 清理主库对应的临时从库
+     */
+    private void cleanSlaveTemOfMaster(List<String> masterNameList) {
+        slaveKeys.removeAll(masterNameList);
+        slaveIndex.set(0);
+        slaveDbMapTem.clear();
     }
 
     /**
@@ -166,21 +263,36 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
     /**
      * 获取从库db
      *
+     * <ul>
+     * <li>1.首先从"从库"中查看从库数据</li>
+     * <li>2.如果从库中没有数据，则会将"主库"中的库放到临时从库</li>
+     * </ul>
+     *
      * @return 从库db
      */
     @Override
     public InnerActiveDb selectSlaveDb() {
-        Integer index = getIndex();
+        Integer index = getNextIndex();
         if (null != index) {
-            InnerActiveDb innerActiveDb = slaveDbMap.get(slaveKeys.get(index));
-            if (null == innerActiveDb) {
+            String dbAlias = slaveKeys.get(index);
+            InnerActiveDb innerActiveDb;
+            if (slaveDbMap.containsKey(dbAlias)) {
+                innerActiveDb = slaveDbMap.get(dbAlias);
+            } else if (slaveDbMapTem.containsKey(dbAlias)) {
+                innerActiveDb = slaveDbMapTem.get(dbAlias);
+            } else {
                 throw new NeoException("从库获取失败");
             }
             return innerActiveDb;
         } else {
-            log.info(LOG_PRE + "从库不可用，走主库");
-            // 从库都不可用，则走主库
-            return selectMasterDb();
+            // 从库都不可用，则采用主库，将主库添加到临时从库中
+            InnerActiveDb db = selectMasterDb();
+            if (null != db) {
+                log.error(MS_LOG_PRE + "从库都不可用，走主库{}", db.getName());
+                addSlaveDbTem(db);
+                return selectSlaveDb();
+            }
+            throw new NeoException("没有可用的库");
         }
     }
 

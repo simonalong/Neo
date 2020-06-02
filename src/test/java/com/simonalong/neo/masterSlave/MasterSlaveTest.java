@@ -33,12 +33,18 @@ public class MasterSlaveTest extends BaseTest {
         String password1 = "";
         Neo slave1 = Neo.connect(url1, username1, password1);
 
+        Random random = new Random();
+        Integer data = random.nextInt(50) + 100;
+
         MasterSlaveNeo msNeo = new MasterSlaveNeo();
         msNeo.addMasterDb(master, "master");
         msNeo.addSlaveDb(slave1, "slave1");
 
-        msNeo.insert(tableName, NeoMap.of("name", "name1"));
-        Assert.assertEquals(msNeo.one(tableName, NeoMap.of("name", "name1")), slave1.one(tableName, NeoMap.of("name", "name1")));
+        NeoMap searchMap = NeoMap.of("name", "name" + data);
+
+        msNeo.insert(tableName, searchMap);
+        Assert.assertEquals(master.one(tableName, searchMap), slave1.one(tableName, searchMap));
+        Assert.assertEquals(master.one(tableName, searchMap), msNeo.one(tableName, searchMap));
     }
 
     /**
@@ -64,19 +70,16 @@ public class MasterSlaveTest extends BaseTest {
         msNeo.addSlaveDb(slave1, "slave1");
         Random random = new Random();
 
-        while(true) {
+        while (true) {
             Integer index = random.nextInt(5);
             msNeo.insert(tableName, NeoMap.of("name", "name" + index));
-            show(master.one(tableName, NeoMap.of("name", "name" + index)));
             show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
-            show(slave1.one(tableName, NeoMap.of("name", "name" + index)));
-
-            Thread.sleep(10 * 1000);
+            Thread.sleep(3 * 1000);
         }
     }
 
     /**
-     * 主从中，从库不可用情况下的验证
+     * 一主多从，从1挂掉，切换到从2
      */
     @Test
     @SneakyThrows
@@ -87,26 +90,28 @@ public class MasterSlaveTest extends BaseTest {
         String username = "root";
         String password = "";
         Neo master = Neo.connect(url, username, password);
-//
+
         String url1 = "jdbc:mysql://127.0.0.1:3308/demo1";
         String username1 = "root";
         String password1 = "";
         Neo slave1 = Neo.connect(url1, username1, password1);
-//
-//        MasterSlaveNeo msNeo = new MasterSlaveNeo();
-//        msNeo.addMasterDb(master, "master");
-////        msNeo.addSlaveDb(slave1, "slave1");
-//        Random random = new Random();
-//
-//        while(true) {
-//            Integer index = random.nextInt(5);
-//            msNeo.insert(tableName, NeoMap.of("name", "name" + index));
-//            show(master.one(tableName, NeoMap.of("name", "name" + index)));
-//            show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
-//            show(slave1.one(tableName, NeoMap.of("name", "name" + index)));
-//
-//            Thread.sleep(10 * 1000);
-//        }
-        show(master.one(tableName, NeoMap.of("name", "name0")));
+
+        String url2 = "jdbc:mysql://127.0.0.1:3309/demo1";
+        String username2 = "root";
+        String password2 = "";
+        Neo slave2 = Neo.connect(url2, username2, password2);
+
+        MasterSlaveNeo msNeo = new MasterSlaveNeo();
+        msNeo.addMasterDb(master, "master");
+        msNeo.addSlaveDb(slave1, "slave1");
+        msNeo.addSlaveDb(slave2, "slave2");
+        Random random = new Random();
+
+        while (true) {
+            Integer index = random.nextInt(50) + 100;
+            msNeo.insert(tableName, NeoMap.of("name", "name" + index));
+            show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
+            Thread.sleep(4 * 1000);
+        }
     }
 }
