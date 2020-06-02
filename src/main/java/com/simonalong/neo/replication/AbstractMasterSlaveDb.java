@@ -21,389 +21,389 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
 
     @Override
     public NeoMap insert(String tableName, NeoMap dataMap) {
-        return doMasterCall(db->db.insert(tableName, dataMap));
+        return doMasterCall(db -> db.insert(tableName, dataMap));
     }
 
     @Override
     public <T> T insert(String tableName, T object) {
-        return doMasterCall(db->db.insert(tableName, object));
+        return doMasterCall(db -> db.insert(tableName, object));
     }
 
     @Override
     public Integer delete(String tableName, NeoMap searchMap) {
-        return doMasterCall(db->db.delete(tableName, searchMap));
+        return doMasterCall(db -> db.delete(tableName, searchMap));
     }
 
     @Override
     public <T> Integer delete(String tableName, T object) {
-        return doMasterCall(db->db.delete(tableName, object));
+        return doMasterCall(db -> db.delete(tableName, object));
     }
 
     @Override
     public Integer delete(String tableName, Number id) {
-        return doMasterCall(db->db.delete(tableName, id));
+        return doMasterCall(db -> db.delete(tableName, id));
     }
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        return doMasterCall(db->db.update(tableName, dataMap, searchMap));
+        return doMasterCall(db -> db.update(tableName, dataMap, searchMap));
     }
 
     @Override
     public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
-        return doMasterCall(db->db.update(tableName, setEntity, searchMap));
+        return doMasterCall(db -> db.update(tableName, setEntity, searchMap));
     }
 
     @Override
     public <T> T update(String tableName, T setEntity, T searchEntity) {
-        return doMasterCall(db->db.update(tableName, setEntity, searchEntity));
+        return doMasterCall(db -> db.update(tableName, setEntity, searchEntity));
     }
 
     @Override
     public <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity) {
-        return doMasterCall(db->db.update(tableName, setMap, searchEntity));
+        return doMasterCall(db -> db.update(tableName, setMap, searchEntity));
     }
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
-        return doMasterCall(db->db.update(tableName, dataMap, columns));
+        return doMasterCall(db -> db.update(tableName, dataMap, columns));
     }
 
     @Override
     public <T> T update(String tableName, T entity, Columns columns) {
-        return doMasterCall(db->db.update(tableName, entity, columns));
+        return doMasterCall(db -> db.update(tableName, entity, columns));
     }
 
     @Override
     public NeoMap update(String tableName, NeoMap dataMap) {
-        return doMasterCall(db->db.update(tableName, dataMap));
+        return doMasterCall(db -> db.update(tableName, dataMap));
     }
 
     @Override
     public <T> T update(String tableName, T entity) {
-        return doMasterCall(db->db.update(tableName, entity));
+        return doMasterCall(db -> db.update(tableName, entity));
     }
 
     @Override
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
-        return doSlaveCall(db->db.one(tableName, columns, searchMap));
+        return doSlaveCall(db -> db.one(tableName, columns, searchMap));
     }
 
     @Override
     public <T> T one(String tableName, Columns columns, T entity) {
-        return doSlaveCall(db->db.one(tableName, columns, entity));
+        return doSlaveCall(db -> db.one(tableName, columns, entity));
     }
 
     @Override
     public NeoMap one(String tableName, Columns columns, Number key) {
-        return doSlaveCall(db->db.one(tableName, columns, key));
+        return doSlaveCall(db -> db.one(tableName, columns, key));
     }
 
     @Override
     public NeoMap one(String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.one(tableName, searchMap));
+        return doSlaveCall(db -> db.one(tableName, searchMap));
     }
 
     @Override
     public <T> T one(String tableName, T entity) {
-        return doSlaveCall(db->db.one(tableName, entity));
+        return doSlaveCall(db -> db.one(tableName, entity));
     }
 
     @Override
     public NeoMap one(String tableName, Number id) {
-        return doSlaveCall(db->db.one(tableName, id));
+        return doSlaveCall(db -> db.one(tableName, id));
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
-        return doSlaveCall(db->db.one(tClass, tableName, columns, searchMap));
+        return doSlaveCall(db -> db.one(tClass, tableName, columns, searchMap));
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Columns columns, Number key) {
-        return doSlaveCall(db->db.one(tClass, tableName, columns, key));
+        return doSlaveCall(db -> db.one(tClass, tableName, columns, key));
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.one(tClass, tableName, searchMap));
+        return doSlaveCall(db -> db.one(tClass, tableName, searchMap));
     }
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Number id) {
-        return doSlaveCall(db->db.one(tClass, tableName, id));
+        return doSlaveCall(db -> db.one(tClass, tableName, id));
     }
 
     @Override
     public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
-        return doSlaveCall(db->db.list(tableName, columns, searchMap));
+        return doSlaveCall(db -> db.list(tableName, columns, searchMap));
     }
 
     @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
-        return doSlaveCall(db->db.list(tableName, columns, entity));
+        return doSlaveCall(db -> db.list(tableName, columns, entity));
     }
 
     @Override
     public List<NeoMap> list(String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.list(tableName, searchMap));
+        return doSlaveCall(db -> db.list(tableName, searchMap));
     }
 
     @Override
     public <T> List<T> list(String tableName, T entity) {
-        return doSlaveCall(db->db.list(tableName, entity));
+        return doSlaveCall(db -> db.list(tableName, entity));
     }
 
     @Override
     public List<NeoMap> list(String tableName, Columns columns) {
-        return doSlaveCall(db->db.list(tableName, columns));
+        return doSlaveCall(db -> db.list(tableName, columns));
     }
 
     @Override
     public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
-        return doSlaveCall(db->db.list(tClass, tableName, columns, searchMap));
+        return doSlaveCall(db -> db.list(tClass, tableName, columns, searchMap));
     }
 
     @Override
     public <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.list(tClass, tableName, searchMap));
+        return doSlaveCall(db -> db.list(tClass, tableName, searchMap));
     }
 
     @Override
     public <T> List<T> list(Class<T> tClass, String tableName, Columns columns) {
-        return doSlaveCall(db->db.list(tClass, tableName, columns));
+        return doSlaveCall(db -> db.list(tClass, tableName, columns));
     }
 
     @Override
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return doSlaveCall(db->db.value(tableName, tClass, field, searchMap));
+        return doSlaveCall(db -> db.value(tableName, tClass, field, searchMap));
     }
 
     @Override
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
-        return doSlaveCall(db->db.value(tableName, tClass, field, entity));
+        return doSlaveCall(db -> db.value(tableName, tClass, field, entity));
     }
 
     @Override
     public String value(String tableName, String field, NeoMap searchMap) {
-        return doSlaveCall(db->db.value(tableName, field, searchMap));
+        return doSlaveCall(db -> db.value(tableName, field, searchMap));
     }
 
     @Override
     public String value(String tableName, String field, Object entity) {
-        return doSlaveCall(db->db.value(tableName, field, entity));
+        return doSlaveCall(db -> db.value(tableName, field, entity));
     }
 
     @Override
     public String value(String tableName, String field, Number id) {
-        return doSlaveCall(db->db.value(tableName, field, id));
+        return doSlaveCall(db -> db.value(tableName, field, id));
     }
 
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return doSlaveCall(db->db.values(tableName, tClass, field, searchMap));
+        return doSlaveCall(db -> db.values(tableName, tClass, field, searchMap));
     }
 
     @Override
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
-        return doSlaveCall(db->db.values(tableName, tClass, field, entity));
+        return doSlaveCall(db -> db.values(tableName, tClass, field, entity));
     }
 
     @Override
     public List<String> values(String tableName, String field, NeoMap searchMap) {
-        return doSlaveCall(db->db.values(tableName, field, searchMap));
+        return doSlaveCall(db -> db.values(tableName, field, searchMap));
     }
 
     @Override
     public List<String> values(String tableName, String field, Object entity) {
-        return doSlaveCall(db->db.values(tableName, field, entity));
+        return doSlaveCall(db -> db.values(tableName, field, entity));
     }
 
     @Override
     public List<String> values(String tableName, String field) {
-        return doSlaveCall(db->db.values(tableName, field));
+        return doSlaveCall(db -> db.values(tableName, field));
     }
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, columns, searchMap, page));
+        return doSlaveCall(db -> db.page(tableName, columns, searchMap, page));
     }
 
     @Override
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, columns, entity, page));
+        return doSlaveCall(db -> db.page(tableName, columns, entity, page));
     }
 
     @Override
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, searchMap, page));
+        return doSlaveCall(db -> db.page(tableName, searchMap, page));
     }
 
     @Override
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, entity, page));
+        return doSlaveCall(db -> db.page(tableName, entity, page));
     }
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, columns, page));
+        return doSlaveCall(db -> db.page(tableName, columns, page));
     }
 
     @Override
     public List<NeoMap> page(String tableName, NeoPage page) {
-        return doSlaveCall(db->db.page(tableName, page));
+        return doSlaveCall(db -> db.page(tableName, page));
     }
 
     @Override
     public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db->db.page(tClass, tableName, columns, searchMap, page));
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchMap, page));
     }
 
     @Override
     public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db->db.page(tClass, tableName, searchMap, page));
+        return doSlaveCall(db -> db.page(tClass, tableName, searchMap, page));
     }
 
     @Override
     public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db->db.page(tClass, tableName, columns, page));
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, page));
     }
 
     @Override
     public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
-        return doSlaveCall(db->db.page(tClass, tableName, page));
+        return doSlaveCall(db -> db.page(tClass, tableName, page));
     }
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.count(tableName, searchMap));
+        return doSlaveCall(db -> db.count(tableName, searchMap));
     }
 
     @Override
     public Integer count(String tableName, Object entity) {
-        return doSlaveCall(db->db.count(tableName, entity));
+        return doSlaveCall(db -> db.count(tableName, entity));
     }
 
     @Override
     public Integer count(String tableName) {
-        return doSlaveCall(db->db.count(tableName));
+        return doSlaveCall(db -> db.count(tableName));
     }
 
     @Override
     public Boolean exist(String tableName, NeoMap searchMap) {
-        return doSlaveCall(db->db.exist(tableName, searchMap));
+        return doSlaveCall(db -> db.exist(tableName, searchMap));
     }
 
     @Override
     public Boolean exist(String tableName, Object entity) {
-        return doSlaveCall(db->db.exist(tableName, entity));
+        return doSlaveCall(db -> db.exist(tableName, entity));
     }
 
     @Override
     public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {
-        return doMasterCall(db->db.batchInsert(tableName, dataMapList));
+        return doMasterCall(db -> db.batchInsert(tableName, dataMapList));
     }
 
     @Override
     public <T> Integer batchInsertEntity(String tableName, List<T> dataList) {
-        return doMasterCall(db->db.batchInsertEntity(tableName, dataList));
+        return doMasterCall(db -> db.batchInsertEntity(tableName, dataList));
     }
 
     @Override
     public Integer batchUpdate(String tableName, List<NeoMap> dataList) {
-        return doMasterCall(db->db.batchUpdate(tableName, dataList));
+        return doMasterCall(db -> db.batchUpdate(tableName, dataList));
     }
 
     @Override
     public Integer batchUpdate(String tableName, List<NeoMap> dataList, Columns columns) {
-        return doMasterCall(db->db.batchUpdate(tableName, dataList, columns));
+        return doMasterCall(db -> db.batchUpdate(tableName, dataList, columns));
     }
 
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList) {
-        return doMasterCall(db->db.batchUpdateEntity(tableName, dataList));
+        return doMasterCall(db -> db.batchUpdateEntity(tableName, dataList));
     }
 
     @Override
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns) {
-        return doMasterCall(db->db.batchUpdateEntity(tableName, dataList, columns));
+        return doMasterCall(db -> db.batchUpdateEntity(tableName, dataList, columns));
     }
 
     @Override
     public TableMap exeOne(String sql, Object... parameters) {
-        return doMasterCall(db->db.exeOne(sql, parameters));
+        return doMasterCall(db -> db.exeOne(sql, parameters));
     }
 
     @Override
     public <T> T exeOne(Class<T> tClass, String sql, Object... parameters) {
-        return doMasterCall(db->db.exeOne(tClass, sql, parameters));
+        return doMasterCall(db -> db.exeOne(tClass, sql, parameters));
     }
 
     @Override
     public List<TableMap> exeList(String sql, Object... parameters) {
-        return doMasterCall(db->db.exeList(sql, parameters));
+        return doMasterCall(db -> db.exeList(sql, parameters));
     }
 
     @Override
     public <T> List<T> exeList(Class<T> tClass, String sql, Object... parameters) {
-        return doMasterCall(db->db.exeList(tClass, sql, parameters));
+        return doMasterCall(db -> db.exeList(tClass, sql, parameters));
     }
 
     @Override
     public <T> T exeValue(Class<T> tClass, String sql, Object... parameters) {
-        return doMasterCall(db->db.exeValue(tClass, sql, parameters));
+        return doMasterCall(db -> db.exeValue(tClass, sql, parameters));
     }
 
     @Override
     public String exeValue(String sql, Object... parameters) {
-        return doMasterCall(db->db.exeValue(sql, parameters));
+        return doMasterCall(db -> db.exeValue(sql, parameters));
     }
 
     @Override
     public <T> List<T> exeValues(Class<T> tClass, String sql, Object... parameters) {
-        return doMasterCall(db->db.exeValues(tClass, sql, parameters));
+        return doMasterCall(db -> db.exeValues(tClass, sql, parameters));
     }
 
     @Override
     public List<String> exeValues(String sql, Object... parameters) {
-        return doMasterCall(db->db.exeValues(sql, parameters));
+        return doMasterCall(db -> db.exeValues(sql, parameters));
     }
 
     @Override
     public List<TableMap> exePage(String sql, Integer startIndex, Integer pageSize, Object... parameters) {
-        return doMasterCall(db->db.exePage(sql, startIndex, pageSize, parameters));
+        return doMasterCall(db -> db.exePage(sql, startIndex, pageSize, parameters));
     }
 
     @Override
     public <T> List<T> exePage(Class<T> tClass, String sql, Integer startIndex, Integer pageSize, Object... parameters) {
-        return doMasterCall(db->db.exePage(tClass, sql, startIndex, pageSize, parameters));
+        return doMasterCall(db -> db.exePage(tClass, sql, startIndex, pageSize, parameters));
     }
 
     @Override
     public List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters) {
-        return doMasterCall(db->db.exePage(sql, neoPage, parameters));
+        return doMasterCall(db -> db.exePage(sql, neoPage, parameters));
     }
 
     @Override
     public <T> List<T> exePage(Class<T> tClass, String sql, NeoPage neoPage, Object... parameters) {
-        return doMasterCall(db->db.exePage(tClass, sql, neoPage, parameters));
+        return doMasterCall(db -> db.exePage(tClass, sql, neoPage, parameters));
     }
 
     @Override
     public Integer exeCount(String sql, Object... parameters) {
-        return doMasterCall(db->db.exeCount(sql, parameters));
+        return doMasterCall(db -> db.exeCount(sql, parameters));
     }
 
     @Override
     public List<List<TableMap>> execute(String sql, Object... parameters) {
-        return doMasterCall(db->db.execute(sql, parameters));
+        return doMasterCall(db -> db.execute(sql, parameters));
     }
 
     /**
      * 内部主库调用
      *
      * @param function 回调处理
-     * @param <T> 返回类型
+     * @param <T>      返回类型
      * @return 返回值
      */
     private <T> T doMasterCall(Function<AbstractBaseDb, T> function) {
@@ -425,7 +425,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
      * 内部从库调用
      *
      * @param function 回调处理
-     * @param <T> 返回类型
+     * @param <T>      返回类型
      * @return 返回值
      */
     private <T> T doSlaveCall(Function<AbstractBaseDb, T> function) {
