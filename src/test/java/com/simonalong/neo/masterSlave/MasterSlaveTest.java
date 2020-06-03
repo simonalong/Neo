@@ -17,10 +17,10 @@ import java.util.Random;
 public class MasterSlaveTest extends BaseTest {
 
     /**
-     * 主从的基本验证
+     * 一主一从
      */
     @Test
-    public void test1(){
+    public void test1() {
         String tableName = "neo_table1";
 
         String url = "jdbc:mysql://127.0.0.1:3307/demo1";
@@ -37,8 +37,8 @@ public class MasterSlaveTest extends BaseTest {
         Integer data = random.nextInt(50) + 100;
 
         MasterSlaveNeo msNeo = new MasterSlaveNeo();
-        msNeo.addMasterDb(master, "master");
-        msNeo.addSlaveDb(slave1, "slave1");
+        msNeo.addMasterDb("master", master);
+        msNeo.addSlaveDb("slave1", slave1);
 
         NeoMap searchMap = NeoMap.of("name", "name" + data);
 
@@ -48,11 +48,11 @@ public class MasterSlaveTest extends BaseTest {
     }
 
     /**
-     * 主从中，从库不可用情况下的验证
+     * 一主一从，从库异常的验证
      */
     @Test
     @SneakyThrows
-    public void test2(){
+    public void test2() {
         String tableName = "neo_table1";
 
         String url = "jdbc:mysql://127.0.0.1:3307/demo1";
@@ -66,8 +66,8 @@ public class MasterSlaveTest extends BaseTest {
         Neo slave1 = Neo.connect(url1, username1, password1);
 
         MasterSlaveNeo msNeo = new MasterSlaveNeo();
-        msNeo.addMasterDb(master, "master");
-        msNeo.addSlaveDb(slave1, "slave1");
+        msNeo.addMasterDb("master", master);
+        msNeo.addSlaveDb("slave1", slave1);
         Random random = new Random();
 
         while (true) {
@@ -83,7 +83,7 @@ public class MasterSlaveTest extends BaseTest {
      */
     @Test
     @SneakyThrows
-    public void test3(){
+    public void test3() {
         String tableName = "neo_table1";
 
         String url = "jdbc:mysql://127.0.0.1:3307/demo1";
@@ -102,16 +102,65 @@ public class MasterSlaveTest extends BaseTest {
         Neo slave2 = Neo.connect(url2, username2, password2);
 
         MasterSlaveNeo msNeo = new MasterSlaveNeo();
-        msNeo.addMasterDb(master, "master");
-        msNeo.addSlaveDb(slave1, "slave1");
-        msNeo.addSlaveDb(slave2, "slave2");
+        msNeo.addMasterDb("master", master);
+        msNeo.addSlaveDb("slave1", slave1);
+        msNeo.addSlaveDb("slave2", slave2);
         Random random = new Random();
 
         while (true) {
             Integer index = random.nextInt(50) + 100;
             msNeo.insert(tableName, NeoMap.of("name", "name" + index));
             show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
-            Thread.sleep(4 * 1000);
+            Thread.sleep(5 * 1000);
+        }
+    }
+
+    /**
+     * 双主3从，从1挂掉，切换到从2
+     */
+    @Test
+    @SneakyThrows
+    public void test4() {
+        String tableName = "neo_table1";
+
+        String url = "jdbc:mysql://127.0.0.1:3307/demo1";
+        String username = "root";
+        String password = "";
+        Neo master = Neo.connect(url, username, password);
+
+        String url21 = "jdbc:mysql://127.0.0.1:3407/demo1";
+        String username21 = "root";
+        String password21 = "";
+        Neo master21 = Neo.connect(url21, username21, password21);
+
+        String url1 = "jdbc:mysql://127.0.0.1:3308/demo1";
+        String username1 = "root";
+        String password1 = "";
+        Neo slave1 = Neo.connect(url1, username1, password1);
+
+        String url2 = "jdbc:mysql://127.0.0.1:3309/demo1";
+        String username2 = "root";
+        String password2 = "";
+        Neo slave2 = Neo.connect(url2, username2, password2);
+
+        String url3 = "jdbc:mysql://127.0.0.1:3408/demo1";
+        String username3 = "root";
+        String password3 = "";
+        Neo slave3 = Neo.connect(url3, username3, password3);
+
+        MasterSlaveNeo msNeo = new MasterSlaveNeo();
+        msNeo.addMasterDb("master", master);
+        msNeo.addMasterDb("master2", master21);
+        msNeo.addSlaveDb("slave1", slave1);
+        msNeo.addSlaveDb("slave2", slave2);
+        msNeo.addSlaveDb("slave3", slave3);
+        Random random = new Random();
+
+        while (true) {
+            Integer index = random.nextInt(50) + 100;
+            msNeo.insert(tableName, NeoMap.of("name", "name" + index));
+            show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
+            Thread.sleep(3 * 1000);
         }
     }
 }

@@ -12,12 +12,16 @@ import java.sql.SQLTransientConnectionException;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.simonalong.neo.NeoConstant.LOG_PRE;
+
 /**
  * @author shizi
  * @since 2020/5/31 5:55 PM
  */
 @Slf4j
 public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements MasterSlaveSelector {
+
+    static final String MS_LOG_PRE = LOG_PRE + "[master-slave]";
 
     @Override
     public NeoMap insert(String tableName, NeoMap dataMap) {
@@ -412,9 +416,10 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
             return function.apply(db.getDb());
         } catch (NeoException e) {
             deActiveMaster(db.getName());
-            log.warn("call error", e);
+            log.warn(MS_LOG_PRE + "主库({})调用异常", db.getName(), e);
             // 这两个异常为链接类的异常
             if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
+                log.warn(MS_LOG_PRE + "主库({}) 异常, 切库", db.getName());
                 return doMasterCall(function);
             }
             throw e;
@@ -431,15 +436,13 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
     private <T> T doSlaveCall(Function<AbstractBaseDb, T> function) {
         MasterSlaveNeo.InnerActiveDb db = selectSlaveDb();
         try {
-            // todo 后续需要删除
-            log.info("db name = {}", db.getName());
             return function.apply(db.getDb());
         } catch (NeoException e) {
             deActiveSlave(db.getName());
-            log.warn("call error", e);
+            log.warn(MS_LOG_PRE + "从库({})调用异常", db.getName(), e);
             // 这两个异常为链接类的异常
             if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
-                log.warn("从库{}异常，切库", db.getName());
+                log.warn(MS_LOG_PRE + "从库({}) 异常, 切库", db.getName());
                 return doSlaveCall(function);
             }
             throw e;
