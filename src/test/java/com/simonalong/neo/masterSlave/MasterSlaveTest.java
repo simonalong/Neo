@@ -149,8 +149,8 @@ public class MasterSlaveTest extends BaseTest {
         Neo slave3 = Neo.connect(url3, username3, password3);
 
         MasterSlaveNeo msNeo = new MasterSlaveNeo();
-        msNeo.addMasterDb("master", master);
-        msNeo.addMasterDb("master2", master21);
+        msNeo.addMasterDb("master", master, true);
+        msNeo.addMasterDb("master2", master21, false);
         msNeo.addSlaveDb("slave1", slave1);
         msNeo.addSlaveDb("slave2", slave2);
         msNeo.addSlaveDb("slave3", slave3);

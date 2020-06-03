@@ -38,30 +38,65 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         return thread;
     }, new ThreadPoolExecutor.DiscardPolicy());
 
+    /**
+     * 添加主库
+     *
+     * @param alias 别名
+     * @param db    主库
+     */
     public void addMasterDb(String alias, Neo db) {
         addMasterDb(alias, db, true);
     }
 
+    /**
+     * 添加主库
+     *
+     * @param alias      别名
+     * @param datasource 主库datasource
+     */
     public void addMasterDb(String alias, DataSource datasource) {
         addMasterDb(alias, datasource, true);
     }
 
-    public void addMasterDb(String alias, Neo db, Boolean active) {
-        if (null == db || null == active) {
+    /**
+     * 添加主库
+     *
+     * @param alias 别名
+     * @param db    主库
+     * @param use   是否使用当前主库
+     */
+    public void addMasterDb(String alias, Neo db, Boolean use) {
+        if (null == alias || "".equals(alias)) {
+            return;
+        }
+        if (null == db || null == use) {
             return;
         }
 
-        InnerActiveDb newDb = new InnerActiveDb(db, alias, active);
-        if (active) {
+        InnerActiveDb newDb = new InnerActiveDb(db, alias);
+        if (use) {
             currentMasterDb = newDb;
         }
         masterDbMap.put(alias, newDb);
     }
 
-    public void addMasterDb(String alias, DataSource datasource, Boolean active) {
-        addMasterDb(alias, Neo.connect(datasource), active);
+    /**
+     * 添加主库
+     *
+     * @param alias      别名
+     * @param datasource 主库datasource
+     * @param use        是否使用当前主库
+     */
+    public void addMasterDb(String alias, DataSource datasource, Boolean use) {
+        addMasterDb(alias, Neo.connect(datasource), use);
     }
 
+    /**
+     * 添加从库
+     *
+     * @param alias 别名
+     * @param db    从库
+     */
     public void addSlaveDb(String alias, Neo db) {
         if (null == db) {
             return;
@@ -70,10 +105,21 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         slaveKeys.add(alias);
     }
 
+    /**
+     * 添加从库
+     *
+     * @param alias      别名
+     * @param datasource 从库datasource
+     */
     public void addSlaveDb(String alias, DataSource datasource) {
         addSlaveDb(alias, Neo.connect(datasource));
     }
 
+    /**
+     * 激活主库
+     *
+     * @param alias 主库别名
+     */
     public void activeMaster(String alias) {
         if (!masterDbMap.containsKey(alias)) {
             throw new NeoException("没有找到别名为" + alias + "的库");
@@ -304,12 +350,6 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
         InnerActiveDb(Neo db, String name) {
             this.db = db;
             this.name = name;
-        }
-
-        InnerActiveDb(Neo db, String name, Boolean activeFlag) {
-            this.db = db;
-            this.name = name;
-            this.activeFlag = activeFlag;
         }
     }
 }
