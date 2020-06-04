@@ -32,7 +32,6 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.Setter;

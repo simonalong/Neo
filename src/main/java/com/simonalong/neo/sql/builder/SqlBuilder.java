@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.sql.InList;
-import javafx.util.Pair;
 import lombok.experimental.UtilityClass;
 
 
