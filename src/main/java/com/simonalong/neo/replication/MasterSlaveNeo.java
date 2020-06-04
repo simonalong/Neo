@@ -214,12 +214,13 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
 
     /**
      * 启动恢复程序
+     * <p>5分钟尝试一次
      */
     private void startRestore() {
         restoreTask.execute(() -> {
             while (haveUnActiveDb()) {
                 try {
-                    Thread.sleep(10 * 1000);
+                    Thread.sleep(5 * 60 * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -329,7 +330,7 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
             // 从库都不可用，则采用主库，将主库添加到临时从库中
             InnerActiveDb db = selectMasterDb();
             if (null != db) {
-                log.error(MS_LOG_PRE + "从库都不可用，走主库{}", db.getName());
+                log.warn(MS_LOG_PRE + "从库都不可用，走主库{}", db.getName());
                 addSlaveDbTem(db);
                 return selectSlaveDb();
             }

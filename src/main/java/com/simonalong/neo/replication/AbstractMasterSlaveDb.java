@@ -417,7 +417,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
         } catch (NeoException e) {
             deActiveMaster(db.getName());
             if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
-                log.warn(MS_LOG_PRE + "主库({}) 异常, 切库", db.getName());
+                log.warn(MS_LOG_PRE + "主库({}) 异常, 切库", db.getName(), e);
                 return doMasterCall(function);
             }
             throw e;
@@ -438,7 +438,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
         } catch (NeoException e) {
             deActiveSlave(db.getName());
             if (null != ExceptionUtil.getCause(e, SQLTransientConnectionException.class) || null != ExceptionUtil.getCause(e, CommunicationsException.class)) {
-                log.warn(MS_LOG_PRE + "从库({}) 异常, 切库", db.getName());
+                log.warn(MS_LOG_PRE + "从库({}) 异常, 切库", db.getName(), e);
                 return doSlaveCall(function);
             }
             throw e;

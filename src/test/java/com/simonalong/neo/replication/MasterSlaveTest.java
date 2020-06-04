@@ -1,9 +1,8 @@
-package com.simonalong.neo.masterSlave;
+package com.simonalong.neo.replication;
 
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.replication.MasterSlaveNeo;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;

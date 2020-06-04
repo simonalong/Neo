@@ -12,13 +12,11 @@ import java.sql.SQLTransientConnectionException;
 import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
-@Slf4j
 public final class ConnectPool {
 
     private final Neo neo;
