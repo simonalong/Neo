@@ -15,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +38,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * key为对应的表，value：key为数据对应的key，value为属性对应的值
      */
-    private ConcurrentSkipListMap<String, Object> dataMap = new ConcurrentSkipListMap<>();
+    private ConcurrentHashMap<String, Object> dataMap = new ConcurrentHashMap<>();
     /**
      * 添加条件过滤器
      * <p>
@@ -987,7 +987,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public NeoMap clone() {
         NeoMap neoMap = NeoMap.of();
-        neoMap.putAll(dataMap.clone());
+        neoMap.putAll(dataMap);
         neoMap.setNamingChg(namingChg);
         neoMap.setConditionMap(conditionMap);
         return neoMap;
