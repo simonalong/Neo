@@ -69,9 +69,9 @@ public class NeoBatchTest extends NeoBaseTest {
     @Test
     public void batchInsertTest4(){
         List<NeoMap> maps = Arrays.asList(
-            NeoMap.of("group", "group2", "name", "name2"),
-            NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3"),
-            NeoMap.of("group", "group5", "name", "name5", "user_name", "user_name5")
+            NeoMap.of("group", "group1", "name", "name1", "user_name", "user_name1"),
+            NeoMap.of("group", "group2", "name", "name2", "user_name", "user_name2"),
+            NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3")
         );
         show(neo.batchInsert(TABLE_NAME, maps));
         show(maps);
@@ -183,7 +183,16 @@ public class NeoBatchTest extends NeoBaseTest {
             NeoMap.of("group", "group4", "name", "name4chg", "user_name", null),
             NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
         );
-        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("user_name")));
+        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("group")));
+    }
+
+    @Test
+    public void batchUpdateTest7_1(){
+        List<DemoEntity> entities = Arrays.asList(
+            new DemoEntity().setId(1L).setGroup("group1").setName("name1").setUserName("user_name1"),
+            new DemoEntity().setId(2L).setGroup("group2").setName("name2").setUserName("user_name1")
+        );
+        show(neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("id")));
     }
 
     /**

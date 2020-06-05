@@ -20,7 +20,21 @@ Neo是一个基于JDBC开发的至简化框架，名字源于《黑客帝国》�
 ```
 
 ### 快速入门
-一个DB对应的一个对象Neo，操作表，则填入对应的表名即可
+一个DB对应的一个对象Neo，操作表，则填入对应的表名即可<br />
+表
+```sql
+CREATE TABLE `neo_table1` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',
+  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
+  `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
+  `age` int(11) DEFAULT NULL,
+  `sl` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `group_index` (`group`)
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+```
+处理
 ```java
 public void testDemo1() {
     String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -69,16 +83,15 @@ public void testDemo1() {
         neo.update("neo_table2", NeoMap.of("name", 12));
     });
 
-    // 批量
+    // 批量插入
     List<NeoMap> list = new ArrayList<>();
-    list.add(NeoMap.of("group", "v1"));
-    list.add(NeoMap.of("group", "v2"));
-    list.add(NeoMap.of("group", "v3"));
-    list.add(NeoMap.of("group", "v4"));
+    list.add(NeoMap.of("group", "group1", "name", "name1", "user_name", "user_name1"));
+    list.add(NeoMap.of("group", "group2", "name", "name2", "user_name", "user_name2"));
+    list.add(NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3"));
     neo.batchInsert(tableName, list);
     
-    // 批量更新
-    table.batchUpdate(tableName, list, Columns.of("group"));
+    // 批量更新，group是条件
+    neo.batchUpdate(tableName, list, Columns.of("group"));
 }
 ```
 
@@ -124,13 +137,12 @@ public void testDemo2() {
 
     // 批量插入
     List<NeoMap> list = new ArrayList<>();
-    list.add(NeoMap.of("group", "v1"));
-    list.add(NeoMap.of("group", "v2"));
-    list.add(NeoMap.of("group", "v3"));
-    list.add(NeoMap.of("group", "v4"));
+    list.add(NeoMap.of("group", "group1", "name", "name1", "user_name", "user_name1"));
+    list.add(NeoMap.of("group", "group2", "name", "name2", "user_name", "user_name2"));
+    list.add(NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3"));
     table.batchInsert(list);
     
-    // 批量更新
+    // 批量更新，group是条件
     table.batchUpdate(list, Columns.of("group"));
 }
 ```
@@ -192,14 +204,17 @@ public void testDemo3() {
 
     // 批量插入
     List<DemoEntity3> list = new ArrayList<>();
-    list.add(new DemoEntity3().setGroup("group1").setUsName("name1"));
-    list.add(new DemoEntity3().setGroup("group2").setUsName("name2"));
-    list.add(new DemoEntity3().setGroup("group3").setUsName("name3"));
-    list.add(new DemoEntity3().setGroup("group4").setUsName("name4"));
+    list.add(new DemoEntity().setGroup("group1").setName("name1").setUserName("userName1"));
+    list.add(new DemoEntity().setGroup("group2").setName("name2").setUserName("userName2"));
+    list.add(new DemoEntity().setGroup("group3").setName("name3").setUserName("userName3"));
     table.batchInsertEntity(list);
     
     // 批量更新
-    table.batchUpdateEntity(list, Columns.of("group"));
+    List<DemoEntity3> updateList = new ArrayList<>();
+    updateList.add(new DemoEntity().setId(1L).setGroup("group1").setName("name1").setUserName("userName1"));
+    updateList.add(new DemoEntity().setId(2L).setGroup("group2").setName("name2").setUserName("userName2"));
+    updateList.add(new DemoEntity().setId(3L).setGroup("group3").setName("name3").setUserName("userName3"));
+    table.batchUpdateEntity(list, Columns.of("id"));
 }
 ```
 ### 实体和DB字段映射
@@ -320,6 +335,66 @@ public class CodeGenTest {
 }
 ```
 
+### 主从
+>=v0.5.2
+主从功能支持：
+- 读写分离：支持多主多从，主库写，从库读取
+- 负载均衡（从库轮询选择，主库只使用最后激活的）
+- 故障转移
+    - 从库：（从库宕机，从其他从库中选择，从库全部宕机，则从可用的主库中选择一个）
+    - 主库：（多主，其中一个写）主库宕机，则切换到另一个主库写
+- 故障恢复：当主库或者从库之前断开，之后如果恢复正常，则框架自动重连，应用方无感知生效
+```java
+/**
+ * 双主多从
+ */
+@Test
+@SneakyThrows
+public void testReplication() {
+    String tableName = "neo_table1";
+
+    String url1 = "jdbc:mysql://127.0.0.1:3307/demo1";
+    String username1 = "root";
+    String password1 = "";
+    Neo master1 = Neo.connect(url1, username1, password1);
+
+    String url2 = "jdbc:mysql://127.0.0.1:3407/demo1";
+    String username2 = "root";
+    String password2 = "";
+    Neo master2 = Neo.connect(url2, username2, password2);
+
+    String urlSlave1 = "jdbc:mysql://127.0.0.1:3308/demo1";
+    String usernameSlave1 = "root";
+    String passwordSlave1 = "";
+    Neo slave1 = Neo.connect(urlSlave1, usernameSlave1, passwordSlave1);
+
+    String urlSlave2 = "jdbc:mysql://127.0.0.1:3309/demo1";
+    String usernameSlave2 = "root";
+    String passwordSlave2 = "";
+    Neo slave2 = Neo.connect(urlSlave2, usernameSlave2, passwordSlave2);
+
+    String urlSlave3 = "jdbc:mysql://127.0.0.1:3408/demo1";
+    String usernameSlave3 = "root";
+    String passwordSlave3 = "";
+    Neo slave3 = Neo.connect(urlSlave3, usernameSlave3, passwordSlave3);
+
+    MasterSlaveNeo msNeo = new MasterSlaveNeo();
+    msNeo.addMasterDb("master1", master1, true);
+    msNeo.addMasterDb("master2", master2, false);
+    msNeo.addSlaveDb("slave1", slave1);
+    msNeo.addSlaveDb("slave2", slave2);
+    msNeo.addSlaveDb("slave3", slave3);
+    Random random = new Random();
+
+    while (true) {
+        Integer index = random.nextInt(50) + 100;
+        msNeo.insert(tableName, NeoMap.of("name", "name" + index));
+        show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
+        Thread.sleep(3 * 1000);
+    }
+}
+```
+
 ### 分布式ID生成器
 我们这里也提供了分布式ID生成器方案，采用的是改进版雪花算法，彻底解决了雪花算法存在的常见问题（时间回拨问题，workerId回收问题），对于如何解决的，具体方案可见文档，也可见我的另外一个项目[Butterfly](https://github.com/SimonAlong/Butterfly)（Neo框架中的发号器方案是Butterfly中的一个使用选项）。
 
@@ -436,7 +511,7 @@ public void testJoin1() {
   - 单机事务
   - 分布式XA事务(待验证)
 - sql监控
-- 主从(待验证)
+- 主从
 - join
 - 实体代码生成器
 - 分布式id
