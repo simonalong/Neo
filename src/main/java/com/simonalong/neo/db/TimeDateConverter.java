@@ -120,6 +120,9 @@ public class TimeDateConverter {
      * @return long类型的时间
      */
     public Object entityTimeToLong(Object fieldTime){
+        if (null == fieldTime) {
+            return null;
+        }
         if (fieldTime instanceof java.sql.Date){
            return ((java.sql.Date) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Time){

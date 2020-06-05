@@ -208,9 +208,13 @@ public final class Columns {
         return tableFieldsMap.toString();
     }
 
-    public String toSelectString(){
-        return String.join(", ", tableFieldsMap.values().stream()
-            .flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
+    /**
+     * 返回，比如{@code `data_base_name`, `group`, `user_name`, `name`, `id`}
+     *
+     * @return 列的拼接
+     */
+    public String toSelectString() {
+        return String.join(", ", tableFieldsMap.values().stream().flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
     }
 
     @Override

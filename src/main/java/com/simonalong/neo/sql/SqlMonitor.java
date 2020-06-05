@@ -27,7 +27,7 @@ public final class SqlMonitor {
     /**
      * 默认的sql语句打印的最大长度
      */
-    private static final Integer MAX_SQL_LENGTH = 1000;
+    private static final Integer MAX_SQL_LENGTH = 100;
     /**
      * 批量数据的展示这里最多展示5个
      */

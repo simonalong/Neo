@@ -463,7 +463,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet().stream().map(v -> new ConcurrentHashMap.SimpleImmutableEntry<>(v.getKey(), (Object) v.getValue())).collect(Collectors.toSet());
+        return dataMap.entrySet().stream().map(v -> new NeoMap.Node(v.getKey(), v.getValue())).collect(Collectors.toSet());
     }
 
     public Set<Entry<String, Object>> entrySet(String tableName) {

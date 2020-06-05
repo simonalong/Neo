@@ -3,12 +3,9 @@ package com.simonalong.neo.sql.builder;
 import static com.simonalong.neo.NeoConstant.*;
 
 import com.simonalong.neo.NeoMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.simonalong.neo.Pair;
@@ -185,6 +182,20 @@ public class SqlBuilder {
             }
             return v;
         }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 给批量更新使用的值
+     *
+     * @param dataMapList 值集合
+     * @return 值集合
+     */
+    public List<Object> buildBatchValueList(List<NeoMap> dataMapList) {
+        if (null == dataMapList || dataMapList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return dataMapList.stream().flatMap(NeoMap::valueStream).collect(Collectors.toList());
     }
 
     /**

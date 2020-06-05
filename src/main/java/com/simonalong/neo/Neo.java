@@ -9,7 +9,6 @@ import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
-import com.simonalong.neo.core.ExecuteSql;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
@@ -18,6 +17,7 @@ import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.util.ObjectUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1091,26 +1091,6 @@ public class Neo extends AbstractBaseDb {
     }
 
     /**
-     * 批量更新
-     *
-     * @param tableName 表名
-     * @param pairList 设置待更新的数据和对应的搜索数据的映射集合
-     */
-    private Integer innerBatchUpdate(String tableName, List<Pair<NeoMap, NeoMap>> pairList) {
-        if (null == pairList || pairList.isEmpty()) {
-            return 0;
-        }
-        NeoMap updateMaxFieldMap = NeoMap.of();
-        NeoMap searchMaxFieldMap = NeoMap.of();
-        pairList.forEach(e->{
-            updateMaxFieldMap.putAll(e.getKey());
-            searchMaxFieldMap.putAll(e.getValue());
-        });
-
-        return executeBatch(generateBatchUpdatePair(tableName, updateMaxFieldMap, searchMaxFieldMap, pairList));
-    }
-
-    /**
      * 批量更新，默认根据主键进行更新
      *
      * @param tableName 表名
@@ -1125,7 +1105,8 @@ public class Neo extends AbstractBaseDb {
         checkDb(tableName);
         List<NeoMap> dataListTem = clone(dataList);
         Columns columns = Columns.of(db.getPrimaryName(tableName));
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(tableName, dataListTem, columns));
+        checkBatchUpdateParams(dataList, columns);
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, dataListTem, columns), this::executeUpdate);
     }
 
     /**
@@ -1141,8 +1122,10 @@ public class Neo extends AbstractBaseDb {
         if (null == dataList || dataList.isEmpty()) {
             return 0;
         }
+        checkDb(tableName);
         List<NeoMap> dataListTem = clone(dataList);
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereList(tableName, dataListTem, columns));
+        checkBatchUpdateParams(dataList, columns);
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, dataListTem, columns), this::executeUpdate);
     }
 
     /**
@@ -1159,8 +1142,10 @@ public class Neo extends AbstractBaseDb {
             return 0;
         }
         checkDb(tableName);
-        Columns columns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns));
+        Columns keyColumns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
+        checkBatchUpdateParams(dataList, keyColumns);
+        Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns), keyColumns), this::executeUpdate);
     }
 
     /**
@@ -1168,17 +1153,19 @@ public class Neo extends AbstractBaseDb {
      *
      * @param tableName 表名
      * @param dataList 数据列表
-     * @param columns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
+     * @param conditionColumns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
      * @param <T> 目标类型
      * @return 批量更新的个数：0或者all
      */
     @Override
-    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns) {
+    public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns conditionColumns) {
         if (null == dataList || dataList.isEmpty()) {
             return 0;
         }
-
-        return innerBatchUpdate(tableName, buildBatchValueAndWhereListFromEntity(dataList, columns));
+        checkDb(tableName);
+        checkBatchUpdateParams(dataList, conditionColumns);
+        Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns), conditionColumns), this::executeUpdate);
     }
 
     /**
@@ -1455,7 +1442,7 @@ public class Neo extends AbstractBaseDb {
                 }
                 if (openMonitor()) {
                     // 添加对sql的监控
-                    monitor.start(sql, Collections.singletonList(parameterList));
+                    monitor.start(sql, new ArrayList<>(parameterList));
                 }
 
                 int i, j, batchCount = parameterList.size(), fieldCount;
@@ -1652,62 +1639,15 @@ public class Neo extends AbstractBaseDb {
     }
 
     /**
-     * 通过最大更新和搜索以及输入获取对应的sql以及对应的值，其中值集合中的每一项的key为0、1、2...这种值，value为对应的数据
-     */
-    private Pair<String, List<NeoMap>> generateBatchUpdatePair(String tableName, NeoMap updateMaxColumnMap, NeoMap searchMaxColumnMap, List<Pair<NeoMap, NeoMap>> pairList) {
-        String sql = UpdateSqlBuilder.build(tableName, updateMaxColumnMap, searchMaxColumnMap);
-        List<NeoMap> indexAndValueMap = new ArrayList<>();
-        Integer index;
-        Set<String> updateKeys = updateMaxColumnMap.keySet();
-        Set<String> searchKeys = searchMaxColumnMap.keySet();
-        for (Pair<NeoMap, NeoMap> updateAndSearch : pairList) {
-            NeoMap updateMap = updateAndSearch.getKey();
-            NeoMap searchMap = updateAndSearch.getValue();
-            NeoMap valueMap = NeoMap.of();
-            index = 0;
-            for (String key : updateKeys) {
-                valueMap.put(index.toString(), updateMap.get(key));
-                index++;
-            }
-
-            for (String key : searchKeys) {
-                valueMap.put(index.toString(), searchMap.get(key));
-                index++;
-            }
-            valueMap.put("size", updateKeys.size() + searchKeys.size());
-            indexAndValueMap.add(valueMap);
-        }
-        return new Pair<>(sql, indexAndValueMap);
-    }
-
-    /**
-     * 构建批次的value和where语句对的list
+     * 生成更新批处理的sql以及对应的值
      *
-     * @param tableName 表名
-     * @param dataList 全部的数据列表
-     * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
-     * @return key：为当前处理的列的最大个数；value：其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
+     * @param tableName            待更新数据的表名
+     * @param updateDataColumnList 待更新的数据
+     * @param conditionColumns     条件列名
+     * @return sql以及对应的占位符中的值
      */
-    private List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereList(String tableName, List<NeoMap> dataList, Columns columns) {
-        if (null == dataList || dataList.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return dataList.stream().map(r -> filterNonDbColumn(tableName, r)).map(m -> new Pair<>(m, m.assign(columns))).collect(Collectors.toList());
-    }
-
-    /**
-     * 构建批次的value和where语句对的list
-     *
-     * @param dataList 全部的数据列表
-     * @param columns 指定哪些列的值作为查询条件，该为NeoMap中的key
-     * @return key：为当前处理的列的最大个数；value：其中每个数据的key都是update中的set中用的值，value都是where中的查询条件
-     */
-    private <T> List<Pair<NeoMap, NeoMap>> buildBatchValueAndWhereListFromEntity(List<T> dataList, Columns columns) {
-        if (null == dataList || dataList.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return dataList.stream().map(m -> new Pair<>(NeoMap.from(m, NamingChg.UNDERLINE), NeoMap.from(m, columns, NamingChg.UNDERLINE))).collect(Collectors.toList());
+    private Pair<String, List<Object>> generateBatchUpdateSqlPair(String tableName, List<NeoMap> updateDataColumnList, Columns conditionColumns) {
+        return new Pair<>(UpdateSqlBuilder.buildBatch(tableName, updateDataColumnList, conditionColumns), SqlBuilder.buildBatchValueList(updateDataColumnList));
     }
 
     private List<Object> generateValueList(NeoMap searchMap) {
@@ -1908,6 +1848,30 @@ public class Neo extends AbstractBaseDb {
             initDb(tableName);
         } else if (!db.containTable(tableName)) {
             db.addTable(tableName);
+        }
+    }
+
+    /**
+     * 核查批量更新
+     * <p>
+     *     其中dataList中必须包含条件中对应的列字段
+     * @param dataList 待处理的数据
+     * @param conditionColumns 作为条件的列字段
+     */
+    @SuppressWarnings("unchecked")
+    private void checkBatchUpdateParams(List dataList, Columns conditionColumns) {
+        if (null == dataList || dataList.isEmpty() || Columns.isEmpty(conditionColumns)) {
+            return;
+        }
+
+        List<NeoMap> dataMapList = NeoMap.fromArray(dataList);
+        Set<String> keys = dataMapList.stream().flatMap(NeoMap::keyStream).collect(Collectors.toSet());
+
+        Set<String> fields = conditionColumns.getMetaFieldSets();
+        for (String field : fields) {
+            if (!keys.contains(field)) {
+                throw new NeoException("列" + field + "不包含搜索数据在内");
+            }
         }
     }
 }

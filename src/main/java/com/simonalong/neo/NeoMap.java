@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +26,18 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 实现map中的所有功能
+ *
+ * <p>
+ *     此外新增更多功能
+ *     <ul>
+ *         <li>1.各种静态读取方法</li>
+ *         <li>2.跟实体的转换</li>
+ *         <li>3.不同类型的值获取</li>
+ *         <li>4.value可以为null</li>
+ *         <li>5.条件过滤</li>
+ *     </ul>
+ * </p>
  * @author zhouzhenyong
  * @since 2019/3/12 下午12:46
  */
@@ -39,6 +50,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * key为对应的表，value：key为数据对应的key，value为属性对应的值
      */
     private ConcurrentHashMap<String, Object> dataMap = new ConcurrentHashMap<>();
+    @Getter
+    private Set<String> nullValueKeySet = new HashSet<>();
     /**
      * 添加条件过滤器
      * <p>
@@ -52,7 +65,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      */
     @Getter
     @Setter
-    private static NamingChg globalNaming = NamingChg.DEFAULT;
+    private static NamingChg globalNaming = NamingChg.UNDERLINE;
     /**
      * 本次的默认转换规则
      */
@@ -322,9 +335,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
                 f.setAccessible(true);
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
-                    if (null != value) {
-                        neoMap.putIfAbsent(neoMap.namingChg(f, false), value);
-                    }
+                    neoMap.put(neoMap.namingChg(f, false), value);
                 } catch (IllegalAccessException e) {
                     throw new NeoException(e);
                 }
@@ -352,7 +363,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * 从实体集合转换为NeoMap集合
      * @param dataList 待转换的数据集合
-     * @param columns 数据列名
+     * @param columns 只要的列名
      * @param <T> 实体类型
      * @return NeoMap集合
      */
@@ -587,15 +598,15 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public Stream<Entry<String, Object>> stream() {
-        return dataMap.entrySet().stream();
+        return entrySet().stream();
     }
 
     public Stream<String> keyStream() {
-        return dataMap.keySet().stream();
+        return keySet().stream();
     }
 
     public Stream<Object> valueStream() {
-        return dataMap.values().stream();
+        return values().stream();
     }
 
     /**
@@ -889,6 +900,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             } else {
                 dataMap.put(key, value);
             }
+        } else {
+            nullValueKeySet.add(key);
         }
         return value;
     }
@@ -904,31 +917,49 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
             return;
         }
 
-        if(m instanceof NeoMap){
-            getDataMap().putAll(NeoMap.class.cast(m).getDataMap());
-        }else{
-            m.forEach((key, value) -> put(key, TimeDateConverter.entityTimeToLong(value)));
+        if (m instanceof NeoMap) {
+            NeoMap innerMap = (NeoMap) m;
+            getDataMap().putAll(innerMap.getDataMap());
+            getNullValueKeySet().addAll(innerMap.getNullValueKeySet());
+        } else {
+            m.forEach((key, value) -> {
+                if (null == value) {
+                    getNullValueKeySet().add(key);
+                } else {
+                    put(key, TimeDateConverter.entityTimeToLong(value));
+                }
+            });
         }
     }
 
     @Override
     public void clear() {
         dataMap.clear();
+        nullValueKeySet.clear();
     }
 
     @Override
     public Set<String> keySet() {
-        return dataMap.keySet();
+        return entrySet().stream().map(Entry::getKey).collect(Collectors.toSet());
     }
 
     @Override
     public Collection<Object> values() {
-        return dataMap.values();
+        return entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
     }
 
+    /**
+     * 这里需要将value为null的也添加进来
+     *
+     * @return entry集合
+     */
     @Override
-    public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet();
+    @SuppressWarnings("unchecked")
+    public Set<Map.Entry<String, Object>> entrySet() {
+        Set entrySet = new HashSet<>();
+        entrySet.addAll(dataMap.entrySet().stream().map(e -> new NeoMap.Node(e.getKey(), e.getValue())).collect(Collectors.toSet()));
+        entrySet.addAll(nullValueKeySet.stream().map(e -> new NeoMap.Node(e, null)).collect(Collectors.toSet()));
+        return entrySet;
     }
 
     /**
@@ -948,7 +979,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public boolean equals(Object object) {
         if (object instanceof NeoMap) {
-            return dataMap.equals(NeoMap.class.cast(object).getDataMap());
+            NeoMap innerObject = (NeoMap) object;
+            return dataMap.equals(innerObject.getDataMap()) && nullValueKeySet.equals(innerObject.getNullValueKeySet());
         }
         return false;
     }
@@ -990,6 +1022,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         neoMap.putAll(dataMap);
         neoMap.setNamingChg(namingChg);
         neoMap.setConditionMap(conditionMap);
+        neoMap.getNullValueKeySet().addAll(nullValueKeySet);
         return neoMap;
     }
 
@@ -1063,30 +1096,58 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
-    @EqualsAndHashCode
-    static class Node<K,V> implements Map.Entry<K,V> {
-        final K key;
-        V value;
 
-        Node(K key, V value) {
+    static class Node implements Map.Entry<String, Object>, Comparable {
+        final String key;
+        Object value;
+
+        Node(String key, Object value) {
             this.key = key;
             this.value = value;
         }
 
         @Override
-        public K getKey() {
+        public String getKey() {
             return key;
         }
 
         @Override
-        public V getValue() {
+        public Object getValue() {
             return value;
         }
 
         @Override
-        public V setValue(V value) {
+        public Object setValue(Object value) {
             this.value = value;
             return value;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            if (this.equals(o)) {
+                return 0;
+            }
+
+            Node innerNode = (Node) o;
+            return key.compareTo(innerNode.getKey());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Node)) {
+                return false;
+            }
+            Node node = (Node) o;
+            if (null == getValue()) {
+                return getKey().equals(node.getKey());
+            } else {
+                return getKey().equals(node.getKey()) && getValue().equals(node.getValue());
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(getKey());
         }
     }
 }
