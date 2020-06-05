@@ -20,8 +20,7 @@ Neo是一个基于JDBC开发的至简化框架，名字源于《黑客帝国》�
 ```
 
 ### 快速入门
-一个DB对应的一个对象Neo，操作表，则填入对应的表名即可<br />
-表
+一个DB对应的一个对象Neo，操作表，则填入对应的表名即可
 ```sql
 CREATE TABLE `neo_table1` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -34,7 +33,7 @@ CREATE TABLE `neo_table1` (
   KEY `group_index` (`group`)
 ) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
-处理
+示例：
 ```java
 public void testDemo1() {
     String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -514,7 +513,7 @@ public void testJoin1() {
 - 主从
 - join
 - 实体代码生成器
-- 分布式id
+- 分布式id生成器
 - 分库分表(待支持)
 
 技术讨论群：
