@@ -28,30 +28,50 @@ import java.util.stream.Collectors;
 public final class NeoDevide extends AbstractBaseDb {
 
     /**
-     * 待分库的db的名字
+     * 分库的对应的列名
      */
-    private String dbName;
+    private String dbColumnName;
     /**
-     * 库名以及对应的db的名字，比如：key：xxx_1, value：哈希值：1， Neo
+     * 带分库的数据集合
      */
-    private Map<String, Pair<Integer, Neo>> devideDbMap = new ConcurrentHashMap<>(8);
+    private List<Neo> dbList = new ArrayList<>();
     /**
-     * 表名以及对应的分表的名字，比如：key：xxx1，value：哈希值：1， xxx
+     * 表的哈希处理映射
      */
-    private Map<String, TableHashInfo> devideTableMap = new ConcurrentHashMap<>(8);
-    /**
-     * 分库的字段表名和字段
-     */
-    private Map<String, String> devideDbParameterMap = new ConcurrentHashMap<>(8);
-    /**
-     * 分表的字段表名和字段
-     */
-    private Map<String, String> devideTableParameterMap = new ConcurrentHashMap<>(8);
-    /**
-     * 分库的最小值
-     */
-    private Integer min = 0;
-    private Integer devideSize = 0;
+    private Map<String, TableHashInfo> tableHashInfoMap;
+
+
+
+    @Data
+    private static class TableHashInfo {
+
+        private String tableName;
+        private String columnName;
+        private Integer min;
+        private Integer size;
+    }
+
+//    /**
+//     * 库名以及对应的db的名字，比如：key：xxx_1, value：哈希值：1， Neo
+//     */
+//    private Map<String, Pair<Integer, Neo>> devideDbMap = new ConcurrentHashMap<>(8);
+//    /**
+//     * 表名以及对应的分表的名字，比如：key：xxx1，value：哈希值：1， xxx
+//     */
+//    private Map<String, TableHashInfo> devideTableMap = new ConcurrentHashMap<>(8);
+//    /**
+//     * 分库的字段表名和字段
+//     */
+//    private Map<String, String> devideDbParameterMap = new ConcurrentHashMap<>(8);
+//    /**
+//     * 分表的字段表名和字段
+//     */
+//    private Map<String, String> devideTableParameterMap = new ConcurrentHashMap<>(8);
+//    /**
+//     * 分库的最小值
+//     */
+//    private Integer min = 0;
+//    private Integer devideSize = 0;
 
     /**
      * 设置分库
@@ -63,6 +83,26 @@ public final class NeoDevide extends AbstractBaseDb {
      * @param neoList       db的列表
      */
     public void setDevideDb(String devideDbNames, List<Neo> neoList) {
+        String regex = "^(.*)\\{(\\d),.*(\\d)}$";
+        Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
+        if (matcher.find()) {
+            dbName = matcher.group(1);
+            Integer min = Integer.valueOf(matcher.group(2));
+            Integer max = Integer.valueOf(matcher.group(3));
+            if (min >= max) {
+                throw new NeoException("数据配置错误: 最大值不能小于最小值");
+            }
+            this.min = min;
+            this.devideSize = max - min;
+            for (Integer index = min, indexJ = 0; index < max; index++, indexJ++) {
+                devideDbMap.putIfAbsent(dbName + index, new Pair<>(indexJ, neoList.get(indexJ)));
+            }
+        } else {
+            throw new NeoException("没有发现要分库的数据");
+        }
+    }
+
+    public void setDevideDb(List<Neo> neoList, String columnName) {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
         if (matcher.find()) {
@@ -869,13 +909,6 @@ public final class NeoDevide extends AbstractBaseDb {
         private List<NeoMap> dataMapList;
     }
 
-    @Data
-    private static class TableHashInfo {
-
-        private Integer min;
-        private Integer size;
-        private List<TableHashMeta> innerHashTableList;
-    }
 
     @Getter
     @AllArgsConstructor
