@@ -14,7 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +32,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * key：为表名，value：为表中对应的数据：key为列，value为列值
      */
-    private Map<String, NeoMap> dataMap = new ConcurrentSkipListMap<>();
+    private Map<String, NeoMap> dataMap = new ConcurrentHashMap<>();
 
     public static TableMap of(Object... kvs) {
         return TableMap.of(DEFAULT_TABLE, kvs);
@@ -463,7 +463,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet().stream().map(v -> new ConcurrentSkipListMap.SimpleImmutableEntry<>(v.getKey(), (Object) v.getValue())).collect(Collectors.toSet());
+        return dataMap.entrySet().stream().map(v -> new NeoMap.Node(v.getKey(), v.getValue())).collect(Collectors.toSet());
     }
 
     public Set<Entry<String, Object>> entrySet(String tableName) {

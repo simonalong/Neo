@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author zhouzhenyong
  * @since 2019-08-17 17:16
  */
-public class DefaultExecutor implements AsyncNeo {
+public class DefaultExecutor implements Async {
 
     private static volatile DefaultExecutor instance = null;
 

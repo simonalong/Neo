@@ -135,9 +135,9 @@ public final class SqlStandard {
         IN(new Standard("^.*( where | WHERE | Where )+.*( buildIn | buildIn\\(| IN | IN\\()+.*$", "where子句中有in操作，请谨慎使用", LogType.INFO)),
 
         /**
-         * update 语句，如果后面没有where语句，则进行日志显示
+         * update 语句，如果后面没有条件语句，则进行日志显示
          */
-        UPDATE_NO_WHERE(new Standard("^(update |UPDATE |Update )+(?!.*((WHERE)|(where)|(Where))).*$", "update 更新语句中，没有where子句", LogType.WARN));
+        UPDATE_NO_WHERE(new Standard("^(update |UPDATE |Update )+(?!.*((WHERE)|(where)|(Where)|(USING)|(using))).*$", "update 更新语句中，没有条件子句", LogType.WARN));
 
         private Standard standard;
     }

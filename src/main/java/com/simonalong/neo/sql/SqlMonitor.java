@@ -27,7 +27,7 @@ public final class SqlMonitor {
     /**
      * 默认的sql语句打印的最大长度
      */
-    private static final Integer MAX_SQL_LENGTH = 1000;
+    private static final Integer MAX_SQL_LENGTH = 100;
     /**
      * 批量数据的展示这里最多展示5个
      */
@@ -107,7 +107,7 @@ public final class SqlMonitor {
             if (sql.length() <= MAX_SQL_LENGTH) {
                 return sql;
             }
-            log.info("sql 长度过长超过"+MAX_SQL_LENGTH + "，剩余部分不再打印");
+            log.info(LOG_PRE + "sql 长度过长超过"+MAX_SQL_LENGTH + "，剩余部分不再打印");
             return sql.substring(0, MAX_SQL_LENGTH) + " ...";
         }
 
@@ -115,7 +115,7 @@ public final class SqlMonitor {
             if (paramsList.size() <= MAX_BATCH_PARAMETER_SHOW_SIZE) {
                 return paramsList;
             }
-            log.info("sql 参数个数超过" + MAX_BATCH_PARAMETER_SHOW_SIZE + "个，剩余部分不再打印");
+            log.info(LOG_PRE + "sql 参数个数超过" + MAX_BATCH_PARAMETER_SHOW_SIZE + "个，剩余部分不再打印");
             List<Object> resultList = paramsList.subList(0, MAX_BATCH_PARAMETER_SHOW_SIZE);
             resultList.add("...");
             return resultList;
