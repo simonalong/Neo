@@ -44,7 +44,7 @@ public void testDemo1() {
     Neo neo = Neo.connect(url, user, password);
 
     // 插入
-    NeoMap data = neo.insert(tableName, NeoMap.of("group", "value"));
+    NeoMap data = neo.insert(tableName, NeoMap.of("group", "value", "name", "name1"));
 
     data.put("group", "value1");
 
@@ -335,7 +335,7 @@ public class CodeGenTest {
 ```
 
 ### 主从
->=v0.5.2
+`>=v0.5.2`
 主从功能支持：
 - 读写分离：支持多主多从，主库写，从库读取
 - 负载均衡（从库轮询选择，主库只使用最后激活的）
@@ -345,7 +345,7 @@ public class CodeGenTest {
 - 故障恢复：当主库或者从库之前断开，之后如果恢复正常，则框架自动重连，应用方无感知生效
 ```java
 /**
- * 双主多从
+ * 双主多从，记得先自己搭建好主从环境
  */
 @Test
 @SneakyThrows
@@ -385,12 +385,12 @@ public void testReplication() {
     msNeo.addSlaveDb("slave3", slave3);
     Random random = new Random();
 
-    while (true) {
-        Integer index = random.nextInt(50) + 100;
-        msNeo.insert(tableName, NeoMap.of("name", "name" + index));
-        show(msNeo.one(tableName, NeoMap.of("name", "name" + index)));
-        Thread.sleep(3 * 1000);
-    }
+    // 新增，走启用的主库master1
+    msNeo.insert(tableName, NeoMap.of("name", "name" + index));
+    // 查询，第一次使用slave1
+    msNeo.one(tableName, NeoMap.of("name", "name" + index));
+    // 查询，第一次使用slave2，后面依次循环
+    msNeo.one(tableName, NeoMap.of("name", "name" + index));
 }
 ```
 
