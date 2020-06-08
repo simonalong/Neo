@@ -8,8 +8,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
-import com.simonalong.neo.core.AbstractBaseDb;
-import com.simonalong.neo.core.AbstractClassExtenderDb;
+import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
@@ -43,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo extends AbstractClassExtenderDb {
+public class Neo extends AbstractExecutorDb {
 
     @Getter
     private NeoDb db;
@@ -673,6 +672,16 @@ public class Neo extends AbstractClassExtenderDb {
         return value(tableName, tClass, field, NeoMap.from(entity));
     }
 
+    /**
+     * 查询某行某列的值
+     *
+     * @param tableName 表名
+     * @param tClass 返回值的类型
+     * @param field 某个属性的名字
+     * @param searchMap 搜索条件
+     * @param <T> 目标类型
+     * @return 指定的数据值
+     */
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
@@ -1002,16 +1011,6 @@ public class Neo extends AbstractClassExtenderDb {
     @Override
     public Integer count(String tableName) {
         return count(tableName, NeoMap.of());
-    }
-
-    @Override
-    public Boolean exist(String tableName, NeoMap searchMap) {
-        return NeoMap.isUnEmpty(one(tableName, searchMap));
-    }
-
-    @Override
-    public Boolean exist(String tableName, Object entity) {
-        return null != one(tableName, entity);
     }
 
     /**

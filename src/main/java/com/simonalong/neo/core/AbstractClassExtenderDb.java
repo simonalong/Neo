@@ -11,8 +11,7 @@ import java.util.List;
  * @author shizi
  * @since 2020/6/8 8:23 AM
  */
-public abstract class AbstractClassExtenderDb extends AbstractBaseDb{
-
+public abstract class AbstractClassExtenderDb extends AbstractBaseDb {
 
     @Override
     public <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
@@ -84,5 +83,15 @@ public abstract class AbstractClassExtenderDb extends AbstractBaseDb{
     @Override
     public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
         return NeoMap.asArray(page(tableName, page), tClass);
+    }
+
+    @Override
+    public Boolean exist(String tableName, NeoMap searchMap) {
+        return NeoMap.isUnEmpty(one(tableName, searchMap));
+    }
+
+    @Override
+    public Boolean exist(String tableName, Object entity) {
+        return null != one(tableName, entity);
     }
 }
