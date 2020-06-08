@@ -3,6 +3,7 @@ package com.simonalong.neo.replication;
 import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import com.simonalong.neo.*;
 import com.simonalong.neo.core.AbstractBaseDb;
+import com.simonalong.neo.core.AbstractClassExtenderDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.util.ExceptionUtil;
@@ -19,7 +20,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
  * @since 2020/5/31 5:55 PM
  */
 @Slf4j
-public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements MasterSlaveSelector {
+public abstract class AbstractMasterSlaveDb extends AbstractClassExtenderDb implements MasterSlaveSelector {
 
     static final String MS_LOG_PRE = LOG_PRE + "[master-slave]";
 
@@ -179,13 +180,25 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
     }
 
     @Override
+    @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         return doSlaveCall(db -> db.value(tableName, tClass, field, searchMap));
     }
 
     @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return doSlaveCall(db -> db.value(tClass, tableName, field, searchMap));
+    }
+
+    @Override
+    @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
         return doSlaveCall(db -> db.value(tableName, tClass, field, entity));
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
+        return doSlaveCall(db -> db.value(tClass, tableName, field, entity));
     }
 
     @Override
@@ -204,13 +217,25 @@ public abstract class AbstractMasterSlaveDb extends AbstractBaseDb implements Ma
     }
 
     @Override
+    @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         return doSlaveCall(db -> db.values(tableName, tClass, field, searchMap));
     }
 
     @Override
+    @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
         return doSlaveCall(db -> db.values(tableName, tClass, field, entity));
+    }
+
+    @Override
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return doSlaveCall(db -> db.values(tClass, tableName, field, searchMap));
+    }
+
+    @Override
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
+        return doSlaveCall(db -> db.values(tClass, tableName, field, entity));
     }
 
     @Override

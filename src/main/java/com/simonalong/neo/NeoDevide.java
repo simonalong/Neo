@@ -36,16 +36,54 @@ public final class NeoDevide extends AbstractBaseDb {
      */
     private List<Neo> dbList = new ArrayList<>();
     /**
-     * 表的哈希处理映射
+     * 表的哈希处理映射, key：表名，value表的哈希信息
      */
-    private Map<String, TableHashInfo> tableHashInfoMap;
+    private Map<String, TableHashInfo> tableHashInfoMap = new ConcurrentHashMap<>();
 
+    public void setDevideDb(List<Neo> neoList, String columnName) {
+        this.dbColumnName = columnName;
+        this.dbList = neoList;
+    }
 
+    public void setDevideTable(String devideTables, String columnName) {
+        if (null == devideTables || "".equals(devideTables)) {
+            throw new NeoException("数据配置为空");
+        }
+        if (null == columnName || "".equals(columnName)) {
+            throw new NeoException("数据配置为空");
+        }
+
+        String regex = "^(.*)\\{(\\d),.*(\\d)}$";
+        Matcher matcher = Pattern.compile(regex).matcher(devideTables);
+        if (matcher.find()) {
+            TableHashInfo tableHashInfo = new TableHashInfo();
+            String tableName = matcher.group(1);
+            Integer min = Integer.valueOf(matcher.group(2));
+            Integer max = Integer.valueOf(matcher.group(3));
+            if (min >= max) {
+                throw new NeoException("数据配置错误: 最大值不能小于最小值");
+            }
+            tableHashInfo.setTableName(tableName);
+            tableHashInfo.setColumnName(columnName);
+            tableHashInfo.setMin(min);
+            tableHashInfo.setSize(max - min);
+
+            tableHashInfoMap.putIfAbsent(tableName, tableHashInfo);
+        } else {
+            throw new NeoException("没有发现要分库的数据");
+        }
+    }
 
     @Data
     private static class TableHashInfo {
 
+        /**
+         * 表名
+         */
         private String tableName;
+        /**
+         * 分表的列名
+         */
         private String columnName;
         private Integer min;
         private Integer size;
@@ -83,26 +121,6 @@ public final class NeoDevide extends AbstractBaseDb {
      * @param neoList       db的列表
      */
     public void setDevideDb(String devideDbNames, List<Neo> neoList) {
-        String regex = "^(.*)\\{(\\d),.*(\\d)}$";
-        Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
-        if (matcher.find()) {
-            dbName = matcher.group(1);
-            Integer min = Integer.valueOf(matcher.group(2));
-            Integer max = Integer.valueOf(matcher.group(3));
-            if (min >= max) {
-                throw new NeoException("数据配置错误: 最大值不能小于最小值");
-            }
-            this.min = min;
-            this.devideSize = max - min;
-            for (Integer index = min, indexJ = 0; index < max; index++, indexJ++) {
-                devideDbMap.putIfAbsent(dbName + index, new Pair<>(indexJ, neoList.get(indexJ)));
-            }
-        } else {
-            throw new NeoException("没有发现要分库的数据");
-        }
-    }
-
-    public void setDevideDb(List<Neo> neoList, String columnName) {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideDbNames);
         if (matcher.find()) {

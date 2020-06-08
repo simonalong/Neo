@@ -9,6 +9,7 @@ import static com.simonalong.neo.NeoConstant.SELECT;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractBaseDb;
+import com.simonalong.neo.core.AbstractClassExtenderDb;
 import com.simonalong.neo.db.*;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
@@ -42,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-public class Neo extends AbstractBaseDb {
+public class Neo extends AbstractClassExtenderDb {
 
     @Getter
     private NeoDb db;
@@ -545,42 +546,6 @@ public class Neo extends AbstractBaseDb {
         return neoMap;
     }
 
-    @Override
-    public <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
-        NeoMap data = one(tableName, columns, searchMap);
-        if(null == data){
-            return null;
-        }
-        return data.as(tClass);
-    }
-
-    @Override
-    public <T> T one(Class<T> tClass, String tableName, Columns columns, Number key) {
-        NeoMap data = one(tableName, columns, key);
-        if(null == data){
-            return null;
-        }
-        return data.as(tClass);
-    }
-
-    @Override
-    public <T> T one(Class<T> tClass, String tableName, NeoMap searchMap) {
-        NeoMap data = one(tableName, searchMap);
-        if(null == data){
-            return null;
-        }
-        return data.as(tClass);
-    }
-
-    @Override
-    public <T> T one(Class<T> tClass, String tableName, Number id) {
-        NeoMap data = one(tableName, id);
-        if(null == data){
-            return null;
-        }
-        return data.as(tClass);
-    }
-
     /**
      * 查询一行的数据
      *
@@ -647,21 +612,6 @@ public class Neo extends AbstractBaseDb {
         return list(tableName, columns, NeoMap.of());
     }
 
-    @Override
-    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
-        return NeoMap.asArray(list(tableName, columns, searchMap), tClass);
-    }
-
-    @Override
-    public <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap) {
-        return NeoMap.asArray(list(tableName, searchMap), tClass);
-    }
-
-    @Override
-    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns) {
-        return NeoMap.asArray(list(tableName, columns), tClass);
-    }
-
     /**
      * 查询返回单个值
      *
@@ -696,6 +646,7 @@ public class Neo extends AbstractBaseDb {
      * @return 指定的数据值
      */
     @Override
+    @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         if (null != tClass && !NeoMap.isEmpty(searchMap)) {
             NeoMap searchMapTem = searchMap.clone();
@@ -709,6 +660,7 @@ public class Neo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
         checkDb(tableName);
         // 若entity为数字类型，则认为是主键
@@ -722,8 +674,34 @@ public class Neo extends AbstractBaseDb {
     }
 
     @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
+            NeoMap searchMapTem = searchMap.clone();
+            TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem),
+                this::executeOne);
+            if (null != result) {
+                return result.get(tClass, tableName, field);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
+        checkDb(tableName);
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number) {
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return value(tClass, tableName, field, NeoMap.of(primaryKey, entity));
+            }
+        }
+        return value(tClass, tableName, field, NeoMap.from(entity));
+    }
+
+    @Override
     public String value(String tableName, String field, NeoMap searchMap) {
-        return value(tableName, String.class, field, searchMap);
+        return value(String.class, tableName, field, searchMap);
     }
 
     /**
@@ -741,10 +719,10 @@ public class Neo extends AbstractBaseDb {
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return value(tableName, String.class, field, NeoMap.of(primaryKey, entity));
+                return value(String.class, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
-        return value(tableName, String.class, field, NeoMap.from(entity));
+        return value(String.class, tableName, field, NeoMap.from(entity));
     }
 
     @Override
@@ -752,7 +730,7 @@ public class Neo extends AbstractBaseDb {
         checkDb(tableName);
         String primaryKey = db.getPrimaryName(tableName);
         if (null != primaryKey && !"".equals(primaryKey)) {
-            return value(tableName, String.class, field, NeoMap.of(primaryKey, id));
+            return value(String.class, tableName, field, NeoMap.of(primaryKey, id));
         }
         log.warn(LOG_PRE + "db {}'s primary key is null, please set", tableName);
         return null;
@@ -797,6 +775,7 @@ public class Neo extends AbstractBaseDb {
      * @return 一列值
      */
     @Override
+    @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         NeoMap searchMapTem = searchMap.clone();
         List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
@@ -817,6 +796,7 @@ public class Neo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
         checkDb(tableName);
         // 若entity为数字类型，则认为是主键
@@ -829,9 +809,52 @@ public class Neo extends AbstractBaseDb {
         return values(tableName, tClass, field, NeoMap.from(entity));
     }
 
+    /**
+     * 查询一列的值
+     *
+     * @param tableName 表名
+     * @param tClass 实体类的类
+     * @param field 列名
+     * @param searchMap 搜索条件
+     * @param <T> 目标类型
+     * @return 一列值
+     */
+    @Override
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        NeoMap searchMapTem = searchMap.clone();
+        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
+            if (table.haveTable(DEFAULT_TABLE)) {
+                return table.getNeoMap(DEFAULT_TABLE);
+            } else {
+                return table.getNeoMap(tableName);
+            }
+        }).collect(Collectors.toList());
+
+        if (!NeoMap.isEmpty(resultList)) {
+            return resultList.stream()
+                .map(r -> r.get(tClass, field))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
+        checkDb(tableName);
+        // 若entity为数字类型，则认为是主键
+        if (entity instanceof Number) {
+            String primaryKey = db.getPrimaryName(tableName);
+            if (null != primaryKey && !"".equals(primaryKey)) {
+                return values(tClass, tableName, field, NeoMap.of(primaryKey, entity));
+            }
+        }
+        return values(tClass, tableName, field, NeoMap.from(entity));
+    }
+
     @Override
     public List<String> values(String tableName, String field, NeoMap searchMap) {
-        return values(tableName, String.class, field, searchMap);
+        return values(String.class, tableName, field, searchMap);
     }
 
     /**
@@ -849,15 +872,15 @@ public class Neo extends AbstractBaseDb {
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return values(tableName, String.class, field, NeoMap.of(primaryKey, entity));
+                return values(String.class, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
-        return values(tableName, String.class, field, NeoMap.from(entity));
+        return values(String.class, tableName, field, NeoMap.from(entity));
     }
 
     @Override
     public List<String> values(String tableName, String field) {
-        return values(tableName, String.class, field, NeoMap.of());
+        return values(String.class, tableName, field, NeoMap.of());
     }
 
     /**
@@ -941,26 +964,6 @@ public class Neo extends AbstractBaseDb {
     @Override
     public List<NeoMap> page(String tableName, NeoPage page) {
         return page(tableName, Columns.of().setNeo(this).table(tableName), NeoMap.of(), page);
-    }
-
-    @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return NeoMap.asArray(page(tableName, columns, searchMap, page), tClass);
-    }
-
-    @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
-        return NeoMap.asArray(page(tableName, searchMap, page), tClass);
-    }
-
-    @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
-        return NeoMap.asArray(page(tableName, columns, page), tClass);
-    }
-
-    @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
-        return NeoMap.asArray(page(tableName, page), tClass);
     }
 
     /**

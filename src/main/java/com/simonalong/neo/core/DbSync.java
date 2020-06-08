@@ -79,9 +79,15 @@ public interface DbSync extends SyncNeo{
     <T> List<T> list(Class<T> tClass, String tableName, Columns columns);
 
 
+    @Deprecated
     <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap);
 
+    @Deprecated
     <T> T value(String tableName, Class<T> tClass, String field, Object entity);
+
+    <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> T value(Class<T> tClass, String tableName, String field, Object entity);
 
     String value(String tableName, String field, NeoMap searchMap);
 
@@ -90,9 +96,15 @@ public interface DbSync extends SyncNeo{
     String value(String tableName, String field, Number id);
 
 
+    @Deprecated
     <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap);
 
+    @Deprecated
     <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity);
+
+    <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity);
 
     List<String> values(String tableName, String field, NeoMap searchMap);
 
