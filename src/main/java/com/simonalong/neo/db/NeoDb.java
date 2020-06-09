@@ -18,6 +18,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
+@EqualsAndHashCode(of = {"rdbmsName", "catalogName", "schemaToTableMap"})
 public final class NeoDb {
 
     private Neo neo;

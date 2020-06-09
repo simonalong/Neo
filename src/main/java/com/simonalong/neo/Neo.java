@@ -33,6 +33,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
+@EqualsAndHashCode(of = {"db", "dbType", "pool"}, callSuper = false)
 public class Neo extends AbstractExecutorDb {
 
     @Getter

@@ -21,7 +21,7 @@ public class DevideNeoTest {
         List<Neo> neoList = new ArrayList<>();
         DevideNeo devideNeo = new DevideNeo();
         // 设置分库及参数
-        devideNeo.setDevideDb(neoList, "id");
+        devideNeo.setDevideDb(neoList, "neo_devide1", "id");
         // 设置分表及参数
         devideNeo.setDevideTable("neo_user{0, 1023}", "user_id");
         devideNeo.setDevideTable("neo_order{0, 1023}", "order_id");

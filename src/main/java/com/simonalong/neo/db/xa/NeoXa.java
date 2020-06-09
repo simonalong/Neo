@@ -12,6 +12,7 @@ import com.simonalong.neo.exception.xa.XaStartException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -118,19 +119,37 @@ public class NeoXa {
             prepareXid();
             commitXid();
         } catch (Throwable e) {
-            if (e instanceof XaStartException) {
-                log.error(LOG_PRE + "start xid fail", e);
-            } else if (e instanceof XaEndException) {
-                log.error(LOG_PRE + "end xid fail", e);
-            } else if (e instanceof XaPrepareException) {
-                log.error(LOG_PRE + "prepare xid fail", e);
-                rollbackXid();
-            } else if (e instanceof XaCommitException) {
-                log.error(LOG_PRE + "commit xid fail", e);
-                rollbackXid();
-            }
-            log.error(LOG_PRE + "xa run fail, xid={}", getXidStr(), e);
+            afterException(e);
         }
+    }
+
+    public <T> T call(Callable<T> callable) {
+        try {
+            startXid();
+            T t = callable.call();
+            endXid();
+            prepareXid();
+            commitXid();
+            return t;
+        } catch (Throwable e) {
+            afterException(e);
+        }
+        return null;
+    }
+
+    private void afterException(Throwable e) {
+        if (e instanceof XaStartException) {
+            log.error(LOG_PRE + "start xid fail", e);
+        } else if (e instanceof XaEndException) {
+            log.error(LOG_PRE + "end xid fail", e);
+        } else if (e instanceof XaPrepareException) {
+            log.error(LOG_PRE + "prepare xid fail", e);
+            rollbackXid();
+        } else if (e instanceof XaCommitException) {
+            log.error(LOG_PRE + "commit xid fail", e);
+            rollbackXid();
+        }
+        log.error(LOG_PRE + "xa run fail, xid={}", getXidStr(), e);
     }
 
     private List<String> getXidStr() {
