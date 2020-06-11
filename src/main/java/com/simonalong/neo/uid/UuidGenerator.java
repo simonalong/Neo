@@ -2,10 +2,14 @@ package com.simonalong.neo.uid;
 
 import com.simonalong.neo.Neo;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UuidException;
 import com.simonalong.neo.uid.splicer.DefaultUuidSplicer;
 import com.simonalong.neo.uid.splicer.UuidSplicer;
@@ -22,6 +26,11 @@ import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
 @Slf4j
 public final class UuidGenerator {
 
+    /**
+     * 2020-02-22 00:00:00.000 对应的时间
+     */
+    static Long startTime = 1582300800000L;
+    private static final Integer FIRST_YEAR = 2020;
     private Neo neo;
     private static volatile UuidGenerator instance;
     /**
@@ -57,6 +66,25 @@ public final class UuidGenerator {
         if (!neo.tableExist(NEO_UUID_TABLE)) {
             throw new UuidException("数据库uuid表不存在，请创建表 neo_uuid_generator");
         }
+    }
+
+    /**
+     * 设置启动时间
+     * <p>
+     * 目前当前的启动时间是按照2020年2月22号算起，如果不设置，则最久可以用到2083年左右
+     * @param year 起始时间
+     * @param month 起始时间
+     * @param dayOfMonth 起始时间
+     * @param hour 起始时间
+     * @param minute 起始时间
+     * @param second 起始时间
+     */
+    public static void setStartTime(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+        if (year < FIRST_YEAR) {
+            throw new NeoException("请设置未来时间");
+        }
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
+        startTime = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime();
     }
 
     /**

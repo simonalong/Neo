@@ -44,11 +44,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-@EqualsAndHashCode(of = {"db", "dbType", "pool"}, callSuper = false)
+@EqualsAndHashCode(of = {"name"}, callSuper = false)
 public class Neo extends AbstractExecutorDb {
 
     @Getter
     private NeoDb db;
+    @Getter
+    private String name;
     @Getter
     private DbType dbType = DbType.MYSQL;
     @Getter
@@ -161,7 +163,8 @@ public class Neo extends AbstractExecutorDb {
         Connection connection;
         try {
             connection = dataSource.getConnection();
-            this.dbType = DbType.parse(connection.getMetaData().getURL());
+            this.name = connection.getMetaData().getURL();
+            this.dbType = DbType.parse(this.name);
         } catch (SQLException e) {
             throw new NeoException(e);
         }
@@ -170,7 +173,8 @@ public class Neo extends AbstractExecutorDb {
     public void initFromDruid(Properties properties) {
         this.pool = new ConnectPool(this);
         this.pool.initFromDruid(properties);
-        this.dbType = DbType.parse(properties.getProperty("druid.url"));
+        this.name = properties.getProperty("druid.url");
+        this.dbType = DbType.parse(this.name);
     }
 
     public void initFromHikariCP(Properties properties) {
@@ -182,15 +186,20 @@ public class Neo extends AbstractExecutorDb {
         this.pool.initFromHikariCP(properties);
         // 配置dbType
         if(properties.containsKey("jdbc-url")){
-            this.dbType = DbType.parse(properties.getProperty("jdbc-url"));
+            this.name = properties.getProperty("jdbc-url");
+            this.dbType = DbType.parse(this.name);
         }else if(properties.containsKey("datasource.jdbc-url")){
-            this.dbType = DbType.parse(properties.getProperty("datasource.jdbc-url"));
+            this.name = properties.getProperty("datasource.jdbc-url");
+            this.dbType = DbType.parse(this.name);
         }else if(properties.containsKey("url")){
-            this.dbType = DbType.parse(properties.getProperty("url"));
+            this.name = properties.getProperty("url");
+            this.dbType = DbType.parse(this.name);
         } else if(properties.containsKey("jdbcUrl")){
-            this.dbType = DbType.parse(properties.getProperty("jdbcUrl"));
+            this.name = properties.getProperty("jdbcUrl");
+            this.dbType = DbType.parse(this.name);
         } else if(properties.containsKey("datasource.jdbcUrl")){
-            this.dbType = DbType.parse(properties.getProperty("datasource.jdbcUrl"));
+            this.name = properties.getProperty("datasource.jdbcUrl");
+            this.dbType = DbType.parse(this.name);
         } else{
             throw new NeoException("hikaricp 配置没有找到url");
         }

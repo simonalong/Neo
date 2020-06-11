@@ -3,16 +3,19 @@ package com.simonalong.neo.devide;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.Pair;
 import com.simonalong.neo.core.AbstractClassExtenderDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.xa.NeoXa;
+import com.simonalong.neo.devide.strategy.DevideStrategy;
+import com.simonalong.neo.devide.strategy.DevideStrategyFactory;
+import com.simonalong.neo.devide.strategy.DevideTypeEnum;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoNotSupport;
 import com.simonalong.neo.exception.NotFindDevideDbException;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -25,7 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 分库管理对象
+ * 分库分表管理对象
  *
  * @author zhouzhenyong
  * @since 2019/6/21 下午3:48
@@ -58,26 +61,38 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      */
     private Integer markNum = null;
     /**
+     * 分库分表策略
+     */
+    @Setter
+    private DevideStrategy devideStrategy;
+    /**
+     * 分库分表策略枚举，设置这个会自动匹配系统内部的分库策略
+     */
+    @Setter
+    private DevideTypeEnum devideTypeEnum = DevideTypeEnum.HASH;
+    /**
      * 表的哈希处理映射, key：表名，value表的哈希信息
      */
-    private Map<String, TableHashInfo> devideTableInfoMap = new ConcurrentHashMap<>();
+    private Map<String, TableDevideConfig> devideTableInfoMap = new ConcurrentHashMap<>();
+
+    public void setDbList(List<Neo> dbList) {
+        if (null != dbList) {
+            this.dbList = dbList;
+            this.dbSize = dbList.size();
+            if ((dbSize & (dbSize - 1)) == 0) {
+                this.markNum = dbSize;
+            }
+            this.neoXa = NeoXa.ofNeoList(dbList);
+        }
+    }
 
     /**
      * 设置分库
      *
-     * @param neoList                多个库实例
      * @param devideDbLoginTableName 分库采用的表的逻辑表名，比如实际表名为neo_table12，但是目前表也分表了，则为neo_table，若只分库了，表都一样，则用实际的表即可
      * @param columnName             分库的表的列名
      */
-    public void setDevideDb(List<Neo> neoList, String devideDbLoginTableName, String columnName) {
-        if (null != neoList) {
-            this.dbList = neoList;
-            this.dbSize = neoList.size();
-            if ((dbSize & (dbSize - 1)) == 0) {
-                this.markNum = dbSize;
-            }
-            this.neoXa = NeoXa.of(neoList.toArray());
-        }
+    public void setDevideDb(String devideDbLoginTableName, String columnName) {
         this.devideDbColumnName = columnName;
         this.devideDbLoginTableName = devideDbLoginTableName;
     }
@@ -101,48 +116,66 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         String regex = "^(.*)\\{(\\d),.*(\\d)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideTables);
         if (matcher.find()) {
-            TableHashInfo tableHashInfo = new TableHashInfo();
+            TableDevideConfig tableDevideConfig = new TableDevideConfig();
             String tableName = matcher.group(1);
+
+            // 分库分表字段校验
+            if (null != devideDbLoginTableName && devideDbLoginTableName.equals(tableName)) {
+                if (null != devideDbColumnName && devideDbColumnName.equals(columnName)) {
+                    throw new NeoException("分库的列和分表的列不可为同一个，否则分表失效");
+                }
+            }
+
             Integer min = Integer.valueOf(matcher.group(2));
             Integer max = Integer.valueOf(matcher.group(3));
             if (min >= max) {
                 throw new NeoException("数据配置错误: 最大值不能小于最小值");
             }
-            tableHashInfo.setTableName(tableName);
-            tableHashInfo.setColumnName(columnName);
-            tableHashInfo.setMin(min);
+            tableDevideConfig.setTableName(tableName);
+            tableDevideConfig.setColumnName(columnName);
+            tableDevideConfig.setMin(min);
 
             Integer size = max - min;
-            tableHashInfo.setSize(size);
+            tableDevideConfig.setSize(size);
+
             // 个数为2的次方，则设置mark数据
             if ((size & (size - 1)) == 0) {
-                tableHashInfo.setMarkNum(size);
+                tableDevideConfig.setMarkNum(size);
             }
 
-            devideTableInfoMap.putIfAbsent(tableName, tableHashInfo);
+            devideTableInfoMap.putIfAbsent(tableName, tableDevideConfig);
         } else {
             throw new NeoException("没有发现要分表的表名");
         }
     }
 
+    public void start() {
+        // 默认采用哈希方式分库分表
+        if (null == devideStrategy) {
+            if (null != dbList) {
+                this.devideStrategy = DevideStrategyFactory.getStrategy(devideTypeEnum, dbList.size(), devideTableInfoMap);
+            }
+        }
+    }
+
     private Neo getDevideDb(String tableName, NeoMap dataMap) {
         validate(tableName);
-        return doGetDevideDb(getDevideDbColumnValue(tableName, dataMap));
+        return devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, dataMap));
     }
 
     private Neo getDevideDb(String tableName, Object object) {
         validate(tableName);
-        return doGetDevideDb(getDevideDbColumnValue(tableName, object));
+        return devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, object));
     }
 
     private String getDevideTable(String tableName, NeoMap dataMap) {
         validate(tableName);
-        return doGetDevideTable(tableName, getDevideTableColumnValue(tableName, dataMap));
+        return devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, dataMap));
     }
 
     private String getDevideTable(String tableName, Object object) {
         validate(tableName);
-        return doGetDevideTable(tableName, getDevideTableColumnValue(tableName, object));
+        return devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, object));
     }
 
     /**
@@ -204,49 +237,11 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         });
     }
 
-    /**
-     * 根据对应字段的值获取分库对应的DB
-     *
-     * @param value 分库字段对应的值
-     * @return 分库db
-     */
-    private Neo doGetDevideDb(Object value) {
-        Number index = ObjectUtil.cast(Number.class, value);
-        if (null == index) {
-            return null;
-        }
-
-        if (null != markNum) {
-            return dbList.get(index.intValue() & markNum);
-        } else {
-            return dbList.get(index.intValue() % dbSize);
-        }
-    }
-
-    private String doGetDevideTable(String tableName, Object value) {
-        Number index = ObjectUtil.cast(Number.class, value);
-        if (null == index) {
-            return tableName;
-        }
-
-        if (!devideTableInfoMap.containsKey(tableName)) {
-            return tableName;
-        }
-
-        TableHashInfo tableHashInfo = devideTableInfoMap.get(tableName);
-        Integer markNum = tableHashInfo.getMarkNum();
-        if (null == markNum) {
-            return tableName + (index.intValue() % tableHashInfo.getSize());
-        } else {
-            return tableName + (index.intValue() & markNum);
-        }
-    }
-
     private Object getDevideTableColumnValue(String tableName, NeoMap dataMap) {
         if (devideTableInfoMap.containsKey(tableName)) {
-            TableHashInfo tableHashInfo = devideTableInfoMap.get(tableName);
-            if (null != tableHashInfo) {
-                return dataMap.get(tableHashInfo.getColumnName());
+            TableDevideConfig tableDevideConfig = devideTableInfoMap.get(tableName);
+            if (null != tableDevideConfig) {
+                return dataMap.get(tableDevideConfig.getColumnName());
             }
         }
         return null;
@@ -263,8 +258,8 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         String tableNameFinal = tableName;
         // 分表
         if (devideTableInfoMap.containsKey(tableName)) {
-            TableHashInfo tableHashInfo = devideTableInfoMap.get(tableName);
-            String devideColumn = tableHashInfo.getColumnName();
+            TableDevideConfig tableDevideConfig = devideTableInfoMap.get(tableName);
+            String devideColumn = tableDevideConfig.getColumnName();
 
             // 主键
             if (object instanceof Number) {
@@ -276,7 +271,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
                     return object;
                 }
             } else if (null != object) {
-                return NeoMap.from(object).get(tableHashInfo.getColumnName());
+                return NeoMap.from(object).get(tableDevideConfig.getColumnName());
             }
         }
         return null;
@@ -328,6 +323,10 @@ public final class DevideNeo extends AbstractClassExtenderDb {
             Assert.assertEquals("待分表的库需要保证只有一个实例", 1, dbList.size());
         } else {
             Assert.assertTrue("待分库的库需要保证至少有一个实例", dbList.size() >= 1);
+        }
+
+        if (null == devideStrategy) {
+            throw new NeoException("请先设置分库分表策略或者调用start函数");
         }
     }
 
@@ -989,26 +988,6 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     public <T> Integer batchUpdateEntity(String tableName, List<T> dataList, Columns columns) {
         List<NeoMap> dataMapList = dataList.stream().map(d -> NeoMap.from(d, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList());
         return batchUpdate(tableName, dataMapList, columns);
-    }
-
-
-    @Data
-    private static class TableHashInfo {
-
-        /**
-         * 表名
-         */
-        private String tableName;
-        /**
-         * 分表的列名
-         */
-        private String columnName;
-        private Integer min;
-        private Integer size;
-        /**
-         * 若表的size为2的次方，则该markNum有值
-         */
-        private Integer markNum;
     }
 
     @Data

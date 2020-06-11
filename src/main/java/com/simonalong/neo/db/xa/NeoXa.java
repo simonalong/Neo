@@ -61,7 +61,7 @@ public class NeoXa {
             }
 
             if(value instanceof Neo) {
-                neoMap.put((String) key, value);
+                xa.add((String) key, (Neo) value);
             }
 
             if(value instanceof DataSource){
@@ -69,7 +69,14 @@ public class NeoXa {
             }
             throw new NeoException("value 类型必须为Neo或者Datasource类型");
         }
+        return xa;
+    }
 
+    public static NeoXa ofNeoList(List<Neo> neoList) {
+        NeoXa xa = new NeoXa();
+        for (Neo neo : neoList) {
+            xa.add(neo.getName(), neo);
+        }
         return xa;
     }
 

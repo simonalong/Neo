@@ -5,7 +5,6 @@ import com.simonalong.neo.exception.UuidException;
 import lombok.experimental.UtilityClass;
 
 import static com.simonalong.neo.uid.UuidConstant.DELAY_THREAD_HOLD;
-import static com.simonalong.neo.uid.UuidConstant.START_TIME;
 import static com.simonalong.neo.uid.UuidConstant.TIME_BACK;
 
 /**
@@ -61,9 +60,9 @@ public class TimeAdjuster {
      * @return 转换后的时间
      */
     public long getRelativeTime(long currentTime) {
-        if (currentTime <= START_TIME) {
-            throw new UuidException("回拨时间超过2019-11-9 0.0.0.000");
+        if (currentTime <= UuidGenerator.startTime) {
+            throw new UuidException("回拨时间超过起始时间: " + UuidGenerator.startTime);
         }
-        return currentTime - START_TIME;
+        return currentTime - UuidGenerator.startTime;
     }
 }

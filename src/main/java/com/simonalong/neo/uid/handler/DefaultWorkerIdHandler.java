@@ -118,7 +118,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info(LOG_PRE + "进程即将退出，清理本次启动申请的db资源");
+            log.info(LOG_PRE + "neo process ready to quit, clean up the db resources applied for this startup");
             neo.delete(NEO_UUID_TABLE, uuidGeneratorDO.getId());
             if (null != scheduler) {
                 scheduler.shutdown();

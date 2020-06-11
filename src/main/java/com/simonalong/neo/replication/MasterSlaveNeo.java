@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * 主从管理对象
+ *
  * @author shizi
  * @since 2020/5/31 5:54 PM
  */
