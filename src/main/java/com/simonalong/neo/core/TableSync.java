@@ -9,7 +9,7 @@ import java.util.List;
  * @author zhouzhenyong
  * @since 2019-08-17 17:16
  */
-public interface TableSync extends SyncNeo{
+public interface TableSync extends Sync {
 
     NeoMap insert(NeoMap dataMap);
 

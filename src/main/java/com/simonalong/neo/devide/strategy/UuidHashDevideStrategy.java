@@ -38,10 +38,6 @@ public class UuidHashDevideStrategy implements DevideStrategy {
 
     @Override
     public Neo getDb(List<Neo> neoList, Object value) {
-        if (null != neoList && neoList.size() == 1) {
-            return neoList.get(0);
-        }
-
         if (null == value) {
             return null;
         }
@@ -70,7 +66,7 @@ public class UuidHashDevideStrategy implements DevideStrategy {
                 return logicTableName + (tableDevideConfig.getMin() + (seqNum % tableDevideConfig.getSize()));
             }
         }
-        return logicTableName;
+        return null;
     }
 
     private Long getSeqNum(Number number) {

@@ -5,23 +5,20 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractClassExtenderDb;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.db.xa.NeoXa;
+import com.simonalong.neo.xa.NeoXa;
 import com.simonalong.neo.devide.strategy.DevideStrategy;
 import com.simonalong.neo.devide.strategy.DevideStrategyFactory;
 import com.simonalong.neo.devide.strategy.DevideTypeEnum;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoNotSupport;
 import com.simonalong.neo.exception.NotFindDevideDbException;
-import com.simonalong.neo.util.ObjectUtil;
+import com.simonalong.neo.exception.NotFindDevideTableException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +46,11 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      */
     private List<Neo> dbList = new ArrayList<>();
     /**
+     * 没有命中走的默认db
+     */
+    @Setter
+    private Neo defaultDb;
+    /**
      * 多资源的XA事务管理
      */
     private NeoXa neoXa;
@@ -74,6 +76,11 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      * 表的哈希处理映射, key：表名，value表的哈希信息
      */
     private Map<String, TableDevideConfig> devideTableInfoMap = new ConcurrentHashMap<>();
+    /**
+     * 没有命中分表，则走默认的表。key为逻辑表，value为实际表
+     */
+    @Setter
+    private Map<String, String> defaultTableNameMap;
 
     public void setDbList(List<Neo> dbList) {
         if (null != dbList) {
@@ -160,22 +167,46 @@ public final class DevideNeo extends AbstractClassExtenderDb {
 
     private Neo getDevideDb(String tableName, NeoMap dataMap) {
         validate(tableName);
-        return devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, dataMap));
+        Neo dbFinal = devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, dataMap));
+        if (null != dbFinal) {
+            return dbFinal;
+        } else if (null != defaultDb) {
+            return defaultDb;
+        }
+        throw new NotFindDevideDbException("table: " + tableName);
     }
 
     private Neo getDevideDb(String tableName, Object object) {
         validate(tableName);
-        return devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, object));
+        Neo dbFinal = devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, object));
+        if (null != dbFinal) {
+            return dbFinal;
+        } else if (null != defaultDb) {
+            return defaultDb;
+        }
+        throw new NotFindDevideDbException("table: " + tableName);
     }
 
     private String getDevideTable(String tableName, NeoMap dataMap) {
         validate(tableName);
-        return devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, dataMap));
+        String tableNameFinal = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, dataMap));
+        if (null != tableNameFinal) {
+            return tableNameFinal;
+        } else if (defaultTableNameMap.containsKey(tableName)) {
+            return defaultTableNameMap.get(tableName);
+        }
+        throw new NotFindDevideTableException(tableName);
     }
 
     private String getDevideTable(String tableName, Object object) {
         validate(tableName);
-        return devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, object));
+        String tableNameFinal = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, object));
+        if (null != tableNameFinal) {
+            return tableNameFinal;
+        } else if (defaultTableNameMap.containsKey(tableName)) {
+            return defaultTableNameMap.get(tableName);
+        }
+        throw new NotFindDevideTableException(tableName);
     }
 
     /**
@@ -238,6 +269,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     }
 
     private Object getDevideTableColumnValue(String tableName, NeoMap dataMap) {
+        // todo 这里不对，需要对接下面的
         if (devideTableInfoMap.containsKey(tableName)) {
             TableDevideConfig tableDevideConfig = devideTableInfoMap.get(tableName);
             if (null != tableDevideConfig) {
@@ -337,21 +369,13 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     @Override
     public NeoMap insert(String tableName, NeoMap dataMap) {
         Neo neo = getDevideDb(tableName, dataMap);
-        if (null != neo) {
-            return neo.insert(getDevideTable(tableName, dataMap), dataMap);
-        } else {
-            throw new NotFindDevideDbException("table: " + tableName + ", columns: " + dataMap);
-        }
+        return neo.insert(getDevideTable(tableName, dataMap), dataMap);
     }
 
     @Override
     public <T> T insert(String tableName, T object) {
         Neo neo = getDevideDb(tableName, object);
-        if (null != neo) {
-            return neo.insert(getDevideTable(tableName, object), object);
-        } else {
-            throw new NotFindDevideDbException("table: " + tableName + ", columns: " + object);
-        }
+        return neo.insert(getDevideTable(tableName, object), object);
     }
 
     @Override

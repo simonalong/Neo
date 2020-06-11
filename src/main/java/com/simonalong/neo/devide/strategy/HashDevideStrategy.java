@@ -32,10 +32,6 @@ public class HashDevideStrategy implements DevideStrategy {
 
     @Override
     public Neo getDb(List<Neo> neoList, Object value) {
-        if (null != neoList && neoList.size() == 1) {
-            return neoList.get(0);
-        }
-
         if (null == value) {
             return null;
         }
@@ -64,6 +60,6 @@ public class HashDevideStrategy implements DevideStrategy {
                 }
             }
         }
-        return logicTableName;
+        return null;
     }
 }

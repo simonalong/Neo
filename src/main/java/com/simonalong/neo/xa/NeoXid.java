@@ -1,4 +1,4 @@
-package com.simonalong.neo.db.xa;
+package com.simonalong.neo.xa;
 
 import java.util.UUID;
 import javax.transaction.xa.Xid;

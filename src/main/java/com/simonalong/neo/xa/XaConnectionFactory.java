@@ -1,4 +1,4 @@
-package com.simonalong.neo.db.xa;
+package com.simonalong.neo.xa;
 
 import com.mysql.cj.jdbc.JdbcConnection;
 import com.mysql.cj.jdbc.MysqlXAConnection;

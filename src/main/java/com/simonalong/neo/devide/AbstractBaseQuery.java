@@ -1,87 +1,26 @@
-package com.simonalong.neo.core;
+package com.simonalong.neo.devide;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.core.DefaultExecutor;
+import com.simonalong.neo.core.QuerySync;
 import com.simonalong.neo.db.NeoPage;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * <ul>
- * <li>1.提供默认的线程池</li>
- * <li>2.异步接口实现，通过调用同步函数完成</li>
- *</ul>
- *
- * @author zhouzhenyong
- * @since 2019-08-17 17:17
+ * @author shizi
+ * @since 2020/6/11 3:11 PM
  */
-public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync {
+public abstract class AbstractBaseQuery extends AbstractQueryAsync implements QuerySync {
 
     @Override
     public Executor getExecutor() {
         return DefaultExecutor.getInstance().getExecutor();
     }
 
-    @Override
-    public CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> insert(tableName, dataMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> insertAsync(String tableName, T object, Executor executor){
-        return CompletableFuture.supplyAsync(() -> insert(tableName, object), executor);
-    }
-
-    @Override
-    public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> delete(tableName, dataMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> deleteAsync(String tableName, T object, Executor executor){
-        return CompletableFuture.supplyAsync(() -> delete(tableName, object), executor);
-    }
-
-    @Override
-    public CompletableFuture<Integer> deleteAsync(String tableName, Number id, Executor executor){
-        return CompletableFuture.supplyAsync(() -> delete(tableName, id), executor);
-    }
-
-    @Override
-    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, dataMap, searchMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, setEntity, searchMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, setEntity, searchEntity), executor);
-    }
-
-    @Override
-    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, dataMap, columns), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Columns columns, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, entity, columns), executor);
-    }
-
-    @Override
-    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, dataMap), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Executor executor){
-        return CompletableFuture.supplyAsync(() -> update(tableName, entity), executor);
-    }
 
     @Override
     public CompletableFuture<NeoMap> oneAsync(String tableName, Columns columns, NeoMap searchMap, Executor executor){
@@ -273,35 +212,5 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync {
     @Override
     public CompletableFuture<Integer> countAsync(String tableName, Executor executor){
         return CompletableFuture.supplyAsync(() -> count(tableName), executor);
-    }
-
-    @Override
-    public CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchInsert(tableName, dataMapList), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchInsertEntityAsync(String tableName, List<T> dataList, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchInsertEntity(tableName, dataList), executor);
-    }
-
-    @Override
-    public CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchUpdate(tableName, dataList), executor);
-    }
-
-    @Override
-    public CompletableFuture<Integer> batchUpdateAsync(String tableName, List<NeoMap> dataList, Columns columns, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchUpdate(tableName, dataList, columns), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchUpdateEntity(tableName, dataList), executor);
-    }
-
-    @Override
-    public <T> CompletableFuture<Integer> batchUpdateEntityAsync(String tableName, List<T> dataList, Columns columns, Executor executor){
-        return CompletableFuture.supplyAsync(() -> batchUpdateEntity(tableName, dataList, columns), executor);
     }
 }

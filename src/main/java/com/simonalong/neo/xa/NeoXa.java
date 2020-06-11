@@ -1,4 +1,4 @@
-package com.simonalong.neo.db.xa;
+package com.simonalong.neo.xa;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
@@ -32,7 +32,7 @@ public class NeoXa {
     /**
      * key为当前db的名字，value为Neo的动态代理对象
      */
-    private  Map<String, NeoXaProxy> dbMap = new ConcurrentHashMap<>(8);
+    private Map<String, NeoXaProxy> dbMap = new ConcurrentHashMap<>(8);
     private static final Integer KV_NUM = 2;
 
     /**

@@ -1,4 +1,4 @@
-package com.simonalong.neo.db.xa;
+package com.simonalong.neo.xa;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.exception.ParameterUnValidException;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Getter
-class NeoXaProxy {
+public class NeoXaProxy {
 
     private XAResource rm;
     private Xid xid;
@@ -27,7 +27,7 @@ class NeoXaProxy {
      */
     private Neo target;
 
-    NeoXaProxy(Object object) {
+    public NeoXaProxy(Object object) {
         Neo db;
         if (object instanceof Neo) {
             db = (Neo) object;
@@ -43,14 +43,14 @@ class NeoXaProxy {
     /**
      * 开启分布式事务XA
      */
-    void openXa() throws SQLException, XAException {
+    public void openXa() throws SQLException, XAException {
         target.openXA();
         rm = XaConnectionFactory.getXaConnect(target.getDbType(), target.getConnection()).getXAResource();
         xid = new NeoXid();
         rm.start(xid, XAResource.TMNOFLAGS);
     }
 
-    void endXid() throws XAException {
+    public void endXid() throws XAException {
         rm.end(xid, XAResource.TMSUCCESS);
     }
 }
