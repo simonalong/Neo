@@ -6,13 +6,15 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 分库分表中的多库多表查询处理
@@ -182,51 +184,28 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-        Integer startIndex = page.getStartIndex();
-        Integer pageSize = page.getPageSize();
-        List<NeoMap> resultList = executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage));
-        if (!resultList.isEmpty()) {
-            return resultList.subList(startIndex, startIndex + pageSize);
-        }
-        return resultList;
+        return executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
-        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-        Integer startIndex = page.getStartIndex();
-        Integer pageSize = page.getPageSize();
-        List<T> resultList = executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, entity, extendPage));
-        if (!resultList.isEmpty()) {
-            return resultList.subList(startIndex, startIndex + pageSize);
-        }
-        return resultList;
+        NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
+        List<NeoMap> dataMapList = executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
+        return NeoMap.asArray(dataMapList, NeoMap.NamingChg.UNDERLINE, (Class<T>) entity.getClass());
     }
 
-    @SuppressWarnings("all")
     @Override
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
-        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-        Integer startIndex = page.getStartIndex();
-        Integer pageSize = page.getPageSize();
-        List<NeoMap> resultList = executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage));
-        if (!resultList.isEmpty()) {
-            return resultList.subList(startIndex, startIndex + pageSize);
-        }
-        return resultList;
+        return executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage)));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
-        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-        Integer startIndex = page.getStartIndex();
-        Integer pageSize = page.getPageSize();
-        List<T> resultList = executeList(tableName, (db, actTableName) -> db.page(actTableName, entity, extendPage));
-        if (!resultList.isEmpty()) {
-            return resultList.subList(startIndex, startIndex + pageSize);
-        }
-        return resultList;
+        NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
+        List<NeoMap> dataMapList = executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage)));
+        return NeoMap.asArray(dataMapList, NeoMap.NamingChg.UNDERLINE, (Class<T>) entity.getClass());
     }
 
     @Override
@@ -241,17 +220,17 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
-        return executeOne(tableName, (db, actTableName) -> db.count(actTableName, searchMap));
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchMap)).stream().reduce((a, b) -> a + b).orElse(0);
     }
 
     @Override
     public Integer count(String tableName, Object entity) {
-        return executeOne(tableName, (db, actTableName) -> db.count(actTableName, entity));
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, entity)).stream().reduce((a, b) -> a + b).orElse(0);
     }
 
     @Override
     public Integer count(String tableName) {
-        return executeOne(tableName, Neo::count);
+        return executeOneToList(tableName, Neo::count).stream().reduce((a, b) -> a + b).orElse(0);
     }
 
     /**
@@ -283,8 +262,6 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         for (String actTableName : tableList) {
             T result = function.apply(db, actTableName);
             if (result instanceof NeoMap) {
-                // todo 后续删除
-                log.info("db = " + db.getName() + ", actTableName = " + tableName);
                 if (NeoMap.isUnEmpty(NeoMap.class.cast(result))) {
                     return result;
                 } else {
@@ -292,8 +269,6 @@ public class DevideMultiNeo extends AbstractBaseQuery {
                 }
             }
             if (null != result) {
-                // todo 后续删除
-                log.info("db = " + db.getName() + ", actTableName = " + tableName);
                 return result;
             }
         }
@@ -332,9 +307,115 @@ public class DevideMultiNeo extends AbstractBaseQuery {
                     List dataList = List.class.cast(result);
                     if (!dataList.isEmpty()) {
                         resultList.addAll(dataList);
-                        log.info("list: db = " + db.getName() + ", actTableName = " + actTableName + ", data=" + JSON.toJSONString(result));
+                    }
+                } else {
+                    resultList.add(result);
+                }
+            }
+        }
+    }
+
+    /**
+     * 将回调为一个数据的值进行合并为多个
+     *
+     * @param tableName 表名
+     * @param function  回调
+     * @param <T>       一个回调返回的类型
+     * @return 回调返回的类型的集合
+     */
+    @SuppressWarnings("all")
+    private <T> List<T> executeOneToList(String tableName, BiFunction<Neo, String, T> function) {
+        List resultList = new ArrayList();
+        if (null != dbList && !dbList.isEmpty()) {
+            for (Neo db : dbList) {
+                doExecuteList(tableName, db, resultList, function);
+            }
+        } else if (null != defaultDb) {
+            doExecuteList(tableName, defaultDb, resultList, function);
+        }
+
+        return resultList;
+    }
+
+    private List<NeoMap> executePage(NeoMap searchMap, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
+        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+        Integer startIndex = page.getStartIndex();
+        Integer pageSize = page.getPageSize();
+        List<NeoMap> resultList = function.apply(extendPage);
+        List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchMap);
+        if (!resultList.isEmpty()) {
+            // 多数据的归并后排序
+            resultList = resultList.stream().sorted((a, b) -> {
+                for (ColumnSortConfig sortConfig : columnSortConfigList) {
+                    Comparable comparableLeft = a.get(Comparable.class, sortConfig.getColumnName());
+                    Comparable comparableRight = b.get(Comparable.class, sortConfig.getColumnName());
+                    Integer sort = sortConfig.getSort();
+                    if (1 == sort) {
+                        int compareResult = comparableLeft.compareTo(comparableRight);
+                        if (0 != compareResult) {
+                            return compareResult;
+                        }
+                    } else {
+                        int compareResult = comparableRight.compareTo(comparableLeft);
+                        if (0 != compareResult) {
+                            return compareResult;
+                        }
                     }
                 }
+                return 0;
+            }).collect(Collectors.toList());
+            if (startIndex + pageSize < resultList.size()) {
+                return resultList.subList(startIndex, startIndex + pageSize);
+            } else {
+                return Collections.emptyList();
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 从neoMap中获取到order by语句
+     *
+     * @param searchMap 搜索条件
+     * @return 列排序配置
+     */
+    private List<ColumnSortConfig> getColumnAndSortList(NeoMap searchMap) {
+        if (searchMap.containsKey("order by")) {
+            String orderByValue = searchMap.getString("order by");
+            return Stream.of(orderByValue.split(",")).map(String::trim).map(e -> {
+                ColumnSortConfig sortConfig = new ColumnSortConfig();
+                if (e.contains(" ")) {
+                    int spaceIndex = e.indexOf(" ");
+                    sortConfig.setColumnName(e.substring(0, spaceIndex));
+                    sortConfig.setSortStr(e.substring(spaceIndex + 1));
+                } else {
+                    sortConfig.setColumnName(e);
+                }
+                return sortConfig;
+            }).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Getter
+    @Setter
+    private static class ColumnSortConfig {
+
+        /**
+         * 列名
+         */
+        private String columnName;
+        /**
+         * 0：desc降序， 1：asc升序
+         */
+        private Integer sort = 1;
+
+        public void setSortStr(String sortStr) {
+            sortStr = sortStr.toLowerCase(Locale.ENGLISH);
+            if ("desc".equals(sortStr)) {
+                sort = 0;
+            } else {
+                sort = 1;
             }
         }
     }

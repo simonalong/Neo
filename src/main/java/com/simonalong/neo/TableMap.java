@@ -279,8 +279,14 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     @Override
+    @SuppressWarnings("all")
     public Object get(Object key) {
-        return dataMap.get(key);
+        if (dataMap.containsKey(key)) {
+            return dataMap.get(key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE);
+        }
+        return null;
     }
 
     public Object get(String tableName, String key) {
