@@ -68,19 +68,21 @@ public class DevideNeoTest {
      */
     @Test
     public void devideTableTest() {
-        List<Neo> neoList = new ArrayList<>();
+        UuidGenerator uuid = getUuidGenerator();
+        uuid.addNamespaces("devideTable");
+
         String url = "jdbc:mysql://localhost:3310/devide_table";
         String username = "root";
         String password = "";
 
-        neoList.add(Neo.connect(url, username, password));
         DevideNeo devideNeo = new DevideNeo();
-        devideNeo.setDbList(neoList);
+        devideNeo.setDefaultDb(Neo.connect(url, username, password));
+        devideNeo.setDevideTypeEnum(DevideTypeEnum.UUID_HASH);
         // 设置分库及参数
         devideNeo.setDevideTable("neo_devide_table{0, 8}", "id");
         devideNeo.start();
 
-        devideNeo.insert("neo_devide_table", NeoMap.of("id", 12, "user_id", 100, "name", "name1"));
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideTable"), "user_id", 100, "name", "name1"));
 
         // 查询所有库表
         DevideMultiNeo multiNeo = devideNeo.asDevideMultiNeo();

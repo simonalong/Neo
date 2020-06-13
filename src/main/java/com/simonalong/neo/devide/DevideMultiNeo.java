@@ -5,13 +5,11 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
-import com.simonalong.neo.exception.NotFindDevideTableException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 /**
@@ -27,14 +25,16 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     /**
      * 待分库的库集合
      */
-    private List<Neo> dbList = new ArrayList<>();
+    private List<Neo> dbList;
+    private Neo defaultDb;
     /**
      * 表的哈希处理映射, key：表名，value表的哈希信息
      */
-    private Map<String, TableDevideConfig> devideTableInfoMap = new ConcurrentHashMap<>();
+    private Map<String, TableDevideConfig> devideTableInfoMap;
 
-    public DevideMultiNeo(List<Neo> dbList, Map<String, TableDevideConfig> devideTableInfoMap) {
+    public DevideMultiNeo(List<Neo> dbList, Neo defaultDb, Map<String, TableDevideConfig> devideTableInfoMap) {
         this.dbList = dbList;
+        this.defaultDb = defaultDb;
         this.devideTableInfoMap = devideTableInfoMap;
     }
 
@@ -261,20 +261,33 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      */
     @SuppressWarnings("unchecked")
     private <T> T executeOne(String tableName, BiFunction<Neo, String, T> function) {
-        for (Neo db : dbList) {
-            List<String> tableList = getActTableList(tableName);
-            for (String actTableName : tableList) {
-                T result = function.apply(db, actTableName);
-                if (result instanceof NeoMap) {
-                    if (NeoMap.isUnEmpty(NeoMap.class.cast(result))) {
-                        return result;
-                    } else {
-                        return (T) NeoMap.of();
-                    }
-                }
+        if (null != dbList && !dbList.isEmpty()) {
+            for (Neo db : dbList) {
+                T result = doExecuteOne(tableName, db, function);
                 if (null != result) {
                     return result;
                 }
+            }
+        } else if (null != defaultDb) {
+            return doExecuteOne(tableName, defaultDb, function);
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T doExecuteOne(String tableName, Neo db, BiFunction<Neo, String, T> function) {
+        List<String> tableList = getActTableList(tableName);
+        for (String actTableName : tableList) {
+            T result = function.apply(db, actTableName);
+            if (result instanceof NeoMap) {
+                if (NeoMap.isUnEmpty(NeoMap.class.cast(result))) {
+                    return result;
+                } else {
+                    return (T) NeoMap.of();
+                }
+            }
+            if (null != result) {
+                return result;
             }
         }
         return null;
@@ -291,17 +304,27 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     @SuppressWarnings("unchecked")
     private <T> T executeList(String tableName, BiFunction<Neo, String, T> function) {
         List resultList = new ArrayList();
-        for (Neo db : dbList) {
-            List<String> tableList = getActTableList(tableName);
-            for (String actTableName : tableList) {
-                T result = function.apply(db, actTableName);
-                if (null != result) {
-                    if (result instanceof List) {
-                        resultList.addAll(List.class.cast(result));
-                    }
+        if (null != dbList && !dbList.isEmpty()) {
+            for (Neo db : dbList) {
+                doExecuteList(tableName, db, resultList, function);
+            }
+        } else if (null != defaultDb) {
+            doExecuteList(tableName, defaultDb, resultList, function);
+        }
+
+        return (T) resultList;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void doExecuteList(String tableName, Neo db, List resultList, BiFunction<Neo, String, T> function) {
+        List<String> tableList = getActTableList(tableName);
+        for (String actTableName : tableList) {
+            T result = function.apply(db, actTableName);
+            if (null != result) {
+                if (result instanceof List) {
+                    resultList.addAll(List.class.cast(result));
                 }
             }
         }
-        return (T) resultList;
     }
 }

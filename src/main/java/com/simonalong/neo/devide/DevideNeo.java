@@ -172,7 +172,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      * @return 多库多表实体
      */
     public DevideMultiNeo asDevideMultiNeo() {
-        return new DevideMultiNeo(dbList, devideTableInfoMap);
+        return new DevideMultiNeo(dbList, defaultDb, devideTableInfoMap);
     }
 
     private List<String> getActTableNameList(String tableName, Integer min, Integer max) {
@@ -393,13 +393,6 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     private void validate(String tableName) {
         if (null == tableName || "".equals(tableName)) {
             throw new NeoException("表名不可为空");
-        }
-
-        // 逻辑分库的表名为空，则表示不分库，则需要保证只有一个db
-        if (null == devideDbLoginTableName) {
-            Assert.assertEquals("待分表的库需要保证只有一个实例", 1, dbList.size());
-        } else {
-            Assert.assertTrue("待分库的库需要保证至少有一个实例", dbList.size() >= 1);
         }
 
         if (null == devideStrategy) {
