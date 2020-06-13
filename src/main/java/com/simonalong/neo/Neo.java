@@ -262,6 +262,10 @@ public class Neo extends AbstractExecutorDb {
         execute("select 1");
     }
 
+    public void test(String tableName) {
+        execute("select 1 from " + tableName);
+    }
+
     public NeoJoiner joiner() {
         return new NeoJoiner(this);
     }

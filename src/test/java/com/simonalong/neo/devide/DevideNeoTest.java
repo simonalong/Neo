@@ -30,7 +30,7 @@ public class DevideNeoTest {
         devideNeo.setDbList(neoList);
         // 设置分库及参数
         devideNeo.setDevideDb("neo_devide_table", "id");
-        devideNeo.start();
+        devideNeo.init();
 
         // 数据插入
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDb"), "age", 100, "name", "name1"));
@@ -80,7 +80,7 @@ public class DevideNeoTest {
         devideNeo.setDevideTypeEnum(DevideTypeEnum.UUID_HASH);
         // 设置分库及参数
         devideNeo.setDevideTable("neo_devide_table{0, 8}", "id");
-        devideNeo.start();
+        devideNeo.init();
 
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideTable"), "user_id", 100, "name", "name1"));
 
@@ -95,15 +95,80 @@ public class DevideNeoTest {
     @Test
     // todo 这个需要继续测试
     public void devideDbTableTest() {
-        List<Neo> neoList = new ArrayList<>();
+        UuidGenerator uuid = getUuidGenerator();
+        uuid.addNamespaces("devideDbTable", "userNamespace");
+
+        List<Neo> neoList = getDevideDb();
         DevideNeo devideNeo = new DevideNeo();
         devideNeo.setDbList(neoList);
+        devideNeo.setDevideTypeEnum(DevideTypeEnum.UUID_HASH);
         // 设置分库及参数
-        devideNeo.setDevideDb("neo_devide_table", "id");
+        devideNeo.setDevideDb("neo_devide_table", "user_id");
         // 设置分表及参数
-        devideNeo.setDevideTable("neo_devide_table{0, 12}", "id");
+        devideNeo.setDevideTable("neo_devide_table{0, 8}", "id");
+        // 初始化
+        devideNeo.init();
 
-        devideNeo.insert("neo_user", NeoMap.of("id", 12, "user_id", 100, "name", "name1"));
-        devideNeo.one("neo_user", NeoMap.of());
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", uuid.getUUid("userNamespace"), "name", "name1"));
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", uuid.getUUid("userNamespace"), "name", "name1"));
+
+        // 多库多表查询所有数据
+        DevideMultiNeo devideMultiNeo = devideNeo.asDevideMultiNeo();
+        System.out.println(devideMultiNeo.list("neo_devide_table", NeoMap.of()));
     }
+
+    private List<Neo> getDevideDb() {
+        List<Neo> dbList = new ArrayList<>();
+        String url = "jdbc:mysql://localhost:3310/devide";
+        String username = "root";
+        String password = "";
+
+        for (int index = 0; index < 4; index++) {
+            dbList.add(Neo.connect(url + index, username, password));
+        }
+        return dbList;
+    }
+
+    /**
+     * 创建分库分表
+     */
+    @Test
+    public void testCreateDbTable() {
+        String url = "jdbc:mysql://localhost:3310/devide";
+        String username = "root";
+        String password = "";
+        for (int index = 0; index < 4; index++) {
+            Neo db = Neo.connect(url + index, username, password);
+            createTable(db);
+        }
+    }
+
+    /**
+     * 删除分库分表
+     */
+    @Test
+    public void testDropDbTable() {
+        String url = "jdbc:mysql://localhost:3310/devide";
+        String username = "root";
+        String password = "";
+        for (int index = 0; index < 4; index++) {
+            Neo db = Neo.connect(url + index, username, password);
+            dropTable(db);
+        }
+    }
+
+    private void createTable(Neo db) {
+        for (int index = 0; index < 8; index++) {
+            String sql = "CREATE TABLE `neo_devide_table" + index + "` (\n" + "  `id` bigint unsigned NOT NULL,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `user_id` bigint not null comment '用户id',\n" + "  `sl` bigint DEFAULT NULL,\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+            db.execute(sql);
+        }
+    }
+
+    private void dropTable(Neo db) {
+        for (int index = 0; index < 8; index++) {
+            String sql = "drop table neo_devide_table" + index;
+            db.execute(sql);
+        }
+    }
+
 }

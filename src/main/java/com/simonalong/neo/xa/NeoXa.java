@@ -146,7 +146,7 @@ public class NeoXa {
 
     private void afterException(Throwable e) {
         if (e instanceof XaStartException) {
-            log.error(LOG_PRE + "start xid fail", e);
+            log.error(LOG_PRE + "init xid fail", e);
         } else if (e instanceof XaEndException) {
             log.error(LOG_PRE + "end xid fail", e);
         } else if (e instanceof XaPrepareException) {
@@ -169,7 +169,7 @@ public class NeoXa {
     }
 
     /**
-     * 执行 xa start xid
+     * 执行 xa init xid
      */
     private void startXid() throws XaStartException {
         try {

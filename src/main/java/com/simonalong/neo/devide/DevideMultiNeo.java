@@ -1,10 +1,12 @@
 package com.simonalong.neo.devide;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import java.util.function.BiFunction;
  * @author shizi
  * @since 2020/6/11 2:41 PM
  */
+@Slf4j
 public class DevideMultiNeo extends AbstractBaseQuery {
 
     /**
@@ -280,6 +283,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         for (String actTableName : tableList) {
             T result = function.apply(db, actTableName);
             if (result instanceof NeoMap) {
+                // todo 后续删除
+                log.info("db = " + db.getName() + ", actTableName = " + tableName);
                 if (NeoMap.isUnEmpty(NeoMap.class.cast(result))) {
                     return result;
                 } else {
@@ -287,6 +292,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
                 }
             }
             if (null != result) {
+                // todo 后续删除
+                log.info("db = " + db.getName() + ", actTableName = " + tableName);
                 return result;
             }
         }
@@ -322,7 +329,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
             T result = function.apply(db, actTableName);
             if (null != result) {
                 if (result instanceof List) {
-                    resultList.addAll(List.class.cast(result));
+                    List dataList = List.class.cast(result);
+                    if (!dataList.isEmpty()) {
+                        resultList.addAll(dataList);
+                        log.info("list: db = " + db.getName() + ", actTableName = " + actTableName + ", data=" + JSON.toJSONString(result));
+                    }
                 }
             }
         }

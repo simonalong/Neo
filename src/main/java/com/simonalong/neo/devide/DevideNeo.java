@@ -16,7 +16,6 @@ import com.simonalong.neo.exception.NotFindDevideTableException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -107,7 +106,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     /**
      * 设置分表
      * <p>
-     * 最后得到的库名，举例比如：db0, db1, ... db11
+     * 最后得到的库名，举例比如：db0, db1, ... db12
      *
      * @param devideTables 分表的表达式，{0, 12}作为后缀。比如：table_name{0, 12}
      * @param columnName   分表用到的列名
@@ -120,7 +119,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
             throw new NeoException("数据配置为空");
         }
 
-        String regex = "^(.*)\\{(\\d),.*(\\d)}$";
+        String regex = "^(.*)\\{(.*),(\\s)*(.*)}$";
         Matcher matcher = Pattern.compile(regex).matcher(devideTables);
         if (matcher.find()) {
             TableDevideConfig tableDevideConfig = new TableDevideConfig();
@@ -134,7 +133,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
             }
 
             Integer min = Integer.valueOf(matcher.group(2));
-            Integer max = Integer.valueOf(matcher.group(3));
+            Integer max = Integer.valueOf(matcher.group(4));
             if (min >= max) {
                 throw new NeoException("数据配置错误: 最大值不能小于最小值");
             }
@@ -153,17 +152,22 @@ public final class DevideNeo extends AbstractClassExtenderDb {
 
             devideTableInfoMap.putIfAbsent(tableName, tableDevideConfig);
         } else {
-            throw new NeoException("没有发现要分表的表名");
+            throw new NeoException("分表表名: " + devideTables + "，不符合解析方式");
         }
     }
 
-    public void start() {
+    /**
+     * 初始化分库分表策略
+     */
+    public void init() {
         // 默认采用哈希方式分库分表
         if (null == devideStrategy) {
             if (null != dbList) {
                 this.devideStrategy = DevideStrategyFactory.getStrategy(devideTypeEnum, dbList.size(), devideTableInfoMap);
             }
         }
+
+        validateTable();
     }
 
     /**
@@ -184,10 +188,29 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     }
 
     /**
+     * 如果配置了分表，则要查看是否配置的分表都是存在的
+     */
+    private void validateTable() {
+        if (!dbList.isEmpty()) {
+            for (Neo db: dbList) {
+                List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e->e.getActTableNameList().stream()).collect(Collectors.toList());
+                for (String tableName : actTableNameList) {
+                    db.test(tableName);
+                }
+            }
+        } else if (null != defaultDb) {
+            List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e->e.getActTableNameList().stream()).collect(Collectors.toList());
+            for (String tableName : actTableNameList) {
+                defaultDb.test(tableName);
+            }
+        }
+    }
+
+    /**
      * 分库路由获取实际的表名
      *
      * @param tableName 逻辑表明
-     * @param dataMap 查询实体
+     * @param dataMap   查询实体
      * @return 实际库名。没有找到，则报异常
      */
     private Neo getDevideDb(String tableName, NeoMap dataMap) {
@@ -205,7 +228,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      * 分库路由获取实际的表名
      *
      * @param tableName 逻辑表明
-     * @param object 查询实体
+     * @param object    查询实体
      * @return 实际库名。没有找到，则报异常
      */
     private Neo getDevideDb(String tableName, Object object) {
@@ -223,7 +246,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      * 分表路由获取实际的表名
      *
      * @param tableName 逻辑表明
-     * @param dataMap 查询实体
+     * @param dataMap   查询实体
      * @return 实际表名。没有找到，则报异常
      */
     private String getDevideTable(String tableName, NeoMap dataMap) {
@@ -241,7 +264,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      * 分表路由获取实际的表名
      *
      * @param tableName 逻辑表明
-     * @param object 查询实体
+     * @param object    查询实体
      * @return 实际表名。没有找到，则报异常
      */
     private String getDevideTable(String tableName, Object object) {
@@ -396,7 +419,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         }
 
         if (null == devideStrategy) {
-            throw new NeoException("请先设置分库分表策略或者调用start函数");
+            throw new NeoException("请先调用start函数设置分库分表策略");
         }
     }
 
