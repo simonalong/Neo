@@ -2,9 +2,7 @@ package com.simonalong.neo.devide;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.devide.strategy.DevideStrategyFactory;
 import com.simonalong.neo.devide.strategy.DevideTypeEnum;
-import com.simonalong.neo.devide.strategy.UuidHashDevideStrategy;
 import com.simonalong.neo.uid.UuidGenerator;
 import org.junit.Test;
 
@@ -38,7 +36,10 @@ public class DevideNeoTest {
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDb"), "age", 100, "name", "name1"));
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDb"), "age", 101, "name", "name2"));
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDb"), "age", 102, "name", "name3"));
-        System.out.println(devideNeo.list("neo_devide_table", NeoMap.of()));
+
+        // 查询所有库表
+        DevideMultiNeo multiNeo = devideNeo.asDevideMultiNeo();
+        System.out.println(multiNeo.list("neo_devide_table", NeoMap.of()));
     }
 
     private List<Neo> getDevideDb(Integer num) {
@@ -65,7 +66,6 @@ public class DevideNeoTest {
     /**
      * 测试分表，一个库中，有一个逻辑表，逻辑表对应多个实际的物理表
      */
-    // todo 分库分表考虑设置默认库，同时提供全库和全表的查询操作
     @Test
     public void devideTableTest() {
         List<Neo> neoList = new ArrayList<>();
@@ -81,7 +81,10 @@ public class DevideNeoTest {
         devideNeo.start();
 
         devideNeo.insert("neo_devide_table", NeoMap.of("id", 12, "user_id", 100, "name", "name1"));
-        System.out.println(devideNeo.list("neo_devide_table", NeoMap.of()));
+
+        // 查询所有库表
+        DevideMultiNeo multiNeo = devideNeo.asDevideMultiNeo();
+        System.out.println(multiNeo.list("neo_devide_table", NeoMap.of()));
     }
 
     /**

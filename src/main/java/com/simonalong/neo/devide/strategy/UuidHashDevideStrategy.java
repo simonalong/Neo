@@ -59,6 +59,9 @@ public class UuidHashDevideStrategy implements DevideStrategy {
 
     @Override
     public String getTable(String logicTableName, Object value) {
+        if (null == value) {
+            return logicTableName;
+        }
         if (value instanceof Number) {
             Long seqNum = getSeqNum(Number.class.cast(value).intValue());
             if (tableDevideConfigMap.containsKey(logicTableName)) {

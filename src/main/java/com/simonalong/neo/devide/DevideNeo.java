@@ -77,10 +77,10 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      */
     private Map<String, TableDevideConfig> devideTableInfoMap = new ConcurrentHashMap<>();
     /**
-     * 没有命中分表，则走默认的表。key为逻辑表，value为实际表
+     * 没有命中分表，则走默认的表（需要使用方自行设置）。key为逻辑表，value为实际表
      */
     @Setter
-    private Map<String, String> defaultTableNameMap;
+    private Map<String, String> defaultTableNameMap = new ConcurrentHashMap<>();
 
     public void setDbList(List<Neo> dbList) {
         if (null != dbList) {
@@ -140,6 +140,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
             }
             tableDevideConfig.setTableName(tableName);
             tableDevideConfig.setColumnName(columnName);
+            tableDevideConfig.setActTableNameList(getActTableNameList(tableName, min, max));
             tableDevideConfig.setMin(min);
 
             Integer size = max - min;
@@ -165,6 +166,30 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         }
     }
 
+    /**
+     * 获取多库多表的处理
+     *
+     * @return 多库多表实体
+     */
+    public DevideMultiNeo asDevideMultiNeo() {
+        return new DevideMultiNeo(dbList, devideTableInfoMap);
+    }
+
+    private List<String> getActTableNameList(String tableName, Integer min, Integer max) {
+        List<String> resultList = new ArrayList<>();
+        for (int index = min; index < max; index++) {
+            resultList.add(tableName + index);
+        }
+        return resultList;
+    }
+
+    /**
+     * 分库路由获取实际的表名
+     *
+     * @param tableName 逻辑表明
+     * @param dataMap 查询实体
+     * @return 实际库名。没有找到，则报异常
+     */
     private Neo getDevideDb(String tableName, NeoMap dataMap) {
         validate(tableName);
         Neo dbFinal = devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, dataMap));
@@ -176,6 +201,13 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         throw new NotFindDevideDbException("table: " + tableName);
     }
 
+    /**
+     * 分库路由获取实际的表名
+     *
+     * @param tableName 逻辑表明
+     * @param object 查询实体
+     * @return 实际库名。没有找到，则报异常
+     */
     private Neo getDevideDb(String tableName, Object object) {
         validate(tableName);
         Neo dbFinal = devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, object));
@@ -187,17 +219,31 @@ public final class DevideNeo extends AbstractClassExtenderDb {
         throw new NotFindDevideDbException("table: " + tableName);
     }
 
+    /**
+     * 分表路由获取实际的表名
+     *
+     * @param tableName 逻辑表明
+     * @param dataMap 查询实体
+     * @return 实际表名。没有找到，则报异常
+     */
     private String getDevideTable(String tableName, NeoMap dataMap) {
         validate(tableName);
-        String tableNameFinal = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, dataMap));
-        if (null != tableNameFinal) {
-            return tableNameFinal;
+        String actTableName = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, dataMap));
+        if (null != actTableName) {
+            return actTableName;
         } else if (defaultTableNameMap.containsKey(tableName)) {
             return defaultTableNameMap.get(tableName);
         }
         throw new NotFindDevideTableException(tableName);
     }
 
+    /**
+     * 分表路由获取实际的表名
+     *
+     * @param tableName 逻辑表明
+     * @param object 查询实体
+     * @return 实际表名。没有找到，则报异常
+     */
     private String getDevideTable(String tableName, Object object) {
         validate(tableName);
         String tableNameFinal = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, object));
@@ -269,7 +315,6 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     }
 
     private Object getDevideTableColumnValue(String tableName, NeoMap dataMap) {
-        // todo 这里不对，需要对接下面的
         if (devideTableInfoMap.containsKey(tableName)) {
             TableDevideConfig tableDevideConfig = devideTableInfoMap.get(tableName);
             if (null != tableDevideConfig) {
