@@ -204,6 +204,7 @@ public abstract class AbstractQueryAsync implements QueryAsync {
     public CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap){
         return existAsync(tableName, searchMap, getExecutor());
     }
+
     @Override
     public CompletableFuture<Boolean> existAsync(String tableName, Object entity){
         return existAsync(tableName, entity, getExecutor());

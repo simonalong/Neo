@@ -2,7 +2,6 @@ package com.simonalong.neo.devide.strategy;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.devide.TableDevideConfig;
-import com.simonalong.neo.exception.NeoException;
 
 import java.util.List;
 import java.util.Map;

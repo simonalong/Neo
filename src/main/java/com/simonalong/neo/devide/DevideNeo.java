@@ -54,14 +54,6 @@ public final class DevideNeo extends AbstractClassExtenderDb {
      */
     private NeoXa neoXa;
     /**
-     * 待分库中对应的分库的个数
-     */
-    private Integer dbSize;
-    /**
-     * 如果当前的个数为2的次方，则markNum有数据
-     */
-    private Integer markNum = null;
-    /**
      * 分库分表策略
      */
     @Setter
@@ -84,10 +76,6 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     public void setDbList(List<Neo> dbList) {
         if (null != dbList) {
             this.dbList = dbList;
-            this.dbSize = dbList.size();
-            if ((dbSize & (dbSize - 1)) == 0) {
-                this.markNum = dbSize;
-            }
             this.neoXa = NeoXa.ofNeoList(dbList);
         }
     }
@@ -289,7 +277,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     private <T> List<DevideDbBatch> getDevideDbAndData(String tableName, List<T> dataList) {
         List<DevideDbBatch> devideDbBatchList = new ArrayList<>();
         List<NeoMap> dataMapList = dataList.stream().map(d -> NeoMap.from(d, NeoMap.NamingChg.UNDERLINE)).collect(Collectors.toList());
-        Map<Neo, Map<String, List<NeoMap>>> devideBatchDataMap = new ConcurrentHashMap<>();
+        Map<Neo, Map<String, List<NeoMap>>> devideBatchDataMap = new ConcurrentHashMap<>(dataMapList.size());
 
         // 将数据归类
         for (NeoMap dataMap : dataMapList) {
@@ -297,7 +285,7 @@ public final class DevideNeo extends AbstractClassExtenderDb {
             String tableNameActual = getDevideTable(tableName, dataMap);
             devideBatchDataMap.compute(db, (k, valueMap) -> {
                 if (null == valueMap) {
-                    Map<String, List<NeoMap>> tableActDataMap = new HashMap<>();
+                    Map<String, List<NeoMap>> tableActDataMap = new ConcurrentHashMap<>(32);
                     doAddDataToTable(tableActDataMap, tableNameActual, dataMap);
                     return tableActDataMap;
                 } else {

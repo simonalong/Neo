@@ -1,6 +1,5 @@
 package com.simonalong.neo.devide;
 
-import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
@@ -15,6 +14,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.simonalong.neo.NeoConstant.DESC;
+import static com.simonalong.neo.NeoConstant.ORDER_BY;
 
 /**
  * 分库分表中的多库多表查询处理
@@ -337,6 +339,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         return resultList;
     }
 
+    @SuppressWarnings("unchecked")
     private List<NeoMap> executePage(NeoMap searchMap, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
         NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
         Integer startIndex = page.getStartIndex();
@@ -380,8 +383,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      * @return 列排序配置
      */
     private List<ColumnSortConfig> getColumnAndSortList(NeoMap searchMap) {
-        if (searchMap.containsKey("order by")) {
-            String orderByValue = searchMap.getString("order by");
+        if (searchMap.containsKey(ORDER_BY)) {
+            String orderByValue = searchMap.getString(ORDER_BY);
             return Stream.of(orderByValue.split(",")).map(String::trim).map(e -> {
                 ColumnSortConfig sortConfig = new ColumnSortConfig();
                 if (e.contains(" ")) {
@@ -412,7 +415,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
         public void setSortStr(String sortStr) {
             sortStr = sortStr.toLowerCase(Locale.ENGLISH);
-            if ("desc".equals(sortStr)) {
+            if (DESC.equals(sortStr)) {
                 sort = 0;
             } else {
                 sort = 1;
