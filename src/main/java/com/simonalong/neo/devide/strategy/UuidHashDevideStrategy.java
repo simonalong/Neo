@@ -12,7 +12,6 @@ import static com.simonalong.neo.uid.UuidConstant.SEQ_LEFT_SHIFT;
 /**
  * 针对uuid生成器生成的id进行的哈希
  * <p>
- * <p>
  * 由于uuid生成器{@link com.simonalong.neo.uid.UuidGenerator}生成的id的低13bit是workId（机器id），也就是同一台机器生成的低13bit都是相同的，因此无法完全哈希均分化，因此采用新的哈希方式
  *
  * @author shizi

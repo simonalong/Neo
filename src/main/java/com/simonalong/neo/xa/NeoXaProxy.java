@@ -42,6 +42,9 @@ public class NeoXaProxy {
 
     /**
      * 开启分布式事务XA
+     *
+     * @throws SQLException 获取资源的sql异常
+     * @throws XAException 启动xa异常
      */
     public void openXa() throws SQLException, XAException {
         target.openXA();

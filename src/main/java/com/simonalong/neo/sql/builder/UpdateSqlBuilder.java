@@ -34,6 +34,9 @@ public class UpdateSqlBuilder {
      * ) b using(`id`)
      * set a.`name`=b.`name`;
      * }
+     * @param tableName 表名
+     * @param updateDataColumnList 待更新的列的数据值
+     * @param conditionColumns 待更新数据作为where后面的条件对应的列
      * @return update 批量更新语句
      * @since 0.5.2
      */
