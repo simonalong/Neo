@@ -81,7 +81,7 @@ public class DevideNeoTest {
         devideNeo.setDefaultDb(Neo.connect(url, username, password));
         devideNeo.setDevideTypeEnum(DevideTypeEnum.UUID_HASH);
         // 设置分库及参数
-        devideNeo.setDevideTable("neo_devide_table{0, 8}", "id");
+        devideNeo.setDevideTable("neo_devide_table{0, 7}", "id");
         devideNeo.init();
 
         devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideTable"), "user_id", 100, "name", "name1"));
@@ -108,17 +108,15 @@ public class DevideNeoTest {
         // 设置分库及参数
         devideNeo.setDevideDb("neo_devide_table", "user_id");
         // 设置分表及参数
-        devideNeo.setDevideTable("neo_devide_table{0, 8}", "id");
+        devideNeo.setDevideTable("neo_devide_table{0, 7}", "id");
         // 初始化
         devideNeo.init();
 
-//        Long userId = uuid.getUUid("userNamespace");
+        Long userId = uuid.getUUid("userNamespace");
 //
-//        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
-//        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
-//        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
-//        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
-//        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
+        devideNeo.insert("neo_devide_table", NeoMap.of("id", uuid.getUUid("devideDbTable"), "user_id", userId, "name", "name1"));
 
         // 多库多表查询所有数据
         DevideMultiNeo devideMultiNeo = devideNeo.asDevideMultiNeo();
