@@ -93,6 +93,13 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDbDb {
         addMasterDb(alias, Neo.connect(datasource), use);
     }
 
+    public Neo getMaster(String alias) {
+        if(masterDbMap.containsKey(alias)) {
+            return masterDbMap.get(alias).getDb();
+        }
+        return null;
+    }
+
     /**
      * 添加从库
      *
@@ -115,6 +122,13 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDbDb {
      */
     public void addSlaveDb(String alias, DataSource datasource) {
         addSlaveDb(alias, Neo.connect(datasource));
+    }
+
+    public Neo getSlave(String alias) {
+        if(slaveDbMap.containsKey(alias)) {
+            return slaveDbMap.get(alias).getDb();
+        }
+        return null;
     }
 
     /**
