@@ -6,6 +6,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -178,12 +179,18 @@ public class NeoBatchTest extends NeoBaseTest {
      */
     @Test
     public void batchUpdateTest7(){
-        List<NeoMap> maps = Arrays.asList(
-            NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"),
-            NeoMap.of("group", "group4", "name", "name4chg", "user_name", null),
-            NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
-        );
-        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("group")));
+        List<NeoMap> maps = new ArrayList<>();
+        maps.add(NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"));
+        maps.add(NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5"));
+
+        NeoMap dataMap = NeoMap.of();
+        dataMap.setSupportValueNull(true);
+        dataMap.put("group", "group4");
+        dataMap.put("name", "name4chg");
+        dataMap.put("user_name", null);
+        maps.add(dataMap);
+
+        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("user_name")));
     }
 
     @Test

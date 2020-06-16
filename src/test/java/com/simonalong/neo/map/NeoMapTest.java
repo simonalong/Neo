@@ -40,13 +40,30 @@ public class NeoMapTest extends BaseTest {
     }
 
     /**
-     * 测试，如果有value为null的情况，则两个NeoMap不等
+     * 测试，如果有value为null的情况，则两个NeoMap相等
      */
     @Test
     public void testEqual1(){
         NeoMap neoMap1 = NeoMap.of("a", 123, "b", 12);
         NeoMap neoMap2 = NeoMap.of("a", 123, "b", 12);
         NeoMap neoMap3 = NeoMap.of("a", 123, "b", 12, "c", null);
+
+        Assert.assertEquals(neoMap1, neoMap2);
+        Assert.assertEquals(neoMap1, neoMap3);
+    }
+
+    /**
+     * 测试，如果有value为null的情况，而且设置了允许value为空
+     */
+    @Test
+    public void testEqual2(){
+        NeoMap neoMap1 = NeoMap.of("a", 123, "b", 12);
+        NeoMap neoMap2 = NeoMap.of("a", 123, "b", 12);
+        NeoMap neoMap3 = NeoMap.of();
+        neoMap3.setSupportValueNull(true);
+        neoMap3.put("a", 123);
+        neoMap3.put("b", 12);
+        neoMap3.put("c", null);
 
         Assert.assertEquals(neoMap1, neoMap2);
         Assert.assertNotEquals(neoMap1, neoMap3);

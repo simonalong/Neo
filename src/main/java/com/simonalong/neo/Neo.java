@@ -1105,7 +1105,7 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public <T> Integer batchInsertEntity(String tableName, List<T> dataList) {
-        return batchInsert(tableName, NeoMap.fromArray(dataList));
+        return batchInsert(tableName, NeoMap.fromArray(dataList, true));
     }
 
     /**
@@ -1163,7 +1163,7 @@ public class Neo extends AbstractExecutorDb {
         Columns keyColumns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
         checkBatchUpdateParams(dataList, keyColumns);
         Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
-        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns), keyColumns), this::executeUpdate);
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns, true), keyColumns), this::executeUpdate);
     }
 
     /**
@@ -1183,7 +1183,7 @@ public class Neo extends AbstractExecutorDb {
         checkDb(tableName);
         checkBatchUpdateParams(dataList, conditionColumns);
         Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
-        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns), conditionColumns), this::executeUpdate);
+        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns, true), conditionColumns), this::executeUpdate);
     }
 
     /**

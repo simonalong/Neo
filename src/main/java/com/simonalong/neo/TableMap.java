@@ -110,7 +110,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             return tableMap;
         }
 
-        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList);
+        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList, false);
         tableMap.put(tableName, neoMap);
         return tableMap;
     }
