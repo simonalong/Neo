@@ -632,7 +632,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             }
         }
 
-        if (null != tableName && !"".equals(tableName)) {
+        if (null != tableName && !"".equals(tableName) && !DEFAULT_TABLE.equals(tableName)) {
             tableFinalName = tableName;
         }
 
