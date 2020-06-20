@@ -135,11 +135,11 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object) {
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>(), false);
+        return from(object, NamingChg.UNDERLINE, new ArrayList<>(), new ArrayList<>(), false);
     }
 
     public static NeoMap from(Object object, Boolean supportValueNull) {
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(), new ArrayList<>(), supportValueNull);
+        return from(object, NamingChg.UNDERLINE, new ArrayList<>(), new ArrayList<>(), supportValueNull);
     }
 
     /**
@@ -165,11 +165,11 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap from(Object object, String... columnsNames) {
-        return from(object, NamingChg.DEFAULT, Arrays.asList(columnsNames), new ArrayList<>(), false);
+        return from(object, NamingChg.UNDERLINE, Arrays.asList(columnsNames), new ArrayList<>(), false);
     }
 
     public static NeoMap from(Object object, Boolean supportValueNull, String... columnsNames) {
-        return from(object, NamingChg.DEFAULT, Arrays.asList(columnsNames), new ArrayList<>(), supportValueNull);
+        return from(object, NamingChg.UNDERLINE, Arrays.asList(columnsNames), new ArrayList<>(), supportValueNull);
     }
 
     private static NeoMap from(Object object, Columns columns) {
@@ -208,7 +208,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromInclude(Object object, String... fields) {
-        return from(object, NamingChg.DEFAULT, Arrays.asList(fields), new ArrayList<>(), false);
+        return from(object, NamingChg.UNDERLINE, Arrays.asList(fields), new ArrayList<>(), false);
     }
 
     /**
@@ -231,7 +231,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 转换之后的NeoMap
      */
     public static NeoMap fromExclude(Object object, String... fields) {
-        return from(object, NamingChg.DEFAULT, new ArrayList<>(), Arrays.asList(fields), false);
+        return from(object, NamingChg.UNDERLINE, new ArrayList<>(), Arrays.asList(fields), false);
     }
 
     /**

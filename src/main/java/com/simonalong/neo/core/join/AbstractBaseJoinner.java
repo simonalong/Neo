@@ -73,7 +73,7 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> count(columns, tableJoinOn, searchMap), executor);
+    public CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> count(tableJoinOn, searchMap), executor);
     }
 }

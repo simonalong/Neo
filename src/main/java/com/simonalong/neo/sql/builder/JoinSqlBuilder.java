@@ -26,6 +26,10 @@ public class JoinSqlBuilder {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
     }
 
+    public String buildCount(TableJoinOn joiner, TableMap searchMap) {
+        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
+    }
+
     /**
      * 拼接join中的 select 后面的选项
      *

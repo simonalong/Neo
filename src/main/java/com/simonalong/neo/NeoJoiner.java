@@ -70,7 +70,7 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public Integer count(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeCount(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+    public Integer count(TableJoinOn tableJoinOn, TableMap searchMap) {
+        return neo.exeCount(JoinSqlBuilder.buildCount(tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 }

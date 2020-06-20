@@ -77,11 +77,10 @@ public interface JoinnerSync {
     /**
      * 查询多表关联后的个数
      *
-     * @param columns 多表查询的数据
      * @param tableJoinOn 多表的关联关系
      * @param searchMap 多表的搜索条件
      * @return 数据对象
      */
-    Integer count(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
+    Integer count(TableJoinOn tableJoinOn, TableMap searchMap);
 
 }

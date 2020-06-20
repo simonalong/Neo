@@ -367,7 +367,7 @@ public class NeoJoinTest extends NeoBaseTest {
         show(neoJoiner.value(columns, tableJoinOn, searchMap));
         show(neoJoiner.values(columns, tableJoinOn, searchMap));
         show(neoJoiner.page(columns, tableJoinOn, searchMap, NeoPage.of(1, 20)));
-        show(neoJoiner.count(columns, tableJoinOn, searchMap));
+        show(neoJoiner.count(tableJoinOn, searchMap));
 
         show(JoinSqlBuilder.build(columns, tableJoinOn, searchMap));
     }

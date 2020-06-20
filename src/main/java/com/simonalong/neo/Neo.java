@@ -1451,58 +1451,48 @@ public class Neo extends AbstractExecutorDb {
         String sql = sqlPair.getKey();
         List<NeoMap> parameterList = sqlPair.getValue();
 
-        try (Connection con = pool.getConnect()) {
-            try (PreparedStatement state = con.prepareStatement(sql)) {
-                con.setAutoCommit(false);
-                if (standardFlag) {
-                    // sql规范化校验
-                    standard.valid(sql);
-                }
-                if (openMonitor()) {
-                    // 添加对sql的监控
-                    monitor.start(sql, new ArrayList<>(parameterList));
-                }
-
-                int i, j, batchCount = parameterList.size(), fieldCount;
-                for (i = 0; i < batchCount; i++) {
-                    NeoMap indexValueMap = parameterList.get(i);
-                    fieldCount = indexValueMap.getInteger("size");
-                    for (j = 0; j < fieldCount; j++) {
-                        state.setObject(j + 1, indexValueMap.get(String.valueOf(j)));
+        return tx(() -> {
+            try (Connection con = pool.getConnect()) {
+                try (PreparedStatement state = con.prepareStatement(sql)) {
+                    if (standardFlag) {
+                        // sql规范化校验
+                        standard.valid(sql);
                     }
-                    state.addBatch();
-                }
+                    if (openMonitor()) {
+                        // 添加对sql的监控
+                        monitor.start(sql, new ArrayList<>(parameterList));
+                    }
 
-                state.executeBatch();
-                con.commit();
-                con.setAutoCommit(true);
+                    int i, j, batchCount = parameterList.size(), fieldCount;
+                    for (i = 0; i < batchCount; i++) {
+                        NeoMap indexValueMap = parameterList.get(i);
+                        fieldCount = indexValueMap.getInteger("size");
+                        for (j = 0; j < fieldCount; j++) {
+                            state.setObject(j + 1, indexValueMap.get(String.valueOf(j)));
+                        }
+                        state.addBatch();
+                    }
 
-                if (openMonitor()) {
-                    // 统计sql信息
-                    monitor.calculate();
+                    state.executeBatch();
+
+                    if (openMonitor()) {
+                        // 统计sql信息
+                        monitor.calculate();
+                    }
+                    return batchCount;
+                } catch (Throwable e) {
+                    log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
                 }
-                return batchCount;
-            } catch (Throwable e) {
+            } catch (SQLException e) {
                 log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
-                try {
-                    if (!con.isClosed()) {
-                        con.rollback();
-                        con.setAutoCommit(true);
-                    }
-                } catch (SQLException e1) {
-                    log.error(LOG_PRE + "[回滚异常]", e1);
-                    throw new NeoException(e);
+                throw new NeoException(e);
+            } finally {
+                if (openMonitor()) {
+                    monitor.close();
                 }
             }
-        } catch (SQLException e) {
-            log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
-            throw new NeoException(e);
-        } finally {
-            if (openMonitor()) {
-                monitor.close();
-            }
-        }
-        return 0;
+            return 0;
+        });
     }
 
     /**

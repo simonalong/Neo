@@ -61,7 +61,7 @@ public interface JoinnerAsync extends Async {
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage);
 
 
-    CompletableFuture<Integer> countAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor);
+    CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap tableMap, Executor executor);
 
-    CompletableFuture<Integer> countAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap);
+    CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap tableMap);
 }

@@ -334,7 +334,7 @@ public class NeoMapTest extends BaseTest {
         demo.setMyFriendName("nana");
 
         // 对于of中的数据，要转换实体，是要走转换规则和@Column的
-        NeoMap expect = NeoMap.of("name", "name1", "userName", "userName1", "friend_name", "nana");
+        NeoMap expect = NeoMap.of("name", "name1", "user_name", "userName1", "friend_name", "nana");
         Assert.assertEquals(expect, NeoMap.from(demo, "name", "userName", "myFriendName"));
         Assert.assertEquals(expect, NeoMap.fromInclude(demo, "name", "userName", "myFriendName"));
     }
@@ -632,7 +632,7 @@ public class NeoMapTest extends BaseTest {
         NeoMapGetNeoMapEntity demoEntity = new NeoMapGetNeoMapEntity().setName("name").setAge(12).setUserName("user");
 
         NeoMap data = NeoMap.of("a", demoEntity);
-        NeoMap expect = NeoMap.of("name", "name", "age", 12, "userName", "user");
+        NeoMap expect = NeoMap.of("name", "name", "age", 12, "user_name", "user");
         Assert.assertEquals(expect, data.get(NeoMap.class, "a"));
     }
 

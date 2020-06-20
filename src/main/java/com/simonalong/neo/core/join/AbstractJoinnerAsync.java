@@ -65,7 +65,7 @@ public abstract class AbstractJoinnerAsync implements JoinnerAsync {
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return countAsync(columns, tableJoinOn, searchMap, getExecutor());
+    public CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap searchMap) {
+        return countAsync(tableJoinOn, searchMap, getExecutor());
     }
 }
