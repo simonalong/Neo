@@ -293,7 +293,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).get(key);
         } else if (dataMap.containsKey(DEFAULT_TABLE)) {
-            return dataMap.get(DEFAULT_TABLE).containsValue(key);
+            return dataMap.get(DEFAULT_TABLE).get(key);
         }
         return null;
     }
