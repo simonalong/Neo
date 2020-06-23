@@ -279,7 +279,7 @@ public class EntityCodeGen {
                 .setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getInnerColumn().getRemarks())
                 .setFieldName(fieldNamingChg.otherToSmallCamel(c.getColumnName()))
-                .setColumnName(c.getColumnName())))
+                .setColumnName(c.getColumnName()), NeoMap.NamingChg.DEFAULT))
             .collect(Collectors.toList());
     }
 

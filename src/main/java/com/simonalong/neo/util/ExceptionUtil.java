@@ -27,4 +27,24 @@ public class ExceptionUtil {
         }
         return null;
     }
+
+    /**
+     * 获取异常堆栈中异常
+     *
+     * @param throwable 异常类
+     * @param <T>       异常类型
+     * @return 具体的某个异常类
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Throwable> T unwrapException(Throwable throwable) {
+        Throwable e = throwable;
+        while (null != throwable) {
+            if (null == throwable.getClass()) {
+                return (T) e;
+            }
+            throwable = throwable.getCause();
+            e = throwable;
+        }
+        return null;
+    }
 }
