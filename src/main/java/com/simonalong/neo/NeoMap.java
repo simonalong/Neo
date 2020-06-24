@@ -484,10 +484,6 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return !isEmpty(neoMaps);
     }
 
-    public void ignoreNullValue() {
-
-    }
-
     /**
      * key的命名风格从其他转到小驼峰
      *
@@ -560,21 +556,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private Object getValue(Field field) {
         String key = namingChg(field, true);
-        Object value = toEntityValue(field, key);
-
         Class<?> fieldClass = field.getType();
-        return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, value));
-    }
-
-    /**
-     * NeoMap中的value向实体类型转换，先经过时间转换器，对于是时间类型的则转换为时间类型，对于非时间类型的，则保持，然后再经过兼容类型
-     *
-     * @param f 属性
-     * @param key 类型转换后的名字
-     * @return 经过转换之后的实体中的值
-     */
-    private Object toEntityValue(Field f, String key) {
-        Class<?> fieldClass = f.getType();
         return ObjectUtil.cast(fieldClass, TimeDateConverter.valueToEntityTime(fieldClass, get(key)));
     }
 
