@@ -1,43 +1,32 @@
 package com.simonalong.neo;
 
-import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
-import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
-import static com.simonalong.neo.NeoConstant.LIMIT;
-import static com.simonalong.neo.NeoConstant.ORDER_BY;
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
-import static com.simonalong.neo.NeoConstant.SELECT;
-
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.*;
+import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
 import com.simonalong.neo.sql.*;
-import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
-import com.simonalong.neo.db.TableIndex.Index;
+import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.util.ObjectUtil;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.Statement;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import static com.simonalong.neo.NeoConstant.*;
 
 /**
  * @author zhouzhenyong
@@ -1159,11 +1148,9 @@ public class Neo extends AbstractExecutorDb {
         if (null == dataList || dataList.isEmpty()) {
             return 0;
         }
-        checkDb(tableName);
-        Columns keyColumns = Columns.of(NeoMap.dbToJavaStr(db.getPrimaryName(tableName)));
-        checkBatchUpdateParams(dataList, keyColumns);
-        Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
-        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns, true), keyColumns), this::executeUpdate);
+
+        List<NeoMap> dataMapList = NeoMap.fromArray(dataList, NamingChg.UNDERLINE, true);
+        return batchUpdate(tableName, dataMapList);
     }
 
     /**
@@ -1171,7 +1158,7 @@ public class Neo extends AbstractExecutorDb {
      *
      * @param tableName 表名
      * @param dataList 数据列表
-     * @param conditionColumns 注意：这里的列为对象的属性名字，这里不是对象转换到NeoMap之后的列
+     * @param conditionColumns 注意：这里的列为对象的属性名字，这里是对象转换到NeoMap之后的列
      * @param <T> 目标类型
      * @return 批量更新的个数：0或者all
      */
@@ -1180,10 +1167,8 @@ public class Neo extends AbstractExecutorDb {
         if (null == dataList || dataList.isEmpty()) {
             return 0;
         }
-        checkDb(tableName);
-        checkBatchUpdateParams(dataList, conditionColumns);
-        Columns tableColumns = Columns.of().setNeo(this).table(tableName, "*");
-        return execute(false, ()->generateBatchUpdateSqlPair(tableName, NeoMap.fromArray(dataList, tableColumns, true), conditionColumns), this::executeUpdate);
+        List<NeoMap> dataMapList = NeoMap.fromArray(dataList, NamingChg.UNDERLINE, true);
+        return batchUpdate(tableName, dataMapList, conditionColumns);
     }
 
     /**
@@ -1665,7 +1650,7 @@ public class Neo extends AbstractExecutorDb {
     /**
      * 过滤不是列名的key，并且对其中NeoMap中为Long类型的时间类型进行转换
      *
-     * 注意： 由于mysql中时间类型year不支持{@link java.util.Date}这个类型直接传入（其他四个时间类型支持），因此需要单独处理
+     * 注意： 由于mysql中时间类型year不支持{@link Date}这个类型直接传入（其他四个时间类型支持），因此需要单独处理
      *
      * @param dataMap 待处理的数据
      * @return 处理后的数据
@@ -1872,7 +1857,7 @@ public class Neo extends AbstractExecutorDb {
             return;
         }
 
-        List<NeoMap> dataMapList = NeoMap.fromArray(dataList);
+        List<NeoMap> dataMapList = NeoMap.fromArray(dataList, NamingChg.UNDERLINE);
         Set<String> keys = dataMapList.stream().flatMap(NeoMap::keyStream).collect(Collectors.toSet());
 
         Set<String> fields = conditionColumns.getMetaFieldSets();

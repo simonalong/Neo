@@ -132,7 +132,21 @@ public class NeoBatchTest extends NeoBaseTest {
             new DemoEntity().setGroup("group15chg").setName("name5chg").setUserName("userName5"),
             new DemoEntity().setGroup("group16chg").setName("name6chg").setUserName("userName6")
         );
+        // 错误写法
         show(neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("userName")));
+    }
+
+    @Test
+    public void batchUpdateTest3_1() {
+        List<DemoEntity> entities = Arrays.asList(
+            new DemoEntity().setGroup("group11chg").setName("name1chg").setUserName("userName1"),
+            new DemoEntity().setGroup("group12chg").setName("name2chg").setUserName("userName2"),
+            new DemoEntity().setGroup("group13chg").setName("name3chg").setUserName("userName3"),
+            new DemoEntity().setGroup("group14chg").setName("name4chg").setUserName("userName4"),
+            new DemoEntity().setGroup("group15chg").setName("name5chg").setUserName("userName5"),
+            new DemoEntity().setGroup("group16chg").setName("name6chg").setUserName("userName6")
+        );
+        show(neo.batchUpdateEntity(TABLE_NAME, entities, Columns.of("user_name")));
     }
 
     @Test
