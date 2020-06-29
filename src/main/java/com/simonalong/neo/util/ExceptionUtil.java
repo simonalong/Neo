@@ -39,12 +39,12 @@ public class ExceptionUtil {
     public <T extends Throwable> T unwrapException(Throwable throwable) {
         Throwable e = throwable;
         while (null != throwable) {
+            e = throwable;
             if (null == throwable.getClass()) {
                 return (T) e;
             }
             throwable = throwable.getCause();
-            e = throwable;
         }
-        return null;
+        return (T) e;
     }
 }
