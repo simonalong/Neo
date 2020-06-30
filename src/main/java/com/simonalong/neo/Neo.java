@@ -1290,7 +1290,7 @@ public class Neo extends AbstractExecutorDb {
             pool.submit();
 
             if (openTxMonitor()) {
-                monitor.calculate();
+                monitor.calculate(result);
             }
             return result;
         } catch (Throwable e) {
@@ -1415,7 +1415,7 @@ public class Neo extends AbstractExecutorDb {
                 T result = stateFun.apply(state);
                 if (openMonitor()) {
                     // 统计sql信息
-                    monitor.calculate();
+                    monitor.calculate(result);
                 }
                 return result;
             } catch (Throwable e) {
@@ -1458,11 +1458,11 @@ public class Neo extends AbstractExecutorDb {
                         state.addBatch();
                     }
 
-                    state.executeBatch();
+                    int[] results = state.executeBatch();
 
                     if (openMonitor()) {
                         // 统计sql信息
-                        monitor.calculate();
+                        monitor.calculate(results);
                     }
                     return batchCount;
                 } catch (Throwable e) {

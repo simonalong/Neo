@@ -1,7 +1,9 @@
 package com.simonalong.neo.sql;
 
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.util.TimeRangeStrUtil;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +29,7 @@ public final class SqlMonitor {
     /**
      * 默认的sql语句打印的最大长度
      */
-    private static final Integer MAX_SQL_LENGTH = 500;
+    private static final Integer MAX_SQL_LENGTH = 2000;
     /**
      * 批量数据的展示这里最多展示5个
      */
@@ -56,28 +58,28 @@ public final class SqlMonitor {
     /**
      * 普通返回debug；超过3s则Info打印；超过10s则warn打印；超过1分钟则error打印
      */
-    public void calculate() {
-        SqlCost cost = sqlTime.get();
-        Long value = System.currentTimeMillis() - cost.getStartTime();
+    public void calculate(Object response) {
+        SqlCost start = sqlTime.get();
+        Long cost = System.currentTimeMillis() - start.getStartTime();
         // 超时1分钟，上报重大告警
-        if (value > ONE_MINUTE) {
-            log.error(PRE_LOG + cost.buildCost(value));
+        if (cost > ONE_MINUTE) {
+            log.error(PRE_LOG + start.buildCost(cost, response));
             return;
         }
 
         // 超时10秒，上报普通告警
-        if (value > TEN_SECOND) {
-            log.warn(PRE_LOG + cost.buildCost(value));
+        if (cost > TEN_SECOND) {
+            log.warn(PRE_LOG + start.buildCost(cost, response));
             return;
         }
 
         // 超时3秒，上报info日志
-        if (value > THREE_SECOND) {
-            log.info(PRE_LOG + cost.buildCost(value));
+        if (cost > THREE_SECOND) {
+            log.info(PRE_LOG + start.buildCost(cost, response));
             return;
         }
 
-        log.debug(PRE_LOG + cost.buildCost(value));
+        log.debug(PRE_LOG + start.buildCost(cost, response));
     }
 
     /**
@@ -107,7 +109,7 @@ public final class SqlMonitor {
             if (sql.length() <= MAX_SQL_LENGTH) {
                 return sql;
             }
-            log.debug(LOG_PRE + "sql 长度过长超过"+MAX_SQL_LENGTH + "，剩余部分不再打印");
+            log.debug("sql 长度过长超过"+MAX_SQL_LENGTH + "，剩余部分不再打印");
             return sql.substring(0, MAX_SQL_LENGTH) + " ...";
         }
 
@@ -115,19 +117,22 @@ public final class SqlMonitor {
             if (paramsList.size() <= MAX_BATCH_PARAMETER_SHOW_SIZE) {
                 return paramsList;
             }
-            log.debug(LOG_PRE + "sql 参数个数超过" + MAX_BATCH_PARAMETER_SHOW_SIZE + "个，剩余部分不再打印");
+            log.debug("sql 参数个数超过" + MAX_BATCH_PARAMETER_SHOW_SIZE + "个，剩余部分不再打印");
             List<Object> resultList = paramsList.subList(0, MAX_BATCH_PARAMETER_SHOW_SIZE);
             resultList.add("...");
             return resultList;
         }
 
-        String buildCost(Long costTime){
+        String buildCost(Long costTime, Object object) {
+            NeoMap dataMap = NeoMap.of();
+            StringBuilder resultStr = new StringBuilder("[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "]");
             if (null != sql) {
-                return "[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "] [sql => " + getSql()
-                    + "], {params => " + getParamsList() + " }";
-            } else {
-                return "[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "]";
+                dataMap.put("sql => ", getSql());
+                dataMap.put("params => ", getParamsList());
             }
+            dataMap.put("result => ", object);
+            resultStr.append(dataMap.toFastJsonString());
+            return resultStr.toString();
         }
     }
 }
