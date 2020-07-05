@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @since 2020/5/31 5:54 PM
  */
 @Slf4j
-public class MasterSlaveNeo extends AbstractMasterSlaveDbDb {
+public class MasterSlaveNeo extends AbstractMasterSlaveDb {
 
     private Map<String, InnerActiveDb> masterDbMap = new ConcurrentHashMap<>();
     private Map<String, InnerActiveDb> slaveDbMap = new ConcurrentHashMap<>();

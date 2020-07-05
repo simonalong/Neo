@@ -19,7 +19,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
  * @since 2020/5/31 5:55 PM
  */
 @Slf4j
-public abstract class AbstractMasterSlaveDbDb extends AbstractExecutorDb implements MasterSlaveSelector {
+public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implements MasterSlaveSelector {
 
     static final String MS_LOG_PRE = LOG_PRE + "[master-slave]";
 
