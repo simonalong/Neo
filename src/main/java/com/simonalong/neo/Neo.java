@@ -477,6 +477,7 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
+        checkDb(tableName);
         NeoMap searchMapTem = searchMap.clone();
         TableMap result = execute(false, () -> generateOneSqlPair(tableName, columns, searchMapTem), this::executeOne);
         return result.getNeoMap(tableName);
