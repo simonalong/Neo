@@ -181,7 +181,7 @@ public class SqlBuilder {
                 return null;
             }
             return v;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     /**

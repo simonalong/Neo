@@ -1662,6 +1662,7 @@ public class Neo extends AbstractExecutorDb {
         Map<String, Pair<String, Class<?>>> columnMap = getColumnList(tableName).stream()
             .collect(Collectors.toMap(NeoColumn::getColumnName, r -> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
         NeoMap result = NeoMap.of();
+        result.setSupportValueNull(dataMap.getSupportValueNull());
         dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()) || e.getKey().equals(ORDER_BY))
             .forEach(r -> {
                 String key = r.getKey();
