@@ -6,6 +6,7 @@ import com.simonalong.neo.db.*;
 import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
+import com.simonalong.neo.exception.TableNotFindException;
 import com.simonalong.neo.sql.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.sql.builder.*;
@@ -1842,6 +1843,10 @@ public class Neo extends AbstractExecutorDb {
             initDb(tableName);
         } else if (!db.containTable(tableName)) {
             db.addTable(tableName);
+        }
+
+        if (!db.containTable(tableName)) {
+            throw new TableNotFindException(tableName);
         }
     }
 
