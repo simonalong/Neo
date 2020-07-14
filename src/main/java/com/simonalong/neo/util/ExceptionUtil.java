@@ -20,7 +20,7 @@ public class ExceptionUtil {
     @SuppressWarnings("unchecked")
     public <T extends Throwable> T getCause(Throwable throwable, Class<T> tClass) {
         while (null != throwable) {
-            if (throwable.getClass().equals(tClass)) {
+            if (tClass.isAssignableFrom(throwable.getClass())) {
                 return (T) throwable;
             }
             throwable = throwable.getCause();
