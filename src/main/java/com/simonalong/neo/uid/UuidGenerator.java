@@ -4,17 +4,16 @@ import com.simonalong.neo.Neo;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UuidException;
 import com.simonalong.neo.uid.splicer.DefaultUuidSplicer;
 import com.simonalong.neo.uid.splicer.UuidSplicer;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.BIT_NUM;
 import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
 
 /**
@@ -37,8 +36,14 @@ public final class UuidGenerator {
      * key为对应业务命名空间，value为uuid的序列构造器
      */
     private Map<String, UuidSplicer> uUidBuilderMap = new HashMap<>();
+    /**
+     * 数字和字符的对应map
+     */
+    private NeoMap charMap = NeoMap.of();
 
-    private UuidGenerator() {}
+    private UuidGenerator() {
+        initCharMap();
+    }
 
     /**
      * 全局id生成器的构造函数
@@ -65,6 +70,23 @@ public final class UuidGenerator {
         }
         if (!neo.tableExist(NEO_UUID_TABLE)) {
             throw new UuidException("数据库uuid表不存在，请创建表 neo_uuid_generator");
+        }
+    }
+
+    private void initCharMap() {
+        for (Integer i = 0; i < BIT_NUM; i++) {
+            String key = i + "";
+            if (i < 10) {
+                charMap.put(key, i);
+            } else if (i < 36) {
+                charMap.put(key, (char)(i - 10 + 'a'));
+            } else if (i < 62) {
+                charMap.put(key, (char)(i - 36 + 'A'));
+            } else if (i == 62) {
+                charMap.put(key, "-");
+            } else {
+                charMap.put(key, "_");
+            }
         }
     }
 
@@ -104,6 +126,27 @@ public final class UuidGenerator {
      */
     public long getUUid(String namespace) {
         return getUUidSplicer(namespace).splice();
+    }
+
+    /**
+     * 获取对应命名空间的全局字符
+     *
+     * <p> 通过long型的uid转为字符为 a~zA~Z0~9和两个特殊字符 - _
+     * @param namespace 命名空间
+     * @return 唯一的字符串，最多占11个字符
+     */
+    public String getUUidStr(String namespace) {
+        long uid = getUUid(namespace);
+        Byte[] dataByte = new Byte[11];
+        long mark = (~(-1L << 6));
+        long uidTem = uid;
+        int index = 0;
+        while (uidTem != 0) {
+            dataByte[index++] = ((Long) (uidTem & mark)).byteValue();
+            uidTem = uidTem >>> 6;
+        }
+
+        return Arrays.stream(dataByte).filter(Objects::nonNull).map(e->charMap.getString(e.toString())).reduce((a, b) -> a + b).orElse("");
     }
 
     private UuidSplicer getUUidSplicer(String namespace) {

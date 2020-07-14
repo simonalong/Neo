@@ -65,4 +65,9 @@ public interface NeoConstant {
      * 函数：executeBatch
      */
     String FUN_EXECUTE_BATCH = "executeBatch";
+
+    /**
+     * bit的个数
+     */
+    int BIT_NUM = 64;
 }

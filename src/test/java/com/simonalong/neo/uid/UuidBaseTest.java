@@ -16,9 +16,6 @@ import static com.simonalong.neo.uid.UuidConstant.*;
  */
 public class UuidBaseTest extends NeoBaseTest {
 
-    public UuidBaseTest() throws SQLException {
-    }
-
     private long symbolMark = 1 << (SYMBOL_LEFT_SHIFT);
     private long timeMark = (~(-1L << TIME_BITS)) << TIME_LEFT_SHIFT;
     private long seqMark = (~(-1L << SEQ_BITS)) << SEQ_LEFT_SHIFT;
