@@ -226,12 +226,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     @Override
     public <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap){
-        return getDbInner().values(getTableName(), tClass, field, searchMap);
+        return getDbInner().values(tClass, getTableName(), field, searchMap);
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String field, Object entity){
-        return getDbInner().values(getTableName(), tClass, field, entity);
+        return getDbInner().values(tClass, getTableName(), field, entity);
     }
 
     @Override
