@@ -181,6 +181,12 @@ public class SqlBuilder {
                 return null;
             }
             return v;
+        }).filter(e->{
+            if (searchMap.getSupportValueNull()) {
+                return true;
+            } else {
+                return null != e;
+            }
         }).collect(Collectors.toList());
     }
 
