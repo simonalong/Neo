@@ -2,13 +2,14 @@ package com.simonalong.neo.sql;
 
 import com.simonalong.neo.sql.builder.SqlBuilder;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author shizi
  * @since 2020/4/19 6:08 PM
  */
-public class InList {
+public class InList implements Serializable {
 
     private List dataList;
 

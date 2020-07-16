@@ -1525,7 +1525,9 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
         NeoMap searchMapTem = filterNonDbColumn(tableName, searchMap);
         NeoMap dataMapTemTem = filterNonDbColumn(tableName, dataMap);
-        return new Pair<>(UpdateSqlBuilder.build(tableName, dataMapTemTem, searchMapTem), NeoMap.values(dataMapTemTem, searchMapTem));
+        List<Object> valueList = generateValueList(searchMapTem);
+        valueList.addAll(generateValueList(dataMapTemTem));
+        return new Pair<>(UpdateSqlBuilder.build(tableName, dataMapTemTem, searchMapTem), valueList);
     }
 
     /**

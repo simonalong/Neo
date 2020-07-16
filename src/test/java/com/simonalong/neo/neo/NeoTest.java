@@ -7,6 +7,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import com.simonalong.neo.sql.InList;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -186,7 +189,10 @@ public class NeoTest extends NeoBaseTest {
     @SneakyThrows
     public void testUpdate1(){
         NeoMap dataMap = NeoMap.of("group", "ok2");
-        NeoMap searchMap = NeoMap.of("group", "group2", "name", "name");
+        List<Integer> dataList = new ArrayList<>();
+        dataList.add(1);
+        dataList.add(3);
+        NeoMap searchMap = NeoMap.of("group", "group2", "id", new InList(dataList));
         // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
         show(neo.update(TABLE_NAME, dataMap, searchMap));
     }
