@@ -598,10 +598,10 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         if (Columns.isEmpty(columns)) {
             return this;
         }
-        NeoMap result = NeoMap.of();
+        NeoMap result = this.clone();
         this.stream().forEach(f -> {
-            if (!columns.contains(f.getKey())) {
-                result.put(f.getKey(), f.getValue());
+            if (columns.contains(f.getKey())) {
+                result.delete(f.getKey());
             }
         });
         return result;
@@ -875,16 +875,25 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public int size() {
+        if (supportValueNull) {
+            return dataMap.size() + nullValueKeySet.size();
+        }
         return dataMap.size();
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
+        if (supportValueNull) {
+            return (dataMap.hashCode() + nullValueKeySet.hashCode()) / 2;
+        }
         return dataMap.hashCode();
     }
 
     @Override
     public boolean isEmpty() {
+        if (supportValueNull) {
+            return dataMap.isEmpty() && nullValueKeySet.isEmpty();
+        }
         return dataMap.isEmpty();
     }
 
@@ -892,6 +901,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     public boolean containsKey(Object key) {
         if (null == key) {
             return false;
+        }
+        if (supportValueNull) {
+            return dataMap.containsKey(key) || nullValueKeySet.contains(key);
         }
         return dataMap.containsKey(key);
     }
@@ -907,6 +919,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public boolean containsValue(Object value) {
+        if (supportValueNull && null == value) {
+            return true;
+        }
         return dataMap.containsValue(value);
     }
 
@@ -950,6 +965,9 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Object remove(Object key) {
+        if (supportValueNull) {
+            return nullValueKeySet.remove(key);
+        }
         return dataMap.remove(key);
     }
 

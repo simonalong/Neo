@@ -181,13 +181,7 @@ public class SqlBuilder {
                 return null;
             }
             return v;
-        }).filter(e->{
-            if (searchMap.getSupportValueNull()) {
-                return true;
-            } else {
-                return null != e;
-            }
-        }).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
@@ -219,6 +213,9 @@ public class SqlBuilder {
     private String valueFix(NeoMap searchMap, Entry<String, Object> entry){
         Object value = entry.getValue();
         String key = toDbField(entry.getKey());
+        if (null == value) {
+            return key + " is null";
+        }
         if (value instanceof String) {
             String valueStr = String.class.cast(value);
 
