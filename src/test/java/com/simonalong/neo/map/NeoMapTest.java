@@ -17,6 +17,7 @@ import java.util.Map;
 
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.map.table.NeoMapEnum;
+import com.simonalong.neo.sql.builder.SqlBuilder;
 import com.simonalong.neo.util.Maps;
 import org.junit.Assert;
 import org.junit.Test;
@@ -873,5 +874,17 @@ public class NeoMapTest extends BaseTest {
         String gsonString = dataMap.toFastJsonString();
 
         Assert.assertEquals(entity, NeoMap.fromFastJsonStr(gsonString).as(NeoMapEntity.class));
+    }
+
+
+    @Test
+    public void testSqlBuilder(){
+        NeoMap dataMap = NeoMap.of();
+        dataMap.setSupportValueNull(true);
+        dataMap.put("k1", null);
+        dataMap.put("k2", 12);
+
+        show(SqlBuilder.buildWhere(dataMap));
+        show(SqlBuilder.buildValueList(dataMap));
     }
 }
