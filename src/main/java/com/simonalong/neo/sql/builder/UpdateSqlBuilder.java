@@ -4,7 +4,9 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import lombok.experimental.UtilityClass;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,25 @@ public class UpdateSqlBuilder {
      * @since 0.5.2
      */
     public String buildBatch(String tableName, List<NeoMap> updateDataColumnList, Columns conditionColumns) {
+        // 这里取所有的keySet的并集
+        Set<String> keys = updateDataColumnList.stream().map(NeoMap::keySet).reduce((a,b)->{
+            a.addAll(b);
+            return a;
+        }).orElse(Collections.emptySet());
+
+        // 填充不包含的key
+        updateDataColumnList.forEach(dataMap -> {
+            dataMap.setSupportValueNull(true);
+            // 对于长度相同的，则认为不需要判断
+            if (dataMap.size() != keys.size()) {
+                for (String key : keys) {
+                    if (!dataMap.containsKey(key)) {
+                        dataMap.put(key, null);
+                    }
+                }
+            }
+        });
+
         return "update " + tableName + " a join(" + getUnionSql(updateDataColumnList) + ") b using(" + getSearchColumns(conditionColumns) + ") set " + getUpdateKey(updateDataColumnList, conditionColumns);
     }
 

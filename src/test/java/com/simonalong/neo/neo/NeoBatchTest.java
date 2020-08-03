@@ -109,12 +109,13 @@ public class NeoBatchTest extends NeoBaseTest {
     @Test
     public void batchUpdateTest2() {
         List<NeoMap> maps = Arrays.asList(
-            NeoMap.of("id", 1, "group", "group1", "name", "name11chg"),
+            NeoMap.of("id", 1, "group", "group2", "name", "name11chg", "user_name", "v1"),
             NeoMap.of("id", 2, "group", "group2", "name", "name21chg"),
             NeoMap.of("id", 3, "group", "group3", "name", "name31chg"),
             NeoMap.of("id", 4, "group", "group4", "name", "name41chg"),
             NeoMap.of("id", 5, "group", "group5", "name", "name51chg")
         );
+
         show(neo.batchUpdate(TABLE_NAME, maps));
     }
 
