@@ -74,7 +74,7 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group` from  where `id` =  ? and `name` =  ? limit 3, 20
      */
     public String buildPage(Neo neo, String tableName, Columns columns, NeoMap searchMap, Integer startIndex, Integer pageSize) {
-        return buildList(neo, tableName, columns, searchMap) + " limit " + startIndex + ", " + pageSize;
+        return buildList(neo, tableName, columns, searchMap) + " limit " + pageSize + " offset " + startIndex;
     }
 
     /**

@@ -827,10 +827,10 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
         if (null != neo) {
-            return neo.values(getDevideTable(tableName, searchMap), tClass, field, searchMap);
+            return neo.values(tClass, getDevideTable(tableName, searchMap), field, searchMap);
         } else {
             return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, searchMap), tClass, field, searchMap).stream()).collect(Collectors.toList()));
+                () -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, searchMap), field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -839,9 +839,9 @@ public final class DevideNeo extends AbstractClassExtenderDb {
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
-            return neo.values(getDevideTable(tableName, entity), tClass, field, entity);
+            return neo.values(tClass, getDevideTable(tableName, entity), field, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, entity), tClass, field, entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, entity), field, entity).stream()).collect(Collectors.toList()));
         }
     }
 

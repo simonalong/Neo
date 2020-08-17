@@ -7,6 +7,7 @@ import static com.simonalong.neo.NeoConstant.COLUMN_PRE;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.AliasParser;
+import com.simonalong.neo.db.NeoContext;
 import com.simonalong.neo.exception.ColumnParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.simonalong.neo.sql.builder.SqlBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -233,7 +236,7 @@ public final class Columns {
      * @return 转换之后的列名
      */
     private List<ColumnValue> decorateColumn(String tableName, Collection<String> columns) {
-        return columns.stream().map(c -> new ColumnValue(tableName, c)).collect(Collectors.toList());
+        return columns.stream().map(c -> new ColumnValue(neo, tableName, c)).collect(Collectors.toList());
     }
 
     /**
@@ -258,13 +261,15 @@ public final class Columns {
         @Getter
         private String currentValue;
 
-        ColumnValue(String tableName, String fieldName) {
+        ColumnValue(Neo db, String tableName, String fieldName) {
             this.tableName = tableName;
             this.metaValue = fieldName;
             this.currentValue = fieldName;
-            if (!fieldName.startsWith(COLUMN_PRE) || !fieldName.endsWith(COLUMN_PRE)) {
-                this.currentValue = toDbField(fieldName);
+
+            if(null != db) {
+                NeoContext.load(db);
             }
+            this.currentValue = SqlBuilder.toDbField(fieldName);
 
             if (!tableName.equals(DEFAULT_TABLE)) {
                 String alias = AliasParser.getAlias(tableName);
@@ -279,7 +284,7 @@ public final class Columns {
          * @param fieldName 指定的列名
          * @return 处理之后的sql对应的列名
          */
-        private String filterColumnToFinal(String fieldName){
+        private String filterColumnToFinal(String fieldName) {
             String point = ".";
             String dom = "`";
             fieldName = fieldName.trim();
@@ -290,17 +295,13 @@ public final class Columns {
                 if (columnName.startsWith(dom) && columnName.endsWith(dom)) {
                     return fieldName;
                 }
-                return tableName + "." + toDbField(columnName);
+                return tableName + "." + SqlBuilder.toDbField(columnName);
             } else {
                 if (fieldName.startsWith(dom) && fieldName.endsWith(dom)) {
                     return fieldName;
                 }
-                return toDbField(fieldName);
+                return SqlBuilder.toDbField(fieldName);
             }
-        }
-
-        private String toDbField(String field){
-            return COLUMN_PRE + field + COLUMN_PRE;
         }
 
         /**

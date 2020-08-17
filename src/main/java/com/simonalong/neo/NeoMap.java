@@ -253,6 +253,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @param namingChg 转换规则
      * @param inFieldList 包括的对象的属性名列表
      * @param exFieldList 排除的对象的属性名列表
+     * @param supportValueNull 是否支持value为空
      * @return 转换之后的NeoMap
      */
     @SuppressWarnings("unchecked")

@@ -209,19 +209,25 @@ public class NeoTable extends AbstractBaseTable {
 
         private Table(){}
 
-        public static Table parse(ResultSet rs){
+        public static Table parse(Neo neo, ResultSet rs){
             try {
-                return new Table()
-                    .setCatalog(rs.getString(TABLE_CAT))
-                    .setSchema(rs.getString(TABLE_SCHEM))
-                    .setTableName(rs.getString(TABLE_NAME))
-                    .setTableType(rs.getString(TABLE_TYPE))
-                    .setRemarks(rs.getString(REMARKS))
-                    .setTypeCatalog(rs.getString(TYPE_CAT))
-                    .setTypeSchema(rs.getString(TYPE_SCHEM))
-                    .setTypeName(rs.getString(TYPE_NAME))
-                    .setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME))
-                    .setRefGeneration(rs.getString(REF_GENERATION));
+                Table table = new Table();
+                table.setCatalog(rs.getString(TABLE_CAT));
+                table.setSchema(rs.getString(TABLE_SCHEM));
+                table.setTableName(rs.getString(TABLE_NAME));
+                table.setTableType(rs.getString(TABLE_TYPE));
+                table.setRemarks(rs.getString(REMARKS));
+
+                // pg不支持
+                if (!neo.getDbType().equals(DbType.PGSQL)) {
+                    table.setTypeCatalog(rs.getString(TYPE_CAT));
+                    table.setTypeSchema(rs.getString(TYPE_SCHEM));
+                    table.setTypeName(rs.getString(TYPE_NAME));
+                    table.setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME));
+                    table.setRefGeneration(rs.getString(REF_GENERATION));
+                }
+
+                return table;
             } catch (SQLException e) {
                 log.error(LOG_PRE + "parse error", e);
             }

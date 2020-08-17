@@ -6,6 +6,8 @@ import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
+import com.simonalong.neo.Neo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -234,7 +236,7 @@ public final class NeoColumn {
 
         private NeoInnerColumn(){}
 
-        static NeoInnerColumn parse(ResultSet rs){
+        static NeoInnerColumn parse(Neo neo, ResultSet rs){
             NeoInnerColumn innerColumn = null;
             try {
                 innerColumn =  new NeoInnerColumn();
@@ -257,10 +259,17 @@ public final class NeoColumn {
                 innerColumn.setScopeTable(rs.getString(SCOPE_TABLE));
                 innerColumn.setSourceDataType(rs.getShort(SOURCE_DATA_TYPE));
                 innerColumn.setIsAutoIncrement(rs.getString(IS_AUTOINCREMENT));
-                innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
 
-                // sqlite 不支持该属性
-                innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
+                // pg 不支持属性
+                if (!neo.getDbType().equals(DbType.PGSQL)) {
+                    innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
+
+                    // sqlite 不支持属性
+                    if (!neo.getDbType().equals(DbType.PGSQL)) {
+                        innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
+                    }
+                }
+
             } catch (SQLException e) {
                 log.warn(LOG_PRE, e);
             }

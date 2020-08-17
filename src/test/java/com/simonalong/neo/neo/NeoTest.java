@@ -1,10 +1,7 @@
 package com.simonalong.neo.neo;
 
 import com.alibaba.fastjson.JSON;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.TableMap;
+import com.simonalong.neo.*;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -470,6 +467,23 @@ public class NeoTest extends NeoBaseTest {
             // [Y, N]
             show(dataList);
         }
+    }
+
+
+    @Test
+    public void testInsertMysql(){
+
+        String innerTableName = "demo_char1";
+        String URL = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true";
+        String USER = "neo_test";
+        String PASSWORD = "neo@Test123";
+
+        Neo db = Neo.connect(URL, USER, PASSWORD);
+
+        String sql = "create table if not exists %s (`char` char not null)engine=innodb";
+        neo.execute(sql, innerTableName);
+
+        show(db.insert(innerTableName, NeoMap.of("char", "t")));
     }
 
 //    /**

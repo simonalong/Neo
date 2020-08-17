@@ -95,12 +95,12 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
 
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> values(tableName, tClass, field, searchMap), executor);
+        return CompletableFuture.supplyAsync(() -> values(tClass, tableName, field, searchMap), executor);
     }
 
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor){
-        return CompletableFuture.supplyAsync(() -> values(tableName, tClass, field, entity), executor);
+        return CompletableFuture.supplyAsync(() -> values(tClass, tableName, field, entity), executor);
     }
 
     @Override
@@ -120,12 +120,12 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
 
     @Override
     public <T> CompletableFuture<T> valueAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor){
-        return CompletableFuture.supplyAsync(() -> value(tableName, tClass, field, searchMap), executor);
+        return CompletableFuture.supplyAsync(() -> value(tClass, tableName, field, searchMap), executor);
     }
 
     @Override
     public <T> CompletableFuture<T> valueAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor){
-        return CompletableFuture.supplyAsync(() -> value(tableName, tClass, field, entity), executor);
+        return CompletableFuture.supplyAsync(() -> value(tClass, tableName, field, entity), executor);
     }
 
     @Override

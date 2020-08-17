@@ -218,13 +218,13 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return doSlaveCall(db -> db.values(tableName, tClass, field, searchMap));
+        return doSlaveCall(db -> db.values(tClass, tableName, field, searchMap));
     }
 
     @Override
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
-        return doSlaveCall(db -> db.values(tableName, tClass, field, entity));
+        return doSlaveCall(db -> db.values(tClass, tableName, field, entity));
     }
 
     @Override

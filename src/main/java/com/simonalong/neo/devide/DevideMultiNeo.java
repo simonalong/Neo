@@ -150,13 +150,13 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     @Override
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        return executeList(tableName, (db, actTableName) -> db.values(actTableName, tClass, field, searchMap));
+        return executeList(tableName, (db, actTableName) -> db.values(tClass, actTableName, field, searchMap));
     }
 
     @Override
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
-        return executeList(tableName, (db, actTableName) -> db.values(actTableName, tClass, field, entity));
+        return executeList(tableName, (db, actTableName) -> db.values(tClass, actTableName, field, entity));
     }
 
     @Override

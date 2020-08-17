@@ -113,7 +113,7 @@ public class NeoValuesTest extends NeoBaseTest {
     public void testValues6(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.values(TABLE_NAME, String.class, "name", search));
+        show(neo.values(String.class, TABLE_NAME, "name", search));
     }
 
     /**
@@ -137,7 +137,7 @@ public class NeoValuesTest extends NeoBaseTest {
     public void testValues8(){
         DemoEntity search = new DemoEntity();
         search.setGroup("group2");
-        show(neo.values(TABLE_NAME, String.class, "group", search));
+        show(neo.values(String.class, TABLE_NAME, "group", search));
     }
 
     /**

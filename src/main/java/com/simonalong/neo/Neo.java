@@ -272,9 +272,9 @@ public class Neo extends AbstractExecutorDb {
         checkDb(tableName);
         NeoMap valueMapTem = valueMap.clone();
         return tx(() -> {
-            Number id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
+            Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
             String incrementKey = db.getPrimaryAndAutoIncName(tableName);
-            if (null != incrementKey) {
+            if (null != incrementKey && id instanceof Number) {
                 return oneWithXMode(tableName, NeoMap.of(incrementKey, id));
             }
             return valueMap;
@@ -819,10 +819,10 @@ public class Neo extends AbstractExecutorDb {
         if (entity instanceof Number) {
             String primaryKey = db.getPrimaryName(tableName);
             if (null != primaryKey && !"".equals(primaryKey)) {
-                return values(tableName, tClass, field, NeoMap.of(primaryKey, entity));
+                return values(tClass, tableName, field, NeoMap.of(primaryKey, entity));
             }
         }
-        return values(tableName, tClass, field, NeoMap.from(entity));
+        return values(tClass, tableName, field, NeoMap.from(entity));
     }
 
     /**
@@ -837,20 +837,19 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
-        NeoMap searchMapTem = searchMap.clone();
-        List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
-            if (table.haveTable(DEFAULT_TABLE)) {
-                return table.getNeoMap(DEFAULT_TABLE);
-            } else {
-                return table.getNeoMap(tableName);
-            }
-        }).collect(Collectors.toList());
+        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
+            NeoMap searchMapTem = searchMap.clone();
+            List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
+                if (table.haveTable(DEFAULT_TABLE)) {
+                    return table.getNeoMap(DEFAULT_TABLE);
+                } else {
+                    return table.getNeoMap(tableName);
+                }
+            }).collect(Collectors.toList());
 
-        if (!NeoMap.isEmpty(resultList)) {
-            return resultList.stream()
-                .map(r -> r.get(tClass, field))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            if (!NeoMap.isEmpty(resultList)) {
+                return resultList.stream().map(r -> r.get(tClass, field)).filter(Objects::nonNull).collect(Collectors.toList());
+            }
         }
         return new ArrayList<>();
     }
@@ -1390,96 +1389,105 @@ public class Neo extends AbstractExecutorDb {
      * @param <T> 返回值的类型
      * @return 返回对应的要求的返回值
      */
-    protected <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier,
-        Function<PreparedStatement, T> stateFun) {
-        Pair<String, List<Object>> sqlPair = sqlSupplier.get();
-        String sql = sqlPair.getKey();
-        List<Object> parameters = sqlPair.getValue();
+    protected <T> T execute(Boolean multiLine, Supplier<Pair<String, List<Object>>> sqlSupplier, Function<PreparedStatement, T> stateFun) {
+        try {
+            NeoContext.load(this);
+            Pair<String, List<Object>> sqlPair = sqlSupplier.get();
+            String sql = sqlPair.getKey();
+            List<Object> parameters = sqlPair.getValue();
 
-        // sql 多行查询的explain衡量
-        explain(multiLine, sqlPair);
-        try (Connection con = pool.getConnect()) {
-            try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                if (standardFlag) {
-                    // sql规范化校验
-                    standard.valid(sql);
-                }
-                if (openMonitor()) {
-                    // 添加对sql的监控
-                    monitor.start(sql, parameters);
-                }
-
-                int i, dataSize = parameters.size();
-                for (i = 0; i < dataSize; i++) {
-                    state.setObject(i + 1, parameters.get(i));
-                }
-
-                T result = stateFun.apply(state);
-                if (openMonitor()) {
-                    // 统计sql信息
-                    monitor.calculate(result);
-                }
-                return result;
-            } catch (Throwable e) {
-                log.error(LOG_PRE + "sql=> " + sql, e);
-                throw new NeoException(e);
-            }
-        } catch (SQLException e) {
-            log.error(LOG_PRE + "sql=> " + sql, e);
-            throw new NeoException(e);
-        } finally {
-            if (openMonitor()) {
-                monitor.close();
-            }
-        }
-    }
-
-    protected Integer executeBatch(Pair<String, List<NeoMap>> sqlPair) {
-        String sql = sqlPair.getKey();
-        List<NeoMap> parameterList = sqlPair.getValue();
-
-        return tx(() -> {
+            // sql 多行查询的explain衡量
+            explain(multiLine, sqlPair);
             try (Connection con = pool.getConnect()) {
-                try (PreparedStatement state = con.prepareStatement(sql)) {
+                try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                     if (standardFlag) {
                         // sql规范化校验
                         standard.valid(sql);
                     }
                     if (openMonitor()) {
                         // 添加对sql的监控
-                        monitor.start(sql, new ArrayList<>(parameterList));
+                        monitor.start(sql, parameters);
                     }
 
-                    int i, j, batchCount = parameterList.size(), fieldCount;
-                    for (i = 0; i < batchCount; i++) {
-                        NeoMap indexValueMap = parameterList.get(i);
-                        fieldCount = indexValueMap.getInteger("size");
-                        for (j = 0; j < fieldCount; j++) {
-                            state.setObject(j + 1, indexValueMap.get(String.valueOf(j)));
-                        }
-                        state.addBatch();
+                    int i, dataSize = parameters.size();
+                    for (i = 0; i < dataSize; i++) {
+                        state.setObject(i + 1, parameters.get(i));
                     }
 
-                    int[] results = state.executeBatch();
-
+                    T result = stateFun.apply(state);
                     if (openMonitor()) {
                         // 统计sql信息
-                        monitor.calculate(results);
+                        monitor.calculate(result);
                     }
-                    return batchCount;
+                    return result;
                 } catch (Throwable e) {
-                    log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
+                    log.error(LOG_PRE + "sql=> " + sql, e);
+                    throw new NeoException(e);
                 }
             } catch (SQLException e) {
-                log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
+                log.error(LOG_PRE + "sql=> " + sql, e);
                 throw new NeoException(e);
             } finally {
                 if (openMonitor()) {
                     monitor.close();
                 }
             }
-            return 0;
-        });
+        } finally {
+            NeoContext.load(this);
+        }
+    }
+
+    protected Integer executeBatch(Pair<String, List<NeoMap>> sqlPair) {
+        try {
+            NeoContext.load(this);
+            String sql = sqlPair.getKey();
+            List<NeoMap> parameterList = sqlPair.getValue();
+
+            return tx(() -> {
+                try (Connection con = pool.getConnect()) {
+                    try (PreparedStatement state = con.prepareStatement(sql)) {
+                        if (standardFlag) {
+                            // sql规范化校验
+                            standard.valid(sql);
+                        }
+                        if (openMonitor()) {
+                            // 添加对sql的监控
+                            monitor.start(sql, new ArrayList<>(parameterList));
+                        }
+
+                        int i, j, batchCount = parameterList.size(), fieldCount;
+                        for (i = 0; i < batchCount; i++) {
+                            NeoMap indexValueMap = parameterList.get(i);
+                            fieldCount = indexValueMap.getInteger("size");
+                            for (j = 0; j < fieldCount; j++) {
+                                state.setObject(j + 1, indexValueMap.get(String.valueOf(j)));
+                            }
+                            state.addBatch();
+                        }
+
+                        int[] results = state.executeBatch();
+
+                        if (openMonitor()) {
+                            // 统计sql信息
+                            monitor.calculate(results);
+                        }
+                        return batchCount;
+                    } catch (Throwable e) {
+                        log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
+                    }
+                } catch (SQLException e) {
+                    log.error(LOG_PRE + "[执行异常] [sql=> " + sql + " ]", e);
+                    throw new NeoException(e);
+                } finally {
+                    if (openMonitor()) {
+                        monitor.close();
+                    }
+                }
+                return 0;
+            });
+        } finally {
+            NeoContext.load(this);
+        }
     }
 
     /**
@@ -1721,13 +1729,13 @@ public class Neo extends AbstractExecutorDb {
         return new Pair<>(replaceOperatorList, placeHolderList);
     }
 
-    private Number executeInsert(PreparedStatement statement) {
+    private Object executeInsert(PreparedStatement statement) {
         try {
             statement.executeUpdate();
             // 返回主键
             ResultSet rs = statement.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getLong(1);
+                return rs.getObject(1);
             }
         } catch (SQLException e) {
             throw new NeoException(e);
