@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
  * @author shizi
  * @since 2020/6/8 8:22 PM
  */
-public abstract class AbstractExecutorDb extends AbstractClassExtenderDb implements ExecuteSql {
+public abstract class AbstractExecutorDb extends AbstractBaseDb implements ExecuteSql {
 
     @Override
     public CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters) {

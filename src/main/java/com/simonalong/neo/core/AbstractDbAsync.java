@@ -2,11 +2,9 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 /**
  * 填充默认线程池
@@ -14,7 +12,7 @@ import java.util.concurrent.Executor;
  * @author zhouzhenyong
  * @since 2019/8/18 下午5:59
  */
-public abstract class AbstractDbAsync implements DbAsync {
+public abstract class AbstractDbAsync implements CqrsAsync {
 
     @Override
     public CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap) {

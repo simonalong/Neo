@@ -3,7 +3,7 @@ package com.simonalong.neo.devide;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.core.AbstractClassExtenderDb;
+import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.xa.NeoXa;
 import com.simonalong.neo.devide.strategy.DevideStrategy;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @since 2019/6/21 下午3:48
  */
 @NoArgsConstructor
-public final class DevideNeo extends AbstractClassExtenderDb {
+public final class DevideNeo extends AbstractBaseDb {
 
     /**
      * 分库的对应的列名

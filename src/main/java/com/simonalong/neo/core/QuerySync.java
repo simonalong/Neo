@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoPageRsp;
 import com.simonalong.neo.db.NeoPage;
 
 import java.util.List;
@@ -24,13 +25,38 @@ public interface QuerySync extends Sync {
 
     NeoMap one(String tableName, Number id);
 
-    <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
 
-    <T> T  one(Class<T> tClass, String tableName, Columns columns, Number key);
+    default <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        NeoMap data = one(tableName, columns, searchMap);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
 
-    <T> T  one(Class<T> tClass, String tableName, NeoMap searchMap);
+    default <T> T one(Class<T> tClass, String tableName, Columns columns, Number key) {
+        NeoMap data = one(tableName, columns, key);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
 
-    <T> T  one(Class<T> tClass, String tableName, Number id);
+    default <T> T one(Class<T> tClass, String tableName, NeoMap searchMap) {
+        NeoMap data = one(tableName, searchMap);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
+
+    default <T> T one(Class<T> tClass, String tableName, Number id) {
+        NeoMap data = one(tableName, id);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
 
 
     List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap);
@@ -43,11 +69,18 @@ public interface QuerySync extends Sync {
 
     List<NeoMap> list(String tableName, Columns columns);
 
-    <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap);
 
-    <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap);
+    default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
+        return NeoMap.asArray(list(tableName, columns, searchMap), tClass);
+    }
 
-    <T> List<T> list(Class<T> tClass, String tableName, Columns columns);
+    default <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap) {
+        return NeoMap.asArray(list(tableName, searchMap), tClass);
+    }
+
+    default <T> List<T> list(Class<T> tClass, String tableName, Columns columns) {
+        return NeoMap.asArray(list(tableName, columns), tClass);
+    }
 
 
     @Deprecated
@@ -96,13 +129,62 @@ public interface QuerySync extends Sync {
 
     List<NeoMap> page(String tableName, NeoPage page);
 
-    <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page);
+    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return NeoMap.asArray(page(tableName, columns, searchMap, page), tClass);
+    }
 
-    <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page);
+    default <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return NeoMap.asArray(page(tableName, searchMap, page), tClass);
+    }
 
-    <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page);
+    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return NeoMap.asArray(page(tableName, columns, page), tClass);
+    }
 
-    <T> List<T> page(Class<T> tClass, String tableName, NeoPage page);
+    default <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
+        return NeoMap.asArray(page(tableName, page), tClass);
+    }
+
+
+    default NeoPageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, columns, searchMap, page), count(tableName, searchMap));
+    }
+
+    default <T> NeoPageRsp<T> getPage(String tableName, Columns columns, T entity, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, columns, entity, page), count(tableName, entity));
+    }
+
+    default NeoPageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, searchMap, page), count(tableName, searchMap));
+    }
+
+    default <T> NeoPageRsp<T> getPage(String tableName, T entity, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, entity, page), count(tableName, entity));
+    }
+
+    default NeoPageRsp<NeoMap> getPage(String tableName, Columns columns, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, columns, page), count(tableName, columns));
+    }
+
+    default NeoPageRsp<NeoMap> getPage(String tableName, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, page), count(tableName));
+    }
+
+    default <T> NeoPageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return new NeoPageRsp<>(page(tClass, tableName, columns, searchMap, page), count(tableName, searchMap));
+    }
+
+    default <T> NeoPageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return new NeoPageRsp<>(page(tClass, tableName, searchMap, page), count(tableName, searchMap));
+    }
+
+    default <T> NeoPageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return new NeoPageRsp<>(page(tClass, tableName, columns, page), count(tableName));
+    }
+
+    default <T> NeoPageRsp<T> getPage(Class<T> tClass, String tableName, NeoPage page) {
+        return new NeoPageRsp<>(page(tClass, tableName, page), count(tableName));
+    }
 
 
     Integer count(String tableName, NeoMap searchMap);
@@ -112,7 +194,11 @@ public interface QuerySync extends Sync {
     Integer count(String tableName);
 
 
-    Boolean exist(String tableName, NeoMap searchMap);
+    default Boolean exist(String tableName, NeoMap searchMap) {
+        return NeoMap.isUnEmpty(one(tableName, searchMap));
+    }
 
-    Boolean exist(String tableName, Object entity);
+    default Boolean exist(String tableName, Object entity) {
+        return null != one(tableName, entity);
+    }
 }

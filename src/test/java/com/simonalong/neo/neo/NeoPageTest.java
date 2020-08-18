@@ -27,6 +27,7 @@ public class NeoPageTest extends NeoBaseTest {
     @SneakyThrows
     public void testPage1(){
         show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
+        show(neo.getPage(TABLE_NAME, NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
     }
 
     /**
