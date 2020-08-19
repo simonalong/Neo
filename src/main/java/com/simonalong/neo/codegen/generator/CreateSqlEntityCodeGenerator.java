@@ -32,8 +32,10 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
         try {
             CreateTable createTable = (CreateTable)CCJSqlParserUtil.parse(((SqlGeneratorConfig)configContext).getCreateSql());
             generateImport(createTable, dataMap);
+
             String tableNameOriginal = getNameFilterDb(createTable.getTable().getName());
             dataMap.put("tableName", tableNameOriginal);
+
             String tableName = StringConverter.underLineToBigCamel(getNameFilterDb(tableNameOriginal.substring(configContext.getPreFix().length())));
             dataMap.put("TableName", tableName);
             dataMap.put("tableRemark", getTableNameCn(createTable));
@@ -45,7 +47,11 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
     }
 
     private String getTableNameCn(CreateTable createTable) {
-        List<String> options = createTable.getTableOptionsStrings().stream().map(String::valueOf).collect(Collectors.toList());
+        List<?> optionList = createTable.getTableOptionsStrings();
+        if (null == optionList || optionList.isEmpty()) {
+            return "";
+        }
+        List<String> options = optionList.stream().map(String::valueOf).collect(Collectors.toList());
         if (null == options || options.isEmpty() || !options.contains("COMMENT")) {
             return "";
         }
@@ -70,6 +76,9 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
 
     private String getColumnNameCn(ColumnDefinition columnDefinition) {
         List<String> columnSpecStrings = columnDefinition.getColumnSpecStrings();
+        if (null == columnSpecStrings || columnSpecStrings.isEmpty()) {
+            return null;
+        }
         Integer index = columnSpecStrings.indexOf("COMMENT");
         if (-1 != index) {
             return columnSpecStrings.get(index + 1);

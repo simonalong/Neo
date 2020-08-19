@@ -57,6 +57,7 @@ public final class SqlMonitor {
 
     /**
      * 普通返回debug；超过3s则Info打印；超过10s则warn打印；超过1分钟则error打印
+     * @param response 待解析的结构
      */
     public void calculate(Object response) {
         SqlCost start = sqlTime.get();
