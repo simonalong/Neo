@@ -1,5 +1,7 @@
 package com.simonalong.neo.db;
 
+import com.simonalong.neo.NeoPageReq;
+
 /**
  * @author zhouzhenyong
  * @since 2019/3/15 下午3:31
@@ -10,6 +12,11 @@ public final class NeoPage {
     private Integer pageSize;
 
     private NeoPage() {}
+
+    private NeoPage(NeoPageReq neoPageReq) {
+        this.pageNo = neoPageReq.getPageNo();
+        this.pageSize = neoPageReq.getPageSize();
+    }
 
     /**
      * 创建

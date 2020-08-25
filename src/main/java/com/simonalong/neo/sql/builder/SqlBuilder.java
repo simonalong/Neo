@@ -2,6 +2,7 @@ package com.simonalong.neo.sql.builder;
 
 import static com.simonalong.neo.NeoConstant.*;
 
+import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoMap;
 
@@ -145,9 +146,12 @@ public class SqlBuilder {
      * @return 转换后的列名，比如name 到 `name`
      */
     public String toDbField(String column) {
-        // pg不需要 ` 这种字段修饰符
-        if (NeoContext.getNeo().getDbType().equals(DbType.PGSQL)) {
-            return column;
+        Neo neo = NeoContext.getNeo();
+        if (null != neo && null != neo.getDbType()) {
+            // pg不需要 ` 这种字段修饰符
+            if (neo.getDbType().equals(DbType.PGSQL)) {
+                return column;
+            }
         }
         String dom = "`";
         if (column.startsWith(dom) && column.endsWith(dom)) {
