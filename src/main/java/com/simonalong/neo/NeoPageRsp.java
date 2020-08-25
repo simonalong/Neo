@@ -2,6 +2,7 @@ package com.simonalong.neo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @since 2020/8/18 3:44 PM
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class NeoPageRsp<T> {
 
