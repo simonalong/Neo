@@ -2,6 +2,8 @@ package com.simonalong.neo.uid;
 
 import com.simonalong.neo.Neo;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -164,5 +166,41 @@ public final class UuidGenerator {
      */
     private void addUUidSplicer(String namespace, UuidSplicer defaultUuidSplicer) {
         uUidBuilderMap.putIfAbsent(namespace, defaultUuidSplicer);
+    }
+
+    /**
+     * 解析uuid
+     *
+     * <ul>
+     *     <li>uuid：对应的是当前的全局id</li>
+     *     <li>symbol：对应的符号位</li>
+     *     <li>time：对应的时间值</li>
+     *     <li>startTime：起始时间</li>
+     *     <li>abstractTime：相对起始时间的具体时间</li>
+     *     <li>sequence：序列值</li>
+     *     <li>workerId：分配的机器id</li>
+     * </ul>
+     * @param uid 全局id
+     * @return 解析的数据
+     */
+    @SuppressWarnings("all")
+    public static NeoMap parseUUid(Long uid) {
+        long symbolMark = 1 << (UuidConstant.SYMBOL_LEFT_SHIFT);
+        long timeMark = (~(-1L << UuidConstant.TIME_BITS)) << UuidConstant.TIME_LEFT_SHIFT;
+        long seqMark = (~(-1L << UuidConstant.SEQ_BITS)) << UuidConstant.SEQ_LEFT_SHIFT;
+        long workerMark = ~(-1L << UuidConstant.WORKER_BITS);
+
+        NeoMap resultMap = NeoMap.of();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        StringBuilder result = new StringBuilder();
+        resultMap.put("uuid", uid);
+        resultMap.put("symbol", (uid & symbolMark) >>> UuidConstant.SYMBOL_LEFT_SHIFT);
+        resultMap.put("time", (uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT);
+        resultMap.put("startTime", dateFormat.format(new Date(startTime)));
+        resultMap.put("abstractTime", dateFormat.format(new Date(((uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT) + UuidConstant.START_TIME)));
+        resultMap.put("sequence", (uid & seqMark) >> UuidConstant.SEQ_LEFT_SHIFT);
+        resultMap.put("workerId", uid & workerMark);
+        return resultMap;
     }
 }

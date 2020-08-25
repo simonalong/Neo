@@ -654,7 +654,10 @@ public class Neo extends AbstractExecutorDb {
     @Override
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
-        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
+        if (NeoMap.isEmpty(searchMap)) {
+            log.warn("搜索条件为空");
+        }
+        if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
             TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem),
                 this::executeOne);
@@ -691,7 +694,10 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
-        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
+        if (NeoMap.isEmpty(searchMap)) {
+            log.warn("搜索条件为空");
+        }
+        if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
             TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem),
                 this::executeOne);
@@ -837,7 +843,10 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
-        if (null != tClass && !NeoMap.isEmpty(searchMap)) {
+        if (NeoMap.isEmpty(searchMap)) {
+            log.warn("搜索条件为空");
+        }
+        if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
             List<NeoMap> resultList = execute(false, () -> generateValuesSqlPair(tableName, field, searchMapTem), this::executeList).stream().map(table -> {
                 if (table.haveTable(DEFAULT_TABLE)) {
