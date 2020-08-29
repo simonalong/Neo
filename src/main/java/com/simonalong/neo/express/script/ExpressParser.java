@@ -1,4 +1,4 @@
-package com.simonalong.neo.express;
+package com.simonalong.neo.express.script;
 
 import com.simonalong.neo.NeoMap;
 import groovy.lang.Binding;

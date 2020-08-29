@@ -2,7 +2,7 @@ package com.simonalong.neo;
 
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
-import com.simonalong.neo.express.ExpressParser;
+import com.simonalong.neo.express.script.ExpressParser;
 
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;

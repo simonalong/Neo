@@ -1,4 +1,4 @@
-package com.simonalong.neo.express;
+package com.simonalong.neo.express.script;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
