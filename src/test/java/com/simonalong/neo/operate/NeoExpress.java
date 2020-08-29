@@ -174,6 +174,8 @@ public class NeoExpress extends NeoBaseTest {
 //        neoExpress = new Express().em("name", 1).or("group", "test", "age", 3);
         neoExpress = new Express().em("name", 1).and(AndEm(Or("group", "test", "age", 3)));
         Assert.assertEquals(sql, neoExpress.toSql());
+
+        // todo 明天继续调整这里的部分
 //
 //        sql = " where `name` = ? and ((`group` = ?) or (`age` = ?))";
 //        neoExpress = new Express().and("name", 1, And(Or("group", "test"), Or("age", 3)));
