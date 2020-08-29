@@ -1,7 +1,5 @@
 package com.simonalong.neo.express;
 
-import com.simonalong.neo.exception.NumberOfValueException;
-
 import java.util.*;
 
 /**
@@ -43,7 +41,8 @@ public class Express {
      *
      * @return this
      */
-    public Express em(Express... objects) {
+    public Express em(Object... objects) {
+        operateQueue.addAll(Operate.parse(LogicOperate.EMPTY, objects));
         return this;
     }
 
@@ -53,6 +52,7 @@ public class Express {
      * @return 顺序化的数据
      */
     List<Object> toValue() {
+        // todo
         return null;
     }
 
@@ -64,10 +64,9 @@ public class Express {
     public String toSql() {
         StringBuilder stringBuilder = new StringBuilder();
         Operate operate;
-        boolean haveCondition = false;
         while ((operate = operateQueue.poll()) != null) {
-            if (!haveCondition && operate.haveCondition()) {
-                haveCondition = true;
+            if (!operate.valueLegal()) {
+                continue;
             }
             stringBuilder.append(operate.generateOperate());
         }
@@ -85,26 +84,7 @@ public class Express {
         return stringBuilder.toString();
     }
 
-    /**
-     * 在sql拼接生成之后进行处理
-     */
-    private String afterGenerateSql(String conditionSql, Boolean haveCondition) {
-        String resultSqlPart = conditionSql.trim();
-        if(resultSqlPart.startsWith("and")) {
-            resultSqlPart = resultSqlPart.substring("and".length());
-        }
-
-        if(resultSqlPart.startsWith("or")) {
-            resultSqlPart = resultSqlPart.substring("or".length());
-        }
-
-        if (haveCondition) {
-            return " where " + resultSqlPart;
-        }
-        return resultSqlPart;
-    }
-
-    static enum LogicOperate{
+    enum LogicOperate{
         AND,
         OR,
         EMPTY

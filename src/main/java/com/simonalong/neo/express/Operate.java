@@ -1,13 +1,11 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NumberOfValueException;
 
 import static com.simonalong.neo.express.BaseOperate.*;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * 运算符
@@ -23,7 +21,6 @@ public interface Operate {
      * @return 运算符表达式
      */
     String generateOperate();
-    //
 
     /**
      * 添加运算符数据
@@ -32,13 +29,30 @@ public interface Operate {
      * @return true: 加入成功呢，false：加入失败
      */
     Boolean offerOperate(Operate value);
-    //
-    //    boolean offerOperateQueue(Queue<Operate> valueQueue);
 
-    Boolean haveCondition();
+    /**
+     * 添加运算符队列
+     *
+     * @param valueQueue 队列
+     * @return true: 加入成功呢，false：加入失败
+     */
+    Boolean offerOperateQueue(Queue<Operate> valueQueue);
 
-    //    String toSql();
+    /**
+     * 值是否合法
+     *
+     * @return true：合法，false：不合法
+     */
+    Boolean valueLegal();
 
+    /**
+     * 解析数据为操作符队列
+     *
+     * @param logicOperate 逻辑操作符
+     * @param objects      对象
+     * @return 操作符队列
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     static Queue<Operate> parse(Express.LogicOperate logicOperate, Object... objects) {
         Queue<Operate> operateQueue = new LinkedList<>();
         List<Object> parameters = Arrays.asList(objects);
@@ -54,7 +68,7 @@ public interface Operate {
 
                 if (Express.LogicOperate.AND.equals(logicOperate)) {
                     operate = AndEm(key, value);
-                } else if(Express.LogicOperate.OR.equals(logicOperate)){
+                } else if (Express.LogicOperate.OR.equals(logicOperate)) {
                     operate = OrEm(key, value);
                 } else {
                     operate = Em(key, value);
@@ -71,15 +85,12 @@ public interface Operate {
             // Operate类型处理
             if (parameter instanceof Operate) {
                 operateQueue.add((Operate) parameter);
-                continue;
             }
 
-            // todo 后面处理NeoMap的类型
-            // NeoMap处理
-            //            if (parameter instanceof NeoMap) {
-            //                 NeoMap转换到Operate
-            //                operateList.add((NeoMap)parameter);
-            //            }
+            // NeoQueue
+            if(parameter instanceof Collection) {
+                operateQueue.addAll((Collection) parameter);
+            }
         }
         return operateQueue;
     }

@@ -1,9 +1,13 @@
 package com.simonalong.neo.operate;
 
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.express.Express;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static com.simonalong.neo.express.BaseOperate.*;
 
 /**
  * @author shizi
@@ -13,7 +17,7 @@ public class NeoExpress extends NeoBaseTest {
 
     /**
      * 测试and所有形式
-     * where `name`=1 and `group`='test' and `age` = 3
+     * where `name` = ? and `group` = ? and `age` = ?
      */
     @Test
     public void antTest() {
@@ -21,156 +25,184 @@ public class NeoExpress extends NeoBaseTest {
         String sql;
 
         //--------------------- 采用 and 函数的（函数and不带括号） ---------------------
-        sql = " where `name` = ?  and  `group` = ?  and  `age` = ?";
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
         neoExpress = new Express().and("name", 1, "group", "test", "age", 3);
         Assert.assertEquals(sql, neoExpress.toSql());
 
-        // where `name`=1 and (`group`='test') and (`age` = 3)
-//        neoExpress = new Express().and("name", 1).and("group", "test").and("age", 3);
-//
-//
-//        //--------------------- 采用 op 函数的 ---------------------
-//        // where `name`=1 and (`group`='test') and (`age` = 3)
-//        neoExpress = new Express().op("name", 1).and("group", "test").and("age", 3);
-//
-//        // where `name`=1 and (`group`='test' and `age` = 3)
-//        neoExpress = new Express().op("name", 1).and("group", "test", "age", 3);
-//
-//
-//        //--------------------- 采用 And 类的（类And生成的带括号） ---------------------
-//        sql = "where `name`=1 and `group`='test' and `age` = 3";
-//        neoExpress = new Express(And("name", 1, "group", "test", "age", 3));
-//        Assert.assertEquals(sql, neoExpress.toSql());
-//        // where `name`=1 and (`group`='test') and (`age` = 3)
-//        neoExpress = new Express().op("name", 1, And("group", "test"), And("age", 3));
-//
-//        // where `name`=1 and (`group`='test' and `age` = 3)
-//        neoExpress = new Express("name", 1, And("group", "test", "age", 3));
-//
-//
-//        //--------------------- 采用 NeoMap参数 ---------------------
-//        NeoMap searchMap = NeoMap.of();
-//        searchMap.put("name", 1);
-//        searchMap.put("group", "test");
-//        searchMap.put("age", 3);
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express(searchMap);
-//
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express().and(searchMap);
-//
-//        // 注意：这里如果采用op，支持默认为And的形式
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express().op(searchMap);
-//
-//
-//        //--------------------- 采用 NeoMap多参数 ---------------------
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express(NeoMap.of("name", 1), NeoMap.of("group", "test"), NeoMap.of("age", 3));
-//
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express(NeoMap.of("name", 1), NeoMap.of("group", "test", "age", 3));
-//
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express().and(searchMap);
-//
-//        // 注意：这里如果采用op，支持默认为 and 的形式
-//        // where `name`=1 and `group`='test' and `age` = 3
-//        neoExpress = new Express().op(searchMap);
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().and("name", 1).and("group", "test").and("age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 em 函数的 ---------------------
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().em("name", 1).and("group", "test").and("age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().em("name", 1).and("group", "test", "age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 And 类的（类And生成的带括号） ---------------------
+        sql = " where (`name` = ? and `group` = ? and `age` = ?)";
+        neoExpress = new Express(And("name", 1, "group", "test", "age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? and (`group` = ?) and (`age` = ?)";
+        neoExpress = new Express().em("name", 1, And("group", "test"), And("age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? and (`group` = ? and `age` = ?)";
+        neoExpress = new Express("name", 1, And("group", "test", "age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 NeoMap参数(注意NeoMap的加入顺序没有保障) ---------------------
+        NeoMap searchMap = NeoMap.of();
+        // 设置有序，否则没有顺序性
+        searchMap.openSorted();
+        searchMap.put("name", 1);
+        searchMap.put("group", "test");
+        searchMap.put("age", 3);
+
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express(searchMap);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().and(searchMap);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        // 注意：这里如果采用，支持默认为And的形式
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().em(searchMap);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 NeoMap多参数 ---------------------
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express(NeoMap.of("name", 1), NeoMap.of("group", "test"), NeoMap.of("age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        NeoMap s1 = NeoMap.of("name", 1).openSorted();
+        NeoMap s2 = NeoMap.of("group", "test", "age", 3).openSorted();
+        neoExpress = new Express(s1, s2);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        //--------------------- 采用 NeoQueue ---------------------
+        NeoQueue queue = NeoQueue.of();
+        queue.addLast(Or("name", 1, "age", 1));
+        queue.addLast(AndEm("group", 1));
+        sql = " where (`name` = ? or `age` = ?) and `group` = ?";
+        neoExpress = new Express(queue);
+        Assert.assertEquals(sql, neoExpress.toSql());
     }
+
+    /**
+     * 测试 or
+     * where `name` = ? or `group` = ? or `age` = ?
+     */
+    @Test
+    public void orTest() {
+        Express neoExpress;
+        String sql;
+
+        //--------------------- 采用 or 函数的（函数or生成的不带括号） ---------------------
+        sql = " where `name` = ? or `group` = ? or `age` = ?";
+        neoExpress = new Express().or("name", 1, "group", "test", "age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? or `group` = ? or `age` = ?";
+        neoExpress = new Express().or("name", 1).or("group", "test").or("age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 em 函数的 ---------------------
+        sql = " where `name` = ? or `group` = ? or `age` = ?";
+        neoExpress = new Express().em("name", 1).or("group", "test").or("age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? or `group` = ? or `age` = ?";
+        neoExpress = new Express().em("name", 1).or("group", "test", "age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 Or 类的（类Or生成的sql是带括号的） ---------------------
+        sql = " where `name` = ? or (`group` = ? or `age` = ?)";
+        neoExpress = new Express("name", 1, Or("group", "test", "age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where `name` = ? or (`group` = ?) or (`age` = ?)";
+        neoExpress = new Express().em("name", 1, Or("group", "test"), Or("age", 3));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+
+        //--------------------- 采用 NeoMap参数 ---------------------
+        NeoMap searchMap = NeoMap.of().openSorted();
+        searchMap.put("name", 1);
+        searchMap.put("group", "test");
+        searchMap.put("age", 3);
+
+        // 由于NeoMap的key是不重复的，这里就没有对or进行支持，所以请采用NeoQueue做更灵活的配置
+        sql = " where `name` = ? and `group` = ? and `age` = ?";
+        neoExpress = new Express().or(searchMap);
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        sql = " where (`name` = ? and `group` = ? and `age` = ?)";
+        neoExpress = new Express().em(Or(searchMap));
+        Assert.assertEquals(sql, neoExpress.toSql());
+    }
+
+    /**
+     * 测试 or 和 and 结合的部分
+     * where `name` = ? and (`group` = ? or `age` = ?)
+     */
+    @Test
+    public void andOrTest() {
+        Express neoExpress;
+        String sql;
+
+        sql = " where `name` = ? and (`group` = ? or `age` = ?)";
+        neoExpress = new Express().and("name", 1, And(OrEm("group", "test", "age", 3)));
+        Assert.assertEquals(sql, neoExpress.toSql());
+
+        // 对于内部已经有的Or会在遇到外部的and时候会处理掉
+        sql = " where `name` = ? and (`group` = ? or `age` = ?)";
+//        neoExpress = new Express().em("name", 1).and(Or("group", "test", "age", 3));
+//        neoExpress = new Express().em("name", 1).or("group", "test", "age", 3);
+        neoExpress = new Express().em("name", 1).and(AndEm(Or("group", "test", "age", 3)));
+        Assert.assertEquals(sql, neoExpress.toSql());
 //
-//    /**
-//     * 测试 or
-//     * where `name`=1 or `group`='test' or `age` = 3
-//     */
-//    @Test
-//    public void orTest() {
-//        Express neoExpress;
-//
-//        //--------------------- 采用 or 函数的（函数or生成的不带括号） ---------------------
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().or("name", 1, "group", "test", "age", 3);
-//
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().or("name", 1).or("group", "test").or("age", 3);
-//
-//
-//        //--------------------- 采用 op 函数的 ---------------------
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().op("name", 1).or("group", "test").or("age", 3);
-//
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().op("name", 1).or("group", "test", "age", 3);
-//
-//
-//        //--------------------- 采用 Or 类的（类Or生成的sql是带括号的） ---------------------
-//        // where `name`=1 or (`group`='test' or `age` = 3)
-//        neoExpress = new Express("name", 1, Or("group", "test", "age", 3));
-//
-//        // where `name`=1 or (`group`='test') or (`age` = 3)
-//        neoExpress = new Express().op("name", 1, Or("group", "test"), Or("age", 3));
-//
-//
-//        //--------------------- 采用 NeoMap参数 ---------------------
-//        NeoMap searchMap = NeoMap.of();
-//        searchMap.put("name", 1);
-//        searchMap.put("group", "test");
-//        searchMap.put("age", 3);
-//
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().or(searchMap);
-//
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express().op(Or(searchMap));
-//
-//
-//        //--------------------- 采用 NeoMap多参数 ---------------------
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express(Or(NeoMap.of("name", 1)), Or(NeoMap.of("group", "test")), Or(NeoMap.of("age", 3)));
-//
-//        // where `name`=1 or `group`='test' or `age` = 3
-//        neoExpress = new Express(Or(NeoMap.of("name", 1)), Or(NeoMap.of("group", "test", "age", 3)));
-//    }
-//
-//    /**
-//     * 测试 or 和 and 结合的部分
-//     * where `name`=1 and (`group`='test' or `age` = 3)
-//     */
-//    @Test
-//    public void andOrTest() {
-//        Express neoExpress;
-//
-//        // where `name`=1 and (`group`='test' or `age` = 3)
-//        neoExpress = new Express().and("name", 1, Or("group", "test", "age", 3));
-//
-//        // 对于内部已经有的Or会在遇到外部的and时候会处理掉
-//        // where `name`=1 and (`group`='test' or `age` = 3)
-//        neoExpress = new Express().op("name", 1).and(Or("group", "test", "age", 3));
-//
-//        // where `name`=1 and ((`group`='test') or (`age` = 3))
+//        sql = " where `name` = ? and ((`group` = ?) or (`age` = ?))";
 //        neoExpress = new Express().and("name", 1, And(Or("group", "test"), Or("age", 3)));
+//        Assert.assertEquals(sql, neoExpress.toSql());
 //
-//        // where `name`=1 and ((`group`='test') or (`age` = 3))
-//        neoExpress = new Express().op("name", 1).and(And(Or("group", "test"), Or("age", 3)));
-//
-//        // 其中Op是空串（但是带括号）
-//        // where `name`=1 and ((`group`='test') or (`age` = 3))
-//        neoExpress = new Express().op("name", 1).and(Op("group", "test", Or("age", 3)));
+//        sql = " where `name` = ? and ((`group` = ?) or (`age` = ?))";
+//        neoExpress = new Express().em("name", 1).and(And(Or("group", "test"), Or("age", 3)));
+//        Assert.assertEquals(sql, neoExpress.toSql());
 //
 //        // 其中Op是空串（但是带括号）
-//        // where `name`=1 and ((`group`='test') or (`age` = 3))
-//        neoExpress = new Express().op("name", 1).and(Op(Or("group", "test"), Or("age", 3)));
-//    }
+//        sql = " where `name` = ? and ((`group` = ?) or (`age` = ?))";
+//        neoExpress = new Express().em("name", 1).and(Em("group", "test", Or("age", 3)));
+//        Assert.assertEquals(sql, neoExpress.toSql());
+//
+//        // 其中Op是空串（但是带括号）
+//        sql = " where `name` = ? and ((`group` = ?) or (`age` = ?))";
+//        neoExpress = new Express().em("name", 1).and(Em(Or("group", "test"), Or("age", 3)));
+//        Assert.assertEquals(sql, neoExpress.toSql());
+    }
 //
 //
 //    /**
 //     * 其他比较符号测试：等于
 //     * 也是默认的操作符
-//     * where `name` != 12 and `age` = 3
+//     * where `name` != 12 and `age` = ?
 //     */
 //    @Test
 //    public void equalTest() {
-//        // where `name` = 'tt' and `age` = 3
+        //sql = " where `name` = 'tt' and `age` = ?
 //        Express express1 = new Express().and(Equal("name", "tt")).and(Equal("age", 3));
 //
 //        Express express2 = new Express().and("name", 12, "age", 3);
@@ -179,7 +211,7 @@ public class NeoExpress extends NeoBaseTest {
 //
 //    /**
 //     * 其他比较符号测试：不等于
-//     * where `name` != 12 and `age` = 3
+//     * where `name` != 12 and `age` = ?
 //     */
 //    @Test
 //    public void notEqualTest() {
@@ -208,7 +240,7 @@ public class NeoExpress extends NeoBaseTest {
 //
 //    /**
 //     * 其他符号测试：like
-//     * where `name` like '%chou' and `age` = 3
+//     * where `name` like '%chou' and `age` = ?
 //     */
 //    @Test
 //    public void likeTest() {
@@ -222,7 +254,7 @@ public class NeoExpress extends NeoBaseTest {
 //
 //    /**
 //     * 其他符号测试：not like
-//     * where `name` like '%chou' and `age` = 3
+//     * where `name` like '%chou' and `age` = ?
 //     */
 //    @Test
 //    public void notLikeTest() {
@@ -292,7 +324,7 @@ public class NeoExpress extends NeoBaseTest {
 //        dataList.add(12L);
 //        dataList.add(13L);
 //        dataList.add(14L);
-//        express = new Express().op(IsNotNull("id"));
+//        express = new Express().em(IsNotNull("id"));
 //    }
 //
 //    /**
@@ -303,7 +335,7 @@ public class NeoExpress extends NeoBaseTest {
 //    public void groupByTest() {
 //        Express express;
 //
-//        express = new Express().and("name", "test").op(GroupBy("group"));
+//        express = new Express().and("name", "test").em(GroupBy("group"));
 //    }
 //
 //    /**
@@ -315,10 +347,10 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where `name` = 'test' order by 'create_time'
-//        express = new Express().and("name", "test").op(OrderBy("create_time"));
-//        express = new Express().and("name", "test").op(OrderBy("create_time", "asc"));
-//        express = new Express().and("name", "test").op(OrderBy("create_time", "desc"));
+        //sql = " where `name` = 'test' order by 'create_time'
+//        express = new Express().and("name", "test").em(OrderBy("create_time"));
+//        express = new Express().and("name", "test").em(OrderBy("create_time", "asc"));
+//        express = new Express().and("name", "test").em(OrderBy("create_time", "desc"));
 //    }
 //
 //    /**
@@ -333,16 +365,16 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where `name` = 'test' order by `create_time`
-//        express = new Express().and("name", "test").op(OrderBy("create_time"));
+        //sql = " where `name` = 'test' order by `create_time`
+//        express = new Express().and("name", "test").em(OrderBy("create_time"));
 //        // order by 'create_time'
-//        express = new Express().op(OrderBy("create_time"));
+//        express = new Express().em(OrderBy("create_time"));
 //
-//        // where `name` = 'test' order by `create_time` asc
-//        express = new Express().and("name", "test").op(OrderBy("create_time", "asc"));
+        //sql = " where `name` = 'test' order by `create_time` asc
+//        express = new Express().and("name", "test").em(OrderBy("create_time", "asc"));
 //
-//        // where `name` = 'test' order by `create_time` desc
-//        express = new Express().and("name", "test").op(OrderBy("create_time", "desc"));
+        //sql = " where `name` = 'test' order by `create_time` desc
+//        express = new Express().and("name", "test").em(OrderBy("create_time", "desc"));
 //    }
 //
 //    /**
@@ -354,7 +386,7 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where exists(select id from xxx)
+        //sql = " where exists(select id from xxx)
 //        express = new Express().and(Exists("select id from xxx"));
 //    }
 //
@@ -367,7 +399,7 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where not exists(select id from xxx)
+        //sql = " where not exists(select id from xxx)
 //        express = new Express().and(NotExists("select id from xxx"));
 //    }
 //
@@ -380,7 +412,7 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where not exists(select id from xxx)
+        //sql = " where not exists(select id from xxx)
 //        express = new Express().and(BetweenAnd("age", 12, 60));
 //    }
 //
@@ -393,7 +425,7 @@ public class NeoExpress extends NeoBaseTest {
 //        Express express;
 //
 //        // 默认为升序
-//        // where `age` not between 12 and 60
+        //sql = " where `age` not between 12 and 60
 //        express = new Express().and(NotBetweenAnd("age", 12, 60));
 //    }
 }

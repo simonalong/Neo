@@ -8,6 +8,8 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
+import com.simonalong.neo.express.BaseOperate;
+import com.simonalong.neo.express.Operate;
 import com.simonalong.neo.util.ClassUtil;
 import com.simonalong.neo.util.ObjectUtil;
 import java.io.Serializable;
@@ -16,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +27,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.simonalong.neo.util.LogicOperateUtil.*;
 
 /**
  * 实现map中的所有功能
@@ -42,13 +47,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @NoArgsConstructor
-public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
+public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
     /**
      * key为对应的表，value：key为数据对应的key，value为属性对应的值
      */
-    private ConcurrentHashMap<String, Object> dataMap = new ConcurrentHashMap<>();
+    private Map<String, Object> dataMap = new ConcurrentHashMap<>();
     @Getter
     private Set<String> nullValueKeySet = new HashSet<>();
     /**
@@ -483,6 +488,22 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     public static boolean isUnEmpty(Collection<NeoMap> neoMaps) {
         return !isEmpty(neoMaps);
+    }
+
+    /**
+     * 将NeoMap底层的ConcurrentHashMap类型结构转换为有序的ConcurrentSkipListMap（有序的跳表结构）
+     */
+    public NeoMap openSorted() {
+        dataMap = new ConcurrentSkipListMap<>(dataMap);
+        return this;
+    }
+
+    /**
+     * 将NeoMap底层的ConcurrentSkipListMap（有序的跳表结构）类型结构转换为有序的ConcurrentHashMap
+     */
+    public NeoMap closeSorted() {
+        dataMap = new ConcurrentHashMap<>();
+        return this;
     }
 
     /**
@@ -1015,9 +1036,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
      * @return entry集合
      */
     @Override
-    @SuppressWarnings("unchecked")
     public Set<Map.Entry<String, Object>> entrySet() {
-        Set entrySet = new HashSet<>();
+        Set<Map.Entry<String, Object>> entrySet = new HashSet<>();
         entrySet.addAll(dataMap.entrySet().stream().map(e -> new NeoMap.Node(e.getKey(), e.getValue())).collect(Collectors.toSet()));
         entrySet.addAll(nullValueKeySet.stream().map(e -> new NeoMap.Node(e, null)).collect(Collectors.toSet()));
         return entrySet;
@@ -1093,6 +1113,40 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         return neoMap;
     }
 
+    @Override
+    public String generateOperate() {
+        LinkedList<Operate> operateQueue = new LinkedList<>();
+        if (dataMap instanceof ConcurrentSkipListMap) {
+            dataMap.forEach((key, value) -> operateQueue.push(AndEm(key, value)));
+        } else {
+            dataMap.forEach((key, value) -> operateQueue.offer(AndEm(key, value)));
+        }
+
+        Operate operate;
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((operate = operateQueue.poll()) != null) {
+            String operateStr = operate.generateOperate();
+            stringBuilder.append(" and ").append(filterLogicHead(operateStr));
+        }
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * 多个值中，只要有一个合法，则就合法，
+     * @return true：合法，false：不合法
+     */
+    @Override
+    public Boolean valueLegal() {
+        Set<Map.Entry<String, Object>> entrySet = dataMap.entrySet();
+        for (Entry<String, Object> stringObjectEntry : entrySet) {
+            if(!ObjectUtil.isEmpty(stringObjectEntry.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public enum NamingChg {
         /**
          * 不转换
@@ -1134,8 +1188,8 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         /**
          * 用于名字的转换
          */
-        private Function<String, String> smallCamelToOther;
-        private Function<String, String> otherToSmallCamel;
+        private final Function<String, String> smallCamelToOther;
+        private final Function<String, String> otherToSmallCamel;
 
         NamingChg(Function<String, String> smallCamelToOther, Function<String, String> otherToSmallCamel) {
             this.smallCamelToOther = smallCamelToOther;
@@ -1163,8 +1217,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
-
-    static class Node implements Map.Entry<String, Object>, Comparable {
+    static class Node implements Map.Entry<String, Object>, Comparable<Object> {
         final String key;
         Object value;
 

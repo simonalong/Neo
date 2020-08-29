@@ -1,5 +1,6 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -23,18 +24,12 @@ public abstract class RelationOperate extends BaseOperate {
         this.value = value;
     }
 
+    /**
+     * 判断value是否满足要求
+     * @return true：满足，false：不满足
+     */
     @Override
-    @SuppressWarnings("rawtypes")
-    public Boolean haveCondition() {
-        if (null == value) {
-            return false;
-        } if(value instanceof String) {
-            String valueStr = (String) value;
-            return !"".equals(valueStr);
-        } if(value instanceof Collection) {
-            Collection collection = (Collection) value;
-            return !collection.isEmpty();
-        }
-        return true;
+    public Boolean valueLegal() {
+        return ObjectUtil.isNotEmpty(value);
     }
 }

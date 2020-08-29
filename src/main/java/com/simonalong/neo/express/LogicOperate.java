@@ -21,7 +21,7 @@ public abstract class LogicOperate extends BaseOperate {
     }
 
     @Override
-    public Boolean haveCondition() {
+    public Boolean valueLegal() {
         return true;
     }
 }

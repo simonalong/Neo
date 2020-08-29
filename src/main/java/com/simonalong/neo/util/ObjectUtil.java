@@ -3,6 +3,7 @@ package com.simonalong.neo.util;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.ValueCastClassException;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Stream;
+
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,152 +32,152 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @UtilityClass
 public class ObjectUtil {
 
-    private static final String NULL_STR = "null";
+    private final String NULL_STR = "null";
 
     public Boolean toBoolean(Object value) {
-        if(null == value){
+        if (null == value) {
             return null;
         }
 
         if (value instanceof Boolean) {
-            return Boolean.class.cast(value);
+            return (Boolean) value;
         }
         return Boolean.valueOf(String.valueOf(value));
     }
 
-    public Character toChar(Object value){
-        if(null == value){
+    public Character toChar(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(value instanceof Character){
-            return Character.class.cast(value);
+        if (value instanceof Character) {
+            return (Character) value;
         }
         String valueStr = String.valueOf(value);
-        if (valueStr.length() == 0){
+        if (valueStr.length() == 0) {
             return null;
         }
         return valueStr.charAt(0);
     }
 
-    public String toStr(Object value){
-        if(null == value){
+    public String toStr(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(value instanceof String){
-            return String.class.cast(value);
+        if (value instanceof String) {
+            return (String) value;
         }
         return String.valueOf(value);
     }
 
-    public Byte toByte(Object value){
-        if(null == value){
+    public Byte toByte(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).byteValue();
+                return ((Number) value).byteValue();
             }
             return Byte.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toByte error", e);
             return null;
         }
     }
 
-    public Short toShort(Object value){
-        if(null == value){
+    public Short toShort(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).shortValue();
+                return ((Number) value).shortValue();
             }
             return Short.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toShort error", e);
             return null;
         }
     }
 
-    public Integer toInt(Object value){
-        if(null == value){
+    public Integer toInt(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).intValue();
+                return ((Number) value).intValue();
             }
             return Integer.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toInt error", e);
             return null;
         }
     }
 
-    public Long toLong(Object value){
-        if(null == value){
+    public Long toLong(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).longValue();
+                return ((Number) value).longValue();
             }
 
             if (value instanceof java.sql.Date) {
-                return java.sql.Date.class.cast(value).getTime();
+                return ((java.sql.Date) value).getTime();
             }
 
             if (value instanceof java.sql.Time) {
-                return java.sql.Time.class.cast(value).getTime();
+                return ((java.sql.Time) value).getTime();
             }
 
             if (value instanceof java.sql.Timestamp) {
-                return java.sql.Timestamp.class.cast(value).getTime();
+                return ((java.sql.Timestamp) value).getTime();
             }
 
-            if (value instanceof java.util.Date){
-                return java.util.Date.class.cast(value).getTime();
+            if (value instanceof java.util.Date) {
+                return ((java.util.Date) value).getTime();
             }
             return Long.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toLong error", e);
             return null;
         }
     }
 
-    public Double toDouble(Object value){
-        if(null == value){
+    public Double toDouble(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).doubleValue();
+                return ((Number) value).doubleValue();
             }
             return Double.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toDouble error", e);
             return null;
         }
     }
 
-    public Float toFloat(Object value){
-        if(null == value){
+    public Float toFloat(Object value) {
+        if (null == value) {
             return null;
         }
 
         try {
             if (value instanceof Number) {
-                return Number.class.cast(value).floatValue();
+                return ((Number) value).floatValue();
             }
             return Float.valueOf(String.valueOf(value));
-        }catch (NumberFormatException | ClassCastException e){
+        } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toFloat error", e);
             return null;
         }
@@ -187,125 +189,123 @@ public class ObjectUtil {
         }
 
         if (tClass.isEnum() && value instanceof String) {
-            return Stream.of(tClass.getEnumConstants())
-                .filter(t -> t.toString().equalsIgnoreCase(String.class.cast(value))).findFirst()
-                .orElse(null);
+            return Stream.of(tClass.getEnumConstants()).filter(t -> t.toString().equalsIgnoreCase((String) value)).findFirst().orElse(null);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> T[] toArray(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(value.getClass().isArray()){
+        if (value.getClass().isArray()) {
             return (T[]) value;
         }
 
-        if(value instanceof Collection){
-            return (T[]) Collection.class.cast(value).toArray();
+        if (value instanceof Collection) {
+            return (T[]) ((Collection) value).toArray();
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> List<T> toList(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> List<T> toList(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if (List.class.isAssignableFrom(value.getClass())){
-            return List.class.cast(value);
+        if (List.class.isAssignableFrom(value.getClass())) {
+            return (List) value;
         }
 
-        if(Array.class.isAssignableFrom(value.getClass())){
+        if (Array.class.isAssignableFrom(value.getClass())) {
             return Arrays.asList(toArray(value));
         }
 
-        if(Collection.class.isAssignableFrom(value.getClass())){
-            return new ArrayList(Collection.class.cast(value));
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            return new ArrayList((Collection) value);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Set<T> toSet(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> Set<T> toSet(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if (Set.class.isAssignableFrom(value.getClass())){
-            return Set.class.cast(value);
+        if (Set.class.isAssignableFrom(value.getClass())) {
+            return (Set) value;
         }
 
-        if(Array.class.isAssignableFrom(value.getClass())){
+        if (Array.class.isAssignableFrom(value.getClass())) {
             return new HashSet(Arrays.asList(toArray(value)));
         }
 
         if (Collection.class.isAssignableFrom(value.getClass())) {
-            return new HashSet<>(Collection.class.cast(value));
+            return new HashSet<>((Collection) value);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Queue<T> toQueue(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> Queue<T> toQueue(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if (Queue.class.isAssignableFrom(value.getClass())){
-            return Queue.class.cast(value);
+        if (Queue.class.isAssignableFrom(value.getClass())) {
+            return (Queue) value;
         }
 
-        if(Array.class.isAssignableFrom(value.getClass())){
+        if (Array.class.isAssignableFrom(value.getClass())) {
             return new ArrayDeque(Arrays.asList(toArray(value)));
         }
 
         if (Collection.class.isAssignableFrom(value.getClass())) {
-            return new ArrayDeque<>(Collection.class.cast(value));
+            return new ArrayDeque<>((Collection) value);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Collection<T> toCollection(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> Collection<T> toCollection(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(Collection.class.isAssignableFrom(value.getClass())){
-            return Collection.class.cast(value);
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            return (Collection) value;
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <K, V> Map<K, V> toMap(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked"})
+    public <K, V> Map<K, V> toMap(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(value instanceof Map){
-            return (Map<K, V>)Map.class.cast(value);
+        if (value instanceof Map) {
+            return (Map<K, V>) value;
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public NeoMap toNeoMap(Object value){
-        if(null == value){
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public NeoMap toNeoMap(Object value) {
+        if (null == value) {
             return null;
         }
 
-        if(value instanceof NeoMap){
-            return NeoMap.class.cast(value);
+        if (value instanceof NeoMap) {
+            return (NeoMap) value;
         }
 
-        if(value instanceof Map){
-            return NeoMap.of().append(Map.class.cast(value));
+        if (value instanceof Map) {
+            return NeoMap.of().append((Map) value);
         }
 
         return NeoMap.from(value);
@@ -313,9 +313,10 @@ public class ObjectUtil {
 
     /**
      * 将对象按照目标类型进行转换
+     *
      * @param tClass 要转出的类型
-     * @param value 待转换的值
-     * @param <T> 类型
+     * @param value  待转换的值
+     * @param <T>    类型
      * @return 转换后的值
      */
     @SuppressWarnings("unchecked")
@@ -390,18 +391,18 @@ public class ObjectUtil {
         }
 
         // 如果待转换的为时间类型，且值为数值类型，则可以进行转换
-        if (TimeDateConverter.isTimeType(tClass) && value instanceof Long){
-           return TimeDateConverter.longToEntityTime(tClass, Long.class.cast(value));
+        if (TimeDateConverter.isTimeType(tClass) && value instanceof Long) {
+            return TimeDateConverter.longToEntityTime(tClass, (Long) value);
         }
 
         // 目标类是NeoMap
-        if(NeoMap.class.isAssignableFrom(tClass)){
+        if (NeoMap.class.isAssignableFrom(tClass)) {
             return (T) NeoMap.from(value);
         }
 
         // 原先的值为NeoMap类型
-        if (value instanceof NeoMap){
-           return NeoMap.class.cast(value).as(tClass);
+        if (value instanceof NeoMap) {
+            return ((NeoMap) value).as(tClass);
         }
 
         throw new ValueCastClassException("值 " + value + " 向类型 " + tClass.getName() + " 转换异常");
@@ -409,15 +410,16 @@ public class ObjectUtil {
 
     /**
      * 将对象的数据，按照cls类型进行转换
-     * @param cls 待转换的Class类型
+     *
+     * @param cls  待转换的Class类型
      * @param data 数据
-     * @param <T> 返回类型
+     * @param <T>  返回类型
      * @return Class类型对应的对象
      */
-    public <T> T castStr(Class<T> cls, String data){
-        if(cls.equals(String.class)) {
+    public <T> T castStr(Class<T> cls, String data) {
+        if (cls.equals(String.class)) {
             // 针对data为null的情况进行转换
-            if(NULL_STR.equals(data)){
+            if (NULL_STR.equals(data)) {
                 return null;
             }
             return cls.cast(data);
@@ -425,7 +427,7 @@ public class ObjectUtil {
             return cls.cast(data.toCharArray());
         } else {
             try {
-                if(NULL_STR.equals(data)){
+                if (NULL_STR.equals(data)) {
                     return null;
                 }
                 return cls.cast(cls.getMethod("valueOf", String.class).invoke(null, data));
@@ -434,5 +436,38 @@ public class ObjectUtil {
             }
             return null;
         }
+    }
+
+    /**
+     * 对象是否为空
+     * <p>
+     * 种情况：
+     * <ul>
+     *     <li>1.为null，则为空</li>
+     *     <li>2.为字符类型，则如果为空字符，则为空</li>
+     *     <li>3.为集合类型，则如果集合个数为空，则为空</li>
+     * </ul>
+     *
+     * @param object 待核查对象
+     * @return true:为空，false:不空
+     */
+    @SuppressWarnings("rawtypes")
+    public Boolean isEmpty(Object object) {
+        if (null == object) {
+            return true;
+        }
+        if (object instanceof String) {
+            String valueStr = (String) object;
+            return "".equals(valueStr);
+        }
+        if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            return collection.isEmpty();
+        }
+        return false;
+    }
+
+    public Boolean isNotEmpty(Object object) {
+        return !isEmpty(object);
     }
 }
