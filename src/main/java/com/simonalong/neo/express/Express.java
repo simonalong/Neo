@@ -15,36 +15,7 @@ public class Express {
     public Express() {}
 
     public Express(Object... objects) {
-        List<Object> parameters = Arrays.asList(objects);
-
-        for (int index = 0; index < parameters.size(); index++) {
-            Object parameter = parameters.get(index);
-
-            // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
-            if (parameter instanceof String) {
-                Operate operate = Operate.AndEm();
-                operate.setKey((String) parameter);
-                if (index + 1 > parameters.size()) {
-                    throw new NumberOfValueException("operate参数个数key-value有误");
-                }
-                operate.setValue(parameters.get(index++));
-                operateQueue.add(operate);
-                continue;
-            }
-
-            // Operate类型处理
-            if (parameter instanceof Operate) {
-                operateQueue.add((Operate) parameter);
-                continue;
-            }
-
-            // todo 后面处理NeoMap的类型
-            // NeoMap处理
-            //            if (parameter instanceof NeoMap) {
-            //                 NeoMap转换到Operate
-            //                operateList.add((NeoMap)parameter);
-            //            }
-        }
+        operateQueue.addAll(Operate.parse(LogicOperate.AND, objects));
     }
 
     /**
@@ -53,35 +24,7 @@ public class Express {
      * @return this
      */
     public Express and(Object... objects) {
-        List<Object> parameters = Arrays.asList(objects);
-        for (int index = 0; index < parameters.size(); index++) {
-            Object parameter = parameters.get(index);
-
-            // key-value处理：key必须为String类型，key后面必须为对应的value
-            if (parameter instanceof String) {
-                Operate operate = Operate.And();
-                operate.setKey((String) parameter);
-                if (index + 1 > parameters.size()) {
-                    throw new NumberOfValueException("operate参数个数key-value有误");
-                }
-                operate.setValue(parameters.get(index++));
-                operateQueue.add(operate);
-                continue;
-            }
-
-            // Operate类型处理
-            if (parameter instanceof Operate) {
-                operateQueue.add((Operate) parameter);
-                continue;
-            }
-
-            // todo 后面处理NeoMap的类型
-            // NeoMap处理
-            //            if (parameter instanceof NeoMap) {
-            //                 NeoMap转换到Operate
-            //                operateList.add((NeoMap)parameter);
-            //            }
-        }
+        operateQueue.addAll(Operate.parse(LogicOperate.AND, objects));
         return this;
     }
 
@@ -90,7 +33,8 @@ public class Express {
      *
      * @return this
      */
-    public Express or(Object... expresses) {
+    public Express or(Object... objects) {
+        operateQueue.addAll(Operate.parse(LogicOperate.OR, objects));
         return this;
     }
 
@@ -99,7 +43,7 @@ public class Express {
      *
      * @return this
      */
-    public Express em(Express... expresses) {
+    public Express em(Express... objects) {
         return this;
     }
 
@@ -113,7 +57,7 @@ public class Express {
     }
 
     /**
-     * 转化为sql字段
+     * 转化为带?的sql字段
      *
      * @return sql字段
      */
@@ -125,7 +69,18 @@ public class Express {
             if (!haveCondition && operate.haveCondition()) {
                 haveCondition = true;
             }
-            stringBuilder.append(operate.toSql());
+            stringBuilder.append(operate.generateOperate());
+        }
+
+        String result = stringBuilder.toString().trim();
+        if (result.length() != 0) {
+            if (result.startsWith("and ")) {
+                result = result.substring("and ".length()).trim();
+            }
+            if (result.startsWith("or ")) {
+                result = result.substring("or ".length()).trim();
+            }
+            return " where " + result;
         }
         return stringBuilder.toString();
     }
@@ -147,5 +102,11 @@ public class Express {
             return " where " + resultSqlPart;
         }
         return resultSqlPart;
+    }
+
+    static enum LogicOperate{
+        AND,
+        OR,
+        EMPTY
     }
 }

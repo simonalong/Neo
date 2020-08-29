@@ -1,15 +1,9 @@
 package com.simonalong.neo.operate;
 
 import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.express.Express;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.simonalong.neo.express.Operate.And;
 
 /**
  * @author shizi
@@ -27,7 +21,7 @@ public class NeoExpress extends NeoBaseTest {
         String sql;
 
         //--------------------- 采用 and 函数的（函数and不带括号） ---------------------
-        sql = "where `name`=1 and `group`='test' and `age` = 3";
+        sql = " where `name` = ?  and  `group` = ?  and  `age` = ?";
         neoExpress = new Express().and("name", 1, "group", "test", "age", 3);
         Assert.assertEquals(sql, neoExpress.toSql());
 
