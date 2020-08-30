@@ -31,30 +31,14 @@ public class NeoQueue<T> implements Deque<T> {
         return new LinkedList<>(dataDeque);
     }
 
-    /**
-     * 获取字符
-     *
-     * @return 字符，如果是字符串，则返回字符串的第一个字符
-     */
     public Character getFistToChar() {
         return ObjectUtil.toChar(getFirst());
     }
 
-    /**
-     * 返回值为String类型的值
-     *
-     * @return String类型的值
-     */
     public String getFistToString() {
         return ObjectUtil.toStr(getFirst());
     }
 
-    /**
-     * 获取值类型为Boolean的值
-     *
-     * @param key map中对应的key
-     * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
-     */
     public Boolean getFirstToBoolean(String key) {
         return ObjectUtil.toBoolean(getFirst());
     }
@@ -98,10 +82,61 @@ public class NeoQueue<T> implements Deque<T> {
         return ObjectUtil.toSet(getFirst()).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
     }
 
+    public Character getLastToChar() {
+        return ObjectUtil.toChar(getLast());
+    }
+
+    public String getLastToString() {
+        return ObjectUtil.toStr(getLast());
+    }
+
+    public Boolean getLastToBoolean(String key) {
+        return ObjectUtil.toBoolean(getLast());
+    }
+
+    public Byte getLastToByte() {
+        return ObjectUtil.toByte(getLast());
+    }
+
+    public Short getLastToShort() {
+        return ObjectUtil.toShort(getLast());
+    }
+
+    public Integer getLastToInteger() {
+        return ObjectUtil.toInt(getLast());
+    }
+
+    public Long getLastToLong() {
+        return ObjectUtil.toLong(getLast());
+    }
+
+    public Double getLastToDouble() {
+        return ObjectUtil.toDouble(getLast());
+    }
+
+    public Float getLastToFloat() {
+        return ObjectUtil.toFloat(getLast());
+    }
+
+    /**
+     * 获取value并转换为指定的类型的list
+     *
+     * @param tClass 目标对象的类，对于有些类型不是这个类的，只要能转换到这个类也是可以的，比如原先存的是{@code List<String>}，取的时候只要String可以转为Integer，那么这个tClass可以为Integer.class
+     * @param <E>    目标对象类型
+     * @return 集合类型
+     */
+    public <E> List<E> getLastToList(Class<E> tClass) {
+        return ObjectUtil.toList(getLast()).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toList());
+    }
+
+    public <E> Set<E> getLastToSet(Class<E> tClass) {
+        return ObjectUtil.toSet(getLast()).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
+    }
+
     @SuppressWarnings("all")
     @Override
     public NeoQueue<T> clone() {
-        NeoQueue neoQueue = NeoQueue.of();
+        NeoQueue<T> neoQueue = NeoQueue.of();
         neoQueue.addAll(this.getQueue());
         return neoQueue;
     }
