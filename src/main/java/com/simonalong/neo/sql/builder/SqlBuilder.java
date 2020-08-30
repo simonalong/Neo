@@ -41,7 +41,7 @@ public class SqlBuilder {
      * @param <T> 类型
      * @return 构造后的数据
      */
-    public <T> String buildIn(List<T> values) {
+    public <T> String buildIn(Collection<T> values) {
         if (null == values || values.isEmpty()) {
             return "";
         }

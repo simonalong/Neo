@@ -15,7 +15,7 @@ public class Express {
     public Express() {}
 
     public Express(Object... objects) {
-        init(Operate.parse(LogicEnum.EMPTY, objects));
+        init(Operate.parse(LogicEnum.AND_EM, objects));
     }
 
     @SuppressWarnings("unchecked")
@@ -28,7 +28,7 @@ public class Express {
     }
 
     private void init(Queue<Operate> queue) {
-        innerOperateQueue.offer(BaseOperate.Em(queue));
+        innerOperateQueue.offer(BaseOperate.AndEm(queue));
     }
 
     /**
@@ -37,7 +37,7 @@ public class Express {
      * @return this
      */
     public Express and(Object... objects) {
-        and(Operate.parse(LogicEnum.AND, objects));
+        and(Operate.parse(LogicEnum.AND_EM, objects));
         return this;
     }
 
@@ -47,6 +47,26 @@ public class Express {
      * @return this
      */
     public Express and(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.And(queue));
+        return this;
+    }
+
+    /**
+     * and操作
+     *
+     * @return this
+     */
+    public Express andEm(Object... objects) {
+        andEm(Operate.parse(LogicEnum.AND_EM, objects));
+        return this;
+    }
+
+    /**
+     * and操作
+     *
+     * @return this
+     */
+    public Express andEm(Queue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
         return this;
     }
@@ -57,7 +77,7 @@ public class Express {
      * @return this
      */
     public Express or(Object... objects) {
-        or(Operate.parse(LogicEnum.OR, objects));
+        or(Operate.parse(LogicEnum.OR_EM, objects));
         return this;
     }
 
@@ -67,29 +87,49 @@ public class Express {
      * @return this
      */
     public Express or(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.Or(queue));
+        return this;
+    }
+
+    /**
+     * or操作
+     *
+     * @return this
+     */
+    public Express orEm(Object... objects) {
+        orEm(Operate.parse(LogicEnum.OR_EM, objects));
+        return this;
+    }
+
+    /**
+     * or操作
+     *
+     * @return this
+     */
+    public Express orEm(Queue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.OrEm(queue));
         return this;
     }
 
-    /**
-     * 空操作
-     *
-     * @return this
-     */
-    public Express em(Object... objects) {
-        em(Operate.parse(LogicEnum.EMPTY, objects));
-        return this;
-    }
-
-    /**
-     * empty操作
-     *
-     * @return this
-     */
-    public Express em(Queue<Operate> queue) {
-        innerOperateQueue.offer(BaseOperate.Em(queue));
-        return this;
-    }
+//    /**
+//     * 空操作
+//     *
+//     * @return this
+//     */
+//    public Express em(Object... objects) {
+//        em(Operate.parse(LogicEnum.EMPTY, objects));
+//        return this;
+//    }
+//
+//    /**
+//     * empty操作
+//     *
+//     * @return this
+//     */
+//    public Express em(Queue<Operate> queue) {
+//        innerOperateQueue.offer(BaseOperate.Em(queue));
+//        return this;
+//    }
 
     /**
      * 转换为sql对应的数据

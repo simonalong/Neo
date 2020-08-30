@@ -3,8 +3,6 @@ package com.simonalong.neo.express;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 
-import java.util.Collection;
-
 /**
  * 关系运算符
  * <p>{@code <、>、<>、!=、=、>=、<=}

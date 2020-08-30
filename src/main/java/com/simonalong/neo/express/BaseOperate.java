@@ -1,11 +1,18 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoPageReq;
+import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.sql.builder.SqlBuilder;
+import com.simonalong.neo.util.LogicOperateUtil;
+import com.simonalong.neo.util.ObjectUtil;
 
 import static com.simonalong.neo.util.LogicOperateUtil.*;
 
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 /**
  * @author shizi
@@ -82,7 +89,12 @@ public abstract class BaseOperate implements Operate {
 
     private static String andGenerateOperate(Queue<Operate> queue) {
         Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
-        return " and (" + filterLogicHead(String.join(" and ", sqlPartQueue)) + ")";
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        return " and (" + filterLogicHead(String.join(" and ", operateList)) + ")";
     }
 
     /**
@@ -126,7 +138,12 @@ public abstract class BaseOperate implements Operate {
 
     private static String andEmGenerateOperate(Queue<Operate> queue) {
         Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
-        return " and " + filterLogicHead(String.join(" and ", sqlPartQueue));
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateStrList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        return " and " + filterLogicHead(String.join(" and ", operateStrList));
     }
 
     /**
@@ -180,7 +197,12 @@ public abstract class BaseOperate implements Operate {
      */
     public static String orGenerateOperate(Queue<Operate> queue) {
         Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
-        return " or (" + filterLogicHead(String.join(" or ", sqlPartQueue)) + ")";
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        return " or (" + filterLogicHead(String.join(" or ", operateList)) + ")";
     }
 
     /**
@@ -234,11 +256,17 @@ public abstract class BaseOperate implements Operate {
      */
     public static String orEmGenerateOperate(Queue<Operate> queue) {
         Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
-        return " or " + filterLogicHead(String.join(" or ", sqlPartQueue));
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        return " or " + filterLogicHead(String.join(" or ", operateList));
     }
 
     /**
      * 无符号的处理
+     *
      * @param objects 对象
      * @return 操作符
      */
@@ -288,7 +316,12 @@ public abstract class BaseOperate implements Operate {
      */
     public static String emGenerateOperate(Queue<Operate> queue) {
         Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
-        return " " + filterLogicHead(String.join(" ", sqlPartQueue));
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        return " " + filterLogicHead(String.join(" ", operateList));
     }
 
     /**
@@ -308,21 +341,314 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
+    /**
+     * 不等于操作符
+     *
+     * @param key   key
+     * @param value value值
+     * @return 等于操作
+     */
+    public static Operate NotEqual(String key, Object value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " != ?";
+            }
+        };
+    }
+
+    /**
+     * 大于操作符
+     *
+     * @param key   key
+     * @param value value值
+     * @return 等于操作
+     */
+    public static Operate GreaterThan(String key, Object value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " > ?";
+            }
+        };
+    }
+
+    /**
+     * 大于等于操作符
+     *
+     * @param key   key
+     * @param value value值
+     * @return 等于操作
+     */
+    public static Operate GreaterEqual(String key, Object value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " >= ?";
+            }
+        };
+    }
+
+    /**
+     * 小于操作符
+     *
+     * @param key   key
+     * @param value value值
+     * @return 等于操作
+     */
+    public static Operate LessThan(String key, Object value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " < ?";
+            }
+        };
+    }
+
+    /**
+     * 小于等于操作符
+     *
+     * @param key   key
+     * @param value value值
+     * @return 等于操作
+     */
+    public static Operate LessEqual(String key, Object value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " <= ?";
+            }
+        };
+    }
+
+
+    /**
+     * like模糊搜索
+     * @param key key
+     * @param value value
+     * @return 模糊匹配的字符串
+     */
+    public static Operate Like(String key, String value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " like '" + super.getValue() + "'";
+            }
+        };
+    }
+
+    /**
+     * not like模糊搜索
+     * @param key key
+     * @param value value
+     * @return 模糊匹配的字符串
+     */
+    public static Operate NotLike(String key, String value) {
+        return new RelationOperate(key, value) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " not like '" + super.getValue() + "'";
+            }
+        };
+    }
+
+    /**
+     * in集合处理
+     * @param key key
+     * @param collection 待匹配的集合
+     * @return 模糊匹配的字符串
+     */
+    public static Operate In(String key, Collection<Object> collection) {
+        return new RelationOperate(key, collection) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " in " + SqlBuilder.buildIn(collection);
+            }
+        };
+    }
+
+    /**
+     * not in集合处理
+     * @param key key
+     * @param collection 待匹配的集合
+     * @return 模糊匹配的字符串
+     */
+    public static Operate NotIn(String key, Collection<Object> collection) {
+        return new RelationOperate(key, collection) {
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " not in " + SqlBuilder.buildIn(collection);
+            }
+        };
+    }
+
+    /**
+     * is null
+     * @param key key
+     * @return 模糊匹配的字符串
+     */
+    public static Operate IsNull(String key) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " is null";
+            }
+        };
+    }
+
+    /**
+     * is not null
+     * @param key key
+     * @return 模糊匹配的字符串
+     */
+    public static Operate IsNotNull(String key) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " is not null";
+            }
+        };
+    }
+
+    /**
+     * group by
+     * @param key key
+     * @return group by字符串
+     */
+    public static Operate GroupBy(String key) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " group by" + SqlBuilder.toDbField(super.getKey());
+            }
+        };
+    }
+
+    public static Operate OrderBy(String key) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " group by" + SqlBuilder.toDbField(super.getKey());
+            }
+        };
+    }
+
+    public static Operate OrderBy(String key, String descOrAsc) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " order by" + SqlBuilder.toDbField(super.getKey()) + " " + descOrAsc;
+            }
+        };
+    }
+
+    public static Operate OrderByDesc(String key) {
+        return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " order by" + SqlBuilder.toDbField(super.getKey()) + " desc";
+            }
+        };
+    }
+
+    public static Operate BetweenAnd(String key, Object leftValue, Object rightValue) {
+        return new BiRelationOperate(key, leftValue, rightValue) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " between ? and ? ";
+            }
+        };
+    }
+
+    public static Operate NotBetweenAnd(String key, Object leftValue, Object rightValue) {
+        return new BiRelationOperate(key, leftValue, rightValue) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " not between ? and ? ";
+            }
+        };
+    }
+
+    public static Operate Page(NeoPageReq<Object> neoPageReq) {
+        return new RelationOperate(null, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return SqlBuilder.toDbField(super.getKey()) + " limit " + neoPageReq.getPageSize() + " offset " + neoPageReq.getPageIndex();
+            }
+        };
+    }
+
     private static Queue<String> doGenerateSqlPart(Queue<Operate> queue) {
         if (null == queue || queue.isEmpty()) {
             return new LinkedList<>();
         }
-        Operate operate, operateInner;
+        Operate operate;
         Queue<String> sqlPartQueue = new LinkedList<>();
         while ((operate = queue.poll()) != null) {
-            Queue<Operate> childOperateQueue = operate.getChildQueue();
-            if (null == childOperateQueue || childOperateQueue.isEmpty()) {
-                sqlPartQueue.offer(filterLogicHead(operate.generateOperate()));
-            } else {
-                while ((operateInner = childOperateQueue.poll()) != null) {
-                    sqlPartQueue.offer(filterLogicHead(operateInner.generateOperate()));
-                }
-            }
+            sqlPartQueue.offer(operate.generateOperate());
         }
         return sqlPartQueue;
     }
