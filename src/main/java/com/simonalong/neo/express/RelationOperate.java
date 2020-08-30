@@ -15,9 +15,9 @@ import java.util.Collection;
 public abstract class RelationOperate extends BaseOperate {
 
     @Getter
-    private String key;
+    private final String key;
     @Getter
-    private Object value;
+    private final Object value;
 
     public RelationOperate(String key, Object value) {
         this.key = key;

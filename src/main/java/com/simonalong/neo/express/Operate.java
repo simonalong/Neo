@@ -1,10 +1,9 @@
 package com.simonalong.neo.express;
 
+import java.util.*;
 import com.simonalong.neo.exception.NumberOfValueException;
 
 import static com.simonalong.neo.express.BaseOperate.*;
-
-import java.util.*;
 
 /**
  * 运算符
@@ -25,9 +24,8 @@ public interface Operate {
      * 添加运算符数据
      *
      * @param value 待加入的运算
-     * @return true: 加入成功呢，false：加入失败
      */
-    Boolean offerOperate(Operate value);
+    void offerOperate(Operate value);
 
     /**
      * 添加运算符队列

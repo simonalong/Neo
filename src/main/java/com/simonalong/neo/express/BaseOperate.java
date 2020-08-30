@@ -22,8 +22,8 @@ public abstract class BaseOperate implements Operate {
     }
 
     @Override
-    public Boolean offerOperate(Operate value) {
-        return this.childOperateQueue.offer(value);
+    public void offerOperate(Operate value) {
+        this.childOperateQueue.offer(value);
     }
 
     @Override

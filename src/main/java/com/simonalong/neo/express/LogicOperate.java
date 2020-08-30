@@ -11,7 +11,7 @@ import java.util.Queue;
  */
 public abstract class LogicOperate extends BaseOperate {
 
-    private Express.LogicEnum logicEnum;
+    private final Express.LogicEnum logicEnum;
 
     public LogicOperate(Express.LogicEnum logicEnum, Operate operate) {
         super();
