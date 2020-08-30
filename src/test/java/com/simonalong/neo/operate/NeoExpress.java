@@ -221,50 +221,21 @@ public class NeoExpress extends NeoBaseTest {
         neoExpress = new Express().and(LessEqual("name", "tt"), Equal("age", 3));
         Assert.assertEquals(sql, neoExpress.toSql());
     }
-//
-//
-//    /**
-//     * 其他比较符号测试：不等于
-//     * where `name` != 12 and `age` = ?
-//     */
-//    @Test
-//    public void notEqualTest() {
-//        Express express1 = new Express().and(NotEqual("name", 12)).and("age", 3);
-//
-//        Express express2 = new Express().and(NotEqual("name", 12), "age", 3);
-//    }
-//
-//    /**
-//     * 其他比较符号测试：大于、小于
-//     * where `name` = 'chou' and `age` > 3 and `age` < 50
-//     */
-//    @Test
-//    public void compareTest() {
-//        Express express2 = new Express().and("name", "chou", GreaterThan("age", 3), LessThan("age", 50));
-//    }
-//
-//    /**
-//     * 其他比较符号测试：大于等于、小于等于
-//     * where `name` = 'chou' and `age` > 3 and `age` < 50
-//     */
-//    @Test
-//    public void compareEqualTest() {
-//        Express express2 = new Express().and("name", "chou", GreaterEqual("age", 3), LessEqual("age", 50));
-//    }
-//
-//    /**
-//     * 其他符号测试：like
-//     * where `name` like '%chou' and `age` = ?
-//     */
-//    @Test
-//    public void likeTest() {
-//        Express express;
-//        express = new Express().and(Like("name", "chou", "%"), "age", 3);
-//
-//        express = new Express().and(Like("name", "%", "chou"), "age", 3);
-//
-//        express = new Express().and(Like("name", "%", "chou", "%"), "age", 3);
-//    }
+
+
+    /**
+     * 其他符号测试：like
+     * where `name` like '%chou' and `age` = ?
+     */
+    @Test
+    public void likeTest() {
+        Express neoExpress;
+        String sql;
+
+        sql = " where (`name` <= ? and `age` = ?)";
+        neoExpress = new Express().and(Like("name", "%chou"), "age", 3);
+        Assert.assertEquals(sql, neoExpress.toSql());
+    }
 //
 //    /**
 //     * 其他符号测试：not like
