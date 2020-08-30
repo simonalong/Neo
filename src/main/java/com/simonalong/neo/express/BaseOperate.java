@@ -29,16 +29,6 @@ public abstract class BaseOperate implements Operate {
         this.childOperateQueue.offer(value);
     }
 
-    @Override
-    public Boolean offerOperateQueue(NeoQueue<Operate> valueQueue) {
-        return this.childOperateQueue.addAll(valueQueue);
-    }
-
-    @Override
-    public NeoQueue<Operate> getChildQueue() {
-        return this.childOperateQueue;
-    }
-
     /**
      * 有括号的and
      *

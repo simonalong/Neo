@@ -23,7 +23,6 @@ public class NeoExpress extends NeoBaseTest {
 
     /**
      * 测试and所有形式
-     * where `name` = ? and `group` = ? and `age` = ?
      */
     @Test
     public void antTest() {

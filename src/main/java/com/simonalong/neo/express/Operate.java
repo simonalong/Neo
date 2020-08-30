@@ -30,20 +30,6 @@ public interface Operate {
     void offerOperate(Operate value);
 
     /**
-     * 添加运算符队列
-     *
-     * @param valueQueue 队列
-     * @return true: 加入成功呢，false：加入失败
-     */
-    Boolean offerOperateQueue(NeoQueue<Operate> valueQueue);
-
-    /**
-     * 获取子节点操作符队列
-     * @return 子节点操作符队列
-     */
-    NeoQueue<Operate> getChildQueue();
-
-    /**
      * 值是否合法
      *
      * @return true：合法，false：不合法
