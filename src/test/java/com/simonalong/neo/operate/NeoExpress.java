@@ -232,7 +232,7 @@ public class NeoExpress extends NeoBaseTest {
         Express neoExpress;
         String sql;
 
-        sql = " where (`name` <= ? and `age` = ?)";
+        sql = "where (`name` like '%chou' and `age` = ?)";
         neoExpress = new Express().and(Like("name", "%chou"), "age", 3);
         Assert.assertEquals(sql, neoExpress.toSql());
     }
