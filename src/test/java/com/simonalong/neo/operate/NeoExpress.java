@@ -4,9 +4,11 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.express.Express;
-import com.sun.tools.corba.se.idl.constExpr.GreaterEqual;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.simonalong.neo.express.BaseOperate.*;
 
@@ -22,53 +24,53 @@ public class NeoExpress extends NeoBaseTest {
      */
     @Test
     public void antTest() {
-        Express neoExpress;
+        Express express;
         String sql;
 
         //--------------------- 采用 and 函数的（函数and不带括号） ---------------------
         sql = " where `name` = ? and `group` = ? and `age` = ?";
-        neoExpress = new Express().andEm("name", 1, "group", "test", "age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().andEm("name", 1, "group", "test", "age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ? and `group` = ? and `age` = ?)";
-        neoExpress = new Express().and("name", 1, "group", "test", "age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1, "group", "test", "age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where `name` = ?";
-        neoExpress = new Express().andEm("name", 1);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().andEm("name", 1);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ?)";
-        neoExpress = new Express().and("name", 1);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ?) and (`group` = ?) and (`age` = ?)";
-        neoExpress = new Express().and("name", 1).and("group", "test").and("age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1).and("group", "test").and("age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
 
         //--------------------- 采用 em 函数的 ---------------------
         sql = " where (`name` = ?) and (`group` = ?) and (`age` = ?)";
-        neoExpress = new Express().and("name", 1).and("group", "test").and("age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1).and("group", "test").and("age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ?) and (`group` = ? and `age` = ?)";
-        neoExpress = new Express().and("name", 1).and("group", "test", "age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1).and("group", "test", "age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
 
         //--------------------- 采用 And 类的（类And生成的带括号） ---------------------
         sql = " where (`name` = ? and `group` = ? and `age` = ?)";
-        neoExpress = new Express(And("name", 1, "group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express(And("name", 1, "group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ?) and ((`group` = ?) and (`age` = ?))";
-        neoExpress = new Express().and("name", 1).and(And("group", "test"), And("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1).and(And("group", "test"), And("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where `name` = ? and (`group` = ? and `age` = ?)";
-        neoExpress = new Express("name", 1, And("group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express("name", 1, And("group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
 
 //        //--------------------- 采用 NeoMap参数(注意NeoMap的加入顺序没有保障) ---------------------
@@ -80,37 +82,37 @@ public class NeoExpress extends NeoBaseTest {
         searchMap.put("age", 3);
 
         sql = " where `name` = ? and `group` = ? and `age` = ?";
-        neoExpress = new Express(searchMap);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express(searchMap);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where `name` = ? and `group` = ? and `age` = ?";
-        neoExpress = new Express().andEm(searchMap);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().andEm(searchMap);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ? and `group` = ? and `age` = ?)";
-        neoExpress = new Express().and(searchMap);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(searchMap);
+        Assert.assertEquals(sql, express.toSql());
 
 
         //--------------------- 采用 NeoMap多参数 ---------------------
         sql = " where `name` = ? and `group` = ? and `age` = ?";
-        neoExpress = new Express(NeoMap.of("name", 1), NeoMap.of("group", "test"), NeoMap.of("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express(NeoMap.of("name", 1), NeoMap.of("group", "test"), NeoMap.of("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 请开启openSort，否则对应的值可能是无序
         sql = " where `name` = ? and `group` = ? and `age` = ?";
         NeoMap s1 = NeoMap.of("name", 1).openSorted();
         NeoMap s2 = NeoMap.of("group", "test", "age", 3).openSorted();
-        neoExpress = new Express(s1, s2);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express(s1, s2);
+        Assert.assertEquals(sql, express.toSql());
 
         //--------------------- 采用 NeoQueue ---------------------
         NeoQueue queue = NeoQueue.of();
         queue.addLast(Or("name", 1, "age", 1));
         queue.addLast(AndEm("group", 1));
         sql = " where (`name` = ? or `age` = ?) and `group` = ?";
-        neoExpress = new Express(queue);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express(queue);
+        Assert.assertEquals(sql, express.toSql());
     }
 
     /**
@@ -119,27 +121,27 @@ public class NeoExpress extends NeoBaseTest {
      */
     @Test
     public void orTest() {
-        Express neoExpress;
+        Express express;
         String sql;
 
         //--------------------- 采用 or 函数的（函数or生成的不带括号） ---------------------
         sql = " where (`name` = ? or `group` = ? or `age` = ?)";
-        neoExpress = new Express().or("name", 1, "group", "test", "age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().or("name", 1, "group", "test", "age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ?) or (`group` = ?) or (`age` = ?)";
-        neoExpress = new Express().or("name", 1).or("group", "test").or("age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().or("name", 1).or("group", "test").or("age", 3);
+        Assert.assertEquals(sql, express.toSql());
 
 
         //--------------------- 采用 Or 类的（类Or生成的sql是带括号的） ---------------------
         sql = " where `name` = ? and (`group` = ?)";
-        neoExpress = new Express("name", 1, Or("group", "test"));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express("name", 1, Or("group", "test"));
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where `name` = ? and (`group` = ? or `age` = ?)";
-        neoExpress = new Express("name", 1, Or("group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express("name", 1, Or("group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
 
         //--------------------- 采用 NeoMap参数 ---------------------
@@ -150,8 +152,8 @@ public class NeoExpress extends NeoBaseTest {
 
         // 由于NeoMap的key是不重复的，这里就没有对or进行支持，所以请采用NeoQueue做更灵活的配置
         sql = " where (`name` = ? and `group` = ? and `age` = ?)";
-        neoExpress = new Express().or(searchMap);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().or(searchMap);
+        Assert.assertEquals(sql, express.toSql());
     }
 
     /**
@@ -160,25 +162,25 @@ public class NeoExpress extends NeoBaseTest {
      */
     @Test
     public void andOrTest() {
-        Express neoExpress;
+        Express express;
         String sql;
 
         sql = " where (`name` = ? and (`group` = ? or `age` = ?))";
-        neoExpress = new Express().and("name", 1, Or("group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1, Or("group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 对于内部已经有的Or会在遇到外部的and时候会处理掉
         sql = " where `name` = ? and ((`group` = ? or `age` = ?))";
-        neoExpress = new Express().andEm("name", 1).and(Or("group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().andEm("name", 1).and(Or("group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where (`name` = ? and ((`group` = ?) and (`age` = ?)))";
-        neoExpress = new Express().and("name", 1, And(Or("group", "test"), Or("age", 3)));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and("name", 1, And(Or("group", "test"), Or("age", 3)));
+        Assert.assertEquals(sql, express.toSql());
 
         sql = " where `name` = ? and ((`group` = ? or `age` = ?))";
-        neoExpress = new Express().andEm("name", 1).and(Or("group", "test", "age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().andEm("name", 1).and(Or("group", "test", "age", 3));
+        Assert.assertEquals(sql, express.toSql());
     }
 
 
@@ -188,38 +190,38 @@ public class NeoExpress extends NeoBaseTest {
      */
     @Test
     public void relationTest() {
-        Express neoExpress;
+        Express express;
         String sql;
 
         // 等于
         sql = " where (`name` = ? and `age` = ?)";
-        neoExpress = new Express().and(Equal("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(Equal("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 不等于
         sql = " where (`name` != ? and `age` = ?)";
-        neoExpress = new Express().and(NotEqual("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(NotEqual("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 大于
         sql = " where (`name` > ? and `age` = ?)";
-        neoExpress = new Express().and(GreaterThan("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(GreaterThan("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 大于等于
         sql = " where (`name` >= ? and `age` = ?)";
-        neoExpress = new Express().and(GreaterEqual("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(GreaterEqual("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 小于
         sql = " where (`name` < ? and `age` = ?)";
-        neoExpress = new Express().and(LessThan("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(LessThan("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
 
         // 小于等于
         sql = " where (`name` <= ? and `age` = ?)";
-        neoExpress = new Express().and(LessEqual("name", "tt"), Equal("age", 3));
-        Assert.assertEquals(sql, neoExpress.toSql());
+        express = new Express().and(LessEqual("name", "tt"), Equal("age", 3));
+        Assert.assertEquals(sql, express.toSql());
     }
 
 
@@ -229,188 +231,214 @@ public class NeoExpress extends NeoBaseTest {
      */
     @Test
     public void likeTest() {
-        Express neoExpress;
+        Express express;
         String sql;
 
-        sql = "where (`name` like '%chou' and `age` = ?)";
-        neoExpress = new Express().and(Like("name", "%chou"), "age", 3);
-        Assert.assertEquals(sql, neoExpress.toSql());
+        sql = " where (`name` like '%chou' and `age` = ?)";
+        express = new Express().and(Like("name", "%chou"), "age", 3);
+        Assert.assertEquals(sql, express.toSql());
     }
-//
-//    /**
-//     * 其他符号测试：not like
-//     * where `name` like '%chou' and `age` = ?
-//     */
-//    @Test
-//    public void notLikeTest() {
-//        Express express;
-//        express= new Express().and(NotLike("name", "chou", "%"), "age", 3);
-//
-//        express = new Express().and(NotLike("name", "%", "chou"), "age", 3);
-//
-//        express = new Express().and(NotLike("name", "%", "chou", "%"), "age", 3);
-//    }
-//
-//    /**
-//     * 其他符号测试：in
-//     * where id in (12,32,43,43)
-//     */
-//    @Test
-//    public void inTest() {
-//        Express express;
-//
-//        List<Long> dataList = new ArrayList<>();
-//        dataList.add(12L);
-//        dataList.add(13L);
-//        dataList.add(14L);
-//        express = new Express().and(In("id", dataList));
-//    }
-//
-//
-//    /**
-//     * 其他符号测试：not in
-//     * where not id in (12,32,43,43)
-//     */
-//    @Test
-//    public void notInTest() {
-//        Express express;
-//
-//        List<Long> dataList = new ArrayList<>();
-//        dataList.add(12L);
-//        dataList.add(13L);
-//        dataList.add(14L);
-//        express = new Express().and(NotIn("id", dataList));
-//    }
-//
-//    /**
-//     * 其他符号测试：is null
-//     * where `name` is null
-//     */
-//    @Test
-//    public void isNullTest() {
-//        Express express;
-//
-//        List<Long> dataList = new ArrayList<>();
-//        dataList.add(12L);
-//        dataList.add(13L);
-//        dataList.add(14L);
-//        express = new Express().and(IsNull("id"));
-//    }
-//
-//    /**
-//     * 其他符号测试：is null
-//     * where `name` is null
-//     */
-//    @Test
-//    public void isNotNullTest() {
-//        Express express;
-//
-//        List<Long> dataList = new ArrayList<>();
-//        dataList.add(12L);
-//        dataList.add(13L);
-//        dataList.add(14L);
-//        express = new Express().em(IsNotNull("id"));
-//    }
-//
-//    /**
-//     * 其他符号测试：group by
-//     * where `name` = 'test' group by 'group'
-//     */
-//    @Test
-//    public void groupByTest() {
-//        Express express;
-//
-//        express = new Express().and("name", "test").em(GroupBy("group"));
-//    }
-//
-//    /**
-//     * 其他符号测试：order by
-//     * where `name` = 'test' order by 'create_time'
-//     */
-//    @Test
-//    public void orderByTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where `name` = 'test' order by 'create_time'
-//        express = new Express().and("name", "test").em(OrderBy("create_time"));
-//        express = new Express().and("name", "test").em(OrderBy("create_time", "asc"));
-//        express = new Express().and("name", "test").em(OrderBy("create_time", "desc"));
-//    }
-//
-//    /**
-//     * where字符测试
-//     * <p>
-//     *    在没有一些条件的时候，where字段不再存在
-//     *
-//     *  where `name` = 'test' order by 'create_time'
-//     */
-//    @Test
-//    public void whereTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where `name` = 'test' order by `create_time`
-//        express = new Express().and("name", "test").em(OrderBy("create_time"));
-//        // order by 'create_time'
-//        express = new Express().em(OrderBy("create_time"));
-//
-        //sql = " where `name` = 'test' order by `create_time` asc
-//        express = new Express().and("name", "test").em(OrderBy("create_time", "asc"));
-//
-        //sql = " where `name` = 'test' order by `create_time` desc
-//        express = new Express().and("name", "test").em(OrderBy("create_time", "desc"));
-//    }
-//
-//    /**
-//     * 符号测试：exist
-//     * where exist(xxxxx)
-//     */
-//    @Test
-//    public void orderByTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where exists(select id from xxx)
-//        express = new Express().and(Exists("select id from xxx"));
-//    }
-//
-//    /**
-//     * 符号测试：not exist
-//     * where exist(xxxxx)
-//     */
-//    @Test
-//    public void orderByTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where not exists(select id from xxx)
-//        express = new Express().and(NotExists("select id from xxx"));
-//    }
-//
-//    /**
-//     * 符号测试：not exist
-//     * where `age` between 12 and 60
-//     */
-//    @Test
-//    public void betweenTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where not exists(select id from xxx)
-//        express = new Express().and(BetweenAnd("age", 12, 60));
-//    }
-//
-//    /**
-//     * 符号测试：not exist
-//     * where `age` not between 12 and 60
-//     */
-//    @Test
-//    public void notBetweenTest() {
-//        Express express;
-//
-//        // 默认为升序
-        //sql = " where `age` not between 12 and 60
-//        express = new Express().and(NotBetweenAnd("age", 12, 60));
-//    }
+
+    /**
+     * 其他符号测试：not like
+     * where `name` like '%chou' and `age` = ?
+     */
+    @Test
+    public void notLikeTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` not like '%chou' and `age` = ?)";
+        express= new Express().and(NotLike("name", "%chou"), "age", 3);
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：in
+     * where id in (12,32,43,43)
+     */
+    @Test
+    public void inTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`id` in ('12', '13', '14'))";
+
+        List<Long> dataList = new ArrayList<>();
+        dataList.add(12L);
+        dataList.add(13L);
+        dataList.add(14L);
+        express = new Express().and(In("id", dataList));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：in
+     * where id in (12,32,43,43)
+     */
+    @Test
+    public void notInTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`id` not in ('12', '13', '14'))";
+
+        List<Long> dataList = new ArrayList<>();
+        dataList.add(12L);
+        dataList.add(13L);
+        dataList.add(14L);
+        express = new Express().and(NotIn("id", dataList));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：is null
+     * where `name` is null
+     */
+    @Test
+    public void isNullTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` is null)";
+        express = new Express().and(IsNull("name"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：is null
+     * where `name` is null
+     */
+    @Test
+    public void isNotNullTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` is not null)";
+        express = new Express().and(IsNotNull("name"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：group by
+     * where `name` = 'test' group by 'group'
+     */
+    @Test
+    public void groupByTest() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` = ?) group by `group`";
+        express = new Express().and("name", 12).apppend(GroupBy("group"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：order by
+     */
+    @Test
+    public void orderByTest() {
+        Express express;
+        String sql;
+
+        // 默认为升序
+        sql = " where (`name` = ?) order by `create_time`";
+        express = new Express().and("name", "test").apppend(OrderBy("create_time"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：order by
+     */
+    @Test
+    public void orderByTestAsc() {
+        Express express;
+        String sql;
+
+        // 默认为升序
+        sql = " where (`name` = ?) order by `create_time` asc";
+        express = new Express().and("name", "test").apppend(OrderBy("create_time", "asc"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：order by desc
+     */
+    @Test
+    public void orderByDescTest1() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` = ?) order by `create_time` desc";
+        express = new Express().and("name", "test").apppend(OrderByDesc("create_time"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 其他符号测试：order by desc
+     * where exist(xxxxx)
+     */
+    @Test
+    public void orderByDescTest2() {
+        Express express;
+        String sql;
+
+        sql = " where (`name` = ?) order by `create_time` desc";
+        express = new Express().and("name", "test").apppend(OrderBy("create_time", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 符号测试：exists
+     */
+    @Test
+    public void existsTest() {
+        Express express;
+        String sql;
+
+        // 默认为升序
+        sql = " where exists (select id from xxx)";
+        express = new Express().apppend(Exists("select id from xxx"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 符号测试：not exists
+     */
+    @Test
+    public void notExistsTest() {
+        Express express;
+        String sql;
+
+        // 默认为升序
+        sql = " where not exists (select id from xxx)";
+        express = new Express().apppend(NotExists("select id from xxx"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 符号测试：between and
+     */
+    @Test
+    public void betweenTest() {
+        Express express;
+        String sql;
+
+        sql = " where `age` between ? and ?";
+        express = new Express().apppend(BetweenAnd("age", 12, 60));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    /**
+     * 符号测试：not between and
+     */
+    @Test
+    public void notBetweenTest() {
+        Express express;
+        String sql;
+
+        sql = " where `age` not between ? and ?";
+        express = new Express().apppend(NotBetweenAnd("age", 12, 60));
+        Assert.assertEquals(sql, express.toSql());
+    }
 }

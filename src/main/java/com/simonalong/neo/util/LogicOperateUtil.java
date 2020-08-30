@@ -20,12 +20,12 @@ public class LogicOperateUtil {
             return "";
         }
         String result = operateStr.trim();
-        if (result.startsWith("and") || result.startsWith("or")) {
-            if (result.startsWith("and")) {
-                result = result.substring("and".length()).trim();
+        if (result.startsWith("and ") || result.startsWith("or ")) {
+            if (result.startsWith("and ")) {
+                result = result.substring("and ".length()).trim();
             }
-            if (result.startsWith("or")) {
-                result = result.substring("or".length()).trim();
+            if (result.startsWith("or ")) {
+                result = result.substring("or ".length()).trim();
             }
             return filterLogicHead(result);
         }

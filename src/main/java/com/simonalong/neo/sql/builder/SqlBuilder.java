@@ -46,7 +46,7 @@ public class SqlBuilder {
             return "";
         }
         List<String> strList = values.stream().map(c -> (null == c) ? null : String.valueOf(c)).collect(Collectors.toList());
-        return "('" + String.join("','", strList) + "')";
+        return "('" + String.join("', '", strList) + "')";
     }
 
     /**

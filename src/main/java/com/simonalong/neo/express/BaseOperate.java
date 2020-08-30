@@ -463,7 +463,8 @@ public abstract class BaseOperate implements Operate {
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
-    public static Operate In(String key, Collection<Object> collection) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Operate In(String key, Collection collection) {
         return new RelationOperate(key, collection) {
 
             @Override
@@ -479,7 +480,8 @@ public abstract class BaseOperate implements Operate {
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
-    public static Operate NotIn(String key, Collection<Object> collection) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Operate NotIn(String key, Collection collection) {
         return new RelationOperate(key, collection) {
 
             @Override
@@ -544,7 +546,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " group by" + SqlBuilder.toDbField(super.getKey());
+                return " group by " + SqlBuilder.toDbField(super.getKey());
             }
         };
     }
@@ -559,7 +561,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " group by" + SqlBuilder.toDbField(super.getKey());
+                return " order by " + SqlBuilder.toDbField(super.getKey());
             }
         };
     }
@@ -574,7 +576,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " order by" + SqlBuilder.toDbField(super.getKey()) + " " + descOrAsc;
+                return " order by " + SqlBuilder.toDbField(super.getKey()) + " " + descOrAsc;
             }
         };
     }
@@ -589,7 +591,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " order by" + SqlBuilder.toDbField(super.getKey()) + " desc";
+                return " order by " + SqlBuilder.toDbField(super.getKey()) + " desc";
             }
         };
     }
@@ -638,6 +640,55 @@ public abstract class BaseOperate implements Operate {
             }
         };
     }
+
+    public static Operate Exists(String sql) {
+        return new RelationOperate(null, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " exists (" + sql + ") ";
+            }
+        };
+    }
+
+    public static Operate NotExists(String sql) {
+        return new RelationOperate(null, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " not exists (" + sql + ") ";
+            }
+        };
+    }
+
+
+
+    public static Operate NotExist(String sql) {
+        return new RelationOperate(null, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " not exist (" + sql + ") ";
+            }
+        };
+    }
+
+
 
     private static Queue<String> doGenerateSqlPart(Queue<Operate> queue) {
         if (null == queue || queue.isEmpty()) {

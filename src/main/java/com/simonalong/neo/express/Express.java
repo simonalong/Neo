@@ -111,25 +111,25 @@ public class Express {
         return this;
     }
 
-//    /**
-//     * 空操作
-//     *
-//     * @return this
-//     */
-//    public Express em(Object... objects) {
-//        em(Operate.parse(LogicEnum.EMPTY, objects));
-//        return this;
-//    }
-//
-//    /**
-//     * empty操作
-//     *
-//     * @return this
-//     */
-//    public Express em(Queue<Operate> queue) {
-//        innerOperateQueue.offer(BaseOperate.Em(queue));
-//        return this;
-//    }
+    /**
+     * 空操作
+     *
+     * @return this
+     */
+    public Express apppend(Object... objects) {
+        apppend(Operate.parse(LogicEnum.EMPTY, objects));
+        return this;
+    }
+
+    /**
+     * empty操作
+     *
+     * @return this
+     */
+    public Express apppend(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.Em(queue));
+        return this;
+    }
 
     /**
      * 转换为sql对应的数据
