@@ -1115,7 +1115,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
 
     @Override
     public String generateOperate() {
-        LinkedList<Operate> operateQueue = new LinkedList<>();
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
         if (dataMap instanceof ConcurrentSkipListMap) {
             dataMap.forEach((key, value) -> operateQueue.push(AndEm(key, value)));
         } else {
@@ -1145,6 +1145,17 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
             }
         }
         return false;
+    }
+
+    @Override
+    public NeoQueue<Object> getValueQueue() {
+        NeoQueue<Object> operateQueue = NeoQueue.of();
+        if (dataMap instanceof ConcurrentSkipListMap) {
+            dataMap.forEach((key, value) -> operateQueue.push(value));
+        } else {
+            dataMap.forEach((key, value) -> operateQueue.offer(value));
+        }
+        return operateQueue;
     }
 
     public enum NamingChg {

@@ -1,6 +1,8 @@
 package com.simonalong.neo.express;
 
 import java.util.*;
+
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.exception.NumberOfValueException;
 
 import static com.simonalong.neo.express.BaseOperate.*;
@@ -33,13 +35,13 @@ public interface Operate {
      * @param valueQueue 队列
      * @return true: 加入成功呢，false：加入失败
      */
-    Boolean offerOperateQueue(Queue<Operate> valueQueue);
+    Boolean offerOperateQueue(NeoQueue<Operate> valueQueue);
 
     /**
      * 获取子节点操作符队列
      * @return 子节点操作符队列
      */
-    Queue<Operate> getChildQueue();
+    NeoQueue<Operate> getChildQueue();
 
     /**
      * 值是否合法
@@ -49,15 +51,21 @@ public interface Operate {
     Boolean valueLegal();
 
     /**
+     * 获取值的队列
+     * @return 值队列
+     */
+    NeoQueue<Object> getValueQueue();
+
+    /**
      * 解析数据为操作符队列
      *
      * @param logicOperate 逻辑操作符
      * @param objects      对象
      * @return 操作符队列
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    static Queue<Operate> parse(Express.LogicEnum logicOperate, Object... objects) {
-        Queue<Operate> operateQueue = new LinkedList<>();
+    @SuppressWarnings({"rawtypes"})
+    static NeoQueue<Operate> parse(Express.LogicEnum logicOperate, Object... objects) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
         List<Object> parameters = Arrays.asList(objects);
 
         for (int index = 0; index < parameters.size(); index++) {
@@ -67,7 +75,7 @@ public interface Operate {
             if (parameter instanceof String) {
                 Operate operate;
                 String key = (String) parameter;
-                Object value = parameters.get(index++);
+                Object value = parameters.get(++index);
 
                 switch (logicOperate){
                     case AND:

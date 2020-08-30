@@ -1,5 +1,6 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 
@@ -10,9 +11,9 @@ import lombok.Getter;
 public abstract class BiRelationOperate extends RelationOperate {
 
     @Getter
-    private Object leftValue;
+    private final Object leftValue;
     @Getter
-    private Object rightValue;
+    private final Object rightValue;
 
     public BiRelationOperate(String key, Object leftValue, Object rightValue) {
         super(key, null);
@@ -27,5 +28,13 @@ public abstract class BiRelationOperate extends RelationOperate {
     @Override
     public Boolean valueLegal() {
         return ObjectUtil.isNotEmpty(leftValue) && ObjectUtil.isNotEmpty(leftValue);
+    }
+
+    @Override
+    public NeoQueue<Object> getValueQueue() {
+        NeoQueue<Object> result = NeoQueue.of();
+        result.addLast(leftValue);
+        result.addLast(rightValue);
+        return result;
     }
 }

@@ -10,20 +10,25 @@ import java.util.stream.Collectors;
  * @author shizi
  * @since 2020/8/30 3:31 上午
  */
-public class NeoQueue implements Deque<Object> {
+public class NeoQueue<T> implements Deque<T> {
 
-    private final Deque<Object> dataDeque = new ConcurrentLinkedDeque<>();
+    private final Deque<T> dataDeque = new ConcurrentLinkedDeque<>();
 
-    public static NeoQueue of(Object... kvs) {
-        NeoQueue neoQueue = new NeoQueue();
-        for (Object kv : kvs) {
+    @SafeVarargs
+    public static <E> NeoQueue<E> of(E... kvs) {
+        NeoQueue<E> neoQueue = new NeoQueue<>();
+        for (E kv : kvs) {
             neoQueue.addLast(kv);
         }
         return neoQueue;
     }
 
-    public Queue getQueue() {
+    public Queue<T> getQueue() {
         return dataDeque;
+    }
+
+    public List<T> toList() {
+        return new LinkedList<>(dataDeque);
     }
 
     /**
@@ -82,74 +87,82 @@ public class NeoQueue implements Deque<Object> {
      * 获取value并转换为指定的类型的list
      *
      * @param tClass 目标对象的类，对于有些类型不是这个类的，只要能转换到这个类也是可以的，比如原先存的是{@code List<String>}，取的时候只要String可以转为Integer，那么这个tClass可以为Integer.class
-     * @param <T>    目标对象类型
+     * @param <E>    目标对象类型
      * @return 集合类型
      */
-    public <T> List<T> getFirstToList(Class<T> tClass) {
+    public <E> List<E> getFirstToList(Class<E> tClass) {
         return ObjectUtil.toList(getFirst()).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toList());
     }
 
-    public <T> Set<T> getFirstToSet(Class<T> tClass) {
+    public <E> Set<E> getFirstToSet(Class<E> tClass) {
         return ObjectUtil.toSet(getFirst()).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
     }
 
+    @SuppressWarnings("all")
     @Override
-    public void addFirst(Object o) {
+    public NeoQueue<T> clone() {
+        NeoQueue neoQueue = NeoQueue.of();
+        neoQueue.addAll(this.getQueue());
+        return neoQueue;
+    }
+
+    @Override
+    public void addFirst(T o) {
         dataDeque.addFirst(o);
     }
 
     @Override
-    public void addLast(Object o) {
+    public void addLast(T o) {
         dataDeque.addLast(o);
     }
 
     @Override
-    public boolean offerFirst(Object o) {
+    public boolean offerFirst(T o) {
         return dataDeque.offerFirst(o);
     }
 
     @Override
-    public boolean offerLast(Object o) {
+    public boolean offerLast(T o) {
         return dataDeque.offerLast(o);
     }
 
     @Override
-    public Object removeFirst() {
+    public T removeFirst() {
         return dataDeque.removeFirst();
     }
 
     @Override
-    public Object removeLast() {
+    public T removeLast() {
         return dataDeque.removeLast();
     }
 
     @Override
-    public Object pollFirst() {
+    public T pollFirst() {
         return dataDeque.pollFirst();
     }
 
     @Override
-    public Object pollLast() {
+    public T pollLast() {
         return dataDeque.pollLast();
     }
 
     @Override
-    public Object getFirst() {
+    public T getFirst() {
         return dataDeque.getFirst();
     }
 
     @Override
-    public Object getLast() {
+    public T getLast() {
         return dataDeque.getLast();
     }
 
     @Override
-    public Object peekFirst() {
+    public T peekFirst() {
         return dataDeque.peekFirst();
     }
 
     @Override
-    public Object peekLast() {
+    public T peekLast() {
         return dataDeque.peekLast();
     }
 
@@ -164,42 +177,42 @@ public class NeoQueue implements Deque<Object> {
     }
 
     @Override
-    public boolean add(Object o) {
+    public boolean add(T o) {
         return dataDeque.add(o);
     }
 
     @Override
-    public boolean offer(Object o) {
+    public boolean offer(T o) {
         return dataDeque.offer(o);
     }
 
     @Override
-    public Object remove() {
+    public T remove() {
         return dataDeque.remove();
     }
 
     @Override
-    public Object poll() {
+    public T poll() {
         return dataDeque.poll();
     }
 
     @Override
-    public Object element() {
+    public T element() {
         return dataDeque.element();
     }
 
     @Override
-    public Object peek() {
+    public T peek() {
         return dataDeque.peek();
     }
 
     @Override
-    public void push(Object o) {
+    public void push(T o) {
         dataDeque.push(o);
     }
 
     @Override
-    public Object pop() {
+    public T pop() {
         return dataDeque.pop();
     }
 
@@ -208,6 +221,7 @@ public class NeoQueue implements Deque<Object> {
         return dataDeque.remove(o);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean addAll(Collection c) {
         return dataDeque.addAll(c);
@@ -218,8 +232,13 @@ public class NeoQueue implements Deque<Object> {
         dataDeque.clear();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object o) {
+        if(o instanceof NeoQueue) {
+            Queue queue = ((NeoQueue)o).getQueue();
+            return dataDeque.equals(queue);
+        }
         return dataDeque.equals(o);
     }
 
@@ -228,11 +247,13 @@ public class NeoQueue implements Deque<Object> {
         return dataDeque.hashCode();
     }
 
+    @SuppressWarnings("all")
     @Override
     public boolean retainAll(Collection c) {
         return dataDeque.retainAll(c);
     }
 
+    @SuppressWarnings("all")
     @Override
     public boolean removeAll(Collection c) {
         return dataDeque.removeAll(c);
@@ -259,7 +280,7 @@ public class NeoQueue implements Deque<Object> {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator<T> iterator() {
         return dataDeque.iterator();
     }
 
@@ -275,7 +296,7 @@ public class NeoQueue implements Deque<Object> {
     }
 
     @Override
-    public Iterator<Object> descendingIterator() {
+    public Iterator<T> descendingIterator() {
         return dataDeque.descendingIterator();
     }
 }

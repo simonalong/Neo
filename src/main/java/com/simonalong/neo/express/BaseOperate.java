@@ -1,15 +1,13 @@
 package com.simonalong.neo.express;
 
 import com.simonalong.neo.NeoPageReq;
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import com.simonalong.neo.util.LogicOperateUtil;
 
 import static com.simonalong.neo.util.LogicOperateUtil.*;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,11 +16,11 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseOperate implements Operate {
 
-    protected Queue<Operate> childOperateQueue = new LinkedList<>();
+    protected NeoQueue<Operate> childOperateQueue = NeoQueue.of();
 
     public BaseOperate() {}
 
-    public BaseOperate(Queue<Operate> operateQueue) {
+    public BaseOperate(NeoQueue<Operate> operateQueue) {
         this.childOperateQueue = operateQueue;
     }
 
@@ -32,12 +30,12 @@ public abstract class BaseOperate implements Operate {
     }
 
     @Override
-    public Boolean offerOperateQueue(Queue<Operate> valueQueue) {
+    public Boolean offerOperateQueue(NeoQueue<Operate> valueQueue) {
         return this.childOperateQueue.addAll(valueQueue);
     }
 
     @Override
-    public Queue<Operate> getChildQueue() {
+    public NeoQueue<Operate> getChildQueue() {
         return this.childOperateQueue;
     }
 
@@ -55,7 +53,7 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static Operate And(Queue<Operate> operateQueue) {
+    public static Operate And(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(Express.LogicEnum.AND, operateQueue) {
 
             @Override
@@ -85,8 +83,8 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    private static String andGenerateOperate(Queue<Operate> queue) {
-        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+    private static String andGenerateOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
         }
@@ -104,7 +102,7 @@ public abstract class BaseOperate implements Operate {
         return AndEm(Operate.parse(Express.LogicEnum.AND_EM, objects));
     }
 
-    public static Operate AndEm(Queue<Operate> operateQueue) {
+    public static Operate AndEm(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(Express.LogicEnum.AND_EM, operateQueue) {
 
             @Override
@@ -134,8 +132,8 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    private static String andEmGenerateOperate(Queue<Operate> queue) {
-        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+    private static String andEmGenerateOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
         }
@@ -153,7 +151,7 @@ public abstract class BaseOperate implements Operate {
         return Or(Operate.parse(Express.LogicEnum.OR_EM, objects));
     }
 
-    public static Operate Or(Queue<Operate> operateQueue) {
+    public static Operate Or(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(Express.LogicEnum.OR, operateQueue) {
 
             @Override
@@ -193,8 +191,8 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String orGenerateOperate(Queue<Operate> queue) {
-        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+    public static String orGenerateOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
         }
@@ -212,7 +210,7 @@ public abstract class BaseOperate implements Operate {
         return OrEm(Operate.parse(Express.LogicEnum.OR_EM, objects));
     }
 
-    public static Operate OrEm(Queue<Operate> operateQueue) {
+    public static Operate OrEm(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(Express.LogicEnum.OR_EM, operateQueue) {
 
             @Override
@@ -252,8 +250,8 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String orEmGenerateOperate(Queue<Operate> queue) {
-        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+    public static String orEmGenerateOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
         }
@@ -272,7 +270,7 @@ public abstract class BaseOperate implements Operate {
         return OrEm(Operate.parse(Express.LogicEnum.EMPTY, objects));
     }
 
-    public static Operate Em(Queue<Operate> operateQueue) {
+    public static Operate Em(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(Express.LogicEnum.EMPTY, operateQueue) {
 
             @Override
@@ -312,8 +310,8 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String emGenerateOperate(Queue<Operate> queue) {
-        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+    public static String emGenerateOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
         }
@@ -432,11 +430,11 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate Like(String key, String value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, null) {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " like '" + super.getValue() + "'";
+                return SqlBuilder.toDbField(super.getKey()) + " like '" + value + "'";
             }
         };
     }
@@ -448,11 +446,11 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate NotLike(String key, String value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, null) {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " not like '" + super.getValue() + "'";
+                return SqlBuilder.toDbField(super.getKey()) + " not like '" + value + "'";
             }
         };
     }
@@ -465,7 +463,7 @@ public abstract class BaseOperate implements Operate {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate In(String key, Collection collection) {
-        return new RelationOperate(key, collection) {
+        return new RelationOperate(key, null) {
 
             @Override
             public String generateOperate() {
@@ -482,7 +480,7 @@ public abstract class BaseOperate implements Operate {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate NotIn(String key, Collection collection) {
-        return new RelationOperate(key, collection) {
+        return new RelationOperate(key, null) {
 
             @Override
             public String generateOperate() {
@@ -671,8 +669,6 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-
-
     public static Operate NotExist(String sql) {
         return new RelationOperate(null, null) {
 
@@ -688,15 +684,19 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-
-
-    private static Queue<String> doGenerateSqlPart(Queue<Operate> queue) {
+    /**
+     * 生成sql部分代码
+     * @param queue 操作符队列
+     * @return sql部分队列
+     */
+    private static NeoQueue<String> doGenerateSqlPart(NeoQueue<Operate> queue) {
         if (null == queue || queue.isEmpty()) {
-            return new LinkedList<>();
+            return NeoQueue.of();
         }
         Operate operate;
-        Queue<String> sqlPartQueue = new LinkedList<>();
-        while ((operate = queue.poll()) != null) {
+        NeoQueue<Operate> operateQueueCopy = queue.clone();
+        NeoQueue<String> sqlPartQueue = NeoQueue.of();
+        while ((operate = operateQueueCopy.poll()) != null) {
             sqlPartQueue.offer(operate.generateOperate());
         }
         return sqlPartQueue;

@@ -1641,13 +1641,13 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<NeoMap>> generateBatchInsertPair(String tableName, NeoMap insertColumns, List<NeoMap> parameters) {
         String sql = InsertSqlBuilder.build(tableName, insertColumns);
         List<NeoMap> indexAndValueMap = new ArrayList<>();
-        Integer index;
+        int index;
         List<String> keys = new ArrayList<>(insertColumns.keySet());
 
         for (NeoMap data : parameters) {
             NeoMap valueMap = NeoMap.of();
             for (index = 0; index < keys.size(); index++) {
-                valueMap.put(index.toString(), data.get(keys.get(index)));
+                valueMap.put(Integer.toString(index), data.get(keys.get(index)));
             }
             valueMap.put("size", keys.size());
             indexAndValueMap.add(valueMap);

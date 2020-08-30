@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class Express {
 
-    Queue<Operate> innerOperateQueue = new LinkedList<>();
+    NeoQueue<Operate> innerOperateQueue = NeoQueue.of();
 
     public Express() {}
 
@@ -18,16 +18,11 @@ public class Express {
         init(Operate.parse(LogicEnum.AND_EM, objects));
     }
 
-    @SuppressWarnings("unchecked")
-    public Express(NeoQueue neoQueue) {
-        init((Queue<Operate>) neoQueue.getQueue());
+    public Express(NeoQueue<Operate> neoQueue) {
+        init(neoQueue);
     }
 
-    public Express(Queue<Operate> queue) {
-        init(queue);
-    }
-
-    private void init(Queue<Operate> queue) {
+    private void init(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
     }
 
@@ -46,7 +41,7 @@ public class Express {
      *
      * @return this
      */
-    public Express and(Queue<Operate> queue) {
+    public Express and(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.And(queue));
         return this;
     }
@@ -66,7 +61,7 @@ public class Express {
      *
      * @return this
      */
-    public Express andEm(Queue<Operate> queue) {
+    public Express andEm(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
         return this;
     }
@@ -86,7 +81,7 @@ public class Express {
      *
      * @return this
      */
-    public Express or(Queue<Operate> queue) {
+    public Express or(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.Or(queue));
         return this;
     }
@@ -106,7 +101,7 @@ public class Express {
      *
      * @return this
      */
-    public Express orEm(Queue<Operate> queue) {
+    public Express orEm(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.OrEm(queue));
         return this;
     }
@@ -116,8 +111,8 @@ public class Express {
      *
      * @return this
      */
-    public Express apppend(Object... objects) {
-        apppend(Operate.parse(LogicEnum.EMPTY, objects));
+    public Express append(Object... objects) {
+        append(Operate.parse(LogicEnum.EMPTY, objects));
         return this;
     }
 
@@ -126,7 +121,7 @@ public class Express {
      *
      * @return this
      */
-    public Express apppend(Queue<Operate> queue) {
+    public Express append(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.Em(queue));
         return this;
     }
@@ -136,9 +131,18 @@ public class Express {
      *
      * @return 顺序化的数据
      */
-    List<Object> toValue() {
-        // todo
-        return null;
+    public List<Object> toValue() {
+        NeoQueue<Object> valueQueue = NeoQueue.of();
+
+        Operate operate;
+        NeoQueue<Operate> operateCopy = innerOperateQueue.clone();
+        while ((operate = operateCopy.poll()) != null) {
+            if (!operate.valueLegal()) {
+                continue;
+            }
+            valueQueue.addAll(operate.getValueQueue());
+        }
+        return valueQueue.toList();
     }
 
     /**
@@ -149,7 +153,8 @@ public class Express {
     public String toSql() {
         StringBuilder stringBuilder = new StringBuilder();
         Operate operate;
-        while ((operate = innerOperateQueue.poll()) != null) {
+        NeoQueue<Operate> queueCopy = innerOperateQueue.clone();
+        while ((operate = queueCopy.poll()) != null) {
             if (!operate.valueLegal()) {
                 continue;
             }

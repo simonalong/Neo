@@ -1,6 +1,6 @@
 package com.simonalong.neo.express;
 
-import java.util.Queue;
+import com.simonalong.neo.NeoQueue;
 
 /**
  * 逻辑运算符
@@ -19,7 +19,7 @@ public abstract class LogicOperate extends BaseOperate {
         this.logicEnum = logicEnum;
     }
 
-    public LogicOperate(Express.LogicEnum logicEnum, Queue<Operate> operateQueue) {
+    public LogicOperate(Express.LogicEnum logicEnum, NeoQueue<Operate> operateQueue) {
         super(operateQueue);
         this.logicEnum = logicEnum;
     }
@@ -27,5 +27,14 @@ public abstract class LogicOperate extends BaseOperate {
     @Override
     public Boolean valueLegal() {
         return true;
+    }
+
+    @Override
+    public NeoQueue<Object> getValueQueue() {
+        NeoQueue<Object> valueQueue = NeoQueue.of();
+        for (Operate operate : super.childOperateQueue) {
+            valueQueue.addAll(operate.getValueQueue());
+        }
+        return valueQueue;
     }
 }
