@@ -1,6 +1,5 @@
 package com.simonalong.neo.express;
 
-import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NumberOfValueException;
 
 import static com.simonalong.neo.express.BaseOperate.*;
@@ -39,6 +38,12 @@ public interface Operate {
     Boolean offerOperateQueue(Queue<Operate> valueQueue);
 
     /**
+     * 获取子节点操作符队列
+     * @return 子节点操作符队列
+     */
+    Queue<Operate> getChildQueue();
+
+    /**
      * 值是否合法
      *
      * @return true：合法，false：不合法
@@ -53,7 +58,7 @@ public interface Operate {
      * @return 操作符队列
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    static Queue<Operate> parse(Express.LogicOperate logicOperate, Object... objects) {
+    static Queue<Operate> parse(Express.LogicEnum logicOperate, Object... objects) {
         Queue<Operate> operateQueue = new LinkedList<>();
         List<Object> parameters = Arrays.asList(objects);
 
@@ -66,12 +71,22 @@ public interface Operate {
                 String key = (String) parameter;
                 Object value = parameters.get(index++);
 
-                if (Express.LogicOperate.AND.equals(logicOperate)) {
-                    operate = AndEm(key, value);
-                } else if (Express.LogicOperate.OR.equals(logicOperate)) {
-                    operate = OrEm(key, value);
-                } else {
-                    operate = Em(key, value);
+                switch (logicOperate){
+                    case AND:
+                        operate = And(key, value);
+                        break;
+                    case AND_EM:
+                        operate = AndEm(key, value);
+                        break;
+                    case OR:
+                        operate = Or(key, value);
+                        break;
+                    case OR_EM:
+                        operate = OrEm(key, value);
+                        break;
+                    default:
+                        operate = Em(key, value);
+                        break;
                 }
 
                 if (index + 1 > parameters.size()) {
@@ -84,14 +99,37 @@ public interface Operate {
 
             // Operate类型处理
             if (parameter instanceof Operate) {
-                operateQueue.add((Operate) parameter);
+                Operate operate;
+                switch (logicOperate){
+                    case AND:
+                        operate = BaseOperate.And((Operate) parameter);
+                        break;
+                    case AND_EM:
+                        operate = BaseOperate.AndEm((Operate) parameter);
+                        break;
+                    case OR:
+                        operate = BaseOperate.Or((Operate) parameter);
+                        break;
+                    case OR_EM:
+                        operate = BaseOperate.OrEm((Operate) parameter);
+                        break;
+                    case EMPTY:
+                        operate = BaseOperate.Em((Operate) parameter);
+                        break;
+                    default:
+                        operate = (Operate) parameter;
+                        break;
+                }
+                operateQueue.add(operate);
+                continue;
             }
 
             // NeoQueue
-            if(parameter instanceof Collection) {
+            if (parameter instanceof Collection) {
                 operateQueue.addAll((Collection) parameter);
             }
         }
+
         return operateQueue;
     }
 }

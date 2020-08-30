@@ -11,13 +11,17 @@ import java.util.Queue;
  */
 public abstract class LogicOperate extends BaseOperate {
 
-    public LogicOperate(Operate operate) {
+    private Express.LogicEnum logicEnum;
+
+    public LogicOperate(Express.LogicEnum logicEnum, Operate operate) {
         super();
         super.offerOperate(operate);
+        this.logicEnum = logicEnum;
     }
 
-    public LogicOperate(Queue<Operate> operateQueue) {
+    public LogicOperate(Express.LogicEnum logicEnum, Queue<Operate> operateQueue) {
         super(operateQueue);
+        this.logicEnum = logicEnum;
     }
 
     @Override

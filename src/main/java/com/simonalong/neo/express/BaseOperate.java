@@ -1,6 +1,7 @@
 package com.simonalong.neo.express;
 
 import com.simonalong.neo.sql.builder.SqlBuilder;
+
 import static com.simonalong.neo.util.LogicOperateUtil.*;
 
 import java.util.LinkedList;
@@ -12,22 +13,27 @@ import java.util.Queue;
  */
 public abstract class BaseOperate implements Operate {
 
-    protected Queue<Operate> operateQueue = new LinkedList<>();
+    protected Queue<Operate> childOperateQueue = new LinkedList<>();
 
     public BaseOperate() {}
 
     public BaseOperate(Queue<Operate> operateQueue) {
-        this.operateQueue = operateQueue;
+        this.childOperateQueue = operateQueue;
     }
 
     @Override
     public Boolean offerOperate(Operate value) {
-        return this.operateQueue.offer(value);
+        return this.childOperateQueue.offer(value);
     }
 
     @Override
-    public Boolean offerOperateQueue(Queue<Operate> valueQueue){
-        return this.operateQueue.addAll(valueQueue);
+    public Boolean offerOperateQueue(Queue<Operate> valueQueue) {
+        return this.childOperateQueue.addAll(valueQueue);
+    }
+
+    @Override
+    public Queue<Operate> getChildQueue() {
+        return this.childOperateQueue;
     }
 
     /**
@@ -36,34 +42,47 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate And(Object... objects) {
-        return new LogicOperate(Operate.parse(Express.LogicOperate.AND, objects)) {
+        return And(Operate.parse(Express.LogicEnum.AND_EM, objects));
+    }
+
+    /**
+     * 有括号的and
+     *
+     * @return 操作类
+     */
+    public static Operate And(Queue<Operate> operateQueue) {
+        return new LogicOperate(Express.LogicEnum.AND, operateQueue) {
 
             @Override
             public String generateOperate() {
-                return andGenerateOperate(super.operateQueue);
+                return andGenerateOperate(super.childOperateQueue);
+            }
+        };
+    }
+
+    public static Operate And(Operate operate) {
+        return new LogicOperate(Express.LogicEnum.AND, operate) {
+
+            @Override
+            public String generateOperate() {
+                return andGenerateOperate(super.childOperateQueue);
             }
         };
     }
 
     public static Operate And(String key, Object value) {
-        return new LogicOperate(Equal(key, value)) {
+        return new LogicOperate(Express.LogicEnum.AND, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
-                return andGenerateOperate(super.operateQueue);
+                return andGenerateOperate(super.childOperateQueue);
             }
         };
     }
 
-    private static String andGenerateOperate(Queue<Operate> operateQueue) {
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            stringBuilder.append(" and ").append(filterLogicHead(operate.generateOperate().trim()));
-        }
-
-        String result = stringBuilder.toString().trim();
-        return " and (" + filterLogicHead(result) + ")";
+    private static String andGenerateOperate(Queue<Operate> queue) {
+        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        return " and (" + filterLogicHead(String.join(" and ", sqlPartQueue)) + ")";
     }
 
     /**
@@ -72,47 +91,69 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate AndEm(Object... objects) {
-        return new LogicOperate(Operate.parse(Express.LogicOperate.AND, objects)) {
+        return AndEm(Operate.parse(Express.LogicEnum.AND_EM, objects));
+    }
+
+    public static Operate AndEm(Queue<Operate> operateQueue) {
+        return new LogicOperate(Express.LogicEnum.AND_EM, operateQueue) {
 
             @Override
             public String generateOperate() {
-                return andEmGenerateOperate(super.operateQueue);
+                return andEmGenerateOperate(super.childOperateQueue);
+            }
+        };
+    }
+
+    public static Operate AndEm(Operate operate) {
+        return new LogicOperate(Express.LogicEnum.AND_EM, operate) {
+
+            @Override
+            public String generateOperate() {
+                return andEmGenerateOperate(super.childOperateQueue);
             }
         };
     }
 
     public static Operate AndEm(String key, Object value) {
-        return new LogicOperate(Equal(key, value)) {
+        return new LogicOperate(Express.LogicEnum.AND_EM, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
-                return andEmGenerateOperate(super.operateQueue);
+                return andEmGenerateOperate(super.childOperateQueue);
             }
         };
     }
 
-    private static String andEmGenerateOperate(Queue<Operate> operateQueue) {
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            String operateStr = operate.generateOperate();
-            stringBuilder.append(" and ").append(filterLogicHead(operateStr));
-        }
-
-        return stringBuilder.toString();
+    private static String andEmGenerateOperate(Queue<Operate> queue) {
+        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        return " and " + filterLogicHead(String.join(" and ", sqlPartQueue));
     }
 
     /**
-     * 有括号的and
+     * 有括号的or
      *
      * @return 操作类
      */
     public static Operate Or(Object... objects) {
-        return new LogicOperate(Operate.parse(Express.LogicOperate.OR, objects)) {
+        return Or(Operate.parse(Express.LogicEnum.OR_EM, objects));
+    }
+
+    public static Operate Or(Queue<Operate> operateQueue) {
+        return new LogicOperate(Express.LogicEnum.OR, operateQueue) {
 
             @Override
             public String generateOperate() {
-                return orGenerateOperate(super.operateQueue);
+                return orGenerateOperate(super.childOperateQueue);
+            }
+        };
+    }
+
+    public static Operate Or(Operate operate) {
+        return new LogicOperate(Express.LogicEnum.OR, operate) {
+
+            @Override
+            public String generateOperate() {
+                return orGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -123,11 +164,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Or(String key, Object value) {
-        return new LogicOperate(Equal(key, value)) {
+        return new LogicOperate(Express.LogicEnum.OR, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
-                return orGenerateOperate(super.operateQueue);
+                return orGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -137,28 +178,36 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String orGenerateOperate(Queue<Operate> operateQueue) {
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            stringBuilder.append(" or ").append(filterLogicHead(operate.generateOperate().trim()));
-        }
-
-        String result = stringBuilder.toString().trim();
-        return " or (" + filterLogicHead(result) + ")";
+    public static String orGenerateOperate(Queue<Operate> queue) {
+        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        return " or (" + filterLogicHead(String.join(" or ", sqlPartQueue)) + ")";
     }
 
     /**
-     * 有括号的and
+     * 无括号的 OrEm
      *
      * @return 操作类
      */
     public static Operate OrEm(Object... objects) {
-        return new LogicOperate(Operate.parse(Express.LogicOperate.OR, objects)) {
+        return OrEm(Operate.parse(Express.LogicEnum.OR_EM, objects));
+    }
+
+    public static Operate OrEm(Queue<Operate> operateQueue) {
+        return new LogicOperate(Express.LogicEnum.OR_EM, operateQueue) {
 
             @Override
             public String generateOperate() {
-                return orEmGenerateOperate(super.operateQueue);
+                return orEmGenerateOperate(super.childOperateQueue);
+            }
+        };
+    }
+
+    public static Operate OrEm(Operate operate) {
+        return new LogicOperate(Express.LogicEnum.OR_EM, operate) {
+
+            @Override
+            public String generateOperate() {
+                return orEmGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -169,11 +218,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate OrEm(String key, Object value) {
-        return new LogicOperate(Equal(key, value)) {
+        return new LogicOperate(Express.LogicEnum.OR_EM, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
-                return orEmGenerateOperate(super.operateQueue);
+                return orEmGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -183,28 +232,36 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String orEmGenerateOperate(Queue<Operate> operateQueue) {
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            String operateStr = operate.generateOperate();
-            stringBuilder.append(" or ").append(filterLogicHead(operateStr));
-        }
-
-        return stringBuilder.toString();
+    public static String orEmGenerateOperate(Queue<Operate> queue) {
+        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        return " or " + filterLogicHead(String.join(" or ", sqlPartQueue));
     }
 
     /**
-     * 有括号的and
-     *
-     * @return 操作类
+     * 无符号的处理
+     * @param objects 对象
+     * @return 操作符
      */
     public static Operate Em(Object... objects) {
-        return new LogicOperate(Operate.parse(Express.LogicOperate.EMPTY, objects)) {
+        return OrEm(Operate.parse(Express.LogicEnum.EMPTY, objects));
+    }
+
+    public static Operate Em(Queue<Operate> operateQueue) {
+        return new LogicOperate(Express.LogicEnum.EMPTY, operateQueue) {
 
             @Override
             public String generateOperate() {
-                return emGenerateOperate(super.operateQueue);
+                return emGenerateOperate(super.childOperateQueue);
+            }
+        };
+    }
+
+    public static Operate Em(Operate operate) {
+        return new LogicOperate(Express.LogicEnum.EMPTY, operate) {
+
+            @Override
+            public String generateOperate() {
+                return emGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -215,11 +272,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Em(String key, Object value) {
-        return new LogicOperate(Equal(key, value)) {
+        return new LogicOperate(Express.LogicEnum.EMPTY, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
-                return emGenerateOperate(super.operateQueue);
+                return emGenerateOperate(super.childOperateQueue);
             }
         };
     }
@@ -229,15 +286,9 @@ public abstract class BaseOperate implements Operate {
      *
      * @return 操作类
      */
-    public static String emGenerateOperate(Queue<Operate> operateQueue) {
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            String operateStr = operate.generateOperate();
-            stringBuilder.append(" ").append(operateStr);
-        }
-
-        return stringBuilder.toString();
+    public static String emGenerateOperate(Queue<Operate> queue) {
+        Queue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        return " " + filterLogicHead(String.join(" ", sqlPartQueue));
     }
 
     /**
@@ -255,5 +306,24 @@ public abstract class BaseOperate implements Operate {
                 return SqlBuilder.toDbField(super.getKey()) + " = ?";
             }
         };
+    }
+
+    private static Queue<String> doGenerateSqlPart(Queue<Operate> queue) {
+        if (null == queue || queue.isEmpty()) {
+            return new LinkedList<>();
+        }
+        Operate operate, operateInner;
+        Queue<String> sqlPartQueue = new LinkedList<>();
+        while ((operate = queue.poll()) != null) {
+            Queue<Operate> childOperateQueue = operate.getChildQueue();
+            if (null == childOperateQueue || childOperateQueue.isEmpty()) {
+                sqlPartQueue.offer(filterLogicHead(operate.generateOperate()));
+            } else {
+                while ((operateInner = childOperateQueue.poll()) != null) {
+                    sqlPartQueue.offer(filterLogicHead(operateInner.generateOperate()));
+                }
+            }
+        }
+        return sqlPartQueue;
     }
 }

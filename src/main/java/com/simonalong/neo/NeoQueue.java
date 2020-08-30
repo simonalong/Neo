@@ -22,6 +22,10 @@ public class NeoQueue implements Deque<Object> {
         return neoQueue;
     }
 
+    public Queue getQueue() {
+        return dataDeque;
+    }
+
     /**
      * 获取字符
      *

@@ -1,5 +1,7 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoQueue;
+
 import java.util.*;
 
 /**
@@ -8,12 +10,25 @@ import java.util.*;
  */
 public class Express {
 
-    Queue<Operate> operateQueue = new LinkedList<>();
+    Queue<Operate> innerOperateQueue = new LinkedList<>();
 
     public Express() {}
 
     public Express(Object... objects) {
-        operateQueue.addAll(Operate.parse(LogicOperate.AND, objects));
+        init(Operate.parse(LogicEnum.EMPTY, objects));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Express(NeoQueue neoQueue) {
+        init((Queue<Operate>) neoQueue.getQueue());
+    }
+
+    public Express(Queue<Operate> queue) {
+        init(queue);
+    }
+
+    private void init(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.Em(queue));
     }
 
     /**
@@ -22,7 +37,17 @@ public class Express {
      * @return this
      */
     public Express and(Object... objects) {
-        operateQueue.addAll(Operate.parse(LogicOperate.AND, objects));
+        and(Operate.parse(LogicEnum.AND, objects));
+        return this;
+    }
+
+    /**
+     * and操作
+     *
+     * @return this
+     */
+    public Express and(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.AndEm(queue));
         return this;
     }
 
@@ -32,7 +57,17 @@ public class Express {
      * @return this
      */
     public Express or(Object... objects) {
-        operateQueue.addAll(Operate.parse(LogicOperate.OR, objects));
+        or(Operate.parse(LogicEnum.OR, objects));
+        return this;
+    }
+
+    /**
+     * or操作
+     *
+     * @return this
+     */
+    public Express or(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.OrEm(queue));
         return this;
     }
 
@@ -42,7 +77,17 @@ public class Express {
      * @return this
      */
     public Express em(Object... objects) {
-        operateQueue.addAll(Operate.parse(LogicOperate.EMPTY, objects));
+        em(Operate.parse(LogicEnum.EMPTY, objects));
+        return this;
+    }
+
+    /**
+     * empty操作
+     *
+     * @return this
+     */
+    public Express em(Queue<Operate> queue) {
+        innerOperateQueue.offer(BaseOperate.Em(queue));
         return this;
     }
 
@@ -64,7 +109,7 @@ public class Express {
     public String toSql() {
         StringBuilder stringBuilder = new StringBuilder();
         Operate operate;
-        while ((operate = operateQueue.poll()) != null) {
+        while ((operate = innerOperateQueue.poll()) != null) {
             if (!operate.valueLegal()) {
                 continue;
             }
@@ -84,9 +129,11 @@ public class Express {
         return stringBuilder.toString();
     }
 
-    enum LogicOperate{
+    enum LogicEnum {
         AND,
+        AND_EM,
         OR,
+        OR_EM,
         EMPTY
     }
 }
