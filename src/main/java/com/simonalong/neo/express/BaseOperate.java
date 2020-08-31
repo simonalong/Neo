@@ -1,7 +1,7 @@
 package com.simonalong.neo.express;
 
-import com.simonalong.neo.NeoPageReq;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import com.simonalong.neo.util.LogicOperateUtil;
 
@@ -652,7 +652,7 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    public static Operate Page(NeoPageReq<Object> neoPageReq) {
+    public static Operate Page(PageReq<Object> neoPageReq) {
         return new RelationOperate(null, null) {
 
             @Override

@@ -349,6 +349,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchExpress, page));
+    }
+
+    @Override
     public <T> List<T> page(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.page(tClass, tableName, searchExpress, page));
     }

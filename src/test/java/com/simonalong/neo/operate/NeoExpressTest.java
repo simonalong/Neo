@@ -2,9 +2,11 @@ package com.simonalong.neo.operate;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.express.Express;
 import org.junit.Test;
+
+import static com.simonalong.neo.express.BaseOperate.BetweenAnd;
 
 /**
  * @author shizi
@@ -84,21 +86,44 @@ public class NeoExpressTest extends NeoBaseTest {
     public void pageTest() {
         Express searchExpress;
 
-        // todo page
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().and("name", "name12");
+        show(neo.page("neo_table1", searchExpress, NeoPage.of(1, 10)));
+
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().and("name", "name12", "group", "group12");
+        show(neo.page("neo_table1", Columns.of("id"), searchExpress, NeoPage.of(1, 10)));
+    }
+
+    @Test
+    public void getPageTest() {
+        Express searchExpress;
+
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().and("name", "name12");
+        show(neo.getPage("neo_table1", searchExpress, NeoPage.of(0, 10)));
+
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().and("name", "name12", "group", "group12");
+        show(neo.getPage("neo_table1", Columns.of("id"), searchExpress, NeoPage.of(1, 10)));
     }
 
     @Test
     public void countTest() {
         Express searchExpress;
 
-        // todo page
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().and("name", "name12");
+        show(neo.count("neo_table1", searchExpress));
     }
 
     @Test
     public void existsTest() {
         Express searchExpress;
 
-        // todo page
+        // select * from neo_table1 where (name=?)    value: name12
+        searchExpress = new Express().append(BetweenAnd("id", 12, 50));
+        show(neo.exist("neo_table1", searchExpress));
     }
 
 }

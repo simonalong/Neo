@@ -1,4 +1,4 @@
-package com.simonalong.neo;
+package com.simonalong.neo.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,17 +7,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 分页响应实体
- * <p>
- *    注意：该类已经改名为{@link com.simonalong.neo.db.PageRsp}
  * @author shizi
- * @since 2020/8/18 3:44 PM
+ * @since 2020/8/31 4:57 下午
  */
-@Deprecated
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NeoPageRsp<T> {
+public class PageRsp<T> {
 
     /**
      * 分页数据
