@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 
@@ -38,6 +39,15 @@ public interface CommandSync extends Sync {
     NeoMap update(String tableName, NeoMap dataMap);
 
     <T> T update(String tableName, T entity);
+
+
+//    NeoMap update(String tableName, NeoMap dataMap, Express searchExpress);
+//
+//    <T> T update(String tableName, T setEntity, Express searchExpress);
+//
+//    <T> T update(String tableName, T setEntity, Express searchExpress);
+//
+//    <T> NeoMap update(String tableName, NeoMap setMap, Express searchExpress);
 
 
     Integer batchInsert(String tableName, List<NeoMap> dataMapList);
