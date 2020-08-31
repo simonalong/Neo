@@ -1149,6 +1149,9 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
 
     @Override
     public NeoQueue<Object> getValueQueue() {
+        if (!valueLegal()) {
+            return NeoQueue.of();
+        }
         NeoQueue<Object> operateQueue = NeoQueue.of();
         if (dataMap instanceof ConcurrentSkipListMap) {
             dataMap.forEach((key, value) -> operateQueue.push(value));

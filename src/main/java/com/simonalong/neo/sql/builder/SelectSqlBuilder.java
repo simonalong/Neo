@@ -3,6 +3,7 @@ package com.simonalong.neo.sql.builder;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.express.Express;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -25,6 +26,10 @@ public class SelectSqlBuilder {
         return buildList(neo, tableName, columns, searchMap) + limitOne();
     }
 
+    public String buildOne(Neo neo, String tableName, Express searchExpress) {
+        return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
+    }
+
     /**
      * 拼接 select list 多列多值
      *
@@ -36,6 +41,10 @@ public class SelectSqlBuilder {
      */
     public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
+    }
+
+    public String buildList(Neo neo, String tableName, Express searchExpress) {
+        return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
     }
 
     /**

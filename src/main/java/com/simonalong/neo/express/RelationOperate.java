@@ -35,6 +35,9 @@ public abstract class RelationOperate extends BaseOperate {
 
     @Override
     public NeoQueue<Object> getValueQueue() {
+        if (!valueLegal()) {
+            return NeoQueue.of();
+        }
         NeoQueue<Object> result = NeoQueue.of();
         if (null != value) {
             result.addLast(value);

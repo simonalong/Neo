@@ -4,6 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoPageRsp;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 
@@ -24,6 +25,14 @@ public interface QuerySync extends Sync {
     <T> T one(String tableName, T entity);
 
     NeoMap one(String tableName, Number id);
+
+    /**
+     * 查询一行（一个实体）
+     * @param tableName 表名
+     * @param searchExpress 复杂结构表达式
+     * @return 一个实体对应的类型
+     */
+    NeoMap one(String tableName, Express searchExpress);
 
 
     default <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
@@ -52,6 +61,14 @@ public interface QuerySync extends Sync {
 
     default <T> T one(Class<T> tClass, String tableName, Number id) {
         NeoMap data = one(tableName, id);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
+
+    default <T> T one(Class<T> tClass, String tableName, Express searchExpress) {
+        NeoMap data = one(tableName, searchExpress);
         if(null == data){
             return null;
         }

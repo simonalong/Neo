@@ -5,6 +5,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
+import com.simonalong.neo.express.Express;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +81,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     @Override
     public NeoMap one(String tableName, Number key) {
         return executeOne(tableName, (db, actTableName) -> db.one(actTableName, key));
+    }
+
+    @Override
+    public NeoMap one(String tableName, Express searchExpress) {
+        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, searchExpress));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 import com.simonalong.neo.xa.NeoXa;
 import com.simonalong.neo.devide.strategy.DevideStrategy;
 import com.simonalong.neo.devide.strategy.DevideStrategyFactory;
@@ -394,6 +395,10 @@ public final class DevideNeo extends AbstractBaseDb {
                 if (null != primaryColumnName && primaryColumnName.equals(devideDbColumnName)) {
                     return object;
                 }
+            } else if(object instanceof Express) {
+                Express searchExpress = (Express) object;
+                // todo 0.6.0
+                return null;
             } else if (null != object) {
                 return NeoMap.from(object).get(devideDbColumnName);
             }
@@ -647,6 +652,12 @@ public final class DevideNeo extends AbstractBaseDb {
                 }
             }
         }
+        return null;
+    }
+
+    @Override
+    public NeoMap one(String tableName, Express searchExpress) {
+        // todo 0.6.0
         return null;
     }
 

@@ -16,8 +16,8 @@ public class LogicOperateUtil {
      * @return 过滤逻辑处理操作符后的字符串
      */
     public String filterLogicHead(String operateStr) {
-        if (null == operateStr) {
-            return "";
+        if (null == operateStr || "".equals(operateStr)) {
+            return null;
         }
         String result = operateStr.trim();
         if (result.startsWith("and ") || result.startsWith("or ")) {

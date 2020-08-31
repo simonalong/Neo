@@ -19,7 +19,7 @@ import static com.simonalong.neo.express.BaseOperate.*;
  * @author shizi
  * @since 2020/8/29 11:13 上午
  */
-public class NeoExpress extends NeoBaseTest {
+public class ExpressTest extends NeoBaseTest {
 
     /**
      * 测试and所有形式
@@ -28,6 +28,7 @@ public class NeoExpress extends NeoBaseTest {
     public void antTest() {
         Express express;
         String sql;
+
 
         //--------------------- 采用 and 函数的（函数and不带括号） ---------------------
         sql = " where `name` = ? and `group` = ? and `age` = ?";
@@ -54,6 +55,23 @@ public class NeoExpress extends NeoBaseTest {
         express = new Express().and("name", 1).and("group", "test").and("age", 3);
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Arrays.asList(1, "test", 3), express.toValue());
+
+
+        //--------------------- 数据为空，则字段默认隐藏 ---------------------
+        sql = " where `name` = ?";
+        express = new Express().andEm("name", 1, "group", null);
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(1), express.toValue());
+
+        sql = " where `name` = ?";
+        express = new Express().andEm("name", 1, "group", "");
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(1), express.toValue());
+
+        sql = "";
+        express = new Express().andEm("name", null);
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
 
 
         //--------------------- 采用 em 函数的 ---------------------

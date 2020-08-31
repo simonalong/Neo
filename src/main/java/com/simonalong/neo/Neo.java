@@ -7,6 +7,7 @@ import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoTxException;
 import com.simonalong.neo.exception.TableNotFindException;
+import com.simonalong.neo.express.Express;
 import com.simonalong.neo.sql.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.sql.builder.*;
@@ -550,6 +551,12 @@ public class Neo extends AbstractExecutorDb {
             return one(tableName, NeoMap.of(primaryKey, id));
         }
         return neoMap;
+    }
+
+    @Override
+    public NeoMap one(String tableName, Express searchExpress) {
+        checkDb(tableName);
+        return execute(false, () -> generateOneSqlPair(tableName, searchExpress), this::executeOne).getNeoMap(tableName);
     }
 
     /**
@@ -1556,6 +1563,13 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
+    }
+
+    /**
+     * 生成查询一条数据的sql和参数 key: select xxx value: 对应的参数
+     */
+    private Pair<String, List<Object>> generateOneSqlPair(String tableName, Express searchExpress) {
+        return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, searchExpress), searchExpress.toValue());
     }
 
     /**

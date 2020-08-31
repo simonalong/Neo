@@ -5,6 +5,7 @@ import com.simonalong.neo.*;
 import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoException;
+import com.simonalong.neo.express.Express;
 import com.simonalong.neo.util.ExceptionUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -116,6 +117,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public NeoMap one(String tableName, Number id) {
         return doSlaveCall(db -> db.one(tableName, id));
+    }
+
+    @Override
+    public NeoMap one(String tableName, Express searchExpress) {
+        return doSlaveCall(db -> db.one(tableName, searchExpress));
     }
 
     @Override

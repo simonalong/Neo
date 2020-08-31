@@ -127,6 +127,16 @@ public class Express {
     }
 
     /**
+     * 获取某个key的表示等于的值
+     * @param columnName 列名
+     * @return 列名对应的值
+     */
+    public Object getKey(String columnName) {
+        // todo 0.6.0
+        return null;
+    }
+
+    /**
      * 转换为sql对应的数据
      *
      * @return 顺序化的数据
@@ -137,9 +147,6 @@ public class Express {
         Operate operate;
         NeoQueue<Operate> operateCopy = innerOperateQueue.clone();
         while ((operate = operateCopy.poll()) != null) {
-            if (!operate.valueLegal()) {
-                continue;
-            }
             valueQueue.addAll(operate.getValueQueue());
         }
         return valueQueue.toList();
@@ -155,9 +162,6 @@ public class Express {
         Operate operate;
         NeoQueue<Operate> queueCopy = innerOperateQueue.clone();
         while ((operate = queueCopy.poll()) != null) {
-            if (!operate.valueLegal()) {
-                continue;
-            }
             stringBuilder.append(operate.generateOperate());
         }
 

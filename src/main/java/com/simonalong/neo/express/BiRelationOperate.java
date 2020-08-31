@@ -32,6 +32,9 @@ public abstract class BiRelationOperate extends RelationOperate {
 
     @Override
     public NeoQueue<Object> getValueQueue() {
+        if (!valueLegal()) {
+            return NeoQueue.of();
+        }
         NeoQueue<Object> result = NeoQueue.of();
         result.addLast(leftValue);
         result.addLast(rightValue);

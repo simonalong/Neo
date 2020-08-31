@@ -1,7 +1,9 @@
 package com.simonalong.neo.replication;
 
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NeoException;
+import com.simonalong.neo.express.Express;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

@@ -48,6 +48,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andGenerateOperate(super.childOperateQueue);
             }
         };
@@ -58,6 +61,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andGenerateOperate(super.childOperateQueue);
             }
         };
@@ -68,6 +74,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andGenerateOperate(super.childOperateQueue);
             }
         };
@@ -79,7 +88,10 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
 
-        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
         return " and (" + filterLogicHead(String.join(" and ", operateList)) + ")";
     }
 
@@ -97,6 +109,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -107,6 +122,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -117,6 +135,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return andEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -128,8 +149,11 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
 
-        List<String> operateStrList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
-        return " and " + filterLogicHead(String.join(" and ", operateStrList));
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
+        return " and " + filterLogicHead(String.join(" and ", operateList));
     }
 
     /**
@@ -146,6 +170,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orGenerateOperate(super.childOperateQueue);
             }
         };
@@ -156,6 +183,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orGenerateOperate(super.childOperateQueue);
             }
         };
@@ -171,6 +201,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orGenerateOperate(super.childOperateQueue);
             }
         };
@@ -187,7 +220,10 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
 
-        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
         return " or (" + filterLogicHead(String.join(" or ", operateList)) + ")";
     }
 
@@ -205,6 +241,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -215,6 +254,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -230,6 +272,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return orEmGenerateOperate(super.childOperateQueue);
             }
         };
@@ -246,7 +291,10 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
 
-        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
         return " or " + filterLogicHead(String.join(" or ", operateList));
     }
 
@@ -265,6 +313,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return emGenerateOperate(super.childOperateQueue);
             }
         };
@@ -275,6 +326,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return emGenerateOperate(super.childOperateQueue);
             }
         };
@@ -290,6 +344,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return emGenerateOperate(super.childOperateQueue);
             }
         };
@@ -306,7 +363,10 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
 
-        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).collect(Collectors.toList());
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
         return " " + filterLogicHead(String.join(" ", operateList));
     }
 
@@ -322,6 +382,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " = ?";
             }
         };
@@ -339,6 +402,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " != ?";
             }
         };
@@ -356,6 +422,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " > ?";
             }
         };
@@ -373,6 +442,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " >= ?";
             }
         };
@@ -390,6 +462,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " < ?";
             }
         };
@@ -407,6 +482,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " <= ?";
             }
         };
@@ -488,11 +566,6 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, null) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return SqlBuilder.toDbField(super.getKey()) + " is null";
             }
@@ -506,11 +579,6 @@ public abstract class BaseOperate implements Operate {
      */
     public static Operate IsNotNull(String key) {
         return new RelationOperate(key, null) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
@@ -528,11 +596,6 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, null) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return " group by " + SqlBuilder.toDbField(super.getKey());
             }
@@ -541,11 +604,6 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate OrderBy(String key) {
         return new RelationOperate(key, null) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
@@ -558,11 +616,6 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, null) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return " order by " + SqlBuilder.toDbField(super.getKey()) + " " + descOrAsc;
             }
@@ -571,11 +624,6 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate OrderByDesc(String key) {
         return new RelationOperate(key, null) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
@@ -588,11 +636,6 @@ public abstract class BaseOperate implements Operate {
         return new BiRelationOperate(key, leftValue, rightValue) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return SqlBuilder.toDbField(super.getKey()) + " between ? and ? ";
             }
@@ -601,11 +644,6 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate NotBetweenAnd(String key, Object leftValue, Object rightValue) {
         return new BiRelationOperate(key, leftValue, rightValue) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
@@ -618,11 +656,6 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(null, null) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return SqlBuilder.toDbField(super.getKey()) + " limit " + neoPageReq.getPageSize() + " offset " + neoPageReq.getPageIndex();
             }
@@ -631,11 +664,6 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate Exists(String sql) {
         return new RelationOperate(null, null) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
@@ -648,11 +676,6 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(null, null) {
 
             @Override
-            public Boolean valueLegal() {
-                return true;
-            }
-
-            @Override
             public String generateOperate() {
                 return " not exists (" + sql + ") ";
             }
@@ -661,11 +684,6 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate NotExist(String sql) {
         return new RelationOperate(null, null) {
-
-            @Override
-            public Boolean valueLegal() {
-                return true;
-            }
 
             @Override
             public String generateOperate() {
