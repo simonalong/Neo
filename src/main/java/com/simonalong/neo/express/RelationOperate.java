@@ -23,6 +23,28 @@ public abstract class RelationOperate extends BaseOperate {
         this.value = value;
     }
 
+    public RelationOperate(String key, String operateSymbol, Object value) {
+        this.setOperateSymbol(operateSymbol);
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public Boolean needWhere() {
+        return true;
+    }
+
+    @Override
+    public Object getValueFromColumnOfOperate(String columnName, String operateSymbol) {
+        if (null != getOperateSymbol()) {
+            if (getOperateSymbol().equals(operateSymbol) && getKey().equals(columnName)) {
+                return getValue();
+            }
+        }
+
+        return null;
+    }
+
     /**
      * 判断value是否满足要求
      *

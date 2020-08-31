@@ -1,5 +1,6 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
 
 import java.util.*;
@@ -24,6 +25,40 @@ public class Express {
 
     private void init(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
+    }
+
+    /**
+     * 根据表达式获取表达式的第一个整体字符
+     * <p>
+     * 比如：根据=获取 得到{@code `a` = 12}
+     *
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    public String getFirstOperateStr(String operateSymbol) {
+        for (Operate operate : innerOperateQueue) {
+            String value = operate.getFirstOperateStr(operateSymbol);
+            if (null != value) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据表达式获取表达式所有的整体字符
+     * <p>
+     * 比如：根据=获取 得到{@code `a` = 12}
+     *
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    public List<String> getAllOperateStr(String operateSymbol) {
+        List<String> operateStrList = new ArrayList<>();
+        for (Operate operate : innerOperateQueue) {
+            operateStrList.addAll(operate.getAllOperateStr(operateSymbol));
+        }
+        return operateStrList;
     }
 
     /**
@@ -127,12 +162,20 @@ public class Express {
     }
 
     /**
-     * 获取某个key的表示等于的值
+     * 获取某个列名对应的等号的值
+     *
+     * <p> 从包含的数据里面，找到第一个为"="的，而且列名为指定列名的
+     *
      * @param columnName 列名
      * @return 列名对应的值
      */
-    public Object getKey(String columnName) {
-        // todo 0.6.0
+    public Object getValue(String columnName) {
+        for (Operate operate : innerOperateQueue) {
+            Object value = operate.getValueFromColumnOfOperate(columnName, NeoConstant.EQUAL);
+            if (null != value) {
+                return value;
+            }
+        }
         return null;
     }
 
@@ -160,8 +203,13 @@ public class Express {
     public String toSql() {
         StringBuilder stringBuilder = new StringBuilder();
         Operate operate;
+        boolean needWhere = false;
         NeoQueue<Operate> queueCopy = innerOperateQueue.clone();
         while ((operate = queueCopy.poll()) != null) {
+            // 如果有任何一个合法的值，即有搜索条件
+            if (operate.needWhere()) {
+                needWhere = true;
+            }
             stringBuilder.append(operate.generateOperate());
         }
 
@@ -173,7 +221,10 @@ public class Express {
             if (result.startsWith("or ")) {
                 result = result.substring("or ".length()).trim();
             }
-            return " where " + result;
+            if (needWhere) {
+                return " where " + result;
+            }
+            return " " + result;
         }
         return stringBuilder.toString();
     }

@@ -1,8 +1,10 @@
 package com.simonalong.neo.operate;
 
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.devide.DevideMultiNeo;
 import com.simonalong.neo.express.Express;
 import com.simonalong.neo.express.Operate;
 import org.junit.Assert;
@@ -367,10 +369,42 @@ public class ExpressTest extends NeoBaseTest {
         String sql;
 
         // 默认为升序
-        sql = " where (`name` = ?) order by `create_time`";
-        express = new Express().and("name", "test").append(OrderBy("create_time"));
+        sql = " order by `create_time`";
+        express = new Express().append(OrderBy("create_time"));
         Assert.assertEquals(sql, express.toSql());
-        Assert.assertEquals(Collections.singletonList("test"), express.toValue());
+
+        // 设置升序降序字段
+        sql = " order by `create_time` desc";
+        express = new Express().append(OrderBy("create_time", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+
+        // order by 多个字段
+        sql = " order by `create_time` desc, `id` asc, `group` desc";
+        express = new Express().append(OrderBy("create_time", "desc", "id", "asc", "group", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+
+        // order by 多个字段
+        sql = " order by `create_time`, `id`, `group` desc";
+        express = new Express().append(OrderBy("create_time", "id", "group", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+
+        // order by 多个字段
+        sql = " order by `create_time`, `id` desc, `group` desc";
+        express = new Express().append(OrderBy("create_time", "id", "desc", "group", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    @Test
+    public void teststetst(){
+        Express express;
+        express = new Express().append(OrderBy("create_time", "id", "desc", "group", "asc"));
+        show(express.getFirstOperateStr(NeoConstant.ORDER_BY));
+        show(DevideMultiNeo.getColumnAndSortList(express));
+
+        // todo NeoMap 这个不再支持order by 这个功能，所有的更高级的功能全部迁移到Express 这个类中
+//        NeoMap dataMap = NeoMap.of();
+//        dataMap.put("order by", "id, name desc, group asc");
+//        show(DevideMultiNeo.getColumnAndSortList(dataMap));
     }
 
     /**

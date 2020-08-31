@@ -1,9 +1,13 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.sql.builder.SqlBuilder;
+import com.simonalong.neo.util.CharSequenceUtil;
 import com.simonalong.neo.util.LogicOperateUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import static com.simonalong.neo.util.LogicOperateUtil.*;
 
@@ -16,17 +20,80 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseOperate implements Operate {
 
+    /**
+     * 操作符
+     */
+    @Getter
+    @Setter
+    private String operateSymbol;
+    @Setter
     protected NeoQueue<Operate> childOperateQueue = NeoQueue.of();
 
     public BaseOperate() {}
 
-    public BaseOperate(NeoQueue<Operate> operateQueue) {
-        this.childOperateQueue = operateQueue;
-    }
-
     @Override
     public void offerOperate(Operate value) {
         this.childOperateQueue.offer(value);
+    }
+
+    @Override
+    public Boolean needWhere() {
+        for (Operate operate : childOperateQueue) {
+            if (operate.needWhere()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Object getValueFromColumnOfOperate(String columnName, String operateSymbol) {
+        for (Operate operate : childOperateQueue) {
+            Object value = operate.getValueFromColumnOfOperate(columnName, operateSymbol);
+            if (null != value) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据表达式获取表达式的第一个整体字符
+     * <p>
+     *     比如：根据=获取 得到{@code `a` = 12}
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    @Override
+    public String getFirstOperateStr(String operateSymbol) {
+        String currentOperate = this.getOperateSymbol();
+        if (CharSequenceUtil.isNotEmpty(currentOperate) && currentOperate.equals(operateSymbol)) {
+            return generateOperate();
+        } else {
+            for (Operate operate : childOperateQueue) {
+                String operateStr = operate.getFirstOperateStr(operateSymbol);
+                if (CharSequenceUtil.isNotEmpty(operateStr)) {
+                    return operateStr;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据表达式获取表达式所有的整体字符
+     * <p>
+     *     比如：根据=获取 得到{@code `a` = 12}
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    @Override
+    public List<String> getAllOperateStr(String operateSymbol) {
+        List<String> operateStrList = new ArrayList<>();
+        for (Operate operate : childOperateQueue) {
+            operateStrList.addAll(operate.getAllOperateStr(operateSymbol));
+        }
+        return operateStrList;
     }
 
     /**
@@ -44,7 +111,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate And(NeoQueue<Operate> operateQueue) {
-        return new LogicOperate(Express.LogicEnum.AND, operateQueue) {
+        return new LogicOperate(NeoConstant.AND, operateQueue) {
 
             @Override
             public String generateOperate() {
@@ -57,7 +124,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate And(Operate operate) {
-        return new LogicOperate(Express.LogicEnum.AND, operate) {
+        return new LogicOperate(NeoConstant.AND, operate) {
 
             @Override
             public String generateOperate() {
@@ -70,7 +137,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate And(String key, Object value) {
-        return new LogicOperate(Express.LogicEnum.AND, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.AND, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
@@ -105,7 +172,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate AndEm(NeoQueue<Operate> operateQueue) {
-        return new LogicOperate(Express.LogicEnum.AND_EM, operateQueue) {
+        return new LogicOperate(NeoConstant.AND, operateQueue) {
 
             @Override
             public String generateOperate() {
@@ -118,7 +185,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate AndEm(Operate operate) {
-        return new LogicOperate(Express.LogicEnum.AND_EM, operate) {
+        return new LogicOperate(NeoConstant.AND, operate) {
 
             @Override
             public String generateOperate() {
@@ -131,7 +198,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate AndEm(String key, Object value) {
-        return new LogicOperate(Express.LogicEnum.AND_EM, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.AND, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
@@ -166,7 +233,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate Or(NeoQueue<Operate> operateQueue) {
-        return new LogicOperate(Express.LogicEnum.OR, operateQueue) {
+        return new LogicOperate(NeoConstant.OR, operateQueue) {
 
             @Override
             public String generateOperate() {
@@ -179,7 +246,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate Or(Operate operate) {
-        return new LogicOperate(Express.LogicEnum.OR, operate) {
+        return new LogicOperate(NeoConstant.OR, operate) {
 
             @Override
             public String generateOperate() {
@@ -197,7 +264,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Or(String key, Object value) {
-        return new LogicOperate(Express.LogicEnum.OR, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.OR, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
@@ -237,7 +304,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate OrEm(NeoQueue<Operate> operateQueue) {
-        return new LogicOperate(Express.LogicEnum.OR_EM, operateQueue) {
+        return new LogicOperate(NeoConstant.OR, operateQueue) {
 
             @Override
             public String generateOperate() {
@@ -250,7 +317,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate OrEm(Operate operate) {
-        return new LogicOperate(Express.LogicEnum.OR_EM, operate) {
+        return new LogicOperate(NeoConstant.OR, operate) {
 
             @Override
             public String generateOperate() {
@@ -268,7 +335,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate OrEm(String key, Object value) {
-        return new LogicOperate(Express.LogicEnum.OR_EM, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.OR, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
@@ -309,7 +376,12 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate Em(NeoQueue<Operate> operateQueue) {
-        return new LogicOperate(Express.LogicEnum.EMPTY, operateQueue) {
+        return new LogicOperate(NeoConstant.EMPTY, operateQueue) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -322,7 +394,12 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate Em(Operate operate) {
-        return new LogicOperate(Express.LogicEnum.EMPTY, operate) {
+        return new LogicOperate(NeoConstant.EMPTY, operate) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -340,7 +417,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Em(String key, Object value) {
-        return new LogicOperate(Express.LogicEnum.EMPTY, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.EMPTY, Equal(key, value)) {
 
             @Override
             public String generateOperate() {
@@ -378,7 +455,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate Equal(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.EQUAL, value) {
 
             @Override
             public String generateOperate() {
@@ -398,7 +475,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate NotEqual(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.NOT_EQUAL, value) {
 
             @Override
             public String generateOperate() {
@@ -418,7 +495,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate GreaterThan(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.GREATER_THAN, value) {
 
             @Override
             public String generateOperate() {
@@ -438,7 +515,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate GreaterEqual(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.GREATER_EQUAL, value) {
 
             @Override
             public String generateOperate() {
@@ -458,7 +535,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate LessThan(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.LESS_THAN, value) {
 
             @Override
             public String generateOperate() {
@@ -478,7 +555,7 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate LessEqual(String key, Object value) {
-        return new RelationOperate(key, value) {
+        return new RelationOperate(key, NeoConstant.LESS_EQUAL, value) {
 
             @Override
             public String generateOperate() {
@@ -493,12 +570,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * like模糊搜索
-     * @param key key
+     *
+     * @param key   key
      * @param value value
      * @return 模糊匹配的字符串
      */
     public static Operate Like(String key, String value) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.LIKE, null) {
 
             @Override
             public String generateOperate() {
@@ -509,12 +587,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * not like模糊搜索
-     * @param key key
+     *
+     * @param key   key
      * @param value value
      * @return 模糊匹配的字符串
      */
     public static Operate NotLike(String key, String value) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.NOT_LIKE, null) {
 
             @Override
             public String generateOperate() {
@@ -525,13 +604,14 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * in集合处理
-     * @param key key
+     *
+     * @param key        key
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate In(String key, Collection collection) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.IN, null) {
 
             @Override
             public String generateOperate() {
@@ -542,13 +622,14 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * not in集合处理
-     * @param key key
+     *
+     * @param key        key
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate NotIn(String key, Collection collection) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.ONT_IN, null) {
 
             @Override
             public String generateOperate() {
@@ -559,11 +640,12 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * is null
+     *
      * @param key key
      * @return 模糊匹配的字符串
      */
     public static Operate IsNull(String key) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.IS_NULL, null) {
 
             @Override
             public String generateOperate() {
@@ -574,11 +656,12 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * is not null
+     *
      * @param key key
      * @return 模糊匹配的字符串
      */
     public static Operate IsNotNull(String key) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.IS_NOT_NULL, null) {
 
             @Override
             public String generateOperate() {
@@ -589,11 +672,17 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * group by
+     *
      * @param key key
      * @return group by字符串
      */
     public static Operate GroupBy(String key) {
-        return new RelationOperate(key, null) {
+        return new RelationOperate(key, NeoConstant.GROUP_BY, null) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -602,28 +691,74 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    public static Operate OrderBy(String key) {
-        return new RelationOperate(key, null) {
+    /**
+     * order by多个字符
+     * <p>
+     * 多种情况，如下：
+     * <ul>
+     *     <li>1.k1</li>
+     *     <li>2.k1-desc</li>
+     *     <li>3.k1-desc-k2</li>
+     *     <li>4.k1-desc-k2-asc</li>
+     *     <li>5.k1-desc-k2-k3</li>
+     *     <li>6.k1-k2-k3-asc-k4-desc</li>
+     * </ul>
+     * 只要后面跟着desc或者asc，则修饰的是前面的列，如果后面不是desc或者asc，则表示当前列默认为升序，即asc
+     *
+     * @param kDescAsc 多个k和desc（或者asc）的类型
+     * @return order by的操作符
+     */
+    public static Operate OrderBy(String... kDescAsc) {
+        return new RelationOperate(null, NeoConstant.ORDER_BY, new LinkedList<>(Arrays.asList(kDescAsc))) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
-                return " order by " + SqlBuilder.toDbField(super.getKey());
+                return " order by " + getOrderBySql();
+            }
+
+            @SuppressWarnings("unchecked")
+            private String getOrderBySql() {
+                StringBuilder stringBuilder = new StringBuilder();
+                LinkedList<String> valueList = (LinkedList<String>) getValue();
+                List<String> outerList = new ArrayList<>();
+                List<String> columnNameList = new ArrayList<>();
+                for (String value : valueList) {
+                    if ("".equals(value)) {
+                        continue;
+                    }
+                    value = value.trim();
+                    if (!NeoConstant.ASC.equals(value) && !NeoConstant.DESC.equals(value)) {
+                        columnNameList.add(SqlBuilder.toDbField(value));
+                    } else {
+                        stringBuilder.append(String.join(", ", columnNameList)).append(" ").append(value);
+                        outerList.add(stringBuilder.toString());
+                        columnNameList.clear();
+                        stringBuilder.delete(0, stringBuilder.length());
+                    }
+                }
+                outerList.add(String.join(", ", columnNameList));
+                columnNameList.clear();
+
+                return outerList.stream().filter(e->!"".equals(e)).collect(Collectors.joining(", "));
             }
         };
     }
 
-    public static Operate OrderBy(String key, String descOrAsc) {
-        return new RelationOperate(key, null) {
-
-            @Override
-            public String generateOperate() {
-                return " order by " + SqlBuilder.toDbField(super.getKey()) + " " + descOrAsc;
-            }
-        };
-    }
-
+    /**
+     * 这里只识别所有的column列，并让其全部降序
+     */
     public static Operate OrderByDesc(String key) {
         return new RelationOperate(key, null) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -654,6 +789,11 @@ public abstract class BaseOperate implements Operate {
 
     public static Operate Page(PageReq<Object> neoPageReq) {
         return new RelationOperate(null, null) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -694,6 +834,7 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 生成sql部分代码
+     *
      * @param queue 操作符队列
      * @return sql部分队列
      */

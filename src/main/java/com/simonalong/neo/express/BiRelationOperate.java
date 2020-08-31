@@ -21,6 +21,11 @@ public abstract class BiRelationOperate extends RelationOperate {
         this.rightValue = rightValue;
     }
 
+    @Override
+    public Boolean needWhere() {
+        return true;
+    }
+
     /**
      * 判断value是否满足要求
      * @return true：满足，false：不满足

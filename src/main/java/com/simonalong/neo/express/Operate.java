@@ -23,6 +23,12 @@ public interface Operate {
     String generateOperate();
 
     /**
+     * 获取操作符
+     * @return 操作符
+     */
+    String getOperateSymbol();
+
+    /**
      * 添加运算符数据
      *
      * @param value 待加入的运算
@@ -32,15 +38,58 @@ public interface Operate {
     /**
      * 值是否合法
      *
+     * <p>
+     *     默认对值进行这种拦截处理
+     *     <ul>
+     *         <li>1.值为null，则默认为不合法</li>
+     *         <li>2.如果为字符类型，则如果为空字符，则认为不合法</li>
+     *         <li>1.如果为集合类型，则如果空，则认为不合法</li>
+     *     </ul>
+     *
      * @return true：合法，false：不合法
      */
     Boolean valueLegal();
 
     /**
+     * 该表达式出现是否必需得有where语句
+     *
+     * @return true：必需，false：不必
+     */
+    Boolean needWhere();
+
+    /**
      * 获取值的队列
+     *
      * @return 值队列
      */
     NeoQueue<Object> getValueQueue();
+
+    /**
+     * 查找等于操作符的key为某个列名对应的值
+     *
+     * @param columnName    列名
+     * @param operateSymbol 符号
+     * @return 列对应的值
+     */
+    Object getValueFromColumnOfOperate(String columnName, String operateSymbol);
+
+    /**
+     * 根据表达式获取表达式的第一个整体字符
+     * <p>
+     *     比如：根据=获取 得到{@code `a` = 12}
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    String getFirstOperateStr(String operateSymbol);
+
+    /**
+     * 根据表达式获取表达式所有的整体字符
+     * <p>
+     *     比如：根据=获取 得到{@code `a` = 12}
+     * @param operateSymbol 表达式符号
+     * @return 表达的前后字符
+     */
+    List<String> getAllOperateStr(String operateSymbol);
 
     /**
      * 解析数据为操作符队列
@@ -63,7 +112,7 @@ public interface Operate {
                 String key = (String) parameter;
                 Object value = parameters.get(++index);
 
-                switch (logicOperate){
+                switch (logicOperate) {
                     case AND:
                         operate = And(key, value);
                         break;
@@ -92,7 +141,7 @@ public interface Operate {
             // Operate类型处理
             if (parameter instanceof Operate) {
                 Operate operate;
-                switch (logicOperate){
+                switch (logicOperate) {
                     case AND:
                         operate = BaseOperate.And((Operate) parameter);
                         break;

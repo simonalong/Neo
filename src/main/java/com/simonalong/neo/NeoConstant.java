@@ -20,14 +20,7 @@ public interface NeoConstant {
      * SQL 的limit
      */
     String LIMIT = "limit";
-    /**
-     * SQL 的desc
-     */
-    String DESC = "desc";
-    /**
-     * SQL 的asc
-     */
-    String ASC = "asc";
+
     /**
      * 所有列名
      */
@@ -70,4 +63,31 @@ public interface NeoConstant {
      * bit的个数
      */
     int BIT_NUM = 64;
+
+
+    String AND = "and";
+    String OR = "or";
+    String EMPTY = "";
+    /**
+     * SQL 的desc
+     */
+    String DESC = "desc";
+    /**
+     * SQL 的asc
+     */
+    String ASC = "asc";
+    String GROUP_BY = "group by";
+    String IS_NOT_NULL = "is not null";
+    String IS_NULL = "is null";
+    String ONT_IN = "not in";
+    String IN = "in";
+    String NOT_LIKE = "not like";
+    String LIKE = "like";
+
+    String EQUAL = "=";
+    String LESS_EQUAL = "<=";
+    String GREATER_EQUAL = ">=";
+    String LESS_THAN = "<";
+    String GREATER_THAN = ">";
+    String NOT_EQUAL = "!=";
 }

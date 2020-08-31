@@ -1,11 +1,10 @@
 package com.simonalong.neo.devide;
 
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
 import com.simonalong.neo.express.Express;
+import com.simonalong.neo.util.CharSequenceUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.simonalong.neo.NeoConstant.DESC;
-import static com.simonalong.neo.NeoConstant.ORDER_BY;
+import static com.simonalong.neo.NeoConstant.*;
 
 /**
  * 分库分表中的多库多表查询处理
@@ -226,8 +224,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
-        // todo 0.6.0
-        return null;
+        return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
     }
 
     @Override
@@ -245,8 +242,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
-        // todo 0.6.0
-        return null;
+        return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
     }
 
     @Override
@@ -269,22 +265,22 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
-        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchMap)).stream().reduce((a, b) -> a + b).orElse(0);
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchMap)).stream().reduce(Integer::sum).orElse(0);
     }
 
     @Override
     public Integer count(String tableName, Express searchExpress) {
-        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchExpress)).stream().reduce((a, b) -> a + b).orElse(0);
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchExpress)).stream().reduce(Integer::sum).orElse(0);
     }
 
     @Override
     public Integer count(String tableName, Object entity) {
-        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, entity)).stream().reduce((a, b) -> a + b).orElse(0);
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, entity)).stream().reduce(Integer::sum).orElse(0);
     }
 
     @Override
     public Integer count(String tableName) {
-        return executeOneToList(tableName, Neo::count).stream().reduce((a, b) -> a + b).orElse(0);
+        return executeOneToList(tableName, Neo::count).stream().reduce(Integer::sum).orElse(0);
     }
 
     /**
@@ -295,7 +291,6 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      * @param <T>       返回类型
      * @return 返回类型的值
      */
-    @SuppressWarnings("unchecked")
     private <T> T executeOne(String tableName, BiFunction<Neo, String, T> function) {
         if (null != dbList && !dbList.isEmpty()) {
             for (Neo db : dbList) {
@@ -337,9 +332,9 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      * @param <T>       返回类型
      * @return 返回类型的值
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> T executeList(String tableName, BiFunction<Neo, String, T> function) {
-        List resultList = new ArrayList();
+        List resultList = new ArrayList<>();
         if (null != dbList && !dbList.isEmpty()) {
             for (Neo db : dbList) {
                 doExecuteList(tableName, db, resultList, function);
@@ -351,14 +346,14 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         return (T) resultList;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> void doExecuteList(String tableName, Neo db, List resultList, BiFunction<Neo, String, T> function) {
         List<String> tableList = getActTableList(tableName);
         for (String actTableName : tableList) {
             T result = function.apply(db, actTableName);
             if (null != result) {
                 if (result instanceof List) {
-                    List dataList = List.class.cast(result);
+                    List dataList = (List) result;
                     if (!dataList.isEmpty()) {
                         resultList.addAll(dataList);
                     }
@@ -391,19 +386,28 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         return resultList;
     }
 
+    /**
+     * 多库或者多表数据分页的合并
+     *
+     * @param searchObject 搜索条件：NeoMap类型或者Express表达式类型
+     * @param page         分页
+     * @param function     原始数据生成回调
+     * @return 分页过滤处理后的数据
+     */
     @SuppressWarnings("unchecked")
-    private List<NeoMap> executePage(NeoMap searchMap, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
+    private List<NeoMap> executePage(Object searchObject, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
         NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
         Integer startIndex = page.getStartIndex();
         Integer pageSize = page.getPageSize();
         List<NeoMap> resultList = function.apply(extendPage);
-        List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchMap);
+        // 获取排序条件
+        List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchObject);
         if (!resultList.isEmpty()) {
             // 多数据的归并后排序
             resultList = resultList.stream().sorted((a, b) -> {
                 for (ColumnSortConfig sortConfig : columnSortConfigList) {
-                    Comparable comparableLeft = a.get(Comparable.class, sortConfig.getColumnName());
-                    Comparable comparableRight = b.get(Comparable.class, sortConfig.getColumnName());
+                    Comparable<Object> comparableLeft = a.get(Comparable.class, sortConfig.getColumnName());
+                    Comparable<Object> comparableRight = b.get(Comparable.class, sortConfig.getColumnName());
                     Integer sort = sortConfig.getSort();
                     if (1 == sort) {
                         int compareResult = comparableLeft.compareTo(comparableRight);
@@ -431,25 +435,58 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     /**
      * 从neoMap中获取到order by语句
      *
-     * @param searchMap 搜索条件
+     * <p>
+     *     比如：{@code order by `create_time`, `id` desc, `group` asc"} 转换之后变成
+     *     {@code [{"columnName":"`create_time`","sort":0},{"columnName":"`id`","sort":0},{"columnName":"`group`","sort":1}]}
+     *
+     * @param searchObject 搜索条件
      * @return 列排序配置
      */
-    private List<ColumnSortConfig> getColumnAndSortList(NeoMap searchMap) {
-        if (searchMap.containsKey(ORDER_BY)) {
-            String orderByValue = searchMap.getString(ORDER_BY);
-            return Stream.of(orderByValue.split(",")).map(String::trim).map(e -> {
-                ColumnSortConfig sortConfig = new ColumnSortConfig();
-                if (e.contains(" ")) {
-                    int spaceIndex = e.indexOf(" ");
-                    sortConfig.setColumnName(e.substring(0, spaceIndex));
-                    sortConfig.setSortStr(e.substring(spaceIndex + 1));
-                } else {
-                    sortConfig.setColumnName(e);
-                }
-                return sortConfig;
-            }).collect(Collectors.toList());
+    public static List<ColumnSortConfig> getColumnAndSortList(Object searchObject) {
+        String orderByValue = null;
+        if(searchObject instanceof NeoMap) {
+            NeoMap searchMap = (NeoMap) searchObject;
+            if (searchMap.containsKey(ORDER_BY)) {
+                orderByValue = searchMap.getString(ORDER_BY);
+            }
+        } else if (searchObject instanceof Express) {
+            Express searchExpress = (Express) searchObject;
+            orderByValue = searchExpress.getFirstOperateStr(ORDER_BY);
+            if (CharSequenceUtil.isNotEmpty(orderByValue)) {
+                orderByValue = orderByValue.trim();
+                orderByValue = orderByValue.substring(NeoConstant.GROUP_BY.length());
+            }
         }
-        return Collections.emptyList();
+
+        NeoQueue<String> neoQueue = NeoQueue.of();
+        if (null != orderByValue) {
+            while (orderByValue.contains(DESC) || orderByValue.contains(ASC)) {
+                int descIndex = orderByValue.indexOf(DESC);
+                int ascIndex = orderByValue.indexOf(ASC);
+                String subStr;
+                if ((-1 != descIndex && descIndex < ascIndex) || -1 == ascIndex) {
+                    subStr = orderByValue.substring(0, descIndex);
+                    Arrays.stream(subStr.split(",")).map(String::trim).filter(CharSequenceUtil::isNotEmpty).forEach(e -> neoQueue.add(e + " " + DESC));
+                    orderByValue = orderByValue.substring(descIndex + DESC.length());
+                }
+                if ((-1 != ascIndex && ascIndex < descIndex) || -1 == descIndex) {
+                    subStr = orderByValue.substring(0, ascIndex);
+                    Arrays.stream(subStr.split(",")).map(String::trim).filter(CharSequenceUtil::isNotEmpty).forEach(e -> neoQueue.add(e + " " + ASC));
+                    orderByValue = orderByValue.substring(ascIndex + ASC.length());
+                }
+            }
+        }
+
+        return neoQueue.stream().map(e->{
+            ColumnSortConfig sortConfig = new ColumnSortConfig();
+            if (e.contains(" ")) {
+                int spaceIndex = e.indexOf(" ");
+                sortConfig.setColumnName(e.substring(0, spaceIndex));
+                sortConfig.setSortStr(e.substring(spaceIndex + 1));
+                return sortConfig;
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Getter

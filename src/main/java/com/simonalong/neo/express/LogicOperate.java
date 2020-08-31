@@ -11,17 +11,26 @@ import com.simonalong.neo.NeoQueue;
  */
 public abstract class LogicOperate extends BaseOperate {
 
-    private final Express.LogicEnum logicEnum;
-
-    public LogicOperate(Express.LogicEnum logicEnum, Operate operate) {
+    public LogicOperate(String operateSymbol, Operate operate) {
         super();
+        super.setOperateSymbol(operateSymbol);
         super.offerOperate(operate);
-        this.logicEnum = logicEnum;
     }
 
-    public LogicOperate(Express.LogicEnum logicEnum, NeoQueue<Operate> operateQueue) {
-        super(operateQueue);
-        this.logicEnum = logicEnum;
+    public LogicOperate(String operateSymbol, NeoQueue<Operate> operateQueue) {
+        super();
+        super.setOperateSymbol(operateSymbol);
+        super.setChildOperateQueue(operateQueue);
+    }
+
+    @Override
+    public void offerOperate(Operate value) {
+        this.childOperateQueue.offer(value);
+    }
+
+    @Override
+    public Boolean needWhere() {
+        return true;
     }
 
     @Override
