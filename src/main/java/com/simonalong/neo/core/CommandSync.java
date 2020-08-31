@@ -41,13 +41,9 @@ public interface CommandSync extends Sync {
     <T> T update(String tableName, T entity);
 
 
-//    NeoMap update(String tableName, NeoMap dataMap, Express searchExpress);
-//
-//    <T> T update(String tableName, T setEntity, Express searchExpress);
-//
-//    <T> T update(String tableName, T setEntity, Express searchExpress);
-//
-//    <T> NeoMap update(String tableName, NeoMap setMap, Express searchExpress);
+    NeoMap update(String tableName, NeoMap dataMap, Express searchExpress);
+
+    <T> T update(String tableName, T setEntity, Express searchExpress);
 
 
     Integer batchInsert(String tableName, List<NeoMap> dataMapList);

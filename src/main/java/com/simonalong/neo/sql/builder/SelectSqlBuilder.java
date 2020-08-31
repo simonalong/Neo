@@ -43,6 +43,10 @@ public class SelectSqlBuilder {
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
     }
 
+    public String buildList(Neo neo, String tableName, Columns columns, Express searchExpress) {
+        return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + searchExpress.toSql();
+    }
+
     public String buildList(Neo neo, String tableName, Express searchExpress) {
         return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
     }
@@ -59,6 +63,10 @@ public class SelectSqlBuilder {
         return buildValues(tableName, field, searchMap) + limitOne();
     }
 
+    public String buildValue(String tableName, String field, Express searchExpress) {
+        return buildValues(tableName, field, searchExpress) + limitOne();
+    }
+
     /**
      * 拼接 select values 单列多值
      *
@@ -69,6 +77,10 @@ public class SelectSqlBuilder {
      */
     public String buildValues(String tableName, String field, NeoMap searchMap) {
         return "select " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
+    }
+
+    public String buildValues(String tableName, String field, Express searchExpress) {
+        return "select " + SqlBuilder.toDbField(field) + " from " + tableName + searchExpress.toSql();
     }
 
     /**
@@ -86,6 +98,10 @@ public class SelectSqlBuilder {
         return buildList(neo, tableName, columns, searchMap) + " limit " + pageSize + " offset " + startIndex;
     }
 
+    public String buildPage(Neo neo, String tableName, Columns columns, Express searchExpress, Integer startIndex, Integer pageSize) {
+        return buildList(neo, tableName, columns, searchExpress) + " limit " + pageSize + " offset " + startIndex;
+    }
+
     /**
      * 拼接 select count， 单列单值，整数
      *
@@ -95,6 +111,10 @@ public class SelectSqlBuilder {
      */
     public String buildCount(String tableName, NeoMap searchMap) {
         return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap) + limitOne();
+    }
+
+    public String buildCount(String tableName, Express searchExpress) {
+        return "select count(1) from " + tableName + searchExpress.toSql() + limitOne();
     }
 
     /**

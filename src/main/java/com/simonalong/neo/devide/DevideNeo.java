@@ -488,6 +488,18 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public NeoMap update(String tableName, NeoMap dataMap, Express searchExpress){
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
+    public <T> T update(String tableName, T setEntity, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
     public <T> T update(String tableName, T setEntity, T searchEntity) {
         Neo neo = getDevideDb(tableName, searchEntity);
         if (null != neo) {
@@ -702,6 +714,12 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public List<NeoMap> list(String tableName, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
     public List<NeoMap> list(String tableName, Columns columns) {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
@@ -798,6 +816,12 @@ public final class DevideNeo extends AbstractBaseDb {
         }
     }
 
+    @Override
+    public String value(String tableName, String field, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
     @SuppressWarnings("all")
     @Override
     public String value(String tableName, String field, Object entity) {
@@ -868,6 +892,12 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
@@ -885,6 +915,12 @@ public final class DevideNeo extends AbstractBaseDb {
         } else {
             return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, searchMap), field, searchMap).stream()).collect(Collectors.toList()));
         }
+    }
+
+    @Override
+    public List<String> values(String tableName, String field, Express searchExpress) {
+        // todo 0.6.0
+        return null;
     }
 
     @Override
@@ -919,6 +955,12 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
@@ -947,6 +989,12 @@ public final class DevideNeo extends AbstractBaseDb {
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
+        // todo 0.6.0
+        return null;
     }
 
     @Override
@@ -981,6 +1029,12 @@ public final class DevideNeo extends AbstractBaseDb {
         } else {
             return neoXa.call(() -> getNeoList().stream().map(db -> db.count(tableName, searchMap)).reduce((a, b) -> a + b).orElse(0));
         }
+    }
+
+    @Override
+    public Integer count(String tableName, Express searchExpress) {
+        // todo 0.6.0
+        return null;
     }
 
     @Override

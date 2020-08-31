@@ -86,6 +86,8 @@ public interface QuerySync extends Sync {
 
     List<NeoMap> list(String tableName, Columns columns);
 
+    List<NeoMap> list(String tableName, Express searchExpress);
+
 
     default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
         return NeoMap.asArray(list(tableName, columns, searchMap), tClass);
@@ -97,6 +99,10 @@ public interface QuerySync extends Sync {
 
     default <T> List<T> list(Class<T> tClass, String tableName, Columns columns) {
         return NeoMap.asArray(list(tableName, columns), tClass);
+    }
+
+    default <T> List<T> list(Class<T> tClass, String tableName, Express searchExpress) {
+        return NeoMap.asArray(list(tableName, searchExpress), tClass);
     }
 
 
@@ -112,6 +118,8 @@ public interface QuerySync extends Sync {
 
     String value(String tableName, String field, NeoMap searchMap);
 
+    String value(String tableName, String field, Express searchExpress);
+
     String value(String tableName, String field, Object entity);
 
     String value(String tableName, String field, Number id);
@@ -125,9 +133,13 @@ public interface QuerySync extends Sync {
 
     <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap);
 
+    <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress);
+
     <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity);
 
     List<String> values(String tableName, String field, NeoMap searchMap);
+
+    List<String> values(String tableName, String field, Express searchExpress);
 
     List<String> values(String tableName, String field, Object entity);
 
@@ -136,9 +148,13 @@ public interface QuerySync extends Sync {
 
     List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page);
 
+    List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page);
+
     <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page);
 
     List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page);
+
+    List<NeoMap> page(String tableName, Express searchExpress, NeoPage page);
 
     <T> List<T> page(String tableName, T entity, NeoPage page);
 
@@ -148,6 +164,10 @@ public interface QuerySync extends Sync {
 
     default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return NeoMap.asArray(page(tableName, columns, searchMap, page), tClass);
+    }
+
+    default <T> List<T> page(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
+        return NeoMap.asArray(page(tableName, searchExpress, page), tClass);
     }
 
     default <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
@@ -173,6 +193,10 @@ public interface QuerySync extends Sync {
 
     default NeoPageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, NeoPage page) {
         return new NeoPageRsp<>(page(tableName, searchMap, page), count(tableName, searchMap));
+    }
+
+    default NeoPageRsp<NeoMap> getPage(String tableName, Express searchExpress, NeoPage page) {
+        return new NeoPageRsp<>(page(tableName, searchExpress, page), count(tableName, searchExpress));
     }
 
     default <T> NeoPageRsp<T> getPage(String tableName, T entity, NeoPage page) {
@@ -206,6 +230,8 @@ public interface QuerySync extends Sync {
 
     Integer count(String tableName, NeoMap searchMap);
 
+    Integer count(String tableName, Express searchExpress);
+
     Integer count(String tableName, Object entity);
 
     Integer count(String tableName);
@@ -213,6 +239,10 @@ public interface QuerySync extends Sync {
 
     default Boolean exist(String tableName, NeoMap searchMap) {
         return NeoMap.isUnEmpty(one(tableName, searchMap));
+    }
+
+    default Boolean exist(String tableName, Express searchExpress) {
+        return NeoMap.isUnEmpty(one(tableName, searchExpress));
     }
 
     default Boolean exist(String tableName, Object entity) {
