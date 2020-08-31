@@ -1,6 +1,8 @@
 package com.simonalong.neo.sql;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.TimeRangeStrUtil;
 import java.util.List;
 
@@ -95,7 +97,7 @@ public final class SqlMonitor {
      */
     @Setter
     @AllArgsConstructor
-    class SqlCost {
+    static class SqlCost {
 
         @Getter
         private Long startTime;

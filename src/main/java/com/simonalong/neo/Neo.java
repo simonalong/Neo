@@ -622,6 +622,12 @@ public class Neo extends AbstractExecutorDb {
     }
 
     @Override
+    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+        return execute(true, () -> generateListSqlPair(tableName, columns, searchExpress), this::executeList)
+            .stream().map(table->table.getNeoMap(tableName)).collect(Collectors.toList());
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         if (null != entity) {
@@ -741,6 +747,17 @@ public class Neo extends AbstractExecutorDb {
             NeoMap searchMapTem = searchMap.clone();
             TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchMapTem),
                 this::executeOne);
+            if (null != result) {
+                return result.get(tClass, tableName, field);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        if (null != tClass) {
+            TableMap result = execute(false, () -> generateValueSqlPair(tableName, field, searchExpress), this::executeOne);
             if (null != result) {
                 return result.get(tClass, tableName, field);
             }
@@ -1671,6 +1688,10 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
+    }
+
+    private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, Express searchExpress) {
+        return new Pair<>(SelectSqlBuilder.buildList(this, tableName, columns, searchExpress), searchExpress.toValue());
     }
 
     /**

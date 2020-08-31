@@ -887,4 +887,20 @@ public class NeoMapTest extends BaseTest {
         show(SqlBuilder.buildWhere(dataMap));
         show(SqlBuilder.buildValueList(dataMap));
     }
+
+    /**
+     * 就是key是按照顺序进行排序的
+     */
+    @Test
+    public void sortTest(){
+        NeoMap dataMap = NeoMap.of();
+        dataMap.openSorted();
+        dataMap.put("a", 1);
+        dataMap.put("b", 2);
+        dataMap.put("2", 3);
+        dataMap.put("1", 3);
+        dataMap.put("c", 4);
+        dataMap.put("d", 5);
+        show(dataMap.toFastJsonString());
+    }
 }

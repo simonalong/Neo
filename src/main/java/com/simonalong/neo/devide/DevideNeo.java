@@ -684,6 +684,12 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
+    @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         Neo neo = getDevideDb(tableName, entity);
         if (null != neo) {
@@ -779,6 +785,13 @@ public final class DevideNeo extends AbstractBaseDb {
             return null;
         }
     }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        // todo 0.6.0
+        return null;
+    }
+
 
     @SuppressWarnings("all")
     @Override

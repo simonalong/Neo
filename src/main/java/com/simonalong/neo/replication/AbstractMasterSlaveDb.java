@@ -160,6 +160,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+        return doSlaveCall(db -> db.list(tableName, columns, searchExpress));
+    }
+
+    @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         return doSlaveCall(db -> db.list(tableName, columns, entity));
     }
@@ -213,6 +218,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         return doSlaveCall(db -> db.value(tClass, tableName, field, searchMap));
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return doSlaveCall(db -> db.value(tClass, tableName, field, searchExpress));
     }
 
     @Override

@@ -94,6 +94,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+        return executeList(tableName, (db, actTableName) -> db.list(actTableName, columns, searchExpress));
+    }
+
+    @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         return executeList(tableName, (db, actTableName) -> db.list(actTableName, columns, entity));
     }
@@ -132,6 +137,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         return executeOne(tableName, (db, actTableName) -> db.value(tClass, actTableName, field, searchMap));
+    }
+
+    @Override
+    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return executeOne(tableName, (db, actTableName) -> db.value(tClass, actTableName, field, searchExpress));
     }
 
     @SuppressWarnings("all")

@@ -78,6 +78,8 @@ public interface QuerySync extends Sync {
 
     List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap);
 
+    List<NeoMap> list(String tableName, Columns columns, Express searchExpress);
+
     <T> List<T> list(String tableName, Columns columns, T entity);
 
     List<NeoMap> list(String tableName, NeoMap searchMap);
@@ -113,6 +115,8 @@ public interface QuerySync extends Sync {
     <T> T value(String tableName, Class<T> tClass, String field, Object entity);
 
     <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress);
 
     <T> T value(Class<T> tClass, String tableName, String field, Object entity);
 
