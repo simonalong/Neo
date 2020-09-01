@@ -1,7 +1,6 @@
 package com.simonalong.neo.db;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBaseTable;
 import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import lombok.Data;
 import lombok.Getter;
