@@ -1,12 +1,10 @@
-package com.simonalong.neo.operate;
+package com.simonalong.neo.express;
 
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.devide.DevideMultiNeo;
-import com.simonalong.neo.express.Express;
-import com.simonalong.neo.express.Operate;
 import org.junit.Assert;
 import org.junit.Test;
 

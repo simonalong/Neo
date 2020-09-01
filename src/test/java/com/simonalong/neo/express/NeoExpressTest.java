@@ -1,9 +1,8 @@
-package com.simonalong.neo.operate;
+package com.simonalong.neo.express;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.Express;
 import org.junit.Test;
 
 import static com.simonalong.neo.express.BaseOperate.BetweenAnd;
