@@ -19,6 +19,8 @@ public interface CommandSync extends Sync {
 
     Integer delete(String tableName, NeoMap searchMap);
 
+    Integer delete(String tableName, Express searchExpress);
+
     <T> Integer delete(String tableName, T object);
 
     Integer delete(String tableName, Number id);

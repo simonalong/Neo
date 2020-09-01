@@ -26,6 +26,10 @@ public class SelectSqlBuilder {
         return buildList(neo, tableName, columns, searchMap) + limitOne();
     }
 
+    public String buildOne(Neo neo, String tableName, Columns columns, Express searchExpress) {
+        return buildList(neo, tableName, columns, searchExpress) + limitOne();
+    }
+
     public String buildOne(Neo neo, String tableName, Express searchExpress) {
         return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
     }

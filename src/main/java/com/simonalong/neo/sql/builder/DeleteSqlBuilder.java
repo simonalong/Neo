@@ -1,6 +1,7 @@
 package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.express.Express;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -12,5 +13,9 @@ public class DeleteSqlBuilder {
 
     public String build(String tableName, NeoMap valueMap) {
         return "delete from " + tableName + SqlBuilder.buildWhere(valueMap);
+    }
+
+    public String build(String tableName, Express searchExpress) {
+        return "delete from " + tableName + searchExpress.toSql();
     }
 }

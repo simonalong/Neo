@@ -309,6 +309,11 @@ public class Neo extends AbstractExecutorDb {
     }
 
     @Override
+    public Integer delete(String tableName, Express searchExpress) {
+        return execute(false, () -> generateDeleteSqlPair(tableName, searchExpress), this::executeUpdate);
+    }
+
+    @Override
     public <T> Integer delete(String tableName, T entity) {
         if (entity instanceof Number) {
             return delete(tableName, (Number) entity);
@@ -513,6 +518,12 @@ public class Neo extends AbstractExecutorDb {
     }
 
     @Override
+    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+        TableMap result = execute(false, () -> generateOneSqlPair(tableName, columns, searchExpress), this::executeOne);
+        return result.getNeoMap(tableName);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T one(String tableName, Columns columns, T entity) {
         if (entity instanceof Number) {
@@ -580,6 +591,12 @@ public class Neo extends AbstractExecutorDb {
         return neoMap;
     }
 
+    /**
+     * 查询一行（一个实体）
+     * @param tableName 表名
+     * @param searchExpress 复杂结构表达式
+     * @return 一个实体对应的类型
+     */
     @Override
     public NeoMap one(String tableName, Express searchExpress) {
         checkDb(tableName);
@@ -1643,6 +1660,10 @@ public class Neo extends AbstractExecutorDb {
         return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), new ArrayList<>(searchMap.values()));
     }
 
+    private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, Express searchExpress) {
+        return new Pair<>(DeleteSqlBuilder.build(tableName, searchExpress), new ArrayList<>(searchExpress.toValue()));
+    }
+
     /**
      * 生成插入的sql和参数 key: update xxx value: 对应的参数
      */
@@ -1673,6 +1694,10 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
+    }
+
+    private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, Express searchExpress) {
+        return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, columns, searchExpress), searchExpress.toValue());
     }
 
     /**

@@ -57,6 +57,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, columns, searchExpress));
+    }
+
+    @Override
     public <T> T one(String tableName, Columns columns, T entity) {
         return executeOne(tableName, (db, actTableName) -> db.one(actTableName, columns, entity));
     }

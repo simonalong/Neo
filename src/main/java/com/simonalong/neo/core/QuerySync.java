@@ -16,6 +16,8 @@ public interface QuerySync extends Sync {
 
     NeoMap one(String tableName, Columns columns, NeoMap searchMap);
 
+    NeoMap one(String tableName, Columns columns, Express searchExpress);
+
     <T> T one(String tableName, Columns columns, T entity);
 
     NeoMap one(String tableName, Columns columns, Number key);
@@ -26,17 +28,19 @@ public interface QuerySync extends Sync {
 
     NeoMap one(String tableName, Number id);
 
-    /**
-     * 查询一行（一个实体）
-     * @param tableName 表名
-     * @param searchExpress 复杂结构表达式
-     * @return 一个实体对应的类型
-     */
     NeoMap one(String tableName, Express searchExpress);
 
 
     default <T> T one(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
         NeoMap data = one(tableName, columns, searchMap);
+        if(null == data){
+            return null;
+        }
+        return data.as(tClass);
+    }
+
+    default <T> T one(Class<T> tClass, String tableName, Columns columns, Express searchExpress) {
+        NeoMap data = one(tableName, columns, searchExpress);
         if(null == data){
             return null;
         }
@@ -93,6 +97,10 @@ public interface QuerySync extends Sync {
 
     default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
         return NeoMap.asArray(list(tableName, columns, searchMap), tClass);
+    }
+
+    default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, Express express) {
+        return NeoMap.asArray(list(tableName, columns, express), tClass);
     }
 
     default <T> List<T> list(Class<T> tClass, String tableName, NeoMap searchMap) {

@@ -40,6 +40,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public Integer delete(String tableName, Express searchExpress) {
+        return doMasterCall(db -> db.delete(tableName, searchExpress));
+    }
+
+    @Override
     public <T> Integer delete(String tableName, T object) {
         return doMasterCall(db -> db.delete(tableName, object));
     }
@@ -102,6 +107,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
         return doSlaveCall(db -> db.one(tableName, columns, searchMap));
+    }
+
+    @Override
+    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+        return doSlaveCall(db -> db.one(tableName, columns, searchExpress));
     }
 
     @Override
@@ -192,6 +202,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap) {
         return doSlaveCall(db -> db.list(tClass, tableName, columns, searchMap));
+    }
+
+    @Override
+    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, Express express) {
+        return doSlaveCall(db -> db.list(tClass, tableName, columns, express));
     }
 
     @Override

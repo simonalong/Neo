@@ -3,6 +3,8 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,6 +29,11 @@ public abstract class AbstractDbAsync implements CqrsAsync {
     @Override
     public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap) {
         return deleteAsync(tableName, dataMap, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAsync(String tableName, Express searchExpress) {
+        return deleteAsync(tableName, searchExpress, getExecutor());
     }
 
     @Override
@@ -73,6 +80,17 @@ public abstract class AbstractDbAsync implements CqrsAsync {
     public <T> CompletableFuture<T> updateAsync(String tableName, T entity) {
         return updateAsync(tableName, entity, getExecutor());
     }
+
+    @Override
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Express searchExpress) {
+        return updateAsync(tableName, dataMap, searchExpress, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Express searchExpress) {
+        return updateAsync(tableName, setEntity, searchExpress, getExecutor());
+    }
+
 
     @Override
     public CompletableFuture<NeoMap> oneAsync(String tableName, Columns columns, NeoMap searchMap) {

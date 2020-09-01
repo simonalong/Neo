@@ -3,6 +3,8 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
+
 import java.util.List;
 
 /**
@@ -25,7 +27,11 @@ public interface TableSync extends Sync {
 
     NeoMap update(NeoMap dataMap, NeoMap searchMap);
 
+    NeoMap update(NeoMap dataMap, Express searchExpress);
+
     <T> T update(T setEntity, NeoMap searchMap);
+
+    <T> T update(T setEntity, Express searchExpress);
 
     <T> T update(T setEntity, T searchEntity);
 
@@ -42,6 +48,8 @@ public interface TableSync extends Sync {
 
     NeoMap one(Columns columns, NeoMap searchMap);
 
+    NeoMap one(Columns columns, Express searchExpress);
+
     <T> T one(Columns columns, T entity);
 
     NeoMap one(Columns columns, Number key);
@@ -54,24 +62,34 @@ public interface TableSync extends Sync {
 
     <T> T one(Class<T> tClass, Columns columns, NeoMap searchMap);
 
+    <T> T one(Class<T> tClass, Columns columns, Express searchExpress);
+
     <T> T one(Class<T> tClass, Columns columns, Number key);
 
     <T> T one(Class<T> tClass, NeoMap searchMap);
+
+    <T> T one(Class<T> tClass, Express searchExpress);
 
     <T> T one(Class<T> tClass, Number id);
 
 
     List<NeoMap> list(Columns columns, NeoMap searchMap);
 
+    List<NeoMap> list(Columns columns, Express searchExpress);
+
     <T> List<T> list(Columns columns, T entity);
 
     List<NeoMap> list(NeoMap searchMap);
+
+    List<NeoMap> list(Express searchExpress);
 
     <T> List<T> list(T entity);
 
     List<NeoMap> list(Columns columns);
 
     <T> List<T> list(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> List<T> list(Class<T> tClass, Columns columns, Express searchExpress);
 
     <T> List<T> list(Class<T> tClass, NeoMap searchMap);
 
@@ -80,15 +98,21 @@ public interface TableSync extends Sync {
 
     <T> T value(Class<T> tClass, String field, NeoMap searchMap);
 
+    <T> T value(Class<T> tClass, String field, Express searchExpress);
+
     <T> T value(Class<T> tClass, String field, Object entity);
 
     String value(String field, NeoMap searchMap);
+
+    String value(String field, Express searchExpress);
 
     String value(String field, Object entity);
 
     String value(String field, Number entity);
 
     <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap);
+
+    <T> List<T> values(Class<T> tClass, String field, Express searchExpress);
 
     <T> List<T> values(Class<T> tClass, String field, Object entity);
 
@@ -101,9 +125,13 @@ public interface TableSync extends Sync {
 
     List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page);
 
+    List<NeoMap> page(Columns columns, Express searchExpress, NeoPage page);
+
     <T> List<T> page(Columns columns, T entity, NeoPage page);
 
     List<NeoMap> page(NeoMap searchMap, NeoPage page);
+
+    List<NeoMap> page(Express searchExpress, NeoPage page);
 
     <T> List<T> page(T entity, NeoPage page);
 
@@ -113,7 +141,11 @@ public interface TableSync extends Sync {
 
     <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page);
 
+    <T> List<T> page(Class<T> tClass, Columns columns, Express searchExpress, NeoPage page);
+
     <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page);
+
+    <T> List<T> page(Class<T> tClass, Express searchExpress, NeoPage page);
 
     <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page);
 
@@ -122,12 +154,16 @@ public interface TableSync extends Sync {
 
     Integer count(NeoMap searchMap);
 
+    Integer count(Express searchExpress);
+
     Integer count(Object entity);
 
     Integer count();
 
 
     Boolean exist(NeoMap searchMap);
+
+    Boolean exist(Express searchExpress);
 
     Boolean exist(Object entity);
 
@@ -139,9 +175,9 @@ public interface TableSync extends Sync {
 
     Integer batchUpdate(List<NeoMap> dataList);
 
-    Integer batchUpdate(List<NeoMap> dataList, Columns columns);
+    Integer batchUpdate(List<NeoMap> dataList, Columns searchColumns);
 
     <T> Integer batchUpdateEntity(List<T> dataList);
 
-    <T> Integer batchUpdateEntity(List<T> dataList, Columns columns);
+    <T> Integer batchUpdateEntity(List<T> dataList, Columns searchColumns);
 }

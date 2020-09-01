@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,10 @@ public interface CommandAsync extends Async {
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor);
 
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap);
+
+    CompletableFuture<Integer> deleteAsync(String tableName, Express searchExpress, Executor executor);
+
+    CompletableFuture<Integer> deleteAsync(String tableName, Express searchExpress);
 
     <T> CompletableFuture<Integer> deleteAsync(String tableName, T object, Executor executor);
 
@@ -62,6 +67,15 @@ public interface CommandAsync extends Async {
     <T> CompletableFuture<T> updateAsync(String tableName, T entity, Executor executor);
 
     <T> CompletableFuture<T> updateAsync(String tableName, T entity);
+
+
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Express searchExpress, Executor executor);
+
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Express searchExpress);
+
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Express searchExpress);
 
 
     CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList);

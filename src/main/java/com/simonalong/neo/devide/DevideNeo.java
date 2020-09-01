@@ -475,6 +475,17 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public Integer delete(String tableName, Express searchExpress) {
+        Neo neo = getDevideDb(tableName, searchExpress);
+        if (null != neo) {
+            return neo.delete(getDevideTable(tableName, searchExpress), searchExpress);
+        } else {
+            neoXa.run(() -> getNeoList().forEach(n -> n.delete(getDevideTable(tableName, searchExpress), searchExpress)));
+            return getNeoList().size();
+        }
+    }
+
+    @Override
     public <T> Integer delete(String tableName, T object) {
         Neo neo = getDevideDb(tableName, object);
         if (null != neo) {
@@ -615,6 +626,23 @@ public final class DevideNeo extends AbstractBaseDb {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
                 NeoMap data = db.one(getDevideTable(tableName, searchMap), columns, searchMap);
+                if (NeoMap.isUnEmpty(data)) {
+                    return data;
+                }
+            }
+            return NeoMap.of();
+        }
+    }
+
+    @Override
+    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+        Neo neo = getDevideDb(tableName, searchExpress);
+        if (null != neo) {
+            return neo.one(getDevideTable(tableName, searchExpress), columns, searchExpress);
+        } else {
+            List<Neo> neoList = getNeoList();
+            for (Neo db : neoList) {
+                NeoMap data = db.one(getDevideTable(tableName, searchExpress), columns, searchExpress);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }

@@ -3,6 +3,8 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -36,6 +38,11 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync {
     @Override
     public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> delete(tableName, dataMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAsync(String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> delete(tableName, searchExpress), executor);
     }
 
     @Override
@@ -82,6 +89,17 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync {
     public <T> CompletableFuture<T> updateAsync(String tableName, T entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> update(tableName, entity), executor);
     }
+
+    @Override
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> update(tableName, dataMap, searchExpress), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> update(tableName, setEntity, searchExpress), executor);
+    }
+
 
     @Override
     public CompletableFuture<NeoMap> oneAsync(String tableName, Columns columns, NeoMap searchMap, Executor executor){

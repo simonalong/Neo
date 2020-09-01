@@ -3,6 +3,8 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -39,6 +41,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, NeoMap searchMap);
 
+    CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Express searchExpress, Executor executor);
+
+    CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, Express searchExpress);
+
     <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap, Executor executor);
 
     <T> CompletableFuture<T> updateAsync(T setEntity, NeoMap searchMap);
@@ -68,6 +74,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<NeoMap> oneAsync(Columns columns, NeoMap searchMap);
 
+    CompletableFuture<NeoMap> oneAsync(Columns columns, Express searchExpress, Executor executor);
+
+    CompletableFuture<NeoMap> oneAsync(Columns columns, Express searchExpress);
+
     <T> CompletableFuture<T> oneAsync(Columns columns, T entity, Executor executor);
 
     <T> CompletableFuture<T> oneAsync(Columns columns, T entity);
@@ -88,9 +98,17 @@ public interface TableAsync extends Async {
 
     <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, NeoMap searchMap);
 
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, Express searchExpress);
+
     <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap, Executor executor);
 
     <T> CompletableFuture<T> oneAsync(Class<T> tClass, NeoMap searchMap);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<T> oneAsync(Class<T> tClass, Express searchExpress);
 
     <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id, Executor executor);
 
@@ -101,6 +119,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<List<NeoMap>> listAsync(Columns columns, NeoMap searchMap);
 
+    CompletableFuture<List<NeoMap>> listAsync(Columns columns, Express searchExpress, Executor executor);
+
+    CompletableFuture<List<NeoMap>> listAsync(Columns columns, Express searchExpress);
+
     <T> CompletableFuture<List<T>> listAsync(Columns columns, T entity, Executor executor);
 
     <T> CompletableFuture<List<T>> listAsync(Columns columns, T entity);
@@ -109,6 +131,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<List<NeoMap>> listAsync(NeoMap searchMap);
 
+    CompletableFuture<List<NeoMap>> listAsync(Express searchExpress, Executor executor);
+
+    CompletableFuture<List<NeoMap>> listAsync(Express searchExpress);
+
     <T> CompletableFuture<List<T>> listAsync(T entity, Executor executor);
 
     <T> CompletableFuture<List<T>> listAsync(T entity);
@@ -116,6 +142,10 @@ public interface TableAsync extends Async {
     <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap, Executor executor);
 
     <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, NeoMap searchMap);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, Express searchExpress);
 
     <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap, Executor executor);
 
@@ -126,6 +156,10 @@ public interface TableAsync extends Async {
 
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, NeoMap searchMap);
 
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, Express searchExpress);
+
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, Object entity, Executor executor);
 
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, Object entity);
@@ -133,6 +167,10 @@ public interface TableAsync extends Async {
     CompletableFuture<List<String>> valuesAsync(String field, NeoMap searchMap, Executor executor);
 
     CompletableFuture<List<String>> valuesAsync(String field, NeoMap searchMap);
+
+    CompletableFuture<List<String>> valuesAsync(String field, Express searchExpress, Executor executor);
+
+    CompletableFuture<List<String>> valuesAsync(String field, Express searchExpress);
 
     CompletableFuture<List<String>> valuesAsync(String field, Object entity, Executor executor);
 
@@ -147,6 +185,10 @@ public interface TableAsync extends Async {
 
     <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap);
 
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress);
+
     <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity, Executor executor);
 
     <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity);
@@ -154,6 +196,10 @@ public interface TableAsync extends Async {
     CompletableFuture<String> valueAsync(String field, NeoMap searchMap, Executor executor);
 
     CompletableFuture<String> valueAsync(String field, NeoMap searchMap);
+
+    CompletableFuture<String> valueAsync(String field, Express searchExpress, Executor executor);
+
+    CompletableFuture<String> valueAsync(String field, Express searchExpress);
 
     CompletableFuture<String> valueAsync(String field, Object entity, Executor executor);
 
@@ -164,6 +210,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, NeoPage page);
 
+    CompletableFuture<List<NeoMap>> pageAsync(Columns columns, Express searchExpress, NeoPage page, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(Columns columns, Express searchExpress, NeoPage page);
+
     <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page, Executor executor);
 
     <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page);
@@ -171,6 +221,10 @@ public interface TableAsync extends Async {
     CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, NeoPage page, Executor executor);
 
     CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, NeoPage page);
+
+    CompletableFuture<List<NeoMap>> pageAsync(Express searchExpress, NeoPage page, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(Express searchExpress, NeoPage page);
 
     <T> CompletableFuture<List<T>> pageAsync(T entity, NeoPage page, Executor executor);
 
@@ -188,9 +242,17 @@ public interface TableAsync extends Async {
 
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page);
 
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, Express searchExpress, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, Express searchExpress, NeoPage page);
+
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page, Executor executor);
 
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Express searchExpress, NeoPage page, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Express searchExpress, NeoPage page);
 
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page, Executor executor);
 
@@ -205,6 +267,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<Integer> countAsync(NeoMap searchMap);
 
+    CompletableFuture<Integer> countAsync(Express searchExpress, Executor executor);
+
+    CompletableFuture<Integer> countAsync(Express searchExpress);
+
     CompletableFuture<Integer> countAsync(Object entity, Executor executor);
 
     CompletableFuture<Integer> countAsync(Object entity);
@@ -217,6 +283,10 @@ public interface TableAsync extends Async {
     CompletableFuture<Boolean> existAsync(NeoMap searchMap, Executor executor);
 
     CompletableFuture<Boolean> existAsync(NeoMap searchMap);
+
+    CompletableFuture<Boolean> existAsync(Express searchExpress, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(Express searchExpress);
 
     CompletableFuture<Boolean> existAsync(Object entity, Executor executor);
 
