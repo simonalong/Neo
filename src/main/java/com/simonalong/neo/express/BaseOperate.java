@@ -99,6 +99,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param objects 待处理对象
      * @return 操作类
      */
     public static Operate And(Object... objects) {
@@ -108,6 +109,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param operateQueue 待处理操作队列
      * @return 操作类
      */
     public static Operate And(NeoQueue<Operate> operateQueue) {
@@ -165,6 +167,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 无括号的and
      *
+     * @param objects 待处理对象
      * @return 操作类
      */
     public static Operate AndEm(Object... objects) {
@@ -226,6 +229,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的or
      *
+     * @param objects 待处理对象
      * @return 操作类
      */
     public static Operate Or(Object... objects) {
@@ -261,6 +265,8 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param key   操作符左侧的key
+     * @param value 操作符的值
      * @return 操作类
      */
     public static Operate Or(String key, Object value) {
@@ -279,6 +285,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param queue 操作队列
      * @return 操作类
      */
     public static String orGenerateOperate(NeoQueue<Operate> queue) {
@@ -297,6 +304,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 无括号的 OrEm
      *
+     * @param objects 待处理对象
      * @return 操作类
      */
     public static Operate OrEm(Object... objects) {
@@ -332,6 +340,8 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param key   操作符左侧的key
+     * @param value 操作符的值
      * @return 操作类
      */
     public static Operate OrEm(String key, Object value) {
@@ -350,6 +360,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param queue 操作符队列
      * @return 操作类
      */
     public static String orEmGenerateOperate(NeoQueue<Operate> queue) {
@@ -414,6 +425,8 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param key   操作符左侧的key
+     * @param value 操作符的值
      * @return 操作类
      */
     public static Operate Em(String key, Object value) {
@@ -432,6 +445,7 @@ public abstract class BaseOperate implements Operate {
     /**
      * 有括号的and
      *
+     * @param queue   操作符队列
      * @return 操作类
      */
     public static String emGenerateOperate(NeoQueue<Operate> queue) {
@@ -751,6 +765,9 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 这里只识别所有的column列，并让其全部降序
+     *
+     * @param key 列名
+     * @return 操作符
      */
     public static Operate OrderByDesc(String key) {
         return new RelationOperate(key, null) {

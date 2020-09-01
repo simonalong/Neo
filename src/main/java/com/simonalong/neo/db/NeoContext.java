@@ -10,7 +10,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class NeoContext {
 
-    private ThreadLocal<Neo> dbTypeLocal = new ThreadLocal<>();
+    private final ThreadLocal<Neo> dbTypeLocal = new ThreadLocal<>();
 
     public void load(Neo neo) {
         dbTypeLocal.set(neo);

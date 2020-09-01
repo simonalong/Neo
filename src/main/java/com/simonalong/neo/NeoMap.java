@@ -491,7 +491,8 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
-     * 将NeoMap底层的ConcurrentHashMap类型结构转换为有序的ConcurrentSkipListMap（有序的跳表结构）
+     * 将NeoMap底层的ConcurrentHashMap类型结构转换为key有序的ConcurrentSkipListMap（有序的跳表结构）
+     * @return 设定key顺序后的map
      */
     public NeoMap openSorted() {
         dataMap = new ConcurrentSkipListMap<>(dataMap);
@@ -499,7 +500,8 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
-     * 将NeoMap底层的ConcurrentSkipListMap（有序的跳表结构）类型结构转换为有序的ConcurrentHashMap
+     * 将NeoMap底层的ConcurrentSkipListMap（key有序的跳表结构）类型结构转换为有序的ConcurrentHashMap
+     * @return 设定key无顺序后的map
      */
     public NeoMap closeSorted() {
         dataMap = new ConcurrentHashMap<>();

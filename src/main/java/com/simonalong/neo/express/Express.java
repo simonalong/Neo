@@ -64,6 +64,7 @@ public class Express {
     /**
      * and操作
      *
+     * @param objects 待处理对象
      * @return this
      */
     public Express and(Object... objects) {
@@ -74,6 +75,7 @@ public class Express {
     /**
      * and操作
      *
+     * @param queue   操作符队列
      * @return this
      */
     public Express and(NeoQueue<Operate> queue) {
@@ -84,6 +86,7 @@ public class Express {
     /**
      * and操作
      *
+     * @param objects 待处理对象
      * @return this
      */
     public Express andEm(Object... objects) {
@@ -94,6 +97,7 @@ public class Express {
     /**
      * and操作
      *
+     * @param queue   操作符队列
      * @return this
      */
     public Express andEm(NeoQueue<Operate> queue) {
@@ -104,6 +108,7 @@ public class Express {
     /**
      * or操作
      *
+     * @param objects 待处理对象
      * @return this
      */
     public Express or(Object... objects) {
@@ -114,6 +119,7 @@ public class Express {
     /**
      * or操作
      *
+     * @param queue   操作符队列
      * @return this
      */
     public Express or(NeoQueue<Operate> queue) {
@@ -124,6 +130,7 @@ public class Express {
     /**
      * or操作
      *
+     * @param objects 待处理对象
      * @return this
      */
     public Express orEm(Object... objects) {
@@ -134,6 +141,7 @@ public class Express {
     /**
      * or操作
      *
+     * @param queue   操作符队列
      * @return this
      */
     public Express orEm(NeoQueue<Operate> queue) {
@@ -144,6 +152,7 @@ public class Express {
     /**
      * 空操作
      *
+     * @param objects 待处理对象
      * @return this
      */
     public Express append(Object... objects) {
@@ -154,6 +163,7 @@ public class Express {
     /**
      * empty操作
      *
+     * @param queue   操作符队列
      * @return this
      */
     public Express append(NeoQueue<Operate> queue) {

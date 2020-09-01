@@ -401,10 +401,9 @@ public class ExpressTest extends NeoBaseTest {
         show(express.getFirstOperateStr(NeoConstant.ORDER_BY));
         show(DevideMultiNeo.getColumnAndSortList(express));
 
-        // todo NeoMap 这个不再支持order by 这个功能，所有的更高级的功能全部迁移到Express 这个类中
-//        NeoMap dataMap = NeoMap.of();
-//        dataMap.put("order by", "id, name desc, group asc");
-//        show(DevideMultiNeo.getColumnAndSortList(dataMap));
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("order by", "id, name desc, group asc");
+        show(DevideMultiNeo.getColumnAndSortList(dataMap));
     }
 
     /**
