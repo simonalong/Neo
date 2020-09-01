@@ -120,7 +120,7 @@ public class NeoExpressTest extends NeoBaseTest {
     public void existsTest() {
         Express searchExpress;
 
-        // select * from neo_table1 where (name=?)    value: name12
+        // select count(1) from neo_table1 `id` between ? and ? limit 1
         searchExpress = new Express().append(BetweenAnd("id", 12, 50));
         show(neo.exist("neo_table1", searchExpress));
     }

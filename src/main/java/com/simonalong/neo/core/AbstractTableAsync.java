@@ -127,6 +127,11 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Express searchExpress) {
+        return oneAsync(tClass, searchExpress, getExecutor());
+    }
+
+    @Override
     public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Number id) {
         return oneAsync(tClass, id, getExecutor());
     }

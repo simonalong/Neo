@@ -6,6 +6,7 @@ import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import com.simonalong.neo.util.CharSequenceUtil;
 import com.simonalong.neo.util.LogicOperateUtil;
+import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -391,6 +392,11 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean needWhere() {
+                for (Operate operate : childOperateQueue) {
+                    if (operate.needWhere()) {
+                        return true;
+                    }
+                }
                 return false;
             }
 
@@ -409,6 +415,11 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean needWhere() {
+                for (Operate operate : childOperateQueue) {
+                    if (operate.needWhere()) {
+                        return true;
+                    }
+                }
                 return false;
             }
 
@@ -727,6 +738,15 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean needWhere() {
+                return false;
+            }
+
+            /**
+             * 不需要value
+             * @return false
+             */
+            @Override
+            public Boolean valueLegal() {
                 return false;
             }
 

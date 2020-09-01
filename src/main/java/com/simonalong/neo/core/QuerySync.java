@@ -257,11 +257,11 @@ public interface QuerySync extends Sync {
 
 
     default Boolean exist(String tableName, NeoMap searchMap) {
-        return NeoMap.isUnEmpty(one(tableName, searchMap));
+        return 0 != count(tableName, searchMap);
     }
 
     default Boolean exist(String tableName, Express searchExpress) {
-        return NeoMap.isUnEmpty(one(tableName, searchExpress));
+        return 0 != count(tableName, searchExpress);
     }
 
     default Boolean exist(String tableName, Object entity) {
