@@ -234,8 +234,16 @@ public interface QuerySync extends Sync {
         return new PageRsp<>(page(tClass, tableName, columns, searchMap, page), count(tableName, searchMap));
     }
 
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(tClass, tableName, columns, searchExpress, page), count(tableName, searchExpress));
+    }
+
     default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
         return new PageRsp<>(page(tClass, tableName, searchMap, page), count(tableName, searchMap));
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(tClass, tableName, searchExpress, page), count(tableName, searchExpress));
     }
 
     default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
