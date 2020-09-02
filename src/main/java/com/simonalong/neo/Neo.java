@@ -310,12 +310,8 @@ public class Neo extends AbstractExecutorDb {
             Integer count = count(tableName, express);
 
             if (0 == count) {
-                // todo 后续删除
-                log.warn("insert");
                 return insert(tableName, dataMap);
             } else {
-                // todo 后续删除
-                log.warn("update");
                 return update(tableName, dataMap, dataMap.assign(searchColumnKey));
             }
         });
