@@ -1,5 +1,6 @@
 package com.simonalong.neo.express;
 
+
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.db.PageReq;
@@ -433,14 +434,19 @@ public abstract class BaseOperate implements Operate {
     }
 
     /**
-     * 有括号的and
+     * 只是对数据的拼接
      *
      * @param key   操作符左侧的key
      * @param value 操作符的值
      * @return 操作类
      */
     public static Operate Em(String key, Object value) {
-        return new LogicOperate(NeoConstant.EMPTY, Equal(key, value)) {
+        return new LogicOperate(NeoConstant.EMPTY, Space(key, value)) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
 
             @Override
             public String generateOperate() {
@@ -487,6 +493,31 @@ public abstract class BaseOperate implements Operate {
                     return "";
                 }
                 return SqlBuilder.toDbField(super.getKey()) + " = ?";
+            }
+        };
+    }
+
+    /**
+     * 就是空操作符介于key和value之间
+     *
+     * @param key key
+     * @param value value
+     * @return 操作符
+     */
+    public static Operate Space(String key, Object value) {
+        return new RelationOperate(key, NeoConstant.SPACE, value) {
+
+            @Override
+            public Boolean needWhere() {
+                return false;
+            }
+
+            @Override
+            public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
+                return key + NeoConstant.SPACE;
             }
         };
     }
@@ -808,6 +839,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " between ? and ? ";
             }
         };
@@ -818,6 +852,9 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " not between ? and ? ";
             }
         };
@@ -887,3 +924,5 @@ public abstract class BaseOperate implements Operate {
         return sqlPartQueue;
     }
 }
+
+

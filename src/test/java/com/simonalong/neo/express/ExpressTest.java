@@ -461,9 +461,48 @@ public class ExpressTest extends NeoBaseTest {
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), express.toValue());
 
+        sql = "";
+        express = new Express().append(BetweenAnd("age", null, 60));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = "";
+        express = new Express().append(BetweenAnd("age", null, null));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
         sql = " where `age` not between ? and ?";
         express = new Express().append(NotBetweenAnd("age", 12, 60));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), express.toValue());
+
+        sql = "";
+        express = new Express().append(NotBetweenAnd("age", null, 60));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = "";
+        express = new Express().append(NotBetweenAnd("age", null, null));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+    }
+
+    /**
+     * 符号测试：Em
+     */
+    @Test
+    public void emTest() {
+        Express express;
+        String sql;
+
+        sql = " match(`break_law_detail`) against (?)";
+        express = new Express().append(Em("match(`break_law_detail`) against (?)", 12));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(12), express.toValue());
+
+        sql = "";
+        express = new Express().append(Em("match(`break_law_detail`) against (?)", null));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
     }
 }

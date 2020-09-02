@@ -85,6 +85,7 @@ public interface NeoConstant {
     String LIKE = "like";
 
     String EQUAL = "=";
+    String SPACE = " ";
     String LESS_EQUAL = "<=";
     String GREATER_EQUAL = ">=";
     String LESS_THAN = "<";
