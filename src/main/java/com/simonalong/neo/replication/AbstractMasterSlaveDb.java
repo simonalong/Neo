@@ -35,6 +35,16 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public NeoMap save(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        return doMasterCall(db -> db.save(tableName, dataMap, searchColumnKey));
+    }
+
+    @Override
+    public <T> T save(String tableName, T object, String... searchColumnKey) {
+        return doMasterCall(db -> db.save(tableName, object, searchColumnKey));
+    }
+
+    @Override
     public Integer delete(String tableName, NeoMap searchMap) {
         return doMasterCall(db -> db.delete(tableName, searchMap));
     }

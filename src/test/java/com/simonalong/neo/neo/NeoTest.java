@@ -507,4 +507,18 @@ public class NeoTest extends NeoBaseTest {
 //        show(neo.getUuid());
 //        show(neo.getUuid());
 //    }
+
+    @Test
+    public void saveTest() {
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("name", "n1");
+        dataMap.put("group", "g1");
+        dataMap.put("age", 12);
+
+        dataMap = neo.save("neo_table1", dataMap, "group");
+        show(dataMap);
+
+        dataMap.put("age", 100);
+        show(neo.save("neo_table1", dataMap, "id"));
+    }
 }

@@ -31,6 +31,16 @@ public abstract class AbstractBaseDb extends AbstractDbAsync implements DbSync {
     }
 
     @Override
+    public CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> save(tableName, dataMap, searchColumnKey), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> saveAsync(String tableName, T object, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> save(tableName, object, searchColumnKey), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<T> insertAsync(String tableName, T object, Executor executor){
         return CompletableFuture.supplyAsync(() -> insert(tableName, object), executor);
     }

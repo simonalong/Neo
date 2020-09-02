@@ -23,6 +23,15 @@ public interface CommandAsync extends Async {
     <T> CompletableFuture<T> insertAsync(String tableName, T object);
 
 
+    CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, Executor executor, String... searchColumnKey);
+
+    CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, String... searchColumnKey);
+
+    <T> CompletableFuture<T> saveAsync(String tableName, T object, Executor executor, String... searchColumnKey);
+
+    <T> CompletableFuture<T> saveAsync(String tableName, T object, String... searchColumnKey);
+
+
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap, Executor executor);
 
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap);

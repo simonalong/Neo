@@ -29,13 +29,21 @@ public abstract class LogicOperate extends BaseOperate {
     }
 
     @Override
-    public Boolean needWhere() {
+    public Boolean doNeedWhere() {
         return true;
     }
 
     @Override
     public Boolean valueLegal() {
-        return true;
+        if(null == childOperateQueue || childOperateQueue.isEmpty()) {
+            return false;
+        }
+        for (Operate operate : childOperateQueue) {
+            if(operate.valueLegal()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

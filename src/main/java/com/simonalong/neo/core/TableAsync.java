@@ -24,6 +24,15 @@ public interface TableAsync extends Async {
     <T> CompletableFuture<T> insertAsync(T object);
 
 
+    CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, Executor executor, String... searchColumnKey);
+
+    CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, String... searchColumnKey);
+
+    <T> CompletableFuture<T> saveAsync(T object, Executor executor, String... searchColumnKey);
+
+    <T> CompletableFuture<T> saveAsync(T object, String... searchColumnKey);
+
+
     CompletableFuture<Integer> deleteAsync(NeoMap dataMap, Executor executor);
 
     CompletableFuture<Integer> deleteAsync(NeoMap dataMap);

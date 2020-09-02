@@ -610,6 +610,9 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      * @return 返回包含指定key对应的map
      */
     public NeoMap assign(String... keys){
+        if (!containsKeys(keys)) {
+            throw new NeoException("不包含key: " + Arrays.asList(keys));
+        }
         return assign(Columns.of(keys));
     }
 

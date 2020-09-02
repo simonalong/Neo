@@ -30,7 +30,7 @@ public abstract class RelationOperate extends BaseOperate {
     }
 
     @Override
-    public Boolean needWhere() {
+    public Boolean doNeedWhere() {
         return true;
     }
 

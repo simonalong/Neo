@@ -341,6 +341,11 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().and(IsNotNull("name"));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = "";
+        express = new Express().and(IsNotNull(null));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
     }
 
     /**
@@ -356,6 +361,12 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().and("name", 12).append(GroupBy("group"));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.singletonList(12), express.toValue());
+
+        // 测试group by 是否可以有where
+        sql = " group by `group`";
+        express = new Express().and("name", null).append(GroupBy("group"));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
     }
 
     /**
@@ -427,6 +438,12 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().and("name", "test").append(OrderBy("create_time", "desc"));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.singletonList("test"), express.toValue());
+
+        // 测试跟where关系
+        sql = " order by `create_time` desc";
+        express = new Express().and("name", null).append(OrderBy("create_time", "desc"));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
     }
 
     /**
@@ -504,5 +521,32 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().append(Em("match(`break_law_detail`) against (?)", null));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.emptyList(), express.toValue());
+    }
+
+    @Test
+    public void appendTest() {
+        Express express;
+        String sql;
+
+        // 普通拼接
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("a", 1);
+        dataMap.put("b", 2);
+        dataMap.put("c", 3);
+
+        sql = " where (`a` = ? and `b` = ?) for update";
+        express = new Express().and(dataMap.assign("a", "b")).append(" for update");
+        Assert.assertEquals(sql, express.toSql());
+        dataMap.clear();
+
+        // 测试为空的拼接
+        dataMap.setSupportValueNull(true);
+        dataMap.put("a", null);
+        dataMap.put("b", null);
+        dataMap.put("c", 3);
+
+        sql = " for update";
+        express = new Express().and(dataMap.assign("a", "b")).append(" for update");
+        Assert.assertEquals(sql, express.toSql());
     }
 }

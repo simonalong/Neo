@@ -259,6 +259,9 @@ public class NeoQueue<T> implements Deque<T> {
     @SuppressWarnings("unchecked")
     @Override
     public boolean addAll(Collection c) {
+        if (null == c) {
+            return false;
+        }
         return dataDeque.addAll(c);
     }
 

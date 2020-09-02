@@ -22,7 +22,7 @@ public abstract class BiRelationOperate extends RelationOperate {
     }
 
     @Override
-    public Boolean needWhere() {
+    public Boolean doNeedWhere() {
         return true;
     }
 

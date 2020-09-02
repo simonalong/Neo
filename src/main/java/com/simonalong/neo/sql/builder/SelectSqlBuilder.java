@@ -114,11 +114,11 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select count(1) from neo_table1 where `id` =  ? and `name` =  ? limit 1
      */
     public String buildCount(String tableName, NeoMap searchMap) {
-        return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap) + limitOne();
+        return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
     public String buildCount(String tableName, Express searchExpress) {
-        return "select count(1) from " + tableName + searchExpress.toSql() + limitOne();
+        return "select count(1) from " + tableName + searchExpress.toSql();
     }
 
     /**

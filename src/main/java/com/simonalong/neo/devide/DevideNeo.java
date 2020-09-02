@@ -458,6 +458,18 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public NeoMap save(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        Neo neo = getDevideDb(tableName, dataMap);
+        return neo.save(getDevideTable(tableName, dataMap), dataMap);
+    }
+
+    @Override
+    public <T> T save(String tableName, T object, String... searchColumnKey) {
+        Neo neo = getDevideDb(tableName, object);
+        return neo.save(getDevideTable(tableName, object), object);
+    }
+
+    @Override
     public <T> T insert(String tableName, T object) {
         Neo neo = getDevideDb(tableName, object);
         return neo.insert(getDevideTable(tableName, object), object);

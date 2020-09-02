@@ -57,6 +57,16 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public NeoMap save(NeoMap dataMap, String... searchColumnKey) {
+        return getDbInner().save(getTableName(), dataMap, searchColumnKey);
+    }
+
+    @Override
+    public <T> T save(T object, String... searchColumnKey) {
+        return getDbInner().save(getTableName(), object, searchColumnKey);
+    }
+
+    @Override
     public Integer delete(NeoMap searchMap){
         return getDbInner().delete(getTableName(), searchMap);
     }
@@ -455,6 +465,16 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public <T> CompletableFuture<T> insertAsync(T object, Executor executor) {
         return CompletableFuture.supplyAsync(() -> insert(object), executor);
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> save(dataMap, searchColumnKey), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> saveAsync(T object, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> save(object, searchColumnKey), executor);
     }
 
     @Override

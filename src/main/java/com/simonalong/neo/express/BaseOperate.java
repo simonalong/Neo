@@ -38,7 +38,7 @@ public abstract class BaseOperate implements Operate {
     }
 
     @Override
-    public Boolean needWhere() {
+    public Boolean doNeedWhere() {
         for (Operate operate : childOperateQueue) {
             if (operate.needWhere()) {
                 return true;
@@ -391,7 +391,7 @@ public abstract class BaseOperate implements Operate {
         return new LogicOperate(NeoConstant.EMPTY, operateQueue) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 for (Operate operate : childOperateQueue) {
                     if (operate.needWhere()) {
                         return true;
@@ -414,7 +414,7 @@ public abstract class BaseOperate implements Operate {
         return new LogicOperate(NeoConstant.EMPTY, operate) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 for (Operate operate : childOperateQueue) {
                     if (operate.needWhere()) {
                         return true;
@@ -444,7 +444,7 @@ public abstract class BaseOperate implements Operate {
         return new LogicOperate(NeoConstant.EMPTY, Space(key, value)) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 return false;
             }
 
@@ -456,6 +456,10 @@ public abstract class BaseOperate implements Operate {
                 return emGenerateOperate(super.childOperateQueue);
             }
         };
+    }
+
+    public static Operate Em(String partSql) {
+        return new NoneOperate(NeoConstant.SPACE, partSql);
     }
 
     /**
@@ -508,7 +512,7 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, NeoConstant.SPACE, value) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 return false;
             }
 
@@ -631,7 +635,17 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate Like(String key, String value) {
-        return new RelationOperate(key, NeoConstant.LIKE, null) {
+        return new RelationOperate(key, NeoConstant.LIKE, value) {
+
+            @Override
+            public Boolean valueLegal() {
+                return CharSequenceUtil.isNotEmpty((String)getValue());
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
@@ -648,7 +662,17 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate NotLike(String key, String value) {
-        return new RelationOperate(key, NeoConstant.NOT_LIKE, null) {
+        return new RelationOperate(key, NeoConstant.NOT_LIKE, value) {
+
+            @Override
+            public Boolean valueLegal() {
+                return CharSequenceUtil.isNotEmpty((String)getValue());
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
@@ -666,10 +690,23 @@ public abstract class BaseOperate implements Operate {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate In(String key, Collection collection) {
-        return new RelationOperate(key, NeoConstant.IN, null) {
+        return new RelationOperate(key, NeoConstant.IN, collection) {
+
+            @Override
+            public Boolean valueLegal() {
+                return null != getValue() && !((Collection)getValue()).isEmpty();
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return SqlBuilder.toDbField(super.getKey()) + " in " + SqlBuilder.buildIn(collection);
             }
         };
@@ -684,7 +721,17 @@ public abstract class BaseOperate implements Operate {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate NotIn(String key, Collection collection) {
-        return new RelationOperate(key, NeoConstant.ONT_IN, null) {
+        return new RelationOperate(key, NeoConstant.ONT_IN, collection) {
+
+            @Override
+            public Boolean valueLegal() {
+                return null != getValue() && !((Collection)getValue()).isEmpty();
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
@@ -703,6 +750,19 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, NeoConstant.IS_NULL, null) {
 
             @Override
+            public Boolean valueLegal() {
+                return CharSequenceUtil.isNotEmpty(super.getKey());
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
+
+            @Override
             public String generateOperate() {
                 return SqlBuilder.toDbField(super.getKey()) + " is null";
             }
@@ -717,6 +777,19 @@ public abstract class BaseOperate implements Operate {
      */
     public static Operate IsNotNull(String key) {
         return new RelationOperate(key, NeoConstant.IS_NOT_NULL, null) {
+
+            @Override
+            public Boolean valueLegal() {
+                return CharSequenceUtil.isNotEmpty(super.getKey());
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
@@ -735,12 +808,20 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(key, NeoConstant.GROUP_BY, null) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean valueLegal() {
+                return CharSequenceUtil.isNotEmpty(key);
+            }
+
+            @Override
+            public Boolean doNeedWhere() {
                 return false;
             }
 
             @Override
             public String generateOperate() {
+                if (!valueLegal()) {
+                    return "";
+                }
                 return " group by " + SqlBuilder.toDbField(super.getKey());
             }
         };
@@ -767,7 +848,7 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(null, NeoConstant.ORDER_BY, new LinkedList<>(Arrays.asList(kDescAsc))) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 return false;
             }
 
@@ -777,7 +858,15 @@ public abstract class BaseOperate implements Operate {
              */
             @Override
             public Boolean valueLegal() {
-                return false;
+                return true;
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
             }
 
             @Override
@@ -822,8 +911,25 @@ public abstract class BaseOperate implements Operate {
     public static Operate OrderByDesc(String key) {
         return new RelationOperate(key, null) {
 
+            /**
+             * 不需要value
+             * @return false
+             */
             @Override
-            public Boolean needWhere() {
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
+
+            @Override
+            public Boolean doNeedWhere() {
                 return false;
             }
 
@@ -864,7 +970,7 @@ public abstract class BaseOperate implements Operate {
         return new RelationOperate(null, null) {
 
             @Override
-            public Boolean needWhere() {
+            public Boolean doNeedWhere() {
                 return false;
             }
 
@@ -876,7 +982,15 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate Exists(String sql) {
-        return new RelationOperate(null, null) {
+        return new RelationOperate(null, sql) {
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {
@@ -886,7 +1000,15 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate NotExists(String sql) {
-        return new RelationOperate(null, null) {
+        return new RelationOperate(null, sql) {
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
 
             @Override
             public String generateOperate() {

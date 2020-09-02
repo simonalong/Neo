@@ -27,6 +27,16 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
+    public CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, String... searchColumnKey) {
+        return saveAsync(dataMap, getExecutor(), searchColumnKey);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> saveAsync(T object, String... searchColumnKey) {
+        return saveAsync(object, getExecutor(), searchColumnKey);
+    }
+
+    @Override
     public CompletableFuture<Integer> deleteAsync(NeoMap dataMap) {
         return deleteAsync(dataMap, getExecutor());
     }

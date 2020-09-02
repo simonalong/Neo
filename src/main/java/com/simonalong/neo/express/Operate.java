@@ -3,7 +3,6 @@ package com.simonalong.neo.express;
 import java.util.*;
 
 import com.simonalong.neo.NeoQueue;
-import com.simonalong.neo.exception.NumberOfValueException;
 
 import static com.simonalong.neo.express.BaseOperate.*;
 
@@ -55,7 +54,15 @@ public interface Operate {
      *
      * @return true：必需，false：不必
      */
-    Boolean needWhere();
+    default Boolean needWhere() {
+        if(!valueLegal()) {
+            return false;
+        }
+
+        return doNeedWhere();
+    }
+
+    Boolean doNeedWhere();
 
     /**
      * 获取值的队列
@@ -110,7 +117,12 @@ public interface Operate {
             if (parameter instanceof String) {
                 Operate operate;
                 String key = (String) parameter;
-                Object value = parameters.get(++index);
+                Object value = null;
+                boolean haveValue = false;
+                if(++index < parameters.size()) {
+                    value = parameters.get(index);
+                    haveValue = true;
+                }
 
                 switch (logicOperate) {
                     case AND:
@@ -125,13 +137,16 @@ public interface Operate {
                     case OR_EM:
                         operate = OrEm(key, value);
                         break;
+                    case EMPTY:
+                        if(haveValue) {
+                            operate = Em(key, value);
+                        } else{
+                            operate = Em(key);
+                        }
+                        break;
                     default:
                         operate = Em(key, value);
                         break;
-                }
-
-                if (index + 1 > parameters.size()) {
-                    throw new NumberOfValueException("operate参数个数key-value有误");
                 }
 
                 operateQueue.add(operate);

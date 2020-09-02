@@ -27,6 +27,16 @@ public abstract class AbstractDbAsync implements CqrsAsync {
     }
 
     @Override
+    public CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        return saveAsync(tableName, dataMap, getExecutor(), searchColumnKey);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> saveAsync(String tableName, T object, String... searchColumnKey) {
+        return saveAsync(tableName, object, getExecutor(), searchColumnKey);
+    }
+
+    @Override
     public CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap) {
         return deleteAsync(tableName, dataMap, getExecutor());
     }
