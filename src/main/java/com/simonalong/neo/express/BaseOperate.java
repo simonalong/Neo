@@ -966,7 +966,8 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    public static Operate Page(PageReq<Object> neoPageReq) {
+    @SuppressWarnings("rawtypes")
+    public static Operate Page(PageReq neoPageReq) {
         return new RelationOperate(null, null) {
 
             @Override
@@ -974,9 +975,19 @@ public abstract class BaseOperate implements Operate {
                 return false;
             }
 
+            /**
+             * 不需要value
+             * @return false
+             */
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " limit " + neoPageReq.getPageSize() + " offset " + neoPageReq.getPageIndex();
+                return " limit " + neoPageReq.getPageSize() + " offset " + neoPageReq.getPageIndex();
             }
         };
     }

@@ -4,6 +4,7 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.devide.DevideMultiNeo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -547,6 +548,31 @@ public class ExpressTest extends NeoBaseTest {
 
         sql = " for update";
         express = new Express().and(dataMap.assign("a", "b")).append(" for update");
+        Assert.assertEquals(sql, express.toSql());
+    }
+
+    @Test
+    public void pageTest() {
+        Express express;
+        String sql;
+
+        // 普通拼接
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("a", 1);
+        dataMap.put("b", 2);
+
+        PageReq<?> pageReq = new PageReq<>();
+        pageReq.setPageNo(1);
+        pageReq.setPageSize(20);
+
+        sql = " where (`a` = ? and `b` = ?) limit 20 offset 0";
+        express = new Express().and(dataMap).append(Page(pageReq));
+        Assert.assertEquals(sql, express.toSql());
+
+        // 测试无where结构
+        dataMap.clear();
+        sql = " limit 20 offset 0";
+        express = new Express().and(dataMap).append(Page(pageReq));
         Assert.assertEquals(sql, express.toSql());
     }
 }
