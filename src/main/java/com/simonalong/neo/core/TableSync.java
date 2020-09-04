@@ -3,6 +3,7 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.express.Express;
 
 import java.util.List;
@@ -170,6 +171,63 @@ public interface TableSync extends Sync {
     <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page);
 
     <T> List<T> page(Class<T> tClass, NeoPage page);
+
+
+    default PageRsp<NeoMap> getPage(Columns columns, NeoMap searchMap, NeoPage page) {
+        return new PageRsp<>(page(columns, searchMap, page), count(searchMap));
+    }
+
+    default PageRsp<NeoMap> getPage(Columns columns, Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(columns, searchExpress, page), count(searchExpress));
+    }
+
+    default <T> PageRsp<T> getPage(Columns columns, T entity, NeoPage page) {
+        return new PageRsp<>(page(columns, entity, page), count(entity));
+    }
+
+    default PageRsp<NeoMap> getPage(NeoMap searchMap, NeoPage page) {
+        return new PageRsp<>(page(searchMap, page), count(searchMap));
+    }
+
+    default PageRsp<NeoMap> getPage(Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(searchExpress, page), count(searchExpress));
+    }
+
+    default <T> PageRsp<T> getPage(T entity, NeoPage page) {
+        return new PageRsp<>(page(entity, page), count(entity));
+    }
+
+    default PageRsp<NeoMap> getPage(Columns columns, NeoPage page) {
+        return new PageRsp<>(page(columns, page), count(columns));
+    }
+
+    default PageRsp<NeoMap> getPage(NeoPage page) {
+        return new PageRsp<>(page(page), count());
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page) {
+        return new PageRsp<>(page(tClass, columns, searchMap, page), count(searchMap));
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(tClass, columns, searchExpress, page), count(searchExpress));
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, NeoMap searchMap, NeoPage page) {
+        return new PageRsp<>(page(tClass, searchMap, page), count(searchMap));
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, Express searchExpress, NeoPage page) {
+        return new PageRsp<>(page(tClass, searchExpress, page), count(searchExpress));
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, NeoPage page) {
+        return new PageRsp<>(page(tClass, columns, page), count());
+    }
+
+    default <T> PageRsp<T> getPage(Class<T> tClass, NeoPage page) {
+        return new PageRsp<>(page(tClass, page), count());
+    }
 
 
     Integer count(NeoMap searchMap);
