@@ -248,6 +248,11 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> List<T> list(Class<T> tClass, Express searchExpress) {
+        return getDbInner().list(tClass, getTableName(), searchExpress);
+    }
+
+    @Override
     public <T> List<T> list(Class<T> tClass, Columns columns) {
         return getDbInner().list(tClass, getTableName(), columns);
     }

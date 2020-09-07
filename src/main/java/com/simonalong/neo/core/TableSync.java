@@ -114,6 +114,8 @@ public interface TableSync extends Sync {
 
     <T> List<T> list(Class<T> tClass, NeoMap searchMap);
 
+    <T> List<T> list(Class<T> tClass, Express searchExpress);
+
     <T> List<T> list(Class<T> tClass, Columns columns);
 
 
