@@ -575,4 +575,22 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().and(dataMap).append(Page(pageReq));
         Assert.assertEquals(sql, express.toSql());
     }
+
+    @Test
+    public void getPageTest() {
+        Express express;
+        String sql;
+
+        sql = " where `publish_status` = ? order by `create_time` asc";
+        express = new Express();
+        express.append(Equal("publish_status", 0));
+        express.append(OrderBy("create_time","asc"));
+        Assert.assertEquals(sql, express.toSql());
+
+        sql = " where (`publish_status` = ?) order by `create_time` asc";
+        express = new Express();
+        express.and(Equal("publish_status", 0));
+        express.append(OrderBy("create_time","asc"));
+        Assert.assertEquals(sql, express.toSql());
+    }
 }
