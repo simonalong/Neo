@@ -1,8 +1,14 @@
 package com.simonalong.neo.db;
 
+import com.simonalong.neo.exception.NeoNotSupport;
+import lombok.experimental.UtilityClass;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
-import lombok.experimental.UtilityClass;
 
 /**
  * 时间日期转换器
@@ -50,12 +56,12 @@ public class TimeDateConverter {
             if (columnTypeName.equals(YEAR)) {
                 return longToYearTime(dataLong);
             }else{
-                return new java.util.Date(dataLong);
+                return new Date(dataLong);
             }
         } else if (java.sql.Date.class.isAssignableFrom(tClass)
             || java.sql.Time.class.isAssignableFrom(tClass)
             || java.sql.Timestamp.class.isAssignableFrom(tClass)) {
-            return new java.util.Date(dataLong);
+            return new Date(dataLong);
         }
         return data;
     }
@@ -73,7 +79,7 @@ public class TimeDateConverter {
 
     /**
      * 根据实体类型转时间类型，对于time为Long的，且待转换的为时间类型的，则转换为时间类型
-     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
+     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link Date}
      * todo 后续将java8的时间类型转换也放进去
      * @param tClass 实体属性对应的类型
      * @param time 时间
@@ -88,8 +94,7 @@ public class TimeDateConverter {
 
     /**
      * 根据实体将Long类型的时间转为对应的时间类型
-     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
-     * todo 后续将java8的时间类型转换也放进去
+     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link Date}
      * @param tClass 实体属性对应的类型
      * @param time 时间
      * @param <T> 时间类型
@@ -103,8 +108,14 @@ public class TimeDateConverter {
             return tClass.cast(new java.sql.Time(time));
         } else if(java.sql.Timestamp.class.isAssignableFrom(tClass)) {
             return tClass.cast(new java.sql.Timestamp(time));
-        } else if(java.util.Date.class.isAssignableFrom(tClass)) {
-            return tClass.cast(new java.util.Date(time));
+        } else if(Date.class.isAssignableFrom(tClass)) {
+            return tClass.cast(new Date(time));
+        } else if(java.time.LocalDate.class.isAssignableFrom(tClass)){
+            return tClass.cast(LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault()).toLocalDate());
+        } else if(java.time.LocalDateTime.class.isAssignableFrom(tClass)){
+            return tClass.cast(LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault()));
+        } else if (java.time.LocalTime.class.isAssignableFrom(tClass)) {
+            throw new NeoNotSupport("类型long转换到java.time.LocalTime不支持");
         }
         return (T) time;
     }
@@ -112,10 +123,9 @@ public class TimeDateConverter {
     /**
      * 实体中的时间类型转为Long
      *
-     * 实体中的时间类型有这么几种：{@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
+     * 实体中的时间类型有这么几种：{@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link Date}
      *
      * 对于其他的新的时间类型比如java8中的{@link java.time.LocalDateTime} 等这里暂时先不做处理，留待后续处理
-     * todo 后续将java8的时间类型转换也放进去
      * @param fieldTime 实体中属性的值
      * @return long类型的时间
      */
@@ -124,13 +134,19 @@ public class TimeDateConverter {
             return null;
         }
         if (fieldTime instanceof java.sql.Date){
-           return ((java.sql.Date) fieldTime).getTime();
+            return ((java.sql.Date) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Time){
             return ((java.sql.Time) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Timestamp){
             return ((java.sql.Timestamp) fieldTime).getTime();
-        } else if(fieldTime instanceof java.util.Date){
+        } else if(fieldTime instanceof Date){
             return ((Date) fieldTime).getTime();
+        } else if(fieldTime instanceof java.time.LocalDate){
+            return ((java.time.LocalDate) fieldTime).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        } else if(fieldTime instanceof java.time.LocalDateTime){
+            return ((java.time.LocalDateTime) fieldTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        } else if(fieldTime instanceof java.time.LocalTime){
+            return ((java.time.LocalTime) fieldTime).atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         }
         return fieldTime;
     }
@@ -145,6 +161,9 @@ public class TimeDateConverter {
         return java.sql.Date.class.isAssignableFrom(tClass)
             || java.sql.Time.class.isAssignableFrom(tClass)
             || java.sql.Timestamp.class.isAssignableFrom(tClass)
-            || Date.class.isAssignableFrom(tClass);
+            || Date.class.isAssignableFrom(tClass)
+            || java.time.LocalDate.class.isAssignableFrom(tClass)
+            || java.time.LocalTime.class.isAssignableFrom(tClass)
+            || java.time.LocalDateTime.class.isAssignableFrom(tClass);
     }
 }
