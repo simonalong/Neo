@@ -3,9 +3,12 @@ package com.simonalong.neo.express;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.util.LocalDateTimeUtil;
 import org.junit.Test;
 
-import static com.simonalong.neo.express.BaseOperate.BetweenAnd;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 
 /**
  * @author shizi
@@ -118,11 +121,8 @@ public class NeoExpressTest extends NeoBaseTest {
 
     @Test
     public void existsTest() {
-        Express searchExpress;
-
-        // select count(1) from neo_table1 `id` between ? and ? limit 1
-        searchExpress = new Express().append(BetweenAnd("id", 12, 50));
-        show(neo.exist("neo_table1", searchExpress));
+        show(LocalDateTimeUtil.localDateTimeToString(LocalDateTime.now(), LocalDateTimeUtil.yMdHms));
+        show(LocalDateTimeUtil.localDateTimeToString(LocalDateTime.now(ZoneId.systemDefault()), LocalDateTimeUtil.yMdHms));
     }
 
 }
