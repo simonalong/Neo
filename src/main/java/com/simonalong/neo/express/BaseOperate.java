@@ -626,7 +626,6 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-
     /**
      * like模糊搜索
      *
@@ -639,7 +638,20 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty((String)getValue());
+                if (CharSequenceUtil.isEmpty(value)) {
+                    return false;
+                }
+
+                String originValue = value;
+                if (value.startsWith("%")) {
+                    originValue = value.substring(1);
+                }
+
+                if (value.endsWith("%")) {
+                    originValue = value.substring(0, value.length() - 1);
+                }
+
+                return CharSequenceUtil.isNotEmpty(originValue);
             }
 
             @Override
@@ -666,7 +678,20 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty((String)getValue());
+                if (CharSequenceUtil.isEmpty(value)) {
+                    return false;
+                }
+
+                String originValue = value;
+                if (value.startsWith("%")) {
+                    originValue = value.substring(1);
+                }
+
+                if (value.endsWith("%")) {
+                    originValue = value.substring(0, value.length() - 1);
+                }
+
+                return CharSequenceUtil.isNotEmpty(originValue);
             }
 
             @Override
