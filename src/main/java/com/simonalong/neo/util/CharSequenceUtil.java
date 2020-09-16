@@ -10,7 +10,7 @@ import lombok.experimental.UtilityClass;
 public class CharSequenceUtil {
 
     public Boolean isEmpty(CharSequence charSequence) {
-        return null == charSequence || "".contentEquals(charSequence);
+        return null == charSequence || "".contentEquals(charSequence) || "null".contentEquals(charSequence);
     }
 
     public Boolean isNotEmpty(CharSequence charSequence) {
