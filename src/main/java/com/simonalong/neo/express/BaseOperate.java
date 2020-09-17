@@ -643,12 +643,12 @@ public abstract class BaseOperate implements Operate {
                 }
 
                 String originValue = value;
-                if (value.startsWith("%")) {
-                    originValue = value.substring(1);
+                if (originValue.startsWith("%")) {
+                    originValue = originValue.substring(1);
                 }
 
-                if (value.endsWith("%")) {
-                    originValue = value.substring(0, value.length() - 1);
+                if (originValue.endsWith("%")) {
+                    originValue = originValue.substring(0, originValue.length() - 1);
                 }
 
                 return CharSequenceUtil.isNotEmpty(originValue);
@@ -683,12 +683,12 @@ public abstract class BaseOperate implements Operate {
                 }
 
                 String originValue = value;
-                if (value.startsWith("%")) {
-                    originValue = value.substring(1);
+                if (originValue.startsWith("%")) {
+                    originValue = originValue.substring(1);
                 }
 
-                if (value.endsWith("%")) {
-                    originValue = value.substring(0, value.length() - 1);
+                if (originValue.endsWith("%")) {
+                    originValue = originValue.substring(0, originValue.length() - 1);
                 }
 
                 return CharSequenceUtil.isNotEmpty(originValue);
