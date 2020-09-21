@@ -77,6 +77,8 @@ public interface TableSync extends Sync {
 
     NeoMap one(NeoMap searchMap);
 
+    NeoMap one(Express searchExpress);
+
     <T> T one(T entity);
 
     NeoMap one(Number id);

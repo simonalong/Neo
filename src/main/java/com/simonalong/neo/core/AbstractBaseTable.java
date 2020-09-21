@@ -158,6 +158,11 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public NeoMap one(Express searchExpress) {
+        return getDbInner().one(getTableName(), searchExpress);
+    }
+
+    @Override
     public <T> T one(T entity){
         return getDbInner().one(getTableName(), entity);
     }
