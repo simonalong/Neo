@@ -1909,7 +1909,6 @@ public class Neo extends AbstractExecutorDb {
                     result.put(key, value, false);
                 }
             });
-        dataMap.clear();
         result.setConditionMap(dataMap.getConditionMap());
         result.setNamingChg(dataMap.getNamingChg());
         return result;

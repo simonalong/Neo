@@ -43,6 +43,8 @@ public interface TableSync extends Sync {
 
     <T> Integer delete(T object);
 
+    Integer delete(Express searchExpress);
+
     Integer delete( Number id);
 
 
@@ -142,6 +144,8 @@ public interface TableSync extends Sync {
     <T> List<T> values(Class<T> tClass, String field, Object entity);
 
     List<String> values(String field, NeoMap searchMap);
+
+    List<String> values(String field, Express searchExpress);
 
     List<String> values(String field, Object entity);
 

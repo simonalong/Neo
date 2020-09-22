@@ -72,6 +72,11 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public Integer delete(Express searchExpress) {
+        return getDbInner().delete(getTableName(), searchExpress);
+    }
+
+    @Override
     public <T> Integer delete(T object){
         return getDbInner().delete(getTableName(), object);
     }
@@ -315,6 +320,11 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public List<String> values(String field, NeoMap searchMap){
         return getDbInner().values(getTableName(), field, searchMap);
+    }
+
+    @Override
+    public List<String> values(String field, Express searchExpress) {
+        return getDbInner().values(getTableName(), field, searchExpress);
     }
 
     @Override
