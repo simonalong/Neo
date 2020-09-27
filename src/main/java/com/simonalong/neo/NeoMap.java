@@ -479,7 +479,13 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     public static boolean isEmpty(Collection<NeoMap> neoMaps) {
-        return neoMaps == null || neoMaps.isEmpty() || neoMaps.stream().allMatch(Map::isEmpty);
+        return neoMaps == null || neoMaps.isEmpty() || neoMaps.stream().allMatch(e->{
+            if (null == e) {
+                return true;
+            }
+
+            return e.isEmpty();
+        });
     }
 
     public static boolean isUnEmpty(NeoMap neoMap) {
