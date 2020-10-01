@@ -276,7 +276,7 @@ public class Neo extends AbstractExecutorDb {
             Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
             String incrementKey = db.getPrimaryAndAutoIncName(tableName);
             if (null != incrementKey && id instanceof Number) {
-                return oneWithXMode(tableName, NeoMap.of(incrementKey, id));
+                return one(tableName, NeoMap.of(incrementKey, id));
             }
             return valueMap;
         });
@@ -319,7 +319,7 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public <T> T save(String tableName, T object, String... searchColumnKey) {
-        return null;
+        return save(tableName, NeoMap.from(object), searchColumnKey).as((Class<T>)object.getClass());
     }
 
     /**
