@@ -317,6 +317,7 @@ public class Neo extends AbstractExecutorDb {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T save(String tableName, T object, String... searchColumnKey) {
         return save(tableName, NeoMap.from(object), searchColumnKey).as((Class<T>)object.getClass());
