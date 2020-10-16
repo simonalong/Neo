@@ -1084,7 +1084,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      */
     @Override
     public String toString() {
-        return JSON.toJSONString(dataMap);
+        return dataMap.toString();
     }
 
     /**
