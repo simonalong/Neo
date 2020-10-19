@@ -47,7 +47,7 @@ public final class Columns {
      * key为表名，value为表列名的转换后的名字的集合
      */
     @Getter
-    private Map<String, Set<ColumnValue>> tableFieldsMap = new LinkedHashMap<>();
+    private final Map<String, Set<ColumnValue>> tableFieldsMap = new LinkedHashMap<>();
 
     private Columns() {}
 
@@ -59,11 +59,11 @@ public final class Columns {
         return columns.table(DEFAULT_TABLE, fields);
     }
 
-    public static Columns from(Class tClass) {
+    public static Columns from(Class<?> tClass) {
         return Columns.from(tClass, "");
     }
 
-    public static Columns from(Class tClass, String... excludeFields) {
+    public static Columns from(Class<?> tClass, String... excludeFields) {
         if (null == tClass) {
             return Columns.of();
         }
@@ -249,12 +249,12 @@ public final class Columns {
          * 表名
          */
         @Getter
-        private String tableName;
+        private final String tableName;
         /**
          * 列的原名
          */
         @Getter
-        private String metaValue;
+        private final String metaValue;
         /**
          * 列转换之后的名字
          */
@@ -289,7 +289,7 @@ public final class Columns {
             String dom = "`";
             fieldName = fieldName.trim();
             if (fieldName.contains(point)) {
-                Integer index = fieldName.indexOf(point);
+                int index = fieldName.indexOf(point);
                 String tableName = fieldName.substring(0, index);
                 String columnName = fieldName.substring(index + 1);
                 if (columnName.startsWith(dom) && columnName.endsWith(dom)) {
