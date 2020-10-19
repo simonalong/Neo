@@ -2053,7 +2053,7 @@ public class Neo extends AbstractExecutorDb {
         String columnLabel = pair.getValue();
         Object result = rs.getObject(index);
         if(null != result) {
-            row.put(tableAlis, columnLabel, TimeDateConverter.dbTimeToLong(result));
+            row.put(tableAlis, columnLabel, result);
         }
     }
 

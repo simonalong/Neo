@@ -391,9 +391,14 @@ public class ObjectUtil {
         }
 
         // 如果待转换的为时间类型，且值为数值类型，则可以进行转换
-        if (TimeDateConverter.isTimeType(tClass) && value instanceof Long) {
-            return TimeDateConverter.longToEntityTime(tClass, (Long) value);
+        if (TimeDateConverter.isTimeType(tClass)) {
+            if (value instanceof Long) {
+                return TimeDateConverter.longToEntityTime(tClass, (Long) value);
+            } else if (value instanceof String) {
+                return TimeDateConverter.stringToEntityTime(tClass, (String) value);
+            }
         }
+
 
         // 目标类是NeoMap
         if (NeoMap.class.isAssignableFrom(tClass)) {
