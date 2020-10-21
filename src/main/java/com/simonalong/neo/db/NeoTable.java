@@ -1,6 +1,7 @@
 package com.simonalong.neo.db;
 
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.core.AbstractBaseTable;
 import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
@@ -105,9 +106,18 @@ public class NeoTable extends AbstractBaseTable {
      * <p>
      * @return 主键且自增的列的名字
      */
-    String getPrimaryKeyAutoIncName() {
+    public String getPrimaryKeyAutoIncName() {
         return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
             .orElse(null);
+    }
+
+    /**
+     * 获取表中的自增的主键名字和主键对应的java类型
+     * <p>
+     * @return 主键且自增的列的名字
+     */
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType() {
+        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(e-> new Pair<>(e.getColumnName(), e.getJavaClass())).findFirst().orElse(new Pair<>(null, null));
     }
 
     /**

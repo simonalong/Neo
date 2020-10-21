@@ -4,6 +4,7 @@ import static com.simonalong.neo.NeoConstant.ALL_FIELD;
 import static com.simonalong.neo.NeoConstant.LOG_PRE;
 
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.db.NeoColumn.NeoInnerColumn;
 import com.simonalong.neo.db.NeoTable.Table;
 import com.simonalong.neo.db.TableIndex.Index;
@@ -77,11 +78,11 @@ public final class NeoDb {
      * @param tableName 库中的表名
      * @return 自增的主键的列名，如果没有，则返回null
      */
-    public String getPrimaryAndAutoIncName(String schemaName, String tableName){
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType(String schemaName, String tableName){
         schemaName = base(schemaName);
         NeoTable neoTable = getTable(schemaName, tableName);
         if (null != neoTable) {
-            return neoTable.getPrimaryKeyAutoIncName();
+            return neoTable.getPrimaryKeyAutoIncNameAndType();
         }
         return null;
     }
@@ -91,8 +92,8 @@ public final class NeoDb {
      * @param tableName 表名
      * @return 自增的主键列名
      */
-    public String getPrimaryAndAutoIncName(String tableName){
-        return getPrimaryAndAutoIncName(null, tableName);
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType(String tableName){
+        return getPrimaryKeyAutoIncNameAndType(null, tableName);
     }
 
     /**

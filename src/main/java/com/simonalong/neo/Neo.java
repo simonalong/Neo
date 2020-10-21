@@ -272,14 +272,15 @@ public class Neo extends AbstractExecutorDb {
     public NeoMap insert(String tableName, NeoMap valueMap) {
         checkDb(tableName);
         NeoMap valueMapTem = valueMap.clone();
-        return tx(() -> {
-            Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
-            String incrementKey = db.getPrimaryAndAutoIncName(tableName);
-            if (null != incrementKey && id instanceof Number) {
-                return oneWithXMode(tableName, NeoMap.of(incrementKey, id));
-            }
-            return valueMap;
-        });
+        Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
+        Pair<String, ? extends Class<?>> keyAndType = db.getPrimaryKeyAutoIncNameAndType(tableName);
+
+        String incrementKey = keyAndType.getKey();
+        Class<?> incrementKeyType = keyAndType.getValue();
+        if (null != incrementKey && null != incrementKeyType) {
+            valueMap.put(incrementKey, ObjectUtil.cast(incrementKeyType, id));
+        }
+        return valueMap;
     }
 
     @SuppressWarnings("unchecked")
