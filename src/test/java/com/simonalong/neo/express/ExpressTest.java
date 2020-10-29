@@ -4,6 +4,8 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.devide.DevideMultiNeo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -219,6 +221,11 @@ public class ExpressTest extends NeoBaseTest {
 
         sql = " where (`name` = ? and ((`group` = ?) and (`age` = ?)))";
         express = new Express().and("name", 1, And(Or("group", "test"), Or("age", 3)));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Arrays.asList(1, "test", 3), express.toValue());
+
+        sql = " where (`name` = ? and ((`group` = ? or `age` = ?)))";
+        express = new Express().and("name", 1, And(Or("group", "test", "age", 3)));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Arrays.asList(1, "test", 3), express.toValue());
 
@@ -463,6 +470,38 @@ public class ExpressTest extends NeoBaseTest {
         express = new Express().append(NotExists("select id from xxx"));
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.emptyList(), express.toValue());
+    }
+
+    /**
+     * 符号测试：exists
+     */
+    @Test
+    public void pageTest() {
+        Express express;
+        String sql;
+
+        sql = " limit 20 offset 0";
+        express = new Express().append(Page(NeoPage.of(1, 20)));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = " limit 20 offset 0";
+        PageReq<Object> pageReq = new PageReq<>();
+        pageReq.setPageNo(1);
+        pageReq.setPageSize(20);
+        express = new Express().append(Page(pageReq));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = " limit 20 offset 0";
+        express = new Express().append(Page(1, 20));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.emptyList(), express.toValue());
+
+        sql = " where (`name` = ?) limit 20 offset 0";
+        express = new Express().and("name", 12).append(Page(NeoPage.of(1, 20)));
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(12), express.toValue());
     }
 
     /**

@@ -62,7 +62,14 @@ public class Express {
     }
 
     /**
-     * and操作
+     * and操作：objects对应的是k-v-k-v...这样的结构，最后生成的sql是（k1=? and k2=? and k3=? ...）
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return this
@@ -84,7 +91,14 @@ public class Express {
     }
 
     /**
-     * and操作
+     * and操作：objects对应的是k-v-k-v...这样的结构，最后生成的sql是：k1=? and k2=? and k3=? ...，跟{@link Express#and(Object...)}区别就是没有括号
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return this
@@ -106,7 +120,14 @@ public class Express {
     }
 
     /**
-     * or操作
+     * or操作：objects对应的是k-v-k-v...这样的结构，最后生成的sql是（k1=? or k2=? or k3=? ...）
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return this
@@ -129,6 +150,13 @@ public class Express {
 
     /**
      * or操作
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return this
@@ -151,6 +179,13 @@ public class Express {
 
     /**
      * 空操作
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return this

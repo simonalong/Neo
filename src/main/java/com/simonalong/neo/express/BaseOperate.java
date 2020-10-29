@@ -3,6 +3,7 @@ package com.simonalong.neo.express;
 
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.sql.builder.SqlBuilder;
 import com.simonalong.neo.util.CharSequenceUtil;
@@ -99,6 +100,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 有括号的and
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return 操作类
@@ -152,7 +160,7 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    private static String andGenerateOperate(NeoQueue<Operate> queue) {
+    public static String andGenerateOperate(NeoQueue<Operate> queue) {
         NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
@@ -167,6 +175,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 无括号的and
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return 操作类
@@ -214,7 +229,7 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    private static String andEmGenerateOperate(NeoQueue<Operate> queue) {
+    public static String andEmGenerateOperate(NeoQueue<Operate> queue) {
         NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
         if (sqlPartQueue.isEmpty()) {
             return "";
@@ -229,6 +244,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 有括号的or
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return 操作类
@@ -304,6 +326,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 无括号的 OrEm
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 待处理对象
      * @return 操作类
@@ -379,6 +408,13 @@ public abstract class BaseOperate implements Operate {
 
     /**
      * 无符号的处理
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
      *
      * @param objects 对象
      * @return 操作符
@@ -966,8 +1002,25 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    public static Operate Page(PageReq<Object> neoPageReq) {
+    public static Operate Page(PageReq<Object> pageReq) {
         return new RelationOperate(null, null) {
+
+            /**
+             * 不需要value
+             * @return false
+             */
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
 
             @Override
             public Boolean doNeedWhere() {
@@ -976,7 +1029,75 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " limit " + neoPageReq.getPageSize() + " offset " + neoPageReq.getPageIndex();
+                return " limit " + pageReq.getPageSize() + " offset " + pageReq.getStartIndex();
+            }
+        };
+    }
+
+    public static Operate Page(NeoPage neoPage) {
+        return new RelationOperate(null, null) {
+
+            /**
+             * 不需要value
+             * @return false
+             */
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
+
+            @Override
+            public Boolean doNeedWhere() {
+                return false;
+            }
+
+            @Override
+            public String generateOperate() {
+                return " limit " + neoPage.getPageSize() + " offset " + neoPage.getStartIndex();
+            }
+        };
+    }
+
+    public static Operate Page(Integer pageNo, Integer pageSize) {
+        return new RelationOperate(null, null) {
+
+            /**
+             * 不需要value
+             * @return false
+             */
+            @Override
+            public Boolean valueLegal() {
+                return true;
+            }
+
+            @Override
+            public NeoQueue<Object> getValueQueue() {
+                if (!valueLegal()) {
+                    return NeoQueue.of();
+                }
+                return NeoQueue.of();
+            }
+
+            @Override
+            public Boolean doNeedWhere() {
+                return false;
+            }
+
+            @Override
+            public String generateOperate() {
+                int startIndex = 0;
+                if (pageNo > 0) {
+                    startIndex = (pageNo - 1) * pageSize;
+                }
+                return " limit " + pageSize + " offset " + startIndex;
             }
         };
     }
@@ -1013,16 +1134,6 @@ public abstract class BaseOperate implements Operate {
             @Override
             public String generateOperate() {
                 return " not exists (" + sql + ") ";
-            }
-        };
-    }
-
-    public static Operate NotExist(String sql) {
-        return new RelationOperate(null, null) {
-
-            @Override
-            public String generateOperate() {
-                return " not exist (" + sql + ") ";
             }
         };
     }

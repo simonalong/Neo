@@ -13,7 +13,7 @@ public class PageReq<T> {
     private Integer pageSize;
     private T param;
 
-    public Integer getPageIndex() {
+    public Integer getStartIndex() {
         return pageNo > 1 ? (pageNo - 1) * pageSize : 0;
     }
 }
