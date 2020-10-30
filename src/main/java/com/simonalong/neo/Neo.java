@@ -70,7 +70,7 @@ public class Neo extends AbstractExecutorDb {
     /**
      * 事务开启开启个数
      */
-    private ThreadLocal<AtomicInteger> txNum = ThreadLocal.withInitial(AtomicInteger::new);
+    private final ThreadLocal<AtomicInteger> txNum = ThreadLocal.withInitial(AtomicInteger::new);
     /**
      * XA分布式事务开启关闭状态
      */
