@@ -57,12 +57,12 @@ public class TimeDateConverter {
             if (columnTypeName.equals(YEAR)) {
                 return longToYearTime(dataLong);
             }else{
-                return new Date(dataLong);
+                return new java.util.Date(dataLong);
             }
         } else if (java.sql.Date.class.isAssignableFrom(tClass)
             || java.sql.Time.class.isAssignableFrom(tClass)
             || java.sql.Timestamp.class.isAssignableFrom(tClass)) {
-            return new Date(dataLong);
+            return new java.util.Date(dataLong);
         }
         return data;
     }
@@ -80,7 +80,7 @@ public class TimeDateConverter {
 
     /**
      * 根据实体类型转时间类型，对于time为Long的，且待转换的为时间类型的，则转换为时间类型
-     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link Date}
+     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
      *
      * @param tClass 实体属性对应的类型
      * @param time 时间
@@ -99,7 +99,8 @@ public class TimeDateConverter {
 
     /**
      * 根据实体将Long类型的时间转为对应的时间类型
-     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link Date}
+     * {@link java.sql.Date} {@link java.sql.Time} {@link java.sql.Timestamp} {@link java.util.Date}
+     *
      * @param tClass 实体属性对应的类型
      * @param time 时间
      * @param <T> 时间类型

@@ -46,9 +46,9 @@ public class Neo extends AbstractExecutorDb {
     private DbType dbType = DbType.MYSQL;
     @Getter
     private ConnectPool pool;
-    private SqlStandard standard = SqlStandard.getInstance();
-    private SqlMonitor monitor = SqlMonitor.getInstance();
-    private SqlExplain explain = SqlExplain.getInstance();
+    private final SqlStandard standard = SqlStandard.getInstance();
+    private final SqlMonitor monitor = SqlMonitor.getInstance();
+    private final SqlExplain explain = SqlExplain.getInstance();
     /**
      * sql解析开关
      */
@@ -319,9 +319,10 @@ public class Neo extends AbstractExecutorDb {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T save(String tableName, T object, String... searchColumnKey) {
-        return null;
+        return save(tableName, NeoMap.from(object), searchColumnKey).as((Class<T>)object.getClass());
     }
 
     /**
@@ -1917,7 +1918,6 @@ public class Neo extends AbstractExecutorDb {
                 Pair<String, Class<?>> typeAndClass = columnMap.get(key);
                 result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value),false);
             });
-        dataMap.clear();
         result.setNamingChg(dataMap.getNamingChg());
         return result;
     }
@@ -1932,6 +1932,7 @@ public class Neo extends AbstractExecutorDb {
      * @param parameters 输入的参数
      * @return 将转换符和占位符拆分开后的数组对：%s替换数据，?占位数据
      */
+    @SuppressWarnings("rawtypes")
     private Pair<List<Object>, List<Object>> replaceHolderParameters(String sqlOrigin, List<Object> parameters) {
         // 匹配替换符：%s（不匹配'%s，后者可能是like中的数据）和占位符：?
         String regex = "((?<!')%s|\\?)";
@@ -2100,7 +2101,7 @@ public class Neo extends AbstractExecutorDb {
      * @param dataList 待处理的数据
      * @param conditionColumns 作为条件的列字段
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void checkBatchUpdateParams(List dataList, Columns conditionColumns) {
         if (null == dataList || dataList.isEmpty() || Columns.isEmpty(conditionColumns)) {
             return;

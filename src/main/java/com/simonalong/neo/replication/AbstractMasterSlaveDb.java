@@ -4,6 +4,7 @@ import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import com.simonalong.neo.*;
 import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.express.Express;
 import com.simonalong.neo.util.ExceptionUtil;
@@ -397,6 +398,78 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
         return doSlaveCall(db -> db.page(tClass, tableName, page));
     }
+
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchMap, page));
+    }
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, Express searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(String tableName, Columns columns, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, entity, page));
+    }
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, searchMap, page));
+    }
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, Express searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, searchExpress, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(String tableName, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, entity, page));
+    }
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, page));
+    }
+
+    @Override
+    public PageRsp<NeoMap> getPage(String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchMap, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchMap, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchExpress, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, page));
+    }
+
+    @Override
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, page));
+    }
+
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {

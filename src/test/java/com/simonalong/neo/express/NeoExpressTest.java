@@ -5,7 +5,6 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import org.junit.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -171,4 +170,5 @@ public class NeoExpressTest extends NeoBaseTest {
         Assert.assertEquals(Integer.valueOf(2), neo.count(TABLE_NAME, new Express().append(BetweenAnd("age", 3, 4))));
         Assert.assertEquals(Integer.valueOf(1), neo.count(TABLE_NAME, new Express().append(BetweenAnd("age", 4, 4))));
     }
+
 }
