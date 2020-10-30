@@ -26,7 +26,7 @@ public class UpdateSqlBuilder {
     }
 
     public String buildSetValues(NeoMap searchMap) {
-        return " set " + String.join(", ", searchMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + "=?").collect(Collectors.toList()));
+        return " set " + searchMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + " = ?").collect(Collectors.joining(", "));
     }
 
     /**

@@ -16,8 +16,6 @@ public class connectTest extends BaseTest {
         String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
         String user = "neo_test";
         String password = "neo@Test123";
-        Neo neo = Neo.connect(url, user, password);
-
-        show(neo.insert("neo_table1", NeoMap.of("group", "con1")));
+        Neo.connect(url, user, password);
     }
 }

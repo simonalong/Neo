@@ -16,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.simonalong.neo.sql.InList;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class NeoTest extends NeoBaseTest {
 
     private ExecutorService pool = Executors.newCachedThreadPool();
 
-    public NeoTest() throws SQLException {}
+    public NeoTest()  {}
 
     /**
      * 链接测试
@@ -186,11 +185,8 @@ public class NeoTest extends NeoBaseTest {
     @SneakyThrows
     public void testUpdate1(){
         NeoMap dataMap = NeoMap.of("group", "ok2");
-        List<Integer> dataList = new ArrayList<>();
-        dataList.add(1);
-        dataList.add(3);
-        NeoMap searchMap = NeoMap.of("group", "group2", "id", new InList(dataList));
-        // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
+        NeoMap searchMap = NeoMap.of("group", "group2", "id", 12);
+        // update neo_table1 set `group`=? where `group` =  ? and `id` =  ?
         show(neo.update(TABLE_NAME, dataMap, searchMap));
     }
 

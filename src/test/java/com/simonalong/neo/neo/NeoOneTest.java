@@ -19,7 +19,7 @@ import org.junit.Test;
  */
 public class NeoOneTest extends NeoBaseTest {
 
-    public NeoOneTest() throws SQLException {}
+    public NeoOneTest()  {}
 
     /**
      * 查询一行数据

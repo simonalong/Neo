@@ -235,7 +235,6 @@ public class ExpressTest extends NeoBaseTest {
         Assert.assertEquals(Arrays.asList(1, "test", 3), express.toValue());
     }
 
-
     /**
      * 关系操作符：{@code 等于（=）、大于（>）、小于（<）、大于等于（>=）、小于等于（<=）、不等于（!=）}
      * 也是默认的操作符

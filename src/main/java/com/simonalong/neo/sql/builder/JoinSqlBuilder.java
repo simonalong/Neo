@@ -1,7 +1,6 @@
 package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.Columns;
-import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.TableJoinOn;
@@ -9,10 +8,6 @@ import lombok.experimental.UtilityClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.simonalong.neo.NeoConstant.ASC;
-import static com.simonalong.neo.NeoConstant.DESC;
-import static com.simonalong.neo.NeoConstant.ORDER_BY;
 
 /**
  * @author shizi
@@ -23,11 +18,11 @@ public class JoinSqlBuilder {
 
 
     public String build(Columns columns, TableJoinOn joiner, TableMap searchMap) {
-        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
+        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
     public String buildCount(TableJoinOn joiner, TableMap searchMap) {
-        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap) + buildOrderBy(searchMap);
+        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
     /**
@@ -54,7 +49,6 @@ public class JoinSqlBuilder {
     }
 
     public String buildConditionWithWhere(TableMap tableMap) {
-        tableMap = tableMap.assignExceptKeys(ORDER_BY);
         if (!TableMap.isEmpty(tableMap)) {
             return " where " + buildWhereCondition(tableMap);
         }
@@ -83,128 +77,134 @@ public class JoinSqlBuilder {
         }).collect(Collectors.toList());
     }
 
-    /**
-     * join的head 部分对应的sql，主要是选择的列
-     *
-     * @param tableName 表名
-     * @param columnName 表选择的列
-     * @return join对应的head，比如：select xxx,xxx
-     */
-    public String buildJoinHead(String tableName, String columnName){
-        return "select " + tableName + "." + columnName;
-    }
-
-    /**
-     * join的head 部分对应的sql，主要是选择的列
-     *
-     * @param neo 库对象
-     * @param columns 多个表的列信息
-     * @return join对应的head，比如：select xxx,xxx
-     */
-    public String buildJoinHead(Neo neo, Columns columns) {
-        return "select " + columns.setNeo(neo).toString();
-    }
-
-
-    /**
-     * 生成拼接的join的条件{@code where x=? and y=? and a.m=? and b.n=?}
-     *
-     * @param sqlCondition 对于join_except类型需要用的一些排除条件
-     * @param searchMap 搜索条件map
-     * @return 返回拼接的sql
-     */
-    public String buildJoinTail(String sqlCondition, NeoMap searchMap) {
-        StringBuilder sb = new StringBuilder();
-        Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
-        Boolean searchMapsNotEmpty = !isEmptyExceptOrderBy(searchMap);
-        if (sqlConditionNotEmpty || searchMapsNotEmpty) {
-            sb.append(" where ");
-        }
-
-        if (sqlConditionNotEmpty) {
-            sb.append("(").append(sqlCondition).append(")");
-        }
-
-        if (sqlConditionNotEmpty && searchMapsNotEmpty) {
-            sb.append(" and ");
-        }
-
-        if (searchMapsNotEmpty) {
-            sb.append(SqlBuilder.buildWhereCondition(searchMap)).append(SqlBuilder.buildOrderBy(searchMap));
-        }else{
-            sb.append(SqlBuilder.buildOrderBy(searchMap));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 不算order by来判断搜索条件是否为空
-     *
-     * @param searchMap 搜索条件
-     * @return true：空，false：不空
-     */
-    private Boolean isEmptyExceptOrderBy(NeoMap searchMap){
-        String orderByStr = "order by";
-        return null == searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).findAny().orElse(null);
-    }
-
     public List<Object> buildValueList(TableMap searchMap) {
         if (TableMap.isEmpty(searchMap)) {
             return Collections.emptyList();
         }
 
-        return searchMap.clone().entrySet().stream().flatMap(e-> SqlBuilder.buildValueList((NeoMap) e.getValue()).stream()).collect(Collectors.toList());
+        return searchMap.clone().entrySet().stream().flatMap(e-> ((NeoMap) e.getValue()).valueStream()).collect(Collectors.toList());
     }
+//
+//    /**
+//     * join的head 部分对应的sql，主要是选择的列
+//     *
+//     * @param tableName 表名
+//     * @param columnName 表选择的列
+//     * @return join对应的head，比如：select xxx,xxx
+//     */
+//    public String buildJoinHead(String tableName, String columnName){
+//        return "select " + tableName + "." + columnName;
+//    }
+//
+//    /**
+//     * join的head 部分对应的sql，主要是选择的列
+//     *
+//     * @param neo 库对象
+//     * @param columns 多个表的列信息
+//     * @return join对应的head，比如：select xxx,xxx
+//     */
+//    public String buildJoinHead(Neo neo, Columns columns) {
+//        return "select " + columns.setNeo(neo).toString();
+//    }
 
-    /**
-     * 构造order by 语句
-     * <p>
-     *     注意：该函数只处理order by属性其他的不处理
-     *
-     * @param searchMap 多表的包含order by的语句
-     * @return 比如：order by neo_table1.`group` asc, neo_table2.`name` desc
-     */
-    public String buildOrderBy(TableMap searchMap) {
-        if (!TableMap.isEmpty(searchMap)) {
-            List<String> orderByStrList = searchMap.clone().entrySet().stream().flatMap(e -> {
-                String tableName = e.getKey();
-                NeoMap valueMap = (NeoMap) e.getValue();
-                if (valueMap.containsKey(ORDER_BY)) {
-                    return getOrderByStrList(tableName, valueMap.getString(ORDER_BY)).stream();
-                }
-                return null;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-            if (null != orderByStrList && !orderByStrList.isEmpty()) {
-                return " " + ORDER_BY + " " + String.join(", ", orderByStrList);
-            }
-        }
-        return "";
-    }
 
-    /**
-     * 获取order by 后面的字符转换集合
-     * <p>
-     *     {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
-     *
-     * @param tableName 表名
-     * @param orderByValueStr order by后面的字符
-     * @return 转换后的字符，比如：[neo_table1.`name` desc]
-     */
-    public List<String> getOrderByStrList(String tableName, String orderByValueStr) {
-        if (null == orderByValueStr) {
-            return Collections.emptyList();
-        }
-        List<String> values = Arrays.asList(orderByValueStr.split(","));
-        List<String> valueList = new ArrayList<>();
-        values.forEach(v -> {
-            v = v.trim();
-            if (v.contains(DESC) || v.contains(ASC)) {
-                Integer index = v.indexOf(" ");
-                valueList.add(tableName + "." + SqlBuilder.toDbField(v.substring(0, index)) + " " + v.substring(index + 1));
-            } else {
-                valueList.add(tableName + "." + SqlBuilder.toDbField(v));
-            }
-        });
-        return valueList;
-    }
+//    /**
+//     * 生成拼接的join的条件{@code where x=? and y=? and a.m=? and b.n=?}
+//     *
+//     * @param sqlCondition 对于join_except类型需要用的一些排除条件
+//     * @param searchMap 搜索条件map
+//     * @return 返回拼接的sql
+//     */
+//    public String buildJoinTail(String sqlCondition, NeoMap searchMap) {
+//        StringBuilder sb = new StringBuilder();
+//        Boolean sqlConditionNotEmpty = null != sqlCondition && !"".equals(sqlCondition);
+//        Boolean searchMapsNotEmpty = !isEmptyExceptOrderBy(searchMap);
+//        if (sqlConditionNotEmpty || searchMapsNotEmpty) {
+//            sb.append(" where ");
+//        }
+//
+//        if (sqlConditionNotEmpty) {
+//            sb.append("(").append(sqlCondition).append(")");
+//        }
+//
+//        if (sqlConditionNotEmpty && searchMapsNotEmpty) {
+//            sb.append(" and ");
+//        }
+//
+//        if (searchMapsNotEmpty) {
+//            sb.append(SqlBuilder.buildWhereCondition(searchMap));
+//        }
+//        return sb.toString();
+//    }
+
+//    /**
+//     * 不算order by来判断搜索条件是否为空
+//     *
+//     * @param searchMap 搜索条件
+//     * @return true：空，false：不空
+//     */
+//    private Boolean isEmptyExceptOrderBy(NeoMap searchMap){
+//        String orderByStr = "order by";
+//        return null == searchMap.stream().filter(r -> !r.getKey().trim().equals(orderByStr)).findAny().orElse(null);
+//    }
+//
+//    public List<Object> buildValueList(TableMap searchMap) {
+//        if (TableMap.isEmpty(searchMap)) {
+//            return Collections.emptyList();
+//        }
+//
+//        return searchMap.clone().entrySet().stream().flatMap(e-> ((NeoMap)e.getValue()).valueStream()).collect(Collectors.toList());
+//    }
+
+//    /**
+//     * 构造order by 语句
+//     * <p>
+//     *     注意：该函数只处理order by属性其他的不处理
+//     *
+//     * @param searchMap 多表的包含order by的语句
+//     * @return 比如：order by neo_table1.`group` asc, neo_table2.`name` desc
+//     */
+//    public String buildOrderBy(TableMap searchMap) {
+//        if (!TableMap.isEmpty(searchMap)) {
+//            List<String> orderByStrList = searchMap.clone().entrySet().stream().flatMap(e -> {
+//                String tableName = e.getKey();
+//                NeoMap valueMap = (NeoMap) e.getValue();
+//                if (valueMap.containsKey(ORDER_BY)) {
+//                    return getOrderByStrList(tableName, valueMap.getString(ORDER_BY)).stream();
+//                }
+//                return null;
+//            }).filter(Objects::nonNull).collect(Collectors.toList());
+//            if (null != orderByStrList && !orderByStrList.isEmpty()) {
+//                return " " + ORDER_BY + " " + String.join(", ", orderByStrList);
+//            }
+//        }
+//        return "";
+//    }
+
+//    /**
+//     * 获取order by 后面的字符转换集合
+//     * <p>
+//     *     {@code group desc --> `group` desc} {@code group desc, name asc --> `group` desc, `name` asc}
+//     *
+//     * @param tableName 表名
+//     * @param orderByValueStr order by后面的字符
+//     * @return 转换后的字符，比如：[neo_table1.`name` desc]
+//     */
+//    public List<String> getOrderByStrList(String tableName, String orderByValueStr) {
+//        if (null == orderByValueStr) {
+//            return Collections.emptyList();
+//        }
+//        List<String> values = Arrays.asList(orderByValueStr.split(","));
+//        List<String> valueList = new ArrayList<>();
+//        values.forEach(v -> {
+//            v = v.trim();
+//            if (v.contains(DESC) || v.contains(ASC)) {
+//                Integer index = v.indexOf(" ");
+//                valueList.add(tableName + "." + SqlBuilder.toDbField(v.substring(0, index)) + " " + v.substring(index + 1));
+//            } else {
+//                valueList.add(tableName + "." + SqlBuilder.toDbField(v));
+//            }
+//        });
+//        return valueList;
+//    }
 }

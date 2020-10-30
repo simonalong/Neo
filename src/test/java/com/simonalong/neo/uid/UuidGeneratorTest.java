@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 public class UuidGeneratorTest extends UuidBaseTest {
 
-    public UuidGeneratorTest() throws SQLException {}
+    public UuidGeneratorTest()  {}
 
     private ExecutorService executorService = Executors.newFixedThreadPool(1000, new ThreadFactory() {
         private AtomicInteger count = new AtomicInteger(0);

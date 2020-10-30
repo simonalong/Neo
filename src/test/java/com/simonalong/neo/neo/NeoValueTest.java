@@ -14,7 +14,7 @@ import org.junit.Test;
  */
 public class NeoValueTest extends NeoBaseTest {
 
-    public NeoValueTest() throws SQLException {}
+    public NeoValueTest()  {}
 
     /**
      * 查询一行数据

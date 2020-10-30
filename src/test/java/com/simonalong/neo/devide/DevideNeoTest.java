@@ -20,7 +20,7 @@ public class DevideNeoTest {
     /**
      * 测试分库
      */
-    @Test
+    //@Test
     public void devideDbTest() {
         UuidGenerator uuid = getUuidGenerator();
         uuid.addNamespaces("devideDb");
@@ -68,7 +68,7 @@ public class DevideNeoTest {
     /**
      * 测试分表，一个库中，有一个逻辑表，逻辑表对应多个实际的物理表
      */
-    @Test
+    //@Test
     public void devideTableTest() {
         UuidGenerator uuid = getUuidGenerator();
         uuid.addNamespaces("devideTable");
@@ -96,7 +96,7 @@ public class DevideNeoTest {
      * <p>
      * 4个分库以及每个库里面都有8个分表
      */
-    @Test
+    //@Test
     public void devideDbTableTest() {
         UuidGenerator uuid = getUuidGenerator();
         uuid.addNamespaces("devideDbTable", "userNamespace");
@@ -128,7 +128,7 @@ public class DevideNeoTest {
         System.out.println("count: == " + devideMultiNeo.count("neo_devide_table"));
     }
 
-    @Test
+    //@Test
     public void test333() {
         String url = "jdbc:mysql://localhost:3310/devide2";
         String username = "root";
@@ -153,7 +153,7 @@ public class DevideNeoTest {
     /**
      * 创建分库分表
      */
-    @Test
+    //@Test
     public void testCreateDbTable() {
         String url = "jdbc:mysql://localhost:3310/devide";
         String username = "root";
@@ -167,7 +167,7 @@ public class DevideNeoTest {
     /**
      * 删除分库分表
      */
-    @Test
+    //@Test
     public void testDropDbTable() {
         String url = "jdbc:mysql://localhost:3310/devide";
         String username = "root";

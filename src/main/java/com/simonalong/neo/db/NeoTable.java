@@ -130,6 +130,13 @@ public class NeoTable extends AbstractBaseTable {
             .orElse(null);
     }
 
+    /**
+     * 清理表数据
+     */
+    public void truncate() {
+        getDb().truncateTable(getTableName());
+    }
+
     void setPrimary(String columnName) {
         for (NeoColumn column : columnList) {
             if(column.getColumnName().equals(columnName)){

@@ -64,14 +64,6 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     @Accessors(chain = true)
     private Boolean supportValueNull = false;
     /**
-     * 添加条件过滤器
-     * <p>
-     * 在sql进行拼接的时候，通过条件过滤Map进行判断，哪些属性是可以不用填充的
-     */
-    @Setter
-    @Getter
-    private ConditionMap conditionMap;
-    /**
      * 全局的命名转换，请注意，该转换会对所有NeoMap生效，默认不转换
      */
     @Getter
@@ -1048,20 +1040,6 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return entrySet;
     }
 
-    /**
-     * key是否满足条件
-     *
-     * @param key 待校验的key
-     * @return 如果key不包含，则返回true，如果包含，则只有满足条件才会返回true，否则返回false
-     */
-    public Boolean satisfyCondition(String key) {
-        if(null == conditionMap){
-            return true;
-        }
-
-        return conditionMap.condition(this, key);
-    }
-
     @Override
     public boolean equals(Object object) {
         if (object instanceof NeoMap) {
@@ -1112,7 +1090,6 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         NeoMap neoMap = NeoMap.of();
         neoMap.putAll(dataMap);
         neoMap.setNamingChg(namingChg);
-        neoMap.setConditionMap(conditionMap);
         neoMap.setSupportValueNull(supportValueNull);
         neoMap.getNullValueKeySet().addAll(nullValueKeySet);
         return neoMap;

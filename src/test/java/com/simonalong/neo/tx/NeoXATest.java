@@ -24,7 +24,7 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class NeoXATest extends NeoBaseTest {
 
-    public NeoXATest() throws SQLException {
+    public NeoXATest()  {
     }
 
     /**

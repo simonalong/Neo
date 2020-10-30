@@ -211,9 +211,8 @@ public class NeoMapTest extends BaseTest {
         fromEntity.setName("name");
         fromEntity.setUserName("username1");
 
-        NeoMap neoMap = NeoMap.from(fromEntity);
         // {"name":"name","userName":"username1"}
-        show(neoMap);
+        NeoMap neoMap = NeoMap.from(fromEntity);
 
         NeoMapFromEntity expect = new NeoMapFromEntity();
         expect.setName("name");
@@ -231,9 +230,8 @@ public class NeoMapTest extends BaseTest {
         demo.setUserName("userName1");
         demo.setAge(12);
 
-        NeoMap neoMap = NeoMap.fromInclude(demo, "name", "age");
         // {"age":12,"name":"name1"}
-        show(neoMap);
+        NeoMap neoMap = NeoMap.fromInclude(demo, "name", "age");
 
         NeoMapFromEntity expect = new NeoMapFromEntity();
         expect.setName("name1");
@@ -251,9 +249,8 @@ public class NeoMapTest extends BaseTest {
         demo.setUserName("userName1");
         demo.setAge(12);
 
-        NeoMap neoMap = NeoMap.fromExclude(demo, "userName");
         // {"age":12,"name":"name1"}
-        show(neoMap);
+        NeoMap neoMap = NeoMap.fromExclude(demo, "userName");
 
         NeoMapFromEntity expect = new NeoMapFromEntity();
         expect.setName("name1");
@@ -271,9 +268,8 @@ public class NeoMapTest extends BaseTest {
         demo.setMyFriendName("nana");
         demo.setAge(12);
 
-        NeoMap neoMap = NeoMap.fromExclude(demo, "myFriendName");
         // {"age":12,"friend_name":"nana","name":"name1"}
-        show(neoMap);
+        NeoMap neoMap = NeoMap.fromExclude(demo, "myFriendName");
 
         NeoMapFromEntity expect = new NeoMapFromEntity();
         expect.setName("name1");
@@ -286,9 +282,7 @@ public class NeoMapTest extends BaseTest {
      */
     @Test(expected = NeoMapChgException.class)
     public void testFrom4_1(){
-        NeoMap neoMap = NeoMap.from(1);
-        // {"name":"name","userName":"username1"}
-        show(neoMap);
+        NeoMap.from(1);
     }
 
     /**
@@ -296,9 +290,7 @@ public class NeoMapTest extends BaseTest {
      */
     @Test(expected = NeoMapChgException.class)
     public void testFrom4_2(){
-        NeoMap neoMap = NeoMap.from(NeoMapEnum.TEST1);
-        // {"name":"name","userName":"username1"}
-        show(neoMap);
+        NeoMap.from(NeoMapEnum.TEST1);
     }
 
     /**
@@ -311,10 +303,9 @@ public class NeoMapTest extends BaseTest {
         demo.setMyFriendName("nana");
         demo.setUserName("username1");
 
+        // {"friend_name":"nana","user-name":"username1"}
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.fromInclude(demo, NamingChg.MIDDLELINE, "userName", "myFriendName");
-        // {"friend_name":"nana","user-name":"username1"}
-        show(neoMap);
 
         NeoMapFromEntity expect = new NeoMapFromEntity();
         expect.setUserName("username1");
@@ -351,10 +342,9 @@ public class NeoMapTest extends BaseTest {
         demo.setName("name1");
         demo.setUserName("username1");
 
+        // {"group":"group1","user_name":"userName1"}
         // 将map的key全部转换为下划线
         NeoMap neoMap = NeoMap.from(demo, NamingChg.DEFAULT);
-        // {"group":"group1","user_name":"userName1"}
-        show(neoMap);
         NeoMap expectMap = NeoMap.of("name", "name1", "userName", "username1");
         Assert.assertEquals(expectMap, neoMap);
     }
@@ -367,9 +357,9 @@ public class NeoMapTest extends BaseTest {
         NeoMap sourceMap = NeoMap.of("group", "group1", "user_name", "userName1");
 
         // 将map的key全部转换为下划线
-        NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
         // {"group":"group1","user_name":"userName1"}
-        show(neoMap);
+        NeoMap neoMap = NeoMap.fromMap(sourceMap, NamingChg.UNDERLINE);
+
         Map<String, Object> expect = Maps.of().add("group", "group1").add("user_name", "userName1").build();
         Assert.assertEquals(expect, neoMap.getDataMap());
     }
@@ -397,8 +387,6 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void testFrom11(){
         NeoMap map1 = NeoMap.of("a", 123, "b", 4332);
-        show(NeoMap.from(map1));
-        show(NeoMap.fromMap(map1));
         Assert.assertEquals(NeoMap.from(map1), NeoMap.fromMap(map1));
     }
 
@@ -440,13 +428,13 @@ public class NeoMapTest extends BaseTest {
         NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
 
         // a
-        show(neoMap.getChar("flag"));
+        Assert.assertEquals(Character.valueOf('a'), neoMap.getChar("flag"));
         // d
-        show(neoMap.getChar("test"));
+        Assert.assertEquals("d", neoMap.getString("test"));
         // 1
-        show(neoMap.getChar("test2"));
-        // 1
-        show(neoMap.getChar("t"));
+        Assert.assertEquals(Integer.valueOf(12), neoMap.getInteger("test2"));
+        // 12.0f
+        Assert.assertEquals(Float.valueOf(12.0f), neoMap.getFloat("t"));
     }
 
     @Test
@@ -477,8 +465,8 @@ public class NeoMapTest extends BaseTest {
 //        show(neoMap.getInteger("flag"));
         // 异常
 //        show(neoMap.getInteger("test"));
-        Assert.assertTrue(12 == neoMap.getInteger("test2"));
-        Assert.assertTrue(12.0f == neoMap.getInteger("t"));
+        Assert.assertEquals(Integer.valueOf(12), neoMap.getInteger("test2"));
+        Assert.assertEquals(12.0f, neoMap.getInteger("t"), 0.0);
     }
 
     @Test
@@ -684,20 +672,37 @@ public class NeoMapTest extends BaseTest {
     }
 
     /**
-     * clone测试：
+     * clone测试
      */
     @Test
     public void cloneTest1(){
-        NeoMap result = NeoMap.of("a", 1, "b", 2);
-        NeoMap cloneMap = result.clone();
+        NeoMap originalMap = NeoMap.of("a", 1, "b", 2);
+        NeoMap cloneMap = originalMap.clone();
 
-        result.remove("a");
-        NeoMap expect = NeoMap.of("b", 2);
-        Assert.assertEquals(expect, result);
+        // 克隆对象删除数据，不影响源对象
+        cloneMap.remove("a");
+        Assert.assertEquals(NeoMap.of("b", 2), cloneMap);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2), originalMap);
 
+        cloneMap = originalMap.clone();
+        // 克隆对象添加数据，不影响源对象
+        cloneMap.put("c", 3);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2, "c", 3), cloneMap);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2), originalMap);
 
-        NeoMap expect2 = NeoMap.of("a", 1, "b", 2);
-        Assert.assertEquals(expect2, cloneMap);
+        // 重新配置
+        cloneMap = originalMap.clone();
+
+        // 源对象删除数据，不影响克隆对象
+        originalMap.remove("a");
+        Assert.assertEquals(NeoMap.of("b", 2), originalMap);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2), cloneMap);
+
+        originalMap = NeoMap.of("a", 1, "b", 2);
+        // 源对象添加数据，不影响克隆对象
+        originalMap.put("c", 3);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2, "c", 3), originalMap);
+        Assert.assertEquals(NeoMap.of("a", 1, "b", 2), cloneMap);
     }
 
     /**

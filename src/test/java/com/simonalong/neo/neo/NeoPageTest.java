@@ -15,7 +15,7 @@ import org.junit.Test;
  */
 public class NeoPageTest extends NeoBaseTest {
 
-    public NeoPageTest() throws SQLException {}
+    public NeoPageTest()  {}
 
     /**
      * 查询一行数据

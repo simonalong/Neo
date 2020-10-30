@@ -12,7 +12,7 @@ import java.sql.SQLException;
  */
 public class SelectSqlBuilderTest extends NeoBaseTest {
 
-    public SelectSqlBuilderTest() throws SQLException {
+    public SelectSqlBuilderTest()  {
     }
 
     @Test

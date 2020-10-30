@@ -4,7 +4,6 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBase4PgTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.sql.InList;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -92,7 +91,5 @@ public class NeoTest4Pg extends NeoBase4PgTest {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";
         neo.execute(sql, tableName);
-
-        show(neo.exist(tableName, NeoMap.of("char", new InList(Arrays.asList("ad")))));
     }
 }

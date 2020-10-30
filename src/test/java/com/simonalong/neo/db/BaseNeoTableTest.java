@@ -17,7 +17,7 @@ public class BaseNeoTableTest extends BaseTest {
 
     static Neo neo;
 
-    public BaseNeoTableTest() throws SQLException {}
+    public BaseNeoTableTest()  {}
 
     @BeforeClass
     public static void start(){

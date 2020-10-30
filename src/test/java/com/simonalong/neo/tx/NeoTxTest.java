@@ -17,7 +17,7 @@ import org.junit.Test;
 @Slf4j
 public class NeoTxTest extends NeoBaseTest {
 
-    public NeoTxTest() throws SQLException {}
+    public NeoTxTest()  {}
 
     /**
      * 验证普通的处理

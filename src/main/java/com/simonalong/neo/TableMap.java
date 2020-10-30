@@ -605,7 +605,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 表名和属性名
      */
     private Entry<String, String> getTableAndFieldName(Class<?> tClass, Field field, String tableName, NeoMap.NamingChg namingChg) {
-        String tableFinalName = null;
+        String tableFinalName = tableName;
         String columnFinalName;
 
         if (!namingChg.equals(NeoMap.NamingChg.DEFAULT)) {

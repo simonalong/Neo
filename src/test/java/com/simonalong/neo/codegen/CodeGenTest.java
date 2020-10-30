@@ -6,7 +6,6 @@ import com.simonalong.neo.codegen.config.DbGeneratorConfig;
 import com.simonalong.neo.codegen.config.SqlGeneratorConfig;
 import com.simonalong.neo.codegen.generator.CreateSqlEntityCodeGenerator;
 import com.simonalong.neo.codegen.generator.DbEntityCodeGenerator;
-import org.junit.Test;
 
 /**
  * @author zhouzhenyong
@@ -17,7 +16,7 @@ public class CodeGenTest {
     /**
      * 基于db进行生成
      */
-    @Test
+    //@Test
     public void test1() {
         DbEntityCodeGenerator codeGen = new DbEntityCodeGenerator();
         DbGeneratorConfig generatorConfig = new DbGeneratorConfig();
@@ -46,7 +45,7 @@ public class CodeGenTest {
     /**
      * 基于建表语句进行生成
      */
-    @Test
+    //@Test
     public void test2() {
         // 建表语句
         String createTableSql = "CREATE TABLE `neo_table4` (\n" + "  `id` int(11) unsigned NOT NULL,\n" + "  `group` char(64) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '任务name',\n" + "  `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int(11) DEFAULT NULL,\n" + "  `n_id` int(11) unsigned DEFAULT NULL,\n" + "  `sort` int(11) DEFAULT NULL,\n" + "  `enum1` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '类型：Y=成功；N=失败',\n" + "  `create_time` datetime DEFAULT NULL,\n" + "  `time` time DEFAULT NULL,\n" + "  `year` year(4) DEFAULT NULL,\n" + "  `date` date DEFAULT NULL,\n" + "  `datetime` datetime DEFAULT NULL,\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
@@ -67,7 +66,7 @@ public class CodeGenTest {
     /**
      * 适配postgresql的数据库建表
      */
-    @Test
+    //@Test
     public void testPg(){
         DbEntityCodeGenerator codeGen = new DbEntityCodeGenerator();
         DbGeneratorConfig generatorConfig = new DbGeneratorConfig();
@@ -93,7 +92,7 @@ public class CodeGenTest {
         codeGen.generate();
     }
 
-    @Test
+    //@Test
     public void testPg2(){
         // 建表语句
         String createTableSql = "create table demo_bytea(bytea bytea);";

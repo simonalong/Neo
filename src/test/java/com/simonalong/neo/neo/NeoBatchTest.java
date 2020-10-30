@@ -5,7 +5,6 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +12,9 @@ import java.util.stream.Collectors;
 
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.util.TimeRangeStrUtil;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -22,85 +24,90 @@ import org.junit.Test;
  */
 public class NeoBatchTest extends NeoBaseTest {
 
-    public NeoBatchTest() throws SQLException {}
+    public NeoBatchTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
 
     @Test
     public void batchInsertTest1(){
         List<NeoMap> maps = Arrays.asList(
-          NeoMap.of("group", "group1", "name", "name1", "user_name", "user_name1"),
-          NeoMap.of("group", "group2", "name", "name2", "user_name", "user_name2"),
-          NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3"),
-          NeoMap.of("group", "group4", "name", "name4", "user_name", "user_name4"),
-          NeoMap.of("group", "group5", "name", "name5", "user_name", "user_name5")
+          NeoMap.of("group", "group_batch", "name", "name_batch_1"),
+          NeoMap.of("group", "group_batch", "name", "name_batch_2"),
+          NeoMap.of("group", "group_batch", "name", "name_batch_3"),
+          NeoMap.of("group", "group_batch", "name", "name_batch_4"),
+          NeoMap.of("group", "group_batch", "name", "name_batch_5")
         );
-        show(neo.batchInsert(TABLE_NAME, maps));
+        neo.batchInsert(TABLE_NAME, maps);
 
-        show(maps);
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_1"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_2"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_3"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_4"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_5"));
+
+        List<NeoMap> valueList = neo.list(TABLE_NAME, NeoMap.of("group", "group_batch")).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        Assert.assertEquals(dataList, valueList);
     }
 
     @Test
-    public void batchInsertTest2(){
+    public void batchInsertTest2() {
         List<DemoEntity> entities = Arrays.asList(
-            new DemoEntity().setGroup("group11").setName("name11"),
-            new DemoEntity().setGroup("group12").setName("name12"),
-            new DemoEntity().setGroup("group13").setName("name13"),
-            new DemoEntity().setGroup("group14").setName("name14"),
-            new DemoEntity().setGroup("group15").setName("name15"),
-            new DemoEntity().setGroup("group16").setName("name16")
+            new DemoEntity().setGroup("group_batch").setName("name_batch_1"),
+            new DemoEntity().setGroup("group_batch").setName("name_batch_2"),
+            new DemoEntity().setGroup("group_batch").setName("name_batch_3"),
+            new DemoEntity().setGroup("group_batch").setName("name_batch_4"),
+            new DemoEntity().setGroup("group_batch").setName("name_batch_5")
         );
-        show(neo.batchInsertEntity(TABLE_NAME, entities));
-    }
 
-    @Test
-    public void batchInsertTest3(){
-        List<DemoEntity> entities = Arrays.asList(
-            new DemoEntity().setGroup("group11").setName("name11"),
-            new DemoEntity().setGroup("group12").setName("name12"),
-            new DemoEntity().setGroup("group13").setName("name13"),
-            new DemoEntity().setGroup("group14").setName("name14"),
-            new DemoEntity().setGroup("group15").setName("name15"),
-            new DemoEntity().setGroup("group16").setName("name16")
-        );
         neo.batchInsertEntity(TABLE_NAME, entities);
-    }
 
-    /**
-     * 测试每一项在不一样的情况下的插入
-     */
-    @Test
-    public void batchInsertTest4(){
-        List<NeoMap> maps = Arrays.asList(
-            NeoMap.of("group", "group1", "name", "name1", "user_name", "user_name1"),
-            NeoMap.of("group", "group2", "name", "name2", "user_name", "user_name2"),
-            NeoMap.of("group", "group3", "name", "name3", "user_name", "user_name3")
-        );
-        show(neo.batchInsert(TABLE_NAME, maps));
-        show(maps);
-    }
-
-    @Test
-    public void batchInsertTest5(){
-        List<DemoEntity> entities = Arrays.asList(
-            new DemoEntity().setGroup("group11").setName("name11").setAge(123),
-            new DemoEntity().setGroup("group12").setName("name12"),
-            new DemoEntity().setGroup("group13").setName("name13"),
-            new DemoEntity().setGroup("group14").setName("name14"),
-            new DemoEntity().setGroup("group15").setName("name15"),
-            new DemoEntity().setGroup("group16").setName("name16")
-        );
-        show(neo.batchInsertEntity(TABLE_NAME, entities));
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_1", "sl", 0));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_2", "sl", 0));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_3", "sl", 0));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_4", "sl", 0));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_5", "sl", 0));
+        List<NeoMap> valueList = neo.list(TABLE_NAME, NeoMap.of("group", "group_batch")).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        Assert.assertEquals(dataList.toString(), valueList.toString());
     }
 
     @Test
     public void batchUpdateTest1(){
         List<NeoMap> maps = Arrays.asList(
-            NeoMap.of("group", "group1", "name", "name1chg", "user_name", "user_name1"),
-            NeoMap.of("group", "group2", "name", "name2chg", "user_name", "user_name2"),
-            NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"),
-            NeoMap.of("group", "group4", "name", "name4chg", "user_name", "user_name4"),
-            NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
+            NeoMap.of("group", "group_batch", "name", "name_batch_1"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_2"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_3"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_4"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_5")
         );
-        show(neo.batchUpdate(TABLE_NAME, maps, Columns.of("user_name")));
+        neo.batchInsert(TABLE_NAME, maps);
+
+        maps = Arrays.asList(
+            NeoMap.of("group", "group_batch", "name", "name_batch_1_chg"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_2_chg"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_3_chg"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_4_chg"),
+            NeoMap.of("group", "group_batch", "name", "name_batch_5_chg")
+        );
+        neo.batchUpdate(TABLE_NAME, maps, Columns.of("group"));
+
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_1_chg"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_2_chg"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_3_chg"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_4_chg"));
+        dataList.add(NeoMap.of("group", "group_batch", "name", "name_batch_5_chg"));
+        List<NeoMap> valueList = neo.list(TABLE_NAME, NeoMap.of("group", "group_batch")).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        Assert.assertEquals(dataList, valueList);
     }
 
     /**

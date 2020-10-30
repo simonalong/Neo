@@ -44,7 +44,7 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group`, `user_name` from  where `id` =  ? and `name` =  ?
      */
     public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
-        return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
+        return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
     public String buildList(Neo neo, String tableName, Columns columns, Express searchExpress) {
@@ -80,7 +80,7 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group` from neo_table1 where `id` =  ? and `name` =  ?
      */
     public String buildValues(String tableName, String field, NeoMap searchMap) {
-        return "select " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap) + SqlBuilder.buildOrderBy(searchMap);
+        return "select " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
     public String buildValues(String tableName, String field, Express searchExpress) {

@@ -271,16 +271,17 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public NeoMap insert(String tableName, NeoMap valueMap) {
         checkDb(tableName);
-        NeoMap valueMapTem = valueMap.clone();
-        Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMapTem), this::executeInsert);
+        Object id = execute(false, () -> generateInsertSqlPair(tableName, valueMap.clone()), this::executeInsert);
         Pair<String, ? extends Class<?>> keyAndType = db.getPrimaryKeyAutoIncNameAndType(tableName);
 
         String incrementKey = keyAndType.getKey();
         Class<?> incrementKeyType = keyAndType.getValue();
+
+        NeoMap result = valueMap.clone();
         if (null != incrementKey && null != incrementKeyType) {
-            valueMap.put(incrementKey, ObjectUtil.cast(incrementKeyType, id));
+            result.put(incrementKey, ObjectUtil.cast(incrementKeyType, id));
         }
-        return valueMap;
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -1195,6 +1196,16 @@ public class Neo extends AbstractExecutorDb {
         return execute(false, () -> generateExeSqlPair(sql, Arrays.asList(parameters)), this::execute);
     }
 
+    /**
+     * 清理表数据
+     * <p>
+     *     该api会执行 truncate tableName 会将该表对应的数据清理完
+     * @param tableName 表名
+     */
+    public void truncateTable(String tableName) {
+        execute("truncate " + tableName);
+    }
+
     public Set<String> getColumnNameList(String tableName) {
         return getColumnList(tableName).stream().map(NeoColumn::getColumnName).collect(Collectors.toSet());
     }
@@ -1491,7 +1502,8 @@ public class Neo extends AbstractExecutorDb {
      * @return 表的创建语句
      */
     public String getTableCreate(String tableName) {
-        return (String) (execute("show create table `" + tableName + "`").get(0).get(0).getFirst().getFirst());
+        List<List<TableMap>> table = execute("show create table `" + tableName + "`");
+        return ((NeoMap) table.get(0).get(0).getFirst()).getString("Create Table");
     }
 
     /**
@@ -1688,7 +1700,7 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), new ArrayList<>(searchMap.values()));
+        return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), SqlBuilder.buildValueList(searchMap));
     }
 
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, Express searchExpress) {
@@ -1763,8 +1775,7 @@ public class Neo extends AbstractExecutorDb {
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         Integer startIndex, Integer pageSize) {
         searchMap = filterNonDbColumn(tableName, searchMap);
-        return new Pair<>(SelectSqlBuilder.buildPage(this, tableName, columns, searchMap, startIndex, pageSize),
-            generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildPage(this, tableName, columns, searchMap, startIndex, pageSize), generateValueList(searchMap));
     }
 
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, Express searchExpress, Integer startIndex, Integer pageSize) {
@@ -1899,19 +1910,14 @@ public class Neo extends AbstractExecutorDb {
             .collect(Collectors.toMap(NeoColumn::getColumnName, r -> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));
         NeoMap result = NeoMap.of();
         result.setSupportValueNull(dataMap.getSupportValueNull());
-        dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()) || e.getKey().equals(ORDER_BY))
+        dataMap.stream().filter(e -> columnMap.containsKey(e.getKey()))
             .forEach(r -> {
                 String key = r.getKey();
                 Object value = r.getValue();
-                if (!key.equals(ORDER_BY)) {
-                    Pair<String, Class<?>> typeAndClass = columnMap.get(key);
-                    result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value),false);
-                } else {
-                    result.put(key, value, false);
-                }
+                Pair<String, Class<?>> typeAndClass = columnMap.get(key);
+                result.put(key, TimeDateConverter.longToDbTime(typeAndClass.getValue(), typeAndClass.getKey(), value),false);
             });
         dataMap.clear();
-        result.setConditionMap(dataMap.getConditionMap());
         result.setNamingChg(dataMap.getNamingChg());
         return result;
     }

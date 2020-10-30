@@ -14,7 +14,7 @@ import org.junit.Test;
  */
 public class SqlBuilderTest extends NeoBaseTest {
 
-    public SqlBuilderTest() throws SQLException {}
+    public SqlBuilderTest()  {}
 
     @Test
     public void inTest(){
@@ -91,18 +91,4 @@ public class SqlBuilderTest extends NeoBaseTest {
         // [`age` > ?, `group` =  ?, `name` like 'haode%']
         show(SqlBuilder.buildConditionMeta(neoMap));
     }
-
-    /**
-     * 测试 buildOrderBy 该函数
-     *
-     * <p>
-     *     该函数只识别order by的内容
-     */
-    @Test
-    public void buildOrderByTest1() {
-        NeoMap neoMap = NeoMap.of("name", "nana", "order by", "age desc, user asc");
-        //   order by `age` desc, `user` asc
-        show(SqlBuilder.buildOrderBy(neoMap));
-    }
-
 }

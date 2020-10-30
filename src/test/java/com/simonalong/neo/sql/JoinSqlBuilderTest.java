@@ -15,7 +15,7 @@ import java.sql.SQLException;
  */
 public class JoinSqlBuilderTest extends NeoBaseTest {
 
-    public JoinSqlBuilderTest() throws SQLException {
+    public JoinSqlBuilderTest()  {
     }
 
     @Test
@@ -69,35 +69,6 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         tableMap.put("table2", "name", "> 12");
         // [table1.`ke1` like 'value%', table2.`name` > ?]
         show(JoinSqlBuilder.buildConditionMeta(tableMap));
-    }
-
-    @Test
-    public void buildOrderByTest1(){
-        String table1 = "neo_table1";
-        String table2 = "neo_table2";
-
-        TableMap searchMap = TableMap.of();
-        searchMap.put(table2, "name", "12");
-        searchMap.put(table2, "order by", "name desc");
-        searchMap.put(table1, "order by", "group asc");
-        // order by neo_table1.`group` asc, neo_table2.`name` desc
-        show(JoinSqlBuilder.buildOrderBy(searchMap));
-    }
-
-    @Test
-    public void buildOrderByTest2(){
-        String table1 = "neo_table1";
-
-        TableMap searchMap = TableMap.of();
-        searchMap.put(table1, "order by", "name desc, group asc");
-        // order by neo_table1.`name` desc, neo_table1.`group` asc
-        show(JoinSqlBuilder.buildOrderBy(searchMap));
-    }
-
-    @Test
-    public void getOrderByStrListTest1(){
-        // [neo_table1.`name` desc]
-        show(JoinSqlBuilder.getOrderByStrList("neo_table1", "name desc"));
     }
 
     @Test

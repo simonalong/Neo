@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class NeoCountTest extends NeoBaseTest {
 
-    public NeoCountTest() throws SQLException {}
+    public NeoCountTest()  {}
 
     /**
      * 查询表的总数

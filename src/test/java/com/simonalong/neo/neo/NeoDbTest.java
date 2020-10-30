@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class NeoDbTest extends NeoBaseTest {
 
-    public NeoDbTest() throws SQLException {
+    public NeoDbTest()  {
     }
 
     @Test
