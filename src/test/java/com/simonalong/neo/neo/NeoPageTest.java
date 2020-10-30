@@ -7,6 +7,9 @@ import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
 import java.sql.SQLException;
 import lombok.SneakyThrows;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -16,6 +19,21 @@ import org.junit.Test;
 public class NeoPageTest extends NeoBaseTest {
 
     public NeoPageTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
 
     /**
      * 查询一行数据

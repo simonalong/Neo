@@ -11,6 +11,7 @@ import org.junit.Test;
  */
 public class NeoSqliteTest extends BaseTest {
 
+
     @Test
     public void test1(){
         Neo neo = Neo.connect("jdbc:sqlite:/Users/zhouzhenyong/work/db/sqlite/neo.db", null, null);

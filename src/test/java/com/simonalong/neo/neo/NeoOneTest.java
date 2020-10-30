@@ -9,6 +9,9 @@ import java.util.Date;
 
 import com.simonalong.neo.neo.entity.OneEntity;
 import lombok.SneakyThrows;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -20,6 +23,21 @@ import org.junit.Test;
 public class NeoOneTest extends NeoBaseTest {
 
     public NeoOneTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
 
     /**
      * 查询一行数据

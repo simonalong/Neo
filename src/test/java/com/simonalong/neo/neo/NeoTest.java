@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import lombok.SneakyThrows;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -29,6 +32,21 @@ public class NeoTest extends NeoBaseTest {
     private ExecutorService pool = Executors.newCachedThreadPool();
 
     public NeoTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
 
     /**
      * 链接测试

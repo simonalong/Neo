@@ -985,7 +985,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     @Override
     public Object remove(Object key) {
         if (supportValueNull) {
-            return nullValueKeySet.remove(key);
+            nullValueKeySet.remove(key);
         }
         return dataMap.remove(key);
     }
