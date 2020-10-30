@@ -8,10 +8,7 @@ import java.util.Date;
 
 import com.simonalong.neo.neo.entity.OneEntity;
 import lombok.SneakyThrows;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * 测试Neo.one这个函数
@@ -45,28 +42,11 @@ public class NeoOneTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeOne1(){
-        show(neo.exeOne("select id from neo_table1 where `group`=?", "ok"));
-        // todo here
-    }
+        NeoMap dataMap = NeoMap.of("group", "group_one", "name", "name_one");
+        neo.insert(TABLE_NAME, dataMap);
 
-    /**
-     * 查询一行数据
-     * 采用直接执行sql方式
-     */
-    @Test
-    @SneakyThrows
-    public void testExeOne2(){
-        show(neo.exeOne("select * from %s where `group`=?", "neo_table1", "group1"));
-    }
-
-    /**
-     * 查询一行数据
-     * 采用直接执行sql方式
-     */
-    @Test
-    @SneakyThrows
-    public void testExeOne3(){
-        show(neo.exeOne("select * from %s where `group`=? order by name desc", "neo_table1", "nihao1"));
+        NeoMap resultMap = neo.exeOne("select `group`, `name` from " + TABLE_NAME + " where `group`=?", "group_one").getNeoMap(TABLE_NAME);
+        Assert.assertEquals(dataMap, resultMap);
     }
 
     /**
@@ -76,7 +56,15 @@ public class NeoOneTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testExeOne4() {
-        show(neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "group1"));
+        DemoEntity data = new DemoEntity();
+        data.setGroup("group_one");
+        data.setName("name_one");
+        neo.insert(TABLE_NAME, data);
+
+        DemoEntity result = neo.exeOne(DemoEntity.class, "select * from %s where `group`=?", "neo_table1", "group_one");
+        result.setId(null);
+
+        Assert.assertEquals(data, result);
     }
 
     /**
