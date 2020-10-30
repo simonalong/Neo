@@ -47,6 +47,7 @@ public class NeoOneTest extends NeoBaseTest {
     @SneakyThrows
     public void testExeOne1(){
         show(neo.exeOne("select id from neo_table1 where `group`=?", "ok"));
+        // todo here
     }
 
     /**
