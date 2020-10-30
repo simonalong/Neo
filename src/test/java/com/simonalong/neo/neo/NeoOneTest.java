@@ -4,7 +4,6 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
 import java.util.Date;
 
 import com.simonalong.neo.neo.entity.OneEntity;
