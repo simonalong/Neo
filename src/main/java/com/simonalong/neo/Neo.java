@@ -294,20 +294,29 @@ public class Neo extends AbstractExecutorDb {
         return null;
     }
 
+    /**
+     * 不存在则插入，存在则更新
+     *
+     * @param tableName 表名
+     * @param dataMap 待更新或者插入的数据
+     * @param searchColumnKey 作为搜索条件的搜索的key
+     * @return 更新或者插入后的数据
+     */
     @Override
     public NeoMap save(String tableName, NeoMap dataMap, String... searchColumnKey) {
-        // 对于没有指定搜索key的，这里不进行处理
-        if (searchColumnKey.length == 0) {
-            log.warn("save 操作没有指定搜索条件，则不进行处理");
-            return NeoMap.of();
-        } else {
+        if (searchColumnKey.length != 0) {
             if (!dataMap.containsKeys(searchColumnKey)) {
                 throw new NeoException("不包含key: " + Arrays.asList(searchColumnKey));
             }
         }
         return tx(()->{
             Express express = new Express();
-            express.and(dataMap.assign(searchColumnKey));
+            if (searchColumnKey.length != 0) {
+                express.and(dataMap.assign(searchColumnKey));
+            } else {
+                express.and(dataMap);
+            }
+
             express.append(" for update");
             Integer count = count(tableName, express);
 

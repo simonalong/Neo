@@ -2,6 +2,7 @@ package com.simonalong.neo.sql;
 
 import com.simonalong.neo.*;
 import com.simonalong.neo.sql.builder.SelectSqlBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -15,46 +16,58 @@ public class SelectSqlBuilderTest extends NeoBaseTest {
 
     @Test
     public void testBuildOne() {
-        // select `group`, `user_name` from  where `id` =  ? and `name` =  ? limit 1
-        show(SelectSqlBuilder.buildOne(neo, "neo_table1", Columns.of("group", "user_name"), NeoMap.of("id", 31, "name", "kk")));
+        String sql = "select `group`, `user_name` from neo_table1 where `name` = ? and `id` = ? limit 1";
+        String result = SelectSqlBuilder.buildOne(neo, "neo_table1", Columns.of("group", "user_name"), NeoMap.of("id", 31, "name", "kk"));
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildList() {
-        // select `group`, `user_name` from  where `id` =  ? and `name` =  ?
-        show(SelectSqlBuilder.buildList(neo, "neo_table1", Columns.of("group", "user_name"), NeoMap.of("id", 31, "name", "kk")));
+        String sql = "select `group`, `user_name` from neo_table1 where `name` = ? and `id` = ?";
+        String result = SelectSqlBuilder.buildList(neo, "neo_table1", Columns.of("group", "user_name"), NeoMap.of("id", 31, "name", "kk"));
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildValue() {
-        // select `group` from neo_table1 where `id` =  ? and `name` =  ? limit 1
-        show(SelectSqlBuilder.buildValue("neo_table1", "group", NeoMap.of("id", 31, "name", "kk")));
+        String sql = "select `group` from neo_table1 where `name` = ? and `id` = ? limit 1";
+        String result = SelectSqlBuilder.buildValue("neo_table1", "group", NeoMap.of("id", 31, "name", "kk"));
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildValues() {
-        // select `group` from neo_table1 where `id` =  ? and `name` =  ?
-        show(SelectSqlBuilder.buildValues("neo_table1", "group", NeoMap.of("id", 31, "name", "kk")));
+        String sql = "select `group` from neo_table1 where `name` = ? and `id` = ?";
+        String result = SelectSqlBuilder.buildValues("neo_table1", "group", NeoMap.of("id", 31, "name", "kk"));
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildPage() {
-        // select `group` from  where `id` =  ? and `name` =  ? limit 3, 20
-        show(SelectSqlBuilder.buildPage(neo, "neo_table1", Columns.of("group"), NeoMap.of("id", 31, "name", "kk"), 3, 20));
+        String sql = "select `group` from neo_table1 where `name` = ? and `id` = ? limit 20 offset 3";
+        String result = SelectSqlBuilder.buildPage(neo, "neo_table1", Columns.of("group"), NeoMap.of("id", 31, "name", "kk"), 3, 20);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildCount() {
-        // select count(1) from neo_table1 where `id` =  ? and `name` =  ? limit 1
-        show(SelectSqlBuilder.buildCount("neo_table1", NeoMap.of("id", 31, "name", "kk")));
+        String sql = "select count(1) from neo_table1 where `name` = ? and `id` = ?";
+        String result = SelectSqlBuilder.buildCount("neo_table1", NeoMap.of("id", 31, "name", "kk"));
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void testBuildColumns() {
-        // `group`, `name`
-        show(SelectSqlBuilder.buildColumns(neo, "neo_table1", Columns.of("group", "name")));
+        String sql = "`group`, `name`";
+        String result = SelectSqlBuilder.buildColumns(neo, "neo_table1", Columns.of("group", "name"));
+
+        Assert.assertEquals(sql, result);
     }
-
-
 }
 

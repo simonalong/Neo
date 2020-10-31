@@ -1,12 +1,9 @@
 package com.simonalong.neo.postgresql;
 
-import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBase4PgTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 /**
  * @author shizi
@@ -19,36 +16,36 @@ public class NeoTest4Pg extends NeoBase4PgTest {
     /**
      * 建表
      */
-    @Test
+    // @Test
     public void testCreateTable() {
         String sql = "create table if not exists %s (char char not null)";
         neo.execute(sql, innerTableName);
     }
 
-    @Test
+    // @Test
     public void testDropTable() {
         String sql = "drop table %s";
         neo.execute(sql, innerTableName);
     }
 
-    @Test
+    // @Test
     public void testInsertData1() {
         show(neo.insert(innerTableName, NeoMap.of("char", "t")));
     }
 
-    @Test
+    // @Test
     public void testOne(){
         show(neo.insert(innerTableName, NeoMap.of("char", "t")));
         show(neo.one(innerTableName, NeoMap.of()));
     }
 
-    @Test
+    // @Test
     public void testList(){
         show(neo.insert(innerTableName, NeoMap.of("char", "2")));
         show(neo.list(innerTableName, NeoMap.of("char", "2")));
     }
 
-    @Test
+    // @Test
     public void testValue() {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";
@@ -58,7 +55,7 @@ public class NeoTest4Pg extends NeoBase4PgTest {
         show(neo.value(String.class, tableName, "char2", NeoMap.of("char2", "ab")));
     }
 
-    @Test
+    // @Test
     public void testValues() {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";
@@ -68,7 +65,7 @@ public class NeoTest4Pg extends NeoBase4PgTest {
         show(neo.values(String.class, tableName, "char2", NeoMap.of("char2", "ab")));
     }
 
-    @Test
+    // @Test
     public void testPage() {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";
@@ -77,7 +74,7 @@ public class NeoTest4Pg extends NeoBase4PgTest {
         show(neo.page(tableName, NeoPage.of(1, 2)));
     }
 
-    @Test
+    // @Test
     public void testCount() {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";
@@ -86,7 +83,7 @@ public class NeoTest4Pg extends NeoBase4PgTest {
         show(neo.count(tableName, NeoPage.of(1, 2)));
     }
 
-    @Test
+    // @Test
     public void testExit() {
         String tableName = "demo_char2";
         String sql = "create table if not exists %s (char char not null, char2 char(2) not null)";

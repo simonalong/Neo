@@ -5,7 +5,12 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author shizi
@@ -18,8 +23,10 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
 
     @Test
     public void buildColumnsTest1() {
-        // select `group`, `name`
-        show(JoinSqlBuilder.buildColumns(Columns.of("name", "group")));
+        String sql = "`group`, `name`";
+        String result = JoinSqlBuilder.buildColumns(Columns.of("name", "group"));
+
+        Assert.assertEquals(sql, result);
     }
 
     /**
@@ -31,8 +38,11 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         Columns columns = Columns.of().setNeo(neo);
         columns.table("table1", "name", "group");
         columns.table("table2", "id", "user_name");
-        // table2.`id` as table2_NDom_id, table1.`name` as table1_NDom_name, table2.`user_name` as table2_NDom_user_name, table1.`group` as table1_NDom_group
-        show(JoinSqlBuilder.buildColumns(columns));
+
+        String sql = "table2.`id` as table2_NDom_id, table1.`name` as table1_NDom_name, table2.`user_name` as table2_NDom_user_name, table1.`group` as table1_NDom_group";
+        String result = JoinSqlBuilder.buildColumns(columns);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
@@ -46,31 +56,34 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         joiner.leftJoin(table1, table3).on("c_id", "id");
         joiner.rightJoin(table2, table4).on("d_id", "id");
 
-        //  from table1 left join table2 on table1.`a_id`=table2.`id`
-        //              left join table3 on table1.`c_id`=table3.`id`
-        //              right join table4 on table2.`d_id`=table4.`id`
-        show(joiner.getJoinSql());
+        String sql = " table1 left join table2 on table1.`a_id`=table2.`id` left join table3 on table1.`c_id`=table3.`id` right join table4 on table2.`d_id`=table4.`id`";
+        String result = joiner.getJoinSql();
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
     public void buildConditionMetaTest1() {
         TableMap tableMap = new TableMap();
-        tableMap.put("table1", "ke1", "valeu");
+        tableMap.put("table1", "ke1", "value");
         tableMap.put("table2", "name", 12);
-        show(JoinSqlBuilder.buildConditionMeta(tableMap));
+        List<String> sqlList = JoinSqlBuilder.buildConditionMeta(tableMap);
+
+        Assert.assertEquals(Arrays.asList("table2.`name` = ?","table1.`ke1` = ?"), sqlList);
     }
 
     @Test
     public void buildConditionMetaTest2() {
         TableMap tableMap = new TableMap();
-        tableMap.put("table1", "ke1", "like value#");
-        tableMap.put("table2", "name", "> 12");
-        // [table1.`ke1` like 'value%', table2.`name` > ?]
-        show(JoinSqlBuilder.buildConditionMeta(tableMap));
+        tableMap.put("table1", "ke1", "value");
+        tableMap.put("table2", "name", "12");
+        List<String> sqlList = JoinSqlBuilder.buildConditionMeta(tableMap);
+
+        Assert.assertEquals(Collections.singletonList("table2.`name` = ?, table1.`ke1` = ?").toString(), sqlList.toString());
     }
 
     @Test
-    public void buildTest(){
+    public void buildTest() {
         String table1 = "neo_table1";
         String table2 = "neo_table2";
         String table3 = "neo_table3";
@@ -91,15 +104,10 @@ public class JoinSqlBuilderTest extends NeoBaseTest {
         TableMap searchMap = TableMap.of();
         searchMap.put(table1, "name", "group");
         searchMap.put(table2, "age", 12);
-        searchMap.put(table2, "order by", "name desc");
-        searchMap.put(table1, "order by", "group asc");
 
-        // select neo_table1.`name` as neo_table1_NDom_name, neo_table1.`id` as neo_table1_NDom_id, neo_table2.`id` as neo_table2_NDom_id
-        // from neo_table1  left join neo_table2 on neo_table1.`id`=neo_table2.`id`
-        //                  left join neo_table3 on neo_table2.`id`=neo_table3.`id`
-        //                  right join neo_table4 on neo_table2.`id`=neo_table4.`id`
-        // where  where neo_table1.`name` =  ? and neo_table2.`age` =  ?
-        // order by neo_table1.`group` asc, neo_table2.`name` desc
-        show(JoinSqlBuilder.build(columns, joinner, searchMap));
+        String sql = "select neo_table1.`name` as neo_table1_NDom_name, neo_table1.`id` as neo_table1_NDom_id, neo_table2.`id` as neo_table2_NDom_id from  neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`id` left join neo_table3 on neo_table2.`id`=neo_table3.`id` right join neo_table4 on neo_table2.`id`=neo_table4.`id` where neo_table1.`name` = ? and neo_table2.`age` = ?";
+        String result = JoinSqlBuilder.build(columns, joinner, searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 }

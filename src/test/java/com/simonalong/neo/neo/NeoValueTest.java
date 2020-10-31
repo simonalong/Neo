@@ -4,10 +4,10 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
 import lombok.SneakyThrows;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * value 这里要查询的属性的值，可以跟DB中的字段一致，也可以不一致
@@ -34,44 +34,16 @@ public class NeoValueTest extends NeoBaseTest {
     }
 
     /**
-     * 查询一行数据
-     * 采用直接执行sql方式
-     */
-    @Test
-    @SneakyThrows
-    public void testExeValue1(){
-        show(neo.exeValue("select `name` from neo_table1 where `group`=?", "nihao1"));
-    }
-
-    /**
-     * 查询一行数据
-     * 采用直接执行sql方式
-     */
-    @Test
-    @SneakyThrows
-    public void testExeValue2(){
-        show(neo.exeValue("select `age` from %s where `group`=?", TABLE_NAME, "nihao1"));
-    }
-
-    /**
-     * 查询一行数据
-     * 采用直接执行sql方式
-     */
-    @Test
-    @SneakyThrows
-    public void testExeValue3(){
-        show(neo.exeValue(Integer.class, "select `age` from %s where `group`=? order by name desc", TABLE_NAME, "nana"));
-    }
-
-    /**
      * 查询多行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `id` from neo_table1 where `group`='group2' limit 1
      */
     @Test
     @SneakyThrows
-    public void testValue1(){
-        show(neo.value(TABLE_NAME, "age", NeoMap.of("group", "ok", "user_name", "ee")));
+    public void testValue1() {
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_value", "name", "name_value"));
+
+        String name = neo.value(TABLE_NAME, "name", NeoMap.of("group", "group_value"));
+
+        Assert.assertEquals("name_value", name);
     }
 
     /**
@@ -82,31 +54,12 @@ public class NeoValueTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testValue2(){
-//        show(neo.value(TABLE_NAME, String.class, "group", NeoMap.of("group", "group2")));
-        show(neo.value(TABLE_NAME, Integer.class, "age", NeoMap.of("group", "group2")));
-    }
+    public void testValue2() {
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_value", "age", 12));
 
-    /**
-     * 查询多行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group` from neo_table1 where `group`='ok' order by 'group' limit 1
-     */
-    @Test
-    @SneakyThrows
-    public void testValue3(){
-        show(neo.value(TABLE_NAME, "age", NeoMap.of("group", "group2", "order by", "age desc")));
-    }
+        Integer age = neo.value(Integer.class, TABLE_NAME, "age", NeoMap.of("group", "group_value"));
 
-    /**
-     * 查询多行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group` from neo_table1 where `group`='ok' order by 'group' limit 1
-     */
-    @Test
-    @SneakyThrows
-    public void testValue4(){
-        show(neo.value(TABLE_NAME, Integer.class, "age", NeoMap.of("group", "group2", "order by", "age desc")));
+        Assert.assertEquals(12, (int) age);
     }
 
     /**
@@ -115,66 +68,13 @@ public class NeoValueTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testValue5(){
+    public void testValue3() {
+        neo.insert(TABLE_NAME, new DemoEntity().setGroup("group_value").setName("name_value"));
+
         DemoEntity search = new DemoEntity();
-        search.setGroup("group1");
-        show(neo.value(TABLE_NAME, "group", search));
-    }
+        search.setGroup("group_value");
+        String name = neo.value(TABLE_NAME, "name", search);
 
-    /**
-     * 查询多行数据
-     * 条件通过NeoMap设置
-     */
-    @Test
-    @SneakyThrows
-    public void testValue6(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.value(TABLE_NAME, String.class, "name", search));
-    }
-
-    /**
-     * 查询多行数据
-     * 条件通过NeoMap设置
-     */
-    @Test
-    @SneakyThrows
-    public void testValue7(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.value(TABLE_NAME, "name", search));
-    }
-
-    /**
-     * 查询多行数据
-     * 条件通过NeoMap设置
-     */
-    @Test
-    @SneakyThrows
-    public void testValue8(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group1");
-        show(neo.value(TABLE_NAME, String.class, "group", search));
-    }
-
-    /**
-     * 测试order by
-     */
-    @Test
-    public void testOrderBy1(){
-        // select `name` from neo_table1 where `group` =  ? order by `name` desc  limit 1
-        show(neo.value(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name desc")));
-    }
-
-    @Test
-    public void testOrderBy2(){
-        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
-        show(neo.value(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name desc, group asc")));
-    }
-
-    @Test
-    public void testOrderBy3(){
-        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
-        show(neo.value(TABLE_NAME, "name", NeoMap.of("group", "g", "order by", "name, group desc, id asc")));
+        Assert.assertEquals("name_value", name);
     }
 }
