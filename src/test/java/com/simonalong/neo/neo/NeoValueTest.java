@@ -3,7 +3,6 @@ package com.simonalong.neo.neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
 import lombok.SneakyThrows;
 import org.junit.AfterClass;
 import org.junit.Before;

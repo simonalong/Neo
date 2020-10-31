@@ -4,11 +4,8 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import com.simonalong.neo.express.BaseOperate;
 import com.simonalong.neo.express.Express;
-import com.simonalong.neo.sql.builder.SqlBuilder;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

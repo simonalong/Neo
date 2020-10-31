@@ -7,8 +7,6 @@ import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import org.junit.Test;
 
-import java.sql.SQLException;
-
 /**
  * @author shizi
  * @since 2020/3/22 下午9:16

@@ -3,8 +3,8 @@ package com.simonalong.neo.neo;
 import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.*;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
-import java.util.ArrayList;
+
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -16,11 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.simonalong.neo.util.LocalDateTimeUtil;
 import lombok.SneakyThrows;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * 测试，其中待测试的表结构请见文件 /db/test.sql
@@ -36,16 +34,19 @@ public class NeoTest extends NeoBaseTest {
     @BeforeClass
     public static void beforeClass() {
         neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
     }
 
     @Before
     public void beforeTest() {
         neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
     }
 
     @AfterClass
     public static void afterClass() {
         neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
     }
 
     /**
@@ -64,21 +65,13 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsert1(){
-        NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok"));
-        // {"name":"","id":22,"group":"ok"}
-        show(result);
-    }
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        neo.insert(TABLE_NAME, dataMap);
 
-    /**
-     * insert neoMap
-     * 多个列数据
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert2() {
-        NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("user_name", "zhou", "group", "ok"));
-        // {"user_name":"zhou","name":"","id":23,"group":"ok"}
-        show(result);
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+        resultMap.remove("id");
+
+        Assert.assertEquals(dataMap, resultMap);
     }
 
     /**
@@ -87,38 +80,19 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsert3(){
-        DemoEntity result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok", "name", "haode")).as(DemoEntity.class);
-        // DemoEntity(group=ok, name=haode, userName=null, id=26, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
-        show(result);
-    }
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_insert");
+        demoEntity.setName("name_insert");
 
-    /**
-     * insert entity
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert4(){
-        DemoEntity input = new DemoEntity();
-        input.setGroup("group1");
-        input.setName("name1");
-        input.setUserName("user_name1");
-        DemoEntity result = neo.insert(TABLE_NAME, input);
-        // DemoEntity(group=group1, name=name1, userName=user_name1, id=27, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
-        show(result);
-    }
+        neo.insert(TABLE_NAME, demoEntity);
 
-    /**
-     * 插入前后的实体变化
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert5(){
-        NeoMap data = NeoMap.of("group", "ok");
-        NeoMap result = neo.insert(TABLE_NAME, data);
-        // {"name":"","id":28,"group":"ok"}
-        show(result);
-        // {"group":"ok"}
-        show(data);
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group_insert");
+
+        DemoEntity result = neo.one(TABLE_NAME, search);
+        result.setId(null);
+
+        Assert.assertEquals(demoEntity, result);
     }
 
     /**
@@ -127,17 +101,18 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsert6() {
-        String tableName = "neo_table4";
         Long time = new Date().getTime();
-        Integer id = neo.value(tableName, Integer.class, "id", NeoMap.of("id", 111));
-        if (null != id) {
-            NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
-            NeoMap result = neo.insert(tableName, data);
-            show(result);
-            show(data);
-        } else {
-            show(neo.one(tableName, NeoMap.of("id", 111)));
-        }
+        NeoMap data = NeoMap.of("id", 1, "name", "name_insert_time", "time", time, "year", time, "date", time, "datetime", time);
+
+        neo.insert("neo_table4", data);
+
+        NeoMap resultMap = neo.one("neo_table4", NeoMap.of("name", "name_insert_time"));
+        LocalDateTime time1 = LocalDateTimeUtil.longToLocalDateTime(time);
+        Assert.assertEquals(LocalDateTimeUtil.localDateToLong(time1.toLocalDate()), resultMap.getString("time"));
+        Assert.assertEquals(time, resultMap.getLong("year"));
+        Assert.assertEquals(time, resultMap.getLong("date"));
+        Assert.assertEquals(time, resultMap.getLong("datetime"));
+        // todo
     }
 
     /**

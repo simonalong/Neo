@@ -4,8 +4,6 @@ import com.simonalong.neo.*;
 import com.simonalong.neo.sql.builder.SelectSqlBuilder;
 import org.junit.Test;
 
-import java.sql.SQLException;
-
 /**
  * @author shizi
  * @since 2020/3/22 下午8:35

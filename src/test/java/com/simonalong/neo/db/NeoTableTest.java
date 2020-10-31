@@ -3,7 +3,6 @@ package com.simonalong.neo.db;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -2,7 +2,6 @@ package com.simonalong.neo.sql;
 
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoBaseTest;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import com.simonalong.neo.sql.builder.SqlBuilder;

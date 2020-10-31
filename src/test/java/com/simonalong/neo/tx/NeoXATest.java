@@ -9,7 +9,6 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.xa.NeoXa;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;

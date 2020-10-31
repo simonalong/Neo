@@ -265,7 +265,7 @@ public final class NeoColumn {
                     innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
 
                     // sqlite 不支持属性
-                    if (!neo.getDbType().equals(DbType.PGSQL)) {
+                    if (!neo.getDbType().equals(DbType.SQLITE)) {
                         innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
                     }
                 }
