@@ -62,6 +62,12 @@ public class Neo extends AbstractExecutorDb {
     @Getter
     private Boolean monitorFlag = true;
     /**
+     * 日志打印开关
+     */
+    @Setter
+    @Getter
+    private Boolean logPrint = false;
+    /**
      * 规范校验开关
      */
     @Setter
@@ -1597,7 +1603,7 @@ public class Neo extends AbstractExecutorDb {
                         // sql规范化校验
                         standard.valid(sql);
                     }
-                    if (openMonitor()) {
+                    if (openMonitor() || openLogPrint()) {
                         // 添加对sql的监控
                         monitor.start(sql, parameters);
                     }
@@ -1611,6 +1617,10 @@ public class Neo extends AbstractExecutorDb {
                     if (openMonitor()) {
                         // 统计sql信息
                         monitor.calculate(result);
+                    }
+
+                    if(openLogPrint()) {
+                        monitor.printLog(result);
                     }
                     return result;
                 } catch (Throwable e) {
@@ -1690,6 +1700,10 @@ public class Neo extends AbstractExecutorDb {
         return !isTransaction() && monitorFlag;
     }
 
+    private Boolean openLogPrint() {
+        return logPrint;
+    }
+
     /**
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
@@ -1708,7 +1722,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成插入的sql和参数 key: insert xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap) {
-        valueMap = filterNonDbColumn(tableName, valueMap);
+        valueMap = filterColumn(tableName, valueMap);
         return new Pair<>(InsertSqlBuilder.build(tableName, valueMap), new ArrayList<>(valueMap.values()));
     }
 
@@ -1716,7 +1730,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成删除的sql和参数 key: delete xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), SqlBuilder.buildValueList(searchMap));
     }
 
@@ -1728,8 +1742,8 @@ public class Neo extends AbstractExecutorDb {
      * 生成插入的sql和参数 key: update xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
-        NeoMap searchMapTem = filterNonDbColumn(tableName, searchMap);
-        NeoMap updateMap = filterNonDbColumn(tableName, dataMap);
+        NeoMap searchMapTem = filterColumn(tableName, searchMap);
+        NeoMap updateMap = filterColumn(tableName, dataMap);
 
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));
@@ -1739,7 +1753,7 @@ public class Neo extends AbstractExecutorDb {
     }
 
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, Express searchExpress) {
-        NeoMap updateMap = filterNonDbColumn(tableName, dataMap);
+        NeoMap updateMap = filterColumn(tableName, dataMap);
 
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));
@@ -1752,7 +1766,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成查询一条数据的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateOneSqlPair(String tableName, Columns columns, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildOne(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
@@ -1771,7 +1785,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成查询列表的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateListSqlPair(String tableName, Columns columns, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildList(this, tableName, columns, searchMap), generateValueList(searchMap));
     }
 
@@ -1791,7 +1805,7 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generatePageSqlPair(String tableName, Columns columns, NeoMap searchMap,
         Integer startIndex, Integer pageSize) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildPage(this, tableName, columns, searchMap, startIndex, pageSize), generateValueList(searchMap));
     }
 
@@ -1803,7 +1817,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成查询总数的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildCount(tableName, searchMap), generateValueList(searchMap));
     }
 
@@ -1815,7 +1829,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成查询总数的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildValue(tableName, field, searchMap), generateValueList(searchMap));
     }
 
@@ -1830,7 +1844,7 @@ public class Neo extends AbstractExecutorDb {
      * 生成查询值列表的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, String field, NeoMap searchMap) {
-        searchMap = filterNonDbColumn(tableName, searchMap);
+        searchMap = filterColumn(tableName, searchMap);
         return new Pair<>(SelectSqlBuilder.buildValues(tableName, field, searchMap), generateValueList(searchMap));
     }
 
@@ -1921,7 +1935,7 @@ public class Neo extends AbstractExecutorDb {
      * @param dataMap 待处理的数据
      * @return 处理后的数据
      */
-    private NeoMap filterNonDbColumn(String tableName, NeoMap dataMap) {
+    private NeoMap filterColumn(String tableName, NeoMap dataMap) {
         // key为列名，value为：key为列的数据库类型名字，value为列对应的java中的类型
         Map<String, Pair<String, Class<?>>> columnMap = getColumnList(tableName).stream()
             .collect(Collectors.toMap(NeoColumn::getColumnName, r -> new Pair<>(r.getColumnTypeName(), r.getJavaClass())));

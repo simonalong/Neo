@@ -3,6 +3,21 @@ package com.simonalong.neo;
 import org.junit.BeforeClass;
 
 /**
+ * CREATE TABLE `neo_table1` (
+ *   `id` int unsigned NOT NULL AUTO_INCREMENT,
+ *   `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',
+ *   `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',
+ *   `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',
+ *   `age` int DEFAULT NULL,
+ *   `sl` bigint DEFAULT NULL,
+ *   `desc` mediumtext COLLATE utf8_unicode_ci COMMENT '描述',
+ *   `desc1` text COLLATE utf8_unicode_ci COMMENT '描述',
+ *   PRIMARY KEY (`id`),
+ *   KEY `group_index` (`group`),
+ *   KEY `k_group` (`group`),
+ *   FULLTEXT KEY `fk_desc` (`desc`)
+ * ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ *
  * @author zhouzhenyong
  * @since 2019/3/15 下午6:34
  */

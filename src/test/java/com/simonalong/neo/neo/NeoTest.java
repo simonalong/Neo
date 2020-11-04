@@ -308,7 +308,7 @@ public class NeoTest extends NeoBaseTest {
     }
 
     @Test
-    public void testtable4() {
+    public void testUpdate10() {
         String tableName = "config_center_profile";
         neo.truncateTable(tableName);
         neo.insert(tableName, NeoMap.of("name", "tt"));
@@ -317,6 +317,37 @@ public class NeoTest extends NeoBaseTest {
 
         NeoMap dataMap = searchMap.clone();
         dataMap.put("name", "tt_chg");
+        show("======================");
+        show(neo.update(tableName, dataMap, searchMap));
+        show("======================");
+    }
+
+    /**
+     * 带有时间的更新
+     * CREATE TABLE `config_center_profile` (
+     *   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+     *   `name` varchar(32) NOT NULL DEFAULT 'default' COMMENT '环境变量名字',
+     *   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     *   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+     *   PRIMARY KEY (`id`),
+     *   UNIQUE KEY `uk_name` (`name`)
+     * ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='环境变量表';
+     */
+    @Test
+    public void testUpdate11() {
+        String tableName = "neo_table_time";
+        neo.truncateTable(tableName);
+
+        String createTableSql = "CREATE TABLE if not exists `" + tableName + "` (\n" + "  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',\n" + "  `name` varchar(32) NOT NULL DEFAULT 'default' COMMENT '环境变量名字',\n" + "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" + "  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',\n" + "  PRIMARY KEY (`id`),\n" + "  UNIQUE KEY `uk_name` (`name`)\n" + ") ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='环境变量表'";
+        neo.execute(createTableSql);
+
+        neo.truncateTable(tableName);
+        neo.insert(tableName, NeoMap.of("name", "name_update_time"));
+
+        NeoMap searchMap = neo.one(tableName, NeoMap.of());
+
+        NeoMap dataMap = searchMap.clone();
+        dataMap.put("name", "name_update_time_chg");
         show("======================");
         show(neo.update(tableName, dataMap, searchMap));
         show("======================");

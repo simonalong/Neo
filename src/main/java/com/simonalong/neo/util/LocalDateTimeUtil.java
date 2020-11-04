@@ -326,6 +326,28 @@ public class LocalDateTimeUtil {
     }
 
     /**
+     * Long 转 java.sql.Date
+     */
+    public static java.sql.Date longToSqlDate(Long time) {
+        return new java.sql.Date(time);
+    }
+
+    /**
+     * Long 转 java.sql.Time
+     */
+    public static java.sql.Time longToTime(Long time) {
+        return new java.sql.Time(time);
+    }
+
+    /**
+     * Long 转 java.sql.Timestamp
+     */
+    public static Timestamp longToTimestamp(Long time) {
+        return new java.sql.Timestamp(time);
+    }
+
+
+    /**
      * Long 转 LocalDateTime
      */
     public static LocalDateTime longToLocalDateTime(Long time) {

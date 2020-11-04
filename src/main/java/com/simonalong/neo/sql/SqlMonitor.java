@@ -86,6 +86,16 @@ public final class SqlMonitor {
     }
 
     /**
+     * 直接打印sql
+     * @param response 待解析的结构
+     */
+    public void printLog(Object response) {
+        SqlCost start = sqlTime.get();
+        Long cost = System.currentTimeMillis() - start.getStartTime();
+        log.info(LOG_PRE + "[Neo-sql] " + start.buildCost(cost, response));
+    }
+
+    /**
      * 请将该函数放到finally中，用于释放ThreadLocal中的数据，防止线程复用时候的数据残留造成异常
      */
     public void close() {
