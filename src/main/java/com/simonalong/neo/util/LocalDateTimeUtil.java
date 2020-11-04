@@ -13,6 +13,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
+ * 时间格式的各种转换
+ *
+ * <p>
+ *     <ul>
+ *         1.LocalDateTime ----> LocalDate
+ *         2.LocalDateTime ----> Long
+ *         3.LocalDateTime ----> Date
+ *         4.LocalDateTime ----> String
+ *
+ *         1.LocalDate ----> LocalDateTime
+ *         2.LocalDate ----> Long
+ *         3.LocalDate ----> Date
+ *         4.LocalDate ----> String
+ *
+ *         1.Date ----> LocalDateTime
+ *         2.Date ----> LocalDate
+ *         3.Date ----> Long
+ *         4.Date ----> String
+ *
+ *         1.Timestamp ----> LocalDateTime
+ *         2.Timestamp ----> Long
+ *         3.Timestamp ----> String
+ *         4.Timestamp ----> LocalDate
+ *
+ *         1.String ----> LocalDateTime
+ *         2.String ----> LocalDate
+ *         3.String ----> Date
+ *         4.String ----> Timestamp
+ *         5.String ----> LocalTime
+ *         6.String ----> Time
+ *
+ *         1.Long ----> Date
+ *         2.Long ----> LocalDateTime
+ *         3.Long ----> LocalDate
+ *         4.Long ----> String
+ *     </ul>
  * @author shizi
  * @since 2020/9/9 8:58 下午
  */
@@ -283,17 +319,38 @@ public class LocalDateTimeUtil {
     }
 
     /**
+     * Long 转 Date
+     */
+    public static Date longToDate(Long time) {
+        return new Date(time);
+    }
+
+    /**
      * Long 转 LocalDateTime
      */
-    public static LocalDateTime longToLocalDateTime(Long timestamp) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+    public static LocalDateTime longToLocalDateTime(Long time) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
     }
 
     /**
      * Long 转 LocalDate
      */
-    public static LocalDate longToLocalDate(Long timestamp) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),ZoneId.systemDefault()).toLocalDate();
+    public static LocalDate longToLocalDate(Long time) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time),ZoneId.systemDefault()).toLocalDate();
+    }
+
+    /**
+     * Long 转 String
+     */
+    public static String longToString(Long time) {
+        return simpleDateFormat.get(yMdHms).format(new Date(time));
+    }
+
+    /**
+     * Long 转 String
+     */
+    public static String longToString(Long time, String formatKey) {
+        return simpleDateFormat.get(formatKey).format(new Date(time));
     }
 
     private static String getTimeFormat(String strDateTime) {

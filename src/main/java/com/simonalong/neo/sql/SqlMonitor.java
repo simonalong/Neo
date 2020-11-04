@@ -1,9 +1,9 @@
 package com.simonalong.neo.sql;
 
 import com.alibaba.fastjson.JSON;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.TimeRangeStrUtil;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -127,14 +127,14 @@ public final class SqlMonitor {
         }
 
         String buildCost(Long costTime, Object object) {
-            NeoMap dataMap = NeoMap.of();
+            LinkedHashMap<String, Object> dataMap = new LinkedHashMap<>();
             StringBuilder resultStr = new StringBuilder("[耗时: " + TimeRangeStrUtil.parseTime(costTime) + "]");
             if (null != sql) {
-                dataMap.put("sql => ", getSql());
-                dataMap.put("params => ", getParamsList());
+                dataMap.put("sql ===> ", getSql());
+                dataMap.put("params ===> ", getParamsList());
             }
-            dataMap.put("result => ", object);
-            resultStr.append(dataMap.toFastJsonString());
+            dataMap.put("result ===> ", object);
+            resultStr.append(JSON.toJSONString(dataMap));
             return resultStr.toString();
         }
     }

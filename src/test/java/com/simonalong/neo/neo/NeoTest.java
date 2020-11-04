@@ -273,6 +273,55 @@ public class NeoTest extends NeoBaseTest {
         Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
+    /**
+     * 测试返回值
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate8() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        dataMap = neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        NeoMap dataMapAfter = neo.update(TABLE_NAME, dataMap);
+
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg", "id", 1);
+
+        Assert.assertEquals(expectMap.toString(), dataMapAfter.toString());
+    }
+
+    /**
+     * 测试返回值
+     */
+    @Test
+    @SneakyThrows
+    public void testUpdate9() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        demoEntity = neo.insert(TABLE_NAME, demoEntity);
+
+        demoEntity.setName("name_update_chg");
+        DemoEntity demoEntity1 = neo.update(TABLE_NAME, demoEntity);
+
+        Assert.assertEquals(demoEntity1, demoEntity.setId(1L).setName("name_update_chg"));
+    }
+
+    @Test
+    public void testtable4() {
+        String tableName = "config_center_profile";
+        neo.truncateTable(tableName);
+        neo.insert(tableName, NeoMap.of("name", "tt"));
+
+        NeoMap searchMap = neo.one(tableName, NeoMap.of());
+
+        NeoMap dataMap = searchMap.clone();
+        dataMap.put("name", "tt_chg");
+        show("======================");
+        show(neo.update(tableName, dataMap, searchMap));
+        show("======================");
+    }
+
     /****************************** 直接执行 ******************************/
     @Test
     public void testExecute1() {
@@ -448,7 +497,7 @@ public class NeoTest extends NeoBaseTest {
     }
 
     /****************************** 表的创建语句 ******************************/
-    @Test
+    //@Test
     public void getTableCreateTest(){
 //        mysql version: 5.6
 //        CREATE TABLE `xx_test5` (
@@ -499,7 +548,7 @@ public class NeoTest extends NeoBaseTest {
 //          `year2` year(4) NOT NULL,
 //                PRIMARY KEY (`id`)
 //        ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项';
-        show(neo.getTableCreate("xx_test5"));
+//        show(neo.getTableCreate("xx_test5"));
     }
 
     @Test

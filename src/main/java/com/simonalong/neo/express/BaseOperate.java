@@ -675,7 +675,24 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty((String)getValue());
+                if (CharSequenceUtil.isEmpty((String) getValue())) {
+                    return false;
+                }
+
+                String value = (String) getValue();
+                if (value.startsWith("%")) {
+                    value = value.substring(1);
+                }
+
+                if (value.endsWith("%")) {
+                    value = value.substring(0, value.length() - 1);
+                }
+
+                if ("null".equals(value)) {
+                    return false;
+                }
+
+                return CharSequenceUtil.isNotEmpty(value);
             }
 
             @Override
@@ -702,7 +719,24 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty((String)getValue());
+                if (CharSequenceUtil.isEmpty((String) getValue())) {
+                    return false;
+                }
+
+                String value = (String) getValue();
+                if (value.startsWith("%")) {
+                    value = value.substring(1);
+                }
+
+                if (value.endsWith("%")) {
+                    value = value.substring(0, value.length() - 1);
+                }
+
+                if ("null".equals(value)) {
+                    return false;
+                }
+
+                return CharSequenceUtil.isNotEmpty(value);
             }
 
             @Override

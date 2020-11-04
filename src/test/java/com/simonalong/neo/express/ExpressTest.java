@@ -299,6 +299,21 @@ public class ExpressTest extends NeoBaseTest {
         express= new Express().and(NotLike("name", "%chou"), "age", 3);
         Assert.assertEquals(sql, express.toSql());
         Assert.assertEquals(Collections.singletonList(3), express.toValue());
+
+        sql = " where (`age` = ?)";
+        express = new Express().and(Like("name", "%"), "age", 3);
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(3), express.toValue());
+
+        sql = " where (`age` = ?)";
+        express = new Express().and(Like("name", "null%"), "age", 3);
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(3), express.toValue());
+
+        sql = " where (`age` = ?)";
+        express = new Express().and(Like("name", null), "age", 3);
+        Assert.assertEquals(sql, express.toSql());
+        Assert.assertEquals(Collections.singletonList(3), express.toValue());
     }
 
     /**

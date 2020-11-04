@@ -389,7 +389,14 @@ public class Neo extends AbstractExecutorDb {
             execute(false, () -> generateUpdateSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
             Boolean oldStandard = getStandardFlag();
             closeStandard();
-            NeoMap result = oneWithXMode(tableName, NeoMap.of().append(searchMapTem).append(dataMapTem));
+
+            NeoMap valueSearchMap = NeoMap.of();
+            if (searchMap.containsKey(db.getPrimaryName(tableName))) {
+                valueSearchMap = searchMap.assign(db.getPrimaryName(tableName));
+            } else {
+                valueSearchMap.append(searchMapTem).append(dataMapTem);
+            }
+            NeoMap result = one(tableName, valueSearchMap);
             setStandardFlag(oldStandard);
             return result;
         });
