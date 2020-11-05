@@ -23,7 +23,7 @@ public class BizServiceTest extends AbstractBizService {
 
     @Override
     public Neo getDb() {
-        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true";
         String user = "neo_test";
         String password = "neo@Test123";
         return Neo.connect(url, user, password);
