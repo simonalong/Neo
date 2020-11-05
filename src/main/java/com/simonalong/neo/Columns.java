@@ -110,8 +110,13 @@ public final class Columns {
             } else if(null == tableName){
                 throw new ColumnParseException("列中含有符号'*'，表名不能为空");
             } else {
-                fieldList.remove(ALL_COLUMN_NAME);
-                fieldList.addAll(neo.getColumnNameList(AliasParser.getOrigin(tableName)));
+                Set<String> columnNameSet = neo.getColumnNameList(AliasParser.getOrigin(tableName));
+                if(!columnNameSet.isEmpty()) {
+                    fieldList.addAll(columnNameSet);
+                    fieldList.remove(ALL_COLUMN_NAME);
+                } else {
+                    return this;
+                }
             }
         }
         this.tableFieldsMap.compute(tableName, (k, v) -> {
@@ -182,7 +187,7 @@ public final class Columns {
     }
 
     public boolean isEmpty() {
-        return tableFieldsMap.isEmpty();
+        return tableFieldsMap.isEmpty() || tableFieldsMap.values().stream().mapToLong(Collection::size).sum() == 0;
     }
 
     public Stream<String> stream(String tableName) {
@@ -217,6 +222,9 @@ public final class Columns {
      * @return 列的拼接
      */
     public String toSelectString() {
+        if(tableFieldsMap.isEmpty()) {
+            return "*";
+        }
         return String.join(", ", tableFieldsMap.values().stream().flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
     }
 

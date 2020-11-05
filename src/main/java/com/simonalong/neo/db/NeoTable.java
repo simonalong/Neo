@@ -39,13 +39,13 @@ public class NeoTable extends AbstractBaseTable {
     /**
      * 索引
      */
-    private TableIndex index = new TableIndex();
+    private final TableIndex index = new TableIndex();
     /**
      * 列信息
      */
     @Getter
     @Setter
-    private Set<NeoColumn> columnList = new HashSet<>();
+    private Set<NeoColumn> columnSet = new HashSet<>();
     @Getter
     private Table tableMata;
 
@@ -55,10 +55,10 @@ public class NeoTable extends AbstractBaseTable {
         this.tableName = tableMata.getTableName();
     }
 
-    public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnList){
+    public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnSet){
         this.neo = neo;
         this.tableName = tableName;
-        this.columnList = columnList;
+        this.columnSet = columnSet;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class NeoTable extends AbstractBaseTable {
      * @return 主键且自增的列的名字
      */
     public String getPrimaryKeyAutoIncName() {
-        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
+        return columnSet.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
             .orElse(null);
     }
 
@@ -117,7 +117,7 @@ public class NeoTable extends AbstractBaseTable {
      * @return 主键且自增的列的名字
      */
     public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType() {
-        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(e-> new Pair<>(e.getColumnName(), e.getJavaClass())).findFirst().orElse(new Pair<>(null, null));
+        return columnSet.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(e-> new Pair<>(e.getColumnName(), e.getJavaClass())).findFirst().orElse(new Pair<>(null, null));
     }
 
     /**
@@ -126,7 +126,7 @@ public class NeoTable extends AbstractBaseTable {
      * @return 主键的列名
      */
     public String getPrimary() {
-        return columnList.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()
+        return columnSet.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()
             .orElse(null);
     }
 
@@ -138,7 +138,7 @@ public class NeoTable extends AbstractBaseTable {
     }
 
     void setPrimary(String columnName) {
-        for (NeoColumn column : columnList) {
+        for (NeoColumn column : columnSet) {
             if(column.getColumnName().equals(columnName)){
                 column.setIsPrimaryKey(true);
             }

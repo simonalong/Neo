@@ -1110,6 +1110,7 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        checkDb(tableName);
         NeoMap searchMapTem = searchMap.clone();
         List<TableMap> result = execute(true,
             () -> generatePageSqlPair(tableName, columns, searchMapTem, page.getStartIndex(), page.getPageSize()),
@@ -1120,6 +1121,7 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
+        checkDb(tableName);
         List<TableMap> result = execute(true,
             () -> generatePageSqlPair(tableName, columns, searchExpress, page.getStartIndex(), page.getPageSize()),
             this::executeList);

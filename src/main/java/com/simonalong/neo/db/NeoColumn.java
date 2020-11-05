@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import com.mysql.cj.MysqlType;
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.exception.NeoException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -65,23 +67,24 @@ public final class NeoColumn {
 
     private NeoColumn(){}
 
-    static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
+    static NeoColumn from(NeoInnerColumn innerColumn) {
+        NeoColumn neoColumn = new NeoColumn();
+        neoColumn.setColumnName(innerColumn.getColumnName());
+        neoColumn.setColumnLabel(innerColumn.columnName);
+        neoColumn.innerColumn = innerColumn;
+        neoColumn.size = innerColumn.getColumnSize();
+        neoColumn.columnJDBCType = innerColumn.getColumnJDBCType();
+        neoColumn.columnTypeName = innerColumn.getColumnName();
+        neoColumn.isAutoIncrement = "YES".equals(innerColumn.getIsAutoIncrement());
         try {
-            return new NeoColumn()
-                .setColumnName(metaData.getColumnName(index))
-                .setColumnLabel(metaData.getColumnLabel(index))
-                .setSize(metaData.getColumnDisplaySize(index))
-                .setJavaClass(Class.forName(metaData.getColumnClassName(index)))
-                .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(index)))
-                .setColumnTypeName(metaData.getColumnTypeName(index))
-                .setIsAutoIncrement(metaData.isAutoIncrement(index));
-        } catch (SQLException | ClassNotFoundException e) {
-            log.error(LOG_PRE + "parse column error", e);
+            neoColumn.javaClass = Class.forName(MysqlType.getByJdbcType(innerColumn.getDataType()).getClassName());
+        } catch (ClassNotFoundException e) {
+            throw new NeoException(e);
         }
-        return new NeoColumn();
+        return neoColumn;
     }
 
-    Boolean isPrimaryAndAutoInc(){
+    Boolean isPrimaryAndAutoInc() {
         return isAutoIncrement && isPrimaryKey;
     }
 

@@ -39,11 +39,11 @@ public final class NeoDb {
     /**
      * catalog 名字，目录，注意：在某些数据库中，这个就是库名，这个跟NeoDb对象是一对一的
      */
-    private String catalogName;
+    private final String catalogName;
     /**
      * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：default
      */
-    private Map<String, Map<String, NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
+    private final Map<String, Map<String, NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
 
     private NeoDb(Neo neo, String rdbmsName, String catalogName) {
         this.neo = neo;
@@ -143,19 +143,19 @@ public final class NeoDb {
         });
     }
 
-    public void addColumn(String schema, String tableName, Set<NeoColumn> columnList){
+    public void addColumn(String schema, String tableName, Set<NeoColumn> columnSet){
         schema = base(schema);
         schemaToTableMap.computeIfPresent(schema, (k, v) -> {
             NeoTable table = v.get(tableName);
             if(null != table) {
-                table.setColumnList(columnList);
+                table.setColumnSet(columnSet);
             }
             return v;
         });
     }
 
-    public void addColumn(String tableName, Set<NeoColumn> columnList){
-        addColumn(null, tableName, columnList);
+    public void addColumn(String tableName, Set<NeoColumn> columnSet){
+        addColumn(null, tableName, columnSet);
     }
 
     public void setPrimaryKey(String schema, String tableName, String columnName){
@@ -217,7 +217,7 @@ public final class NeoDb {
         if (null == neoTable) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(neoTable.getColumnList());
+        return new ArrayList<>(neoTable.getColumnSet());
     }
 
     public List<Index> getIndexList(String tableName){
@@ -306,26 +306,19 @@ public final class NeoDb {
      * 初始化表中的列信息
      * @param tableName 表名
      */
-    @SuppressWarnings("all")
-    private void initColumnMeta(String tableName){
+    private void initColumnMeta(String tableName) {
         try (Connection con = neo.getConnection()) {
-            Map<String, NeoInnerColumn> columnMap = generateColumnMetaMap(con, tableName);
-            String sql = "select * from " + tableName + " limit 1";
-
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-                ResultSet rs = statement.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                Set<NeoColumn> columnList = new LinkedHashSet<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    NeoColumn column = NeoColumn.parse(metaData, i);
-                    column.setInnerColumn(columnMap.get(column.getColumnName()));
-                    columnList.add(column);
+            try {
+                Set<NeoColumn> columnSet = new HashSet<>();
+                // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
+                ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, tableName, null);
+                while (rs.next()) {
+                    columnSet.add(NeoColumn.from(NeoInnerColumn.parse(neo, rs)));
                 }
-                addColumn(tableName, columnList);
+
+                addColumn(tableName, columnSet);
             } catch (SQLException e) {
-                log.error(LOG_PRE + "initColumnMeta error", e);
+                log.error(LOG_PRE + "generateColumnMetaMap error", e);
             }
         } catch (SQLException e) {
             log.error(LOG_PRE + "initColumnMeta error", e);
