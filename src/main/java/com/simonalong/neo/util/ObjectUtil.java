@@ -83,7 +83,7 @@ public class ObjectUtil {
             return Byte.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toByte error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -99,7 +99,7 @@ public class ObjectUtil {
             return Short.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toShort error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -115,7 +115,7 @@ public class ObjectUtil {
             return Integer.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toInt error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -147,7 +147,7 @@ public class ObjectUtil {
             return Long.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toLong error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -163,7 +163,7 @@ public class ObjectUtil {
             return Double.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toDouble error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -179,7 +179,7 @@ public class ObjectUtil {
             return Float.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
             log.error(LOG_PRE + "toFloat error", e);
-            return null;
+            throw e;
         }
     }
 
@@ -398,7 +398,6 @@ public class ObjectUtil {
                 return TimeDateConverter.stringToEntityTime(tClass, (String) value);
             }
         }
-
 
         // 目标类是NeoMap
         if (NeoMap.class.isAssignableFrom(tClass)) {
