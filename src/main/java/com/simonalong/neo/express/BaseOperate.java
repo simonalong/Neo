@@ -679,13 +679,13 @@ public abstract class BaseOperate implements Operate {
                     return false;
                 }
 
-                String value = (String) getValue();
+                String value = ((String) getValue()).trim();
                 if (value.startsWith("%")) {
-                    value = value.substring(1);
+                    value = value.substring(1).trim();
                 }
 
                 if (value.endsWith("%")) {
-                    value = value.substring(0, value.length() - 1);
+                    value = value.substring(0, value.length() - 1).trim();
                 }
 
                 if ("null".equals(value)) {
@@ -723,13 +723,13 @@ public abstract class BaseOperate implements Operate {
                     return false;
                 }
 
-                String value = (String) getValue();
+                String value = ((String) getValue()).trim();
                 if (value.startsWith("%")) {
-                    value = value.substring(1);
+                    value = value.substring(1).trim();
                 }
 
                 if (value.endsWith("%")) {
-                    value = value.substring(0, value.length() - 1);
+                    value = value.substring(0, value.length() - 1).trim();
                 }
 
                 if ("null".equals(value)) {
