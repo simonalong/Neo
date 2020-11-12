@@ -1,6 +1,7 @@
 package com.simonalong.neo;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author shizi
@@ -11,7 +12,7 @@ public final class Pair<K,V> implements Serializable {
     /**
      * Key of this <code>Pair</code>.
      */
-    private K key;
+    private final K key;
 
     /**
      * Gets the key for this pair.
@@ -22,7 +23,7 @@ public final class Pair<K,V> implements Serializable {
     /**
      * Value of this this <code>Pair</code>.
      */
-    private V value;
+    private final V value;
 
     /**
      * Gets the value for this pair.
@@ -87,6 +88,7 @@ public final class Pair<K,V> implements Serializable {
      * @return <code>true</code> if the given <code>Object</code> is
      * equal to this <code>Pair</code> else <code>false</code>
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -94,10 +96,10 @@ public final class Pair<K,V> implements Serializable {
         }
         if (o instanceof Pair) {
             Pair pair = (Pair) o;
-            if (key != null ? !key.equals(pair.key) : pair.key != null) {
+            if (!Objects.equals(key, pair.key)) {
                 return false;
             }
-            return value != null ? value.equals(pair.value) : pair.value == null;
+            return Objects.equals(value, pair.value);
         }
         return false;
     }
