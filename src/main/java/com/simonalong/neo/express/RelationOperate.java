@@ -3,6 +3,7 @@ package com.simonalong.neo.express;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 关系运算符
@@ -16,7 +17,8 @@ public abstract class RelationOperate extends BaseOperate {
     @Getter
     private final String key;
     @Getter
-    private final Object value;
+    @Setter
+    private Object value;
 
     public RelationOperate(String key, Object value) {
         this.key = key;

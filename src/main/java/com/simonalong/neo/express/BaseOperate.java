@@ -675,24 +675,35 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                if (CharSequenceUtil.isEmpty((String) getValue())) {
-                    return false;
-                }
-
+                boolean leftFix = false;
+                boolean rightFix = false;
                 String value = ((String) getValue()).trim();
                 if (value.startsWith("%")) {
                     value = value.substring(1).trim();
+                    leftFix = true;
                 }
 
                 if (value.endsWith("%")) {
                     value = value.substring(0, value.length() - 1).trim();
+                    rightFix = true;
                 }
 
                 if ("null".equals(value)) {
                     return false;
                 }
 
-                return CharSequenceUtil.isNotEmpty(value);
+                if (CharSequenceUtil.isNotEmpty(value)) {
+                    if (leftFix) {
+                        value = "%" + value;
+                    }
+
+                    if (rightFix) {
+                        value = value + "%";
+                    }
+                    setValue(value);
+                    return true;
+                }
+                return false;
             }
 
             @Override
@@ -702,7 +713,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " like '" + value + "'";
+                return SqlBuilder.toDbField(super.getKey()) + " like '" + getValue() + "'";
             }
         };
     }
@@ -719,24 +730,35 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public Boolean valueLegal() {
-                if (CharSequenceUtil.isEmpty((String) getValue())) {
-                    return false;
-                }
-
+                boolean leftFix = false;
+                boolean rightFix = false;
                 String value = ((String) getValue()).trim();
                 if (value.startsWith("%")) {
                     value = value.substring(1).trim();
+                    leftFix = true;
                 }
 
                 if (value.endsWith("%")) {
                     value = value.substring(0, value.length() - 1).trim();
+                    rightFix = true;
                 }
 
                 if ("null".equals(value)) {
                     return false;
                 }
 
-                return CharSequenceUtil.isNotEmpty(value);
+                if (CharSequenceUtil.isNotEmpty(value)) {
+                    if (leftFix) {
+                        value = "%" + value;
+                    }
+
+                    if (rightFix) {
+                        value = value + "%";
+                    }
+                    setValue(value);
+                    return true;
+                }
+                return false;
             }
 
             @Override
@@ -746,7 +768,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " not like '" + value + "'";
+                return SqlBuilder.toDbField(super.getKey()) + " not like '" + getValue() + "'";
             }
         };
     }
