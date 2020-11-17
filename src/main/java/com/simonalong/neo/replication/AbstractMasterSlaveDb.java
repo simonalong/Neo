@@ -96,6 +96,16 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public NeoMap update(String tableName, NeoMap setMap, Number id) {
+        return doMasterCall(db -> db.update(tableName, setMap, id));
+    }
+
+    @Override
+    public <T> T update(String tableName, T setEntity, Number id) {
+        return doMasterCall(db -> db.update(tableName, setEntity, id));
+    }
+
+    @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
         return doMasterCall(db -> db.update(tableName, dataMap, columns));
     }

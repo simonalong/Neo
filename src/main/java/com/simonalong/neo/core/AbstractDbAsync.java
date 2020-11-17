@@ -72,6 +72,16 @@ public abstract class AbstractDbAsync implements CqrsAsync {
     }
 
     @Override
+    public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Number id) {
+        return updateAsync(tableName, dataMap, id, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Number id) {
+        return updateAsync(tableName, setEntity, id, getExecutor());
+    }
+
+    @Override
     public CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns) {
         return updateAsync(tableName, dataMap, columns, getExecutor());
     }

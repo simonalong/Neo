@@ -59,6 +59,14 @@ public interface CommandAsync extends Async {
 
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity, Executor executor);
 
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Number id, Executor executor);
+
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Number id);
+
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Number id, Executor executor);
+
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Number id);
+
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity);
 
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns, Executor executor);

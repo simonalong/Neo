@@ -58,6 +58,10 @@ public interface CommandSync extends Sync {
 
     NeoMap update(String tableName, NeoMap dataMap, Columns columns);
 
+    <T> T update(String tableName, T setEntity, Number id);
+
+    NeoMap update(String tableName, NeoMap setMap, Number id);
+
     <T> T update(String tableName, T entity, Columns columns);
 
     NeoMap update(String tableName, NeoMap dataMap);

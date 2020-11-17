@@ -497,6 +497,16 @@ public class Neo extends AbstractExecutorDb {
         return update(tableName, entity, NeoMap.from(entity, columns, NamingChg.UNDERLINE));
     }
 
+    @Override
+    public <T> T update(String tableName, T setEntity, Number id) {
+        return update(tableName, setEntity, NeoMap.of(db.getPrimaryName(tableName), id));
+    }
+
+    @Override
+    public NeoMap update(String tableName, NeoMap setMap, Number id) {
+        return update(tableName, setMap, NeoMap.of(db.getPrimaryName(tableName), id));
+    }
+
     /**
      * 直接实体对应数据传入更新，则需要包含主键对应的key才行
      *

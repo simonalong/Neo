@@ -353,6 +353,19 @@ public class NeoTest extends NeoBaseTest {
         show("======================");
     }
 
+    @Test
+    public void testUpdate12() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        NeoMap dataMapAfter = neo.update(TABLE_NAME, dataMap, 1);
+
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg", "id", 1);
+
+        Assert.assertEquals(expectMap.toString(), dataMapAfter.toString());
+    }
+
     /****************************** 直接执行 ******************************/
     @Test
     public void testExecute1() {

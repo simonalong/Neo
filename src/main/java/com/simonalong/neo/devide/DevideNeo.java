@@ -586,6 +586,28 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public NeoMap update(String tableName, NeoMap setMap, Number id) {
+        Neo neo = getDevideDb(tableName, id);
+        if (null != neo) {
+            return neo.update(getDevideTable(tableName, id), setMap, id);
+        } else {
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setMap, id)));
+            return NeoMap.of();
+        }
+    }
+
+    @Override
+    public <T> T update(String tableName, T setEntity, Number id) {
+        Neo neo = getDevideDb(tableName, id);
+        if (null != neo) {
+            return neo.update(getDevideTable(tableName, id), setEntity, id);
+        } else {
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setEntity, id)));
+            return null;
+        }
+    }
+
+    @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
         Neo neo = getDevideDb(tableName, dataMap.assign(columns));
         if (null != neo) {
