@@ -1023,11 +1023,13 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         nullValueKeySet.clear();
     }
 
+    @SuppressWarnings("all")
     @Override
     public Set<String> keySet() {
         return entrySet().stream().map(Entry::getKey).collect(Collectors.toSet());
     }
 
+    @SuppressWarnings("all")
     @Override
     public Collection<Object> values() {
         return entrySet().stream().map(Entry::getValue).collect(Collectors.toList());

@@ -14,15 +14,15 @@ public class NeoXid implements Xid {
     /**
      * 全局事务id
      */
-    private String gTxId;
+    private final String gTxId;
     /**
      * 分支
      */
-    private String branchQualifier;
+    private final String branchQualifier;
     /**
      * 在这里我们不使用这个字段
      */
-    private int formatId = 1;
+    private final int formatId = 1;
 
     public NeoXid() {
         gTxId = UUID.randomUUID().toString();

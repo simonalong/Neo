@@ -25,7 +25,7 @@ public class NeoXaProxy {
     /**
      * 目标代理对象
      */
-    private Neo target;
+    private final Neo target;
 
     public NeoXaProxy(Object object) {
         Neo db;

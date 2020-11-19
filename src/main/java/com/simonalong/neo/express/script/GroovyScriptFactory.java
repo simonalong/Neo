@@ -16,9 +16,9 @@ import java.util.Map;
  */
 class GroovyScriptFactory {
 
-    private static Map<String, Class<Script>> scriptCache = new HashMap<>();
-    private GroovyClassLoader classLoader = new GroovyClassLoader();
-    private static GroovyScriptFactory factory = new GroovyScriptFactory();
+    private static final Map<String, Class<Script>> scriptCache = new HashMap<>();
+    private final GroovyClassLoader classLoader = new GroovyClassLoader();
+    private static final GroovyScriptFactory factory = new GroovyScriptFactory();
 
     /**
      * 设置为单例模式
