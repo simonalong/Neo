@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 import static com.simonalong.neo.uid.UuidConstant.*;
 
 /**
@@ -118,7 +118,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info(LOG_PRE + "neo process ready to quit, clean up the db resources applied for this startup");
+            log.info(LOG_PRE_NEO + "neo process ready to quit, clean up the db resources applied for this startup");
             neo.delete(NEO_UUID_TABLE, uuidGeneratorDO.getId());
             if (null != scheduler) {
                 scheduler.shutdown();
@@ -190,7 +190,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
                 if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
                     uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
-                    log.error(LOG_PRE + "namespace {} have full worker, init fail");
+                    log.error(LOG_PRE_NEO + "namespace {} have full worker, init fail");
                     return 0;
                 }
             }

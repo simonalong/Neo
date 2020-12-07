@@ -41,7 +41,7 @@ public class SelectSqlBuilderTest extends NeoBaseTest {
     @Test
     public void testBuildValues() {
         String sql = "select `group` from neo_table1 where `name` = ? and `id` = ?";
-        String result = SelectSqlBuilder.buildValues("neo_table1", "group", NeoMap.of("id", 31, "name", "kk"));
+        String result = SelectSqlBuilder.buildValues("neo_table1", false, "group", NeoMap.of("id", 31, "name", "kk"));
 
         Assert.assertEquals(sql, result);
     }

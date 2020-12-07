@@ -64,27 +64,36 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group` from neo_table1 where `id` =  ? and `name` =  ? limit 1
      */
     public String buildValue(String tableName, String field, NeoMap searchMap) {
-        return buildValues(tableName, field, searchMap) + limitOne();
+        return buildValues(tableName, false, field, searchMap) + limitOne();
     }
 
     public String buildValue(String tableName, String field, Express searchExpress) {
-        return buildValues(tableName, field, searchExpress) + limitOne();
+        return buildValues(tableName, false, field, searchExpress) + limitOne();
     }
 
     /**
      * 拼接 select values 单列多值
      *
      * @param tableName 表名
+     * @param distinct  是否唯一，true不重复，false有重复
      * @param field     某个列
      * @param searchMap 搜索条件
      * @return 拼接字段：select `group` from neo_table1 where `id` =  ? and `name` =  ?
      */
-    public String buildValues(String tableName, String field, NeoMap searchMap) {
-        return "select " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
+    public String buildValues(String tableName, Boolean distinct, String field, NeoMap searchMap) {
+        if (distinct) {
+            return "select distinct " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
+        } else {
+            return "select " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
+        }
     }
 
-    public String buildValues(String tableName, String field, Express searchExpress) {
-        return "select " + SqlBuilder.toDbField(field) + " from " + tableName + searchExpress.toSql();
+    public String buildValues(String tableName, Boolean distinct, String field, Express searchExpress) {
+        if (distinct) {
+            return "select distinct " + SqlBuilder.toDbField(field) + " from " + tableName + searchExpress.toSql();
+        } else {
+            return "select " + SqlBuilder.toDbField(field) + " from " + tableName + searchExpress.toSql();
+        }
     }
 
     /**

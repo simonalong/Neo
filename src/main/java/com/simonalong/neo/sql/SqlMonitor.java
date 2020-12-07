@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * sql的监控
@@ -22,7 +22,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public final class SqlMonitor {
 
-    private static final String PRE_LOG = LOG_PRE + "[Neo-monitor] ";
+    private static final String PRE_LOG = LOG_PRE_NEO + "[Neo-monitor] ";
     private static final Integer ONE_MILLION = 1;
     private static final Integer ONE_SECOND = 1000 * ONE_MILLION;
     private static final Integer THREE_SECOND = 3 * ONE_SECOND;
@@ -92,7 +92,7 @@ public final class SqlMonitor {
     public void printLog(Object response) {
         SqlCost start = sqlTime.get();
         Long cost = System.currentTimeMillis() - start.getStartTime();
-        log.info(LOG_PRE + "[Neo-sql] " + start.buildCost(cost, response));
+        log.info(LOG_PRE_NEO + "[Neo-sql] " + start.buildCost(cost, response));
     }
 
     /**

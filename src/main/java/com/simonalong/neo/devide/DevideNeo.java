@@ -476,12 +476,25 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public NeoMap insertOfUnExist(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        Neo neo = getDevideDb(tableName, dataMap);
+        return neo.insertOfUnExist(getDevideTable(tableName, dataMap), dataMap, searchColumnKey);
+    }
+
+    @Override
+    public <T> T insertOfUnExist(String tableName, T object, String... searchColumnKey) {
+        Neo neo = getDevideDb(tableName, object);
+        return neo.insertOfUnExist(getDevideTable(tableName, object), object, searchColumnKey);
+    }
+
+    @Override
     public Integer delete(String tableName, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.delete(getDevideTable(tableName, searchMap), searchMap);
+            return neo.delete(actTableName, searchMap);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.delete(getDevideTable(tableName, searchMap), searchMap)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.delete(actTableName, searchMap)));
             return getNeoList().size();
         }
     }
@@ -489,10 +502,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public Integer delete(String tableName, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.delete(getDevideTable(tableName, searchExpress), searchExpress);
+            return neo.delete(actTableName, searchExpress);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.delete(getDevideTable(tableName, searchExpress), searchExpress)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.delete(actTableName, searchExpress)));
             return getNeoList().size();
         }
     }
@@ -500,10 +514,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> Integer delete(String tableName, T object) {
         Neo neo = getDevideDb(tableName, object);
+        String actTableName = getDevideTable(tableName, object);
         if (null != neo) {
-            return neo.delete(getDevideTable(tableName, object), object);
+            return neo.delete(actTableName, object);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.delete(getDevideTable(tableName, object), object)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.delete(actTableName, object)));
             return getNeoList().size();
         }
     }
@@ -511,10 +526,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public Integer delete(String tableName, Number id) {
         Neo neo = getDevideDb(tableName, id);
+        String actTableName = getDevideTable(tableName, id);
         if (null != neo) {
-            return neo.delete(getDevideTable(tableName, id), id);
+            return neo.delete(actTableName, id);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.delete(getDevideTable(tableName, id), id)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.delete(actTableName, id)));
             return getNeoList().size();
         }
     }
@@ -522,10 +538,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchMap), dataMap, searchMap);
+            return neo.update(actTableName, dataMap, searchMap);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, dataMap, searchMap)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, dataMap, searchMap)));
             return NeoMap.of();
         }
     }
@@ -533,10 +550,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T setEntity, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchMap), setEntity, searchMap);
+            return neo.update(actTableName, setEntity, searchMap);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setEntity, searchMap)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setEntity, searchMap)));
             return null;
         }
     }
@@ -544,10 +562,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchExpress), dataMap, searchExpress);
+            return neo.update(actTableName, dataMap, searchExpress);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, dataMap, searchExpress)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, dataMap, searchExpress)));
             return NeoMap.of();
         }
     }
@@ -555,10 +574,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T setEntity, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchExpress), setEntity, searchExpress);
+            return neo.update(actTableName, setEntity, searchExpress);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setEntity, searchExpress)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setEntity, searchExpress)));
             return null;
         }
     }
@@ -566,10 +586,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T setEntity, T searchEntity) {
         Neo neo = getDevideDb(tableName, searchEntity);
+        String actTableName = getDevideTable(tableName, searchEntity);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchEntity), setEntity, searchEntity);
+            return neo.update(actTableName, setEntity, searchEntity);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setEntity, searchEntity)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setEntity, searchEntity)));
             return null;
         }
     }
@@ -577,10 +598,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> NeoMap update(String tableName, NeoMap setMap, T searchEntity) {
         Neo neo = getDevideDb(tableName, searchEntity);
+        String actTableName = getDevideTable(tableName, searchEntity);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, searchEntity), setMap, searchEntity);
+            return neo.update(actTableName, setMap, searchEntity);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setMap, searchEntity)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setMap, searchEntity)));
             return NeoMap.of();
         }
     }
@@ -588,10 +610,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap setMap, Number id) {
         Neo neo = getDevideDb(tableName, id);
+        String actTableName = getDevideTable(tableName, id);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, id), setMap, id);
+            return neo.update(actTableName, setMap, id);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setMap, id)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setMap, id)));
             return NeoMap.of();
         }
     }
@@ -599,10 +622,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T setEntity, Number id) {
         Neo neo = getDevideDb(tableName, id);
+        String actTableName = getDevideTable(tableName, id);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, id), setEntity, id);
+            return neo.update(actTableName, setEntity, id);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, setEntity, id)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, setEntity, id)));
             return null;
         }
     }
@@ -610,10 +634,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, Columns columns) {
         Neo neo = getDevideDb(tableName, dataMap.assign(columns));
+        String actTableName = getDevideTable(tableName, dataMap.assign(columns));
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, dataMap.assign(columns)), dataMap, columns);
+            return neo.update(actTableName, dataMap, columns);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, dataMap, columns)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, dataMap, columns)));
             return NeoMap.of();
         }
     }
@@ -621,10 +646,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T entity, Columns columns) {
         Neo neo = getDevideDb(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE));
+        String actTableName = getDevideTable(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE));
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, NeoMap.from(entity, columns, NeoMap.NamingChg.UNDERLINE)), entity, columns);
+            return neo.update(actTableName, entity, columns);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, entity, columns)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, entity, columns)));
             return null;
         }
     }
@@ -632,10 +658,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap update(String tableName, NeoMap dataMap) {
         Neo neo = getDevideDb(tableName, dataMap);
+        String actTableName = getDevideTable(tableName, dataMap);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, dataMap), dataMap);
+            return neo.update(actTableName, dataMap);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, dataMap)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, dataMap)));
             return NeoMap.of();
         }
     }
@@ -643,10 +670,11 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T update(String tableName, T entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.update(getDevideTable(tableName, entity), entity);
+            return neo.update(actTableName, entity);
         } else {
-            neoXa.run(() -> getNeoList().forEach(n -> n.update(tableName, entity)));
+            neoXa.run(() -> getNeoList().forEach(n -> n.update(actTableName, entity)));
             return null;
         }
     }
@@ -654,12 +682,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, Columns columns, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, searchMap), columns, searchMap);
+            return neo.one(actTableName, columns, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                NeoMap data = db.one(getDevideTable(tableName, searchMap), columns, searchMap);
+                NeoMap data = db.one(actTableName, columns, searchMap);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -671,12 +700,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, Columns columns, Express searchExpress){
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, searchExpress), columns, searchExpress);
+            return neo.one(actTableName, columns, searchExpress);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                NeoMap data = db.one(getDevideTable(tableName, searchExpress), columns, searchExpress);
+                NeoMap data = db.one(actTableName, columns, searchExpress);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -688,12 +718,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T one(String tableName, Columns columns, T entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, entity), columns, entity);
+            return neo.one(actTableName, columns, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.one(getDevideTable(tableName, entity), columns, entity);
+                T data = db.one(actTableName, columns, entity);
                 if (null != data) {
                     return data;
                 }
@@ -705,12 +736,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, Columns columns, Number key) {
         Neo neo = getDevideDb(tableName, key);
+        String actTableName = getDevideTable(tableName, key);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, key), key);
+            return neo.one(actTableName, key);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo neoInner : neoList) {
-                NeoMap data = neoInner.one(getDevideTable(tableName, key), columns, key);
+                NeoMap data = neoInner.one(actTableName, columns, key);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -722,12 +754,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, searchMap), searchMap);
+            return neo.one(actTableName, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                NeoMap data = db.one(getDevideTable(tableName, searchMap), searchMap);
+                NeoMap data = db.one(actTableName, searchMap);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -739,12 +772,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T one(String tableName, T entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, entity), entity);
+            return neo.one(actTableName, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.one(getDevideTable(tableName, entity), entity);
+                T data = db.one(actTableName, entity);
                 if (null != data) {
                     return data;
                 }
@@ -756,12 +790,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, Number key) {
         Neo neo = getDevideDb(tableName, key);
+        String actTableName = getDevideTable(tableName, key);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, key), key);
+            return neo.one(actTableName, key);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                NeoMap data = db.one(getDevideTable(tableName, key), key);
+                NeoMap data = db.one(actTableName, key);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -773,12 +808,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public NeoMap one(String tableName, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.one(getDevideTable(tableName, searchExpress), searchExpress);
+            return neo.one(actTableName, searchExpress);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                NeoMap data = db.one(getDevideTable(tableName, searchExpress), searchExpress);
+                NeoMap data = db.one(actTableName, searchExpress);
                 if (NeoMap.isUnEmpty(data)) {
                     return data;
                 }
@@ -790,60 +826,66 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public List<NeoMap> list(String tableName, Columns columns, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, searchMap), columns, searchMap);
+            return neo.list(actTableName, columns, searchMap);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, searchMap), columns, searchMap).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, columns, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, searchExpress), columns, searchExpress);
+            return neo.list(actTableName, columns, searchExpress);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, searchExpress), columns, searchExpress).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, columns, searchExpress).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public <T> List<T> list(String tableName, Columns columns, T entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, entity), columns, entity);
+            return neo.list(actTableName, columns, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, entity), columns, entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, columns, entity).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<NeoMap> list(String tableName, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, searchMap), searchMap);
+            return neo.list(actTableName, searchMap);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, searchMap), searchMap).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public <T> List<T> list(String tableName, T entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, entity), entity);
+            return neo.list(actTableName, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, entity), entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, entity).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<NeoMap> list(String tableName, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.list(getDevideTable(tableName, searchExpress), searchExpress);
+            return neo.list(actTableName, searchExpress);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(getDevideTable(tableName, searchExpress), searchExpress).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.list(actTableName, searchExpress).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -857,12 +899,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, searchMap), tClass, field, searchMap);
+            return neo.value(actTableName, tClass, field, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.value(getDevideTable(tableName, searchMap), tClass, field, searchMap);
+                T data = db.value(actTableName, tClass, field, searchMap);
                 if (null != data) {
                     return data;
                 }
@@ -876,12 +919,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, entity), tClass, field, entity);
+            return neo.value(actTableName, tClass, field, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.value(getDevideTable(tableName, entity), tClass, field, entity);
+                T data = db.value(actTableName, tClass, field, entity);
                 if (null != data) {
                     return data;
                 }
@@ -894,12 +938,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.value(tClass, getDevideTable(tableName, searchMap), field, searchMap);
+            return neo.value(tClass, actTableName, field, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.value(tClass, getDevideTable(tableName, searchMap), field, searchMap);
+                T data = db.value(tClass, actTableName, field, searchMap);
                 if (null != data) {
                     return data;
                 }
@@ -911,12 +956,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.value(tClass, getDevideTable(tableName, searchExpress), field, searchExpress);
+            return neo.value(tClass, actTableName, field, searchExpress);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.value(tClass, getDevideTable(tableName, searchExpress), field, searchExpress);
+                T data = db.value(tClass, actTableName, field, searchExpress);
                 if (null != data) {
                     return data;
                 }
@@ -930,12 +976,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.value(tClass, getDevideTable(tableName, entity), field, entity);
+            return neo.value(tClass, actTableName, field, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                T data = db.value(tClass, getDevideTable(tableName, entity), field, entity);
+                T data = db.value(tClass, actTableName, field, entity);
                 if (null != data) {
                     return data;
                 }
@@ -948,12 +995,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public String value(String tableName, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, searchMap), field, searchMap);
+            return neo.value(actTableName, field, searchMap);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                String data = db.value(getDevideTable(tableName, searchMap), field, searchMap);
+                String data = db.value(actTableName, field, searchMap);
                 if (null != data) {
                     return data;
                 }
@@ -965,12 +1013,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public String value(String tableName, String field, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, searchExpress), field, searchExpress);
+            return neo.value(actTableName, field, searchExpress);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                String data = db.value(getDevideTable(tableName, searchExpress), field, searchExpress);
+                String data = db.value(actTableName, field, searchExpress);
                 if (null != data) {
                     return data;
                 }
@@ -983,12 +1032,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public String value(String tableName, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, entity), field, entity);
+            return neo.value(actTableName, field, entity);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                String data = db.value(getDevideTable(tableName, entity), field, entity);
+                String data = db.value(actTableName, field, entity);
                 if (null != data) {
                     return data;
                 }
@@ -1000,12 +1050,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public String value(String tableName, String field, Number id) {
         Neo neo = getDevideDb(tableName, id);
+        String actTableName = getDevideTable(tableName, id);
         if (null != neo) {
-            return neo.value(getDevideTable(tableName, id), field, id);
+            return neo.value(actTableName, field, id);
         } else {
             List<Neo> neoList = getNeoList();
             for (Neo db : neoList) {
-                String data = db.value(getDevideTable(tableName, id), field, id);
+                String data = db.value(actTableName, field, id);
                 if (null != data) {
                     return data;
                 }
@@ -1018,11 +1069,12 @@ public final class DevideNeo extends AbstractBaseDb {
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.values(tClass, getDevideTable(tableName, searchMap), field, searchMap);
+            return neo.values(tClass, actTableName, field, searchMap);
         } else {
             return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, searchMap), field, searchMap).stream()).collect(Collectors.toList()));
+                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -1030,72 +1082,79 @@ public final class DevideNeo extends AbstractBaseDb {
     @Deprecated
     public <T> List<T> values(String tableName, Class<T> tClass, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.values(tClass, getDevideTable(tableName, entity), field, entity);
+            return neo.values(tClass, actTableName, field, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, entity), field, entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, entity).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.values(tClass, getDevideTable(tableName, searchMap), field, searchMap);
+            return neo.values(tClass, actTableName, field, searchMap);
         } else {
             return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, searchMap), field, searchMap).stream()).collect(Collectors.toList()));
+                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.values(tClass, getDevideTable(tableName, searchExpress), field, searchExpress);
+            return neo.values(tClass, actTableName, field, searchExpress);
         } else {
             return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, searchExpress), field, searchExpress).stream()).collect(Collectors.toList()));
+                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.values(tClass, getDevideTable(tableName, entity), field, entity);
+            return neo.values(tClass, actTableName, field, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, getDevideTable(tableName, entity), field, entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, entity).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<String> values(String tableName, String field, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.values(getDevideTable(tableName, searchMap), field, searchMap);
+            return neo.values(actTableName, field, searchMap);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, searchMap), field, searchMap).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(actTableName, field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<String> values(String tableName, String field, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.values(getDevideTable(tableName, searchExpress), field, searchExpress);
+            return neo.values(actTableName, field, searchExpress);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, searchExpress), field, searchExpress).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
         }
     }
 
     @Override
     public List<String> values(String tableName, String field, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.values(getDevideTable(tableName, entity), field, entity);
+            return neo.values(actTableName, field, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(getDevideTable(tableName, entity), field, entity).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(actTableName, field, entity).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -1105,14 +1164,86 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
+        if (null != neo) {
+            return neo.valuesOfDistinct(tClass, actTableName, field, searchMap);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
+        if (null != neo) {
+            return neo.valuesOfDistinct(tClass, actTableName, field, searchExpress);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(tClass, actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Object entity) {
+        Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
+        if (null != neo) {
+            return neo.valuesOfDistinct(tClass, actTableName, field, entity);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(tClass, actTableName, field, entity).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, NeoMap searchMap) {
+        Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
+        if (null != neo) {
+            return neo.valuesOfDistinct(actTableName, field, searchMap);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(actTableName, field, searchMap).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+        Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
+        if (null != neo) {
+            return neo.valuesOfDistinct(actTableName, field, searchExpress);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Object entity) {
+        Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
+        if (null != neo) {
+            return neo.valuesOfDistinct(actTableName, field, entity);
+        } else {
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.valuesOfDistinct(actTableName, field, entity).stream()).collect(Collectors.toList()));
+        }
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
+    @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, searchMap), columns, searchMap, page);
+            return neo.page(actTableName, columns, searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(getDevideTable(tableName, searchMap), columns, searchMap, aggregate).stream())
+                .flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream())
                 .collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
@@ -1123,12 +1254,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, searchExpress), columns, searchExpress, page);
+            return neo.page(actTableName, columns, searchExpress, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(getDevideTable(tableName, searchExpress), columns, searchExpress, aggregate).stream())
+                .flatMap(db -> db.page(actTableName, columns, searchExpress, aggregate).stream())
                 .collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
@@ -1139,11 +1271,12 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, entity), columns, entity, page);
+            return neo.page(actTableName, columns, entity, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(getDevideTable(tableName, entity), columns, entity, aggregate).stream()).collect(Collectors.toList());
+            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, entity, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1154,12 +1287,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, searchMap), searchMap, page);
+            return neo.page(actTableName, searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(getDevideTable(tableName, searchMap), searchMap, aggregate).stream())
+                .flatMap(db -> db.page(actTableName, searchMap, aggregate).stream())
                 .collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
@@ -1170,12 +1304,13 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, searchExpress), searchExpress, page);
+            return neo.page(actTableName, searchExpress, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
             List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(getDevideTable(tableName, searchExpress), searchExpress, aggregate).stream())
+                .flatMap(db -> db.page(actTableName, searchExpress, aggregate).stream())
                 .collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
@@ -1186,11 +1321,12 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.page(getDevideTable(tableName, entity), entity, page);
+            return neo.page(actTableName, entity, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(getDevideTable(tableName, entity), entity, aggregate).stream()).collect(Collectors.toList());
+            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, entity, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1210,30 +1346,33 @@ public final class DevideNeo extends AbstractBaseDb {
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
         Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
         if (null != neo) {
-            return neo.count(getDevideTable(tableName, searchMap), searchMap);
+            return neo.count(actTableName, searchMap);
         } else {
-            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(tableName, searchMap)).reduce(Integer::sum).orElse(0));
+            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(actTableName, searchMap)).reduce(Integer::sum).orElse(0));
         }
     }
 
     @Override
     public Integer count(String tableName, Express searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
-            return neo.count(getDevideTable(tableName, searchExpress), searchExpress);
+            return neo.count(actTableName, searchExpress);
         } else {
-            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(tableName, searchExpress)).reduce(Integer::sum).orElse(0));
+            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(actTableName, searchExpress)).reduce(Integer::sum).orElse(0));
         }
     }
 
     @Override
     public Integer count(String tableName, Object entity) {
         Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
         if (null != neo) {
-            return neo.count(getDevideTable(tableName, entity), entity);
+            return neo.count(actTableName, entity);
         } else {
-            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(getDevideTable(tableName, entity), entity)).reduce(Integer::sum).orElse(0));
+            return neoXa.call(() -> getNeoList().stream().map(db -> db.count(actTableName, entity)).reduce(Integer::sum).orElse(0));
         }
     }
 

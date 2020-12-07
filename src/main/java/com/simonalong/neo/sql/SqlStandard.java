@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * sql规范
@@ -18,7 +18,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public final class SqlStandard {
 
-    private static final String PRE_LOG = LOG_PRE + "[Neo-standard] ";
+    private static final String PRE_LOG = LOG_PRE_NEO + "[Neo-standard] ";
     /**
      * 规范映射
      */

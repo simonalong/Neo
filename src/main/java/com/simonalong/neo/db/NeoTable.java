@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * @author zhouzhenyong
@@ -243,7 +243,7 @@ public class NeoTable extends AbstractBaseTable {
 
                 return table;
             } catch (SQLException e) {
-                log.error(LOG_PRE + "parse error", e);
+                log.error(LOG_PRE_NEO + "parse error", e);
             }
             return new Table();
         }

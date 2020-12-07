@@ -223,6 +223,42 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, searchMap));
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, searchExpress));
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Object entity) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, entity));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, NeoMap searchMap) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, searchMap));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, searchExpress));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Object entity) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, entity));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
+
+    @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
     }
@@ -507,7 +543,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
          */
         private Integer sort = 1;
 
-        public void setSortStr(String sortStr) {
+        void setSortStr(String sortStr) {
             sortStr = sortStr.toLowerCase(Locale.ENGLISH);
             if (DESC.equals(sortStr)) {
                 sort = 0;

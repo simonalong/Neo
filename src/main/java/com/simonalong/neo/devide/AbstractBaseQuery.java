@@ -5,6 +5,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.DefaultExecutor;
 import com.simonalong.neo.core.QuerySync;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +28,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<NeoMap> oneAsync(String tableName, Columns columns, Express searchExpress, Executor executor){
+        return CompletableFuture.supplyAsync(() -> one(tableName, columns, searchExpress), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<T> oneAsync(String tableName, Columns columns, T entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> one(tableName, columns, entity), executor);
     }
@@ -34,6 +40,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     @Override
     public CompletableFuture<NeoMap> oneAsync(String tableName, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> one(tableName, searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<NeoMap> oneAsync(String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tableName, searchExpress), executor);
     }
 
     @Override
@@ -52,8 +63,18 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Columns columns, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, tableName, columns, searchExpress), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> one(tClass, tableName, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, tableName, searchExpress), executor);
     }
 
     @Override
@@ -68,6 +89,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<List<NeoMap>> listAsync(String tableName, Columns columns, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tableName, columns, searchExpress), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<List<T>> listAsync(String tableName, Columns columns, T entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> list(tableName, columns, entity), executor);
     }
@@ -75,6 +101,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     @Override
     public CompletableFuture<List<NeoMap>> listAsync(String tableName, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> list(tableName, searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> listAsync(String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tableName, searchExpress), executor);
     }
 
     @Override
@@ -88,14 +119,28 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Columns columns, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, tableName, columns, searchExpress), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> list(tClass, tableName, searchMap), executor);
     }
 
+    @Override
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, tableName, searchExpress), executor);
+    }
 
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> values(tClass, tableName, field, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> values(tClass, tableName, field, searchExpress), executor);
     }
 
     @Override
@@ -109,6 +154,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<List<String>> valuesAsync(String tableName, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> values(tableName, field, searchExpress), executor);
+    }
+
+    @Override
     public CompletableFuture<List<String>> valuesAsync(String tableName, String field, Object entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> values(tableName, field, entity), executor);
     }
@@ -119,8 +169,49 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, tableName, field, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, tableName, field, searchExpress), executor);
+    }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, tableName, field, entity), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tableName, field, searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tableName, field, searchExpress), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, Object entity, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tableName, field, entity), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tableName, field), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<T> valueAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor){
         return CompletableFuture.supplyAsync(() -> value(tClass, tableName, field, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> valueAsync(String tableName, Class<T> tClass, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> value(tClass, tableName, field, searchExpress), executor);
     }
 
     @Override
@@ -134,6 +225,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<String> valueAsync(String tableName, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> value(tableName, field, searchExpress), executor);
+    }
+
+    @Override
     public CompletableFuture<String> valueAsync(String tableName, String field, Object entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> value(tableName, field, entity), executor);
     }
@@ -144,6 +240,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, Express searchExpress, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchExpress, page), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, entity, page), executor);
     }
@@ -151,6 +252,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     @Override
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, searchMap, page), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Express searchExpress, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tableName, searchExpress, page), executor);
     }
 
     @Override
@@ -174,8 +280,18 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchExpress, page), executor);
+    }
+
+    @Override
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchMap, page), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Express searchExpress, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchExpress, page), executor);
     }
 
     @Override
@@ -194,6 +310,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<Integer> countAsync(String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> count(tableName, searchExpress), executor);
+    }
+
+    @Override
     public CompletableFuture<Integer> countAsync(String tableName, Object entity, Executor executor){
         return CompletableFuture.supplyAsync(() -> count(tableName, entity), executor);
     }
@@ -201,6 +322,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     @Override
     public CompletableFuture<Boolean> existAsync(String tableName, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> exist(tableName, searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> exist(tableName, searchExpress), executor);
     }
 
     @Override

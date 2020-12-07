@@ -14,7 +14,7 @@ import java.sql.SQLTransientConnectionException;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * @author shizi
@@ -23,7 +23,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implements MasterSlaveSelector {
 
-    static final String MS_LOG_PRE = LOG_PRE + "[master-slave]";
+    static final String MS_LOG_PRE = LOG_PRE_NEO + "[master-slave]";
 
     @Override
     public NeoMap insert(String tableName, NeoMap dataMap) {
@@ -33,6 +33,16 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public <T> T insert(String tableName, T object) {
         return doMasterCall(db -> db.insert(tableName, object));
+    }
+
+    @Override
+    public NeoMap insertOfUnExist(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        return doMasterCall(db -> db.insertOfUnExist(tableName, dataMap, searchColumnKey));
+    }
+
+    @Override
+    public <T> T insertOfUnExist(String tableName, T object, String... searchColumnKey) {
+        return doMasterCall(db -> db.insertOfUnExist(tableName, object, searchColumnKey));
     }
 
     @Override
@@ -340,6 +350,41 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tClass, tableName, field, searchMap));
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tClass, tableName, field, searchExpress));
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Object entity) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tClass, tableName, field, entity));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, NeoMap searchMap) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tableName, field, searchMap));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tableName, field, searchExpress));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field, Object entity) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tableName, field, entity));
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String tableName, String field) {
+        return doSlaveCall(db -> db.valuesOfDistinct(tableName, field));
+    }
+
+    @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return doSlaveCall(db -> db.page(tableName, columns, searchMap, page));
     }
@@ -408,7 +453,6 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
         return doSlaveCall(db -> db.page(tClass, tableName, page));
     }
-
 
     @Override
     public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {

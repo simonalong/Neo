@@ -1,7 +1,7 @@
 package com.simonalong.neo.db;
 
 import static com.simonalong.neo.NeoConstant.ALL_FIELD;
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.Pair;
@@ -11,9 +11,7 @@ import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.exception.NeoException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.*;
@@ -175,7 +173,7 @@ public final class NeoDb {
                 .findFirst().orElse(null);
         }
         if (null == table) {
-            log.warn(LOG_PRE + "表" + tableName + "没有找到");
+            log.warn(LOG_PRE_NEO + "表" + tableName + "没有找到");
         }
         return table;
     }
@@ -253,10 +251,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     getAllTables(con, tableSet, null, tablePres);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "getAllTables error", e);
+                    log.error(LOG_PRE_NEO + "getAllTables error", e);
                 }
             } else {
-                log.error(LOG_PRE + "getAllTables error", e);
+                log.error(LOG_PRE_NEO + "getAllTables error", e);
             }
         }
         return tableSet;
@@ -318,10 +316,10 @@ public final class NeoDb {
 
                 addColumn(tableName, columnSet);
             } catch (SQLException e) {
-                log.error(LOG_PRE + "generateColumnMetaMap error", e);
+                log.error(LOG_PRE_NEO + "generateColumnMetaMap error", e);
             }
         } catch (SQLException e) {
-            log.error(LOG_PRE + "initColumnMeta error", e);
+            log.error(LOG_PRE_NEO + "initColumnMeta error", e);
         }
     }
 
@@ -340,7 +338,7 @@ public final class NeoDb {
                 columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
-            log.error(LOG_PRE + "generateColumnMetaMap error", e);
+            log.error(LOG_PRE_NEO + "generateColumnMetaMap error", e);
         }
         return columnMap;
     }
@@ -356,10 +354,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initPrimary(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "initPrimary error", ex);
+                    log.error(LOG_PRE_NEO + "initPrimary error", ex);
                 }
             } else {
-                log.error(LOG_PRE + "initPrimary error", e);
+                log.error(LOG_PRE_NEO + "initPrimary error", e);
             }
         }
     }
@@ -383,10 +381,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initIndex(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "initIndex error", ex);
+                    log.error(LOG_PRE_NEO + "initIndex error", ex);
                 }
             } else {
-                log.error(LOG_PRE + "initIndex error", e);
+                log.error(LOG_PRE_NEO + "initIndex error", e);
             }
         }
     }
@@ -398,7 +396,7 @@ public final class NeoDb {
         while (rs.next()) {
             NeoTable table = getTable(tableName);
             if(null == table) {
-                log.warn(LOG_PRE + "表" + tableName + "没有找到");
+                log.warn(LOG_PRE_NEO + "表" + tableName + "没有找到");
             }else{
                 table.initIndex(rs);
             }

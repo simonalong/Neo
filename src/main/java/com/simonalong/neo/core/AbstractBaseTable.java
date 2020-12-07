@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 import com.simonalong.neo.express.Express;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * 该抽象类做三件事情
@@ -54,6 +54,16 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public <T> T insert(T object) {
         return getDbInner().insert(getTableName(), object);
+    }
+
+    @Override
+    public NeoMap insertOfUnExist(NeoMap dataMap, String... searchColumnKey) {
+        return getDbInner().insertOfUnExist(getTableName(), dataMap, searchColumnKey);
+    }
+
+    @Override
+    public <T> T insertOfUnExist(T object, String... searchColumnKey) {
+        return getDbInner().insertOfUnExist(getTableName(), object, searchColumnKey);
     }
 
     @Override
@@ -338,6 +348,41 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String field, NeoMap searchMap) {
+        return getDbInner().valuesOfDistinct(tClass, getTableName(), field, searchMap);
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String field, Express searchExpress) {
+        return getDbInner().valuesOfDistinct(tClass, getTableName(), field, searchExpress);
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String field, Object entity) {
+        return getDbInner().valuesOfDistinct(tClass, getTableName(), field, entity);
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String field, NeoMap searchMap) {
+        return getDbInner().valuesOfDistinct(getTableName(), field, searchMap);
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String field, Express searchExpress) {
+        return getDbInner().valuesOfDistinct(getTableName(), field, searchExpress);
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String field, Object entity) {
+        return getDbInner().valuesOfDistinct(getTableName(), field, entity);
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(String field) {
+        return getDbInner().valuesOfDistinct(getTableName(), field);
+    }
+
+    @Override
     public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
         return getDbInner().page(getTableName(), columns, searchMap, page);
     }
@@ -486,6 +531,18 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     public <T> CompletableFuture<T> insertAsync(T object, Executor executor) {
         return CompletableFuture.supplyAsync(() -> insert(object), executor);
     }
+
+
+    @Override
+    public CompletableFuture<NeoMap> insertOfUnExistAsync(NeoMap dataMap, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> insertOfUnExist(dataMap, searchColumnKey), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> insertOfUnExistAsync(T object, Executor executor, String... searchColumnKey) {
+        return CompletableFuture.supplyAsync(() -> insertOfUnExist(object, searchColumnKey), executor);
+    }
+
 
     @Override
     public CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, Executor executor, String... searchColumnKey) {
@@ -688,6 +745,42 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, field, searchMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, field, searchExpress), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Object entity, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, field, entity), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, NeoMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(field, searchMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(field, searchExpress), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Object entity, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(field, entity), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(field), executor);
+    }
+
+
+    @Override
     public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> value(tClass, field, searchMap), executor);
     }
@@ -860,7 +953,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     private DbSync getDbInner() {
         DbSync db = getDb();
         if (null == db) {
-            log.error(LOG_PRE + "DB not set");
+            log.error(LOG_PRE_NEO + "DB not set");
             throw new DbNotSetException();
         }
         return db;

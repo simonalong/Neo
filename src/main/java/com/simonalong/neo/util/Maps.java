@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * @author zhouzhenyong
@@ -27,14 +27,14 @@ public class Maps<K, V> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Maps<String, Object> of(Object... kvs) {
         if (kvs.length % 2 != 0) {
-            log.error(LOG_PRE + "Maps.of的参数需要是key-value-key-value...这种格式");
+            log.error(LOG_PRE_NEO + "Maps.of的参数需要是key-value-key-value...这种格式");
             return new Maps();
         }
 
         Maps<String, Object> maps = new Maps<>();
         for (int i = 0; i < kvs.length; i += 2) {
             if (null == kvs[i]) {
-                log.error(LOG_PRE + "map的key不可以为null");
+                log.error(LOG_PRE_NEO + "map的key不可以为null");
                 return maps;
             }
             maps.put((String)kvs[i], kvs[i + 1]);

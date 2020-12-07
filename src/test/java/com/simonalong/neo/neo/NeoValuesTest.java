@@ -8,6 +8,7 @@ import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,5 +80,23 @@ public class NeoValuesTest extends NeoBaseTest {
         List<String> nameList = neo.values(TABLE_NAME, "name", search);
 
         Assert.assertEquals(Arrays.asList("name_values1", "name_values2"), nameList);
+    }
+
+    /**
+     * 查询多行唯一数据
+     * 条件通过NeoMap设置
+     */
+    @Test
+    @SneakyThrows
+    public void testValuesOfDistinct1() {
+        neo.insert(TABLE_NAME, new DemoEntity().setGroup("group_values").setName("name_values1"));
+        neo.insert(TABLE_NAME, new DemoEntity().setGroup("group_values").setName("name_values1"));
+        neo.insert(TABLE_NAME, new DemoEntity().setGroup("group_values").setName("name_values1"));
+
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group_values");
+        List<String> nameList = neo.valuesOfDistinct(TABLE_NAME, "name", search);
+
+        Assert.assertEquals(Collections.singletonList("name_values1"), nameList);
     }
 }

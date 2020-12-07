@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * @author shizi
@@ -148,7 +148,7 @@ abstract class AbstractEntityCodeGenerator implements Generator{
                 template.process(dataMap, bufferedWriter);
             }
         } catch (TemplateException | IOException e) {
-            log.error(LOG_PRE + "writeFile error", e);
+            log.error(LOG_PRE_NEO + "writeFile error", e);
         }
     }
 
@@ -156,7 +156,7 @@ abstract class AbstractEntityCodeGenerator implements Generator{
         try {
             return configuration.getTemplate(templatePath);
         } catch (IOException e) {
-            log.error(LOG_PRE + "getTemplate error", e);
+            log.error(LOG_PRE_NEO + "getTemplate error", e);
 
         }
         return null;

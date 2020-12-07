@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * 该类主要用于对对应的sql进行解析，用于分析使用
@@ -23,7 +23,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public final class SqlExplain {
 
-    private static final String EXPLAIN_LOG_PRE = LOG_PRE + "[Neo-explain]";
+    private static final String EXPLAIN_LOG_PRE = LOG_PRE_NEO + "[Neo-explain]";
     private static final String ALL = "all";
     private static final String INDEX = "index";
     /**

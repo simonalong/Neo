@@ -24,6 +24,15 @@ public interface TableAsync extends Async {
     <T> CompletableFuture<T> insertAsync(T object);
 
 
+    CompletableFuture<NeoMap> insertOfUnExistAsync(NeoMap dataMap, Executor executor, String... searchColumnKey);
+
+    CompletableFuture<NeoMap> insertOfUnExistAsync(NeoMap dataMap, String... searchColumnKey);
+
+    <T> CompletableFuture<T> insertOfUnExistAsync(T object, Executor executor, String... searchColumnKey);
+
+    <T> CompletableFuture<T> insertOfUnExistAsync(T object, String... searchColumnKey);
+
+
     CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, Executor executor, String... searchColumnKey);
 
     CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, String... searchColumnKey);
@@ -161,6 +170,31 @@ public interface TableAsync extends Async {
     <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, NeoMap searchMap);
 
 
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity, Executor executor);
+
+    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity);
+
+    CompletableFuture<String> valueAsync(String field, NeoMap searchMap, Executor executor);
+
+    CompletableFuture<String> valueAsync(String field, NeoMap searchMap);
+
+    CompletableFuture<String> valueAsync(String field, Express searchExpress, Executor executor);
+
+    CompletableFuture<String> valueAsync(String field, Express searchExpress);
+
+    CompletableFuture<String> valueAsync(String field, Object entity, Executor executor);
+
+    CompletableFuture<String> valueAsync(String field, Object entity);
+
+
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor);
 
     <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, NeoMap searchMap);
@@ -190,29 +224,33 @@ public interface TableAsync extends Async {
     CompletableFuture<List<String>> valuesAsync(String field);
 
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, NeoMap searchMap, Executor executor);
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, NeoMap searchMap);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, NeoMap searchMap);
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress, Executor executor);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Express searchExpress, Executor executor);
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Express searchExpress);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Express searchExpress);
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity, Executor executor);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Object entity, Executor executor);
 
-    <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, Object entity);
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Object entity);
 
-    CompletableFuture<String> valueAsync(String field, NeoMap searchMap, Executor executor);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, NeoMap searchMap, Executor executor);
 
-    CompletableFuture<String> valueAsync(String field, NeoMap searchMap);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, NeoMap searchMap);
 
-    CompletableFuture<String> valueAsync(String field, Express searchExpress, Executor executor);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Express searchExpress, Executor executor);
 
-    CompletableFuture<String> valueAsync(String field, Express searchExpress);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Express searchExpress);
 
-    CompletableFuture<String> valueAsync(String field, Object entity, Executor executor);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Object entity, Executor executor);
 
-    CompletableFuture<String> valueAsync(String field, Object entity);
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Object entity);
+
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Executor executor);
+
+    CompletableFuture<List<String>> valuesOfDistinctAsync(String field);
 
 
     CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, NeoPage page, Executor executor);

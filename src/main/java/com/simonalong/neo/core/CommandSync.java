@@ -16,6 +16,28 @@ public interface CommandSync extends Sync {
 
     <T> T insert(String tableName, T object);
 
+
+    /**
+     * 不存在则新增，存在则忽略
+     *
+     * @param tableName 表名
+     * @param dataMap 新增的实体
+     * @param searchColumnKey 作为搜索条件的搜索的key
+     * @return 插入后的数据
+     */
+    NeoMap insertOfUnExist(String tableName, NeoMap dataMap, String... searchColumnKey);
+
+    /**
+     * 不存在则新增，存在则忽略
+     *
+     * @param tableName 表名
+     * @param object 新增的实体
+     * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
+     * @return 插入后的数据
+     */
+    <T> T insertOfUnExist(String tableName, T object, String... searchColumnKey);
+
+
     /**
      * save功能
      * <p>

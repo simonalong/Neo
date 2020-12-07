@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * 将Object转换为指定的类型
@@ -82,7 +82,7 @@ public class ObjectUtil {
             }
             return Byte.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toByte error", e);
+            log.error(LOG_PRE_NEO + "toByte error", e);
             throw e;
         }
     }
@@ -98,7 +98,7 @@ public class ObjectUtil {
             }
             return Short.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toShort error", e);
+            log.error(LOG_PRE_NEO + "toShort error", e);
             throw e;
         }
     }
@@ -114,7 +114,7 @@ public class ObjectUtil {
             }
             return Integer.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toInt error", e);
+            log.error(LOG_PRE_NEO + "toInt error", e);
             throw e;
         }
     }
@@ -146,7 +146,7 @@ public class ObjectUtil {
             }
             return Long.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toLong error", e);
+            log.error(LOG_PRE_NEO + "toLong error", e);
             throw e;
         }
     }
@@ -162,7 +162,7 @@ public class ObjectUtil {
             }
             return Double.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toDouble error", e);
+            log.error(LOG_PRE_NEO + "toDouble error", e);
             throw e;
         }
     }
@@ -178,7 +178,7 @@ public class ObjectUtil {
             }
             return Float.valueOf(String.valueOf(value));
         } catch (NumberFormatException | ClassCastException e) {
-            log.error(LOG_PRE + "toFloat error", e);
+            log.error(LOG_PRE_NEO + "toFloat error", e);
             throw e;
         }
     }
@@ -436,7 +436,7 @@ public class ObjectUtil {
                 }
                 return cls.cast(cls.getMethod("valueOf", String.class).invoke(null, data));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                log.error(LOG_PRE + "castStr error", e);
+                log.error(LOG_PRE_NEO + "castStr error", e);
             }
             return null;
         }

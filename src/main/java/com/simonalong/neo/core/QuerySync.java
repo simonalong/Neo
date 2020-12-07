@@ -158,6 +158,31 @@ public interface QuerySync extends Sync {
     List<String> values(String tableName, String field);
 
 
+    /**
+     * 筛选唯一数值
+     *
+     * @param tClass 类型
+     * @param tableName 表名
+     * @param field 属性名
+     * @param searchMap 搜索条件
+     * @param <T> 类型
+     * @return 返回集合
+     */
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress);
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Object entity);
+
+    List<String> valuesOfDistinct(String tableName, String field, NeoMap searchMap);
+
+    List<String> valuesOfDistinct(String tableName, String field, Express searchExpress);
+
+    List<String> valuesOfDistinct(String tableName, String field, Object entity);
+
+    List<String> valuesOfDistinct(String tableName, String field);
+
+
     List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page);
 
     List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page);

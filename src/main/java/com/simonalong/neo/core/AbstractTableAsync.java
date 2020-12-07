@@ -27,6 +27,16 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
+    public CompletableFuture<NeoMap> insertOfUnExistAsync(NeoMap dataMap, String... searchColumnKey) {
+        return insertOfUnExistAsync(dataMap, getExecutor(), searchColumnKey);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> insertOfUnExistAsync(T object, String... searchColumnKey) {
+        return insertOfUnExistAsync(object, getExecutor(), searchColumnKey);
+    }
+
+    @Override
     public CompletableFuture<NeoMap> saveAsync(NeoMap dataMap, String... searchColumnKey) {
         return saveAsync(dataMap, getExecutor(), searchColumnKey);
     }
@@ -224,6 +234,41 @@ public abstract class AbstractTableAsync implements TableAsync {
     @Override
     public CompletableFuture<List<String>> valuesAsync(String field) {
         return valuesAsync(field, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, NeoMap searchMap) {
+        return valuesOfDistinctAsync(tClass, field, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Express searchExpress) {
+        return valuesOfDistinctAsync(tClass, field, searchExpress, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, Object entity) {
+        return valuesOfDistinctAsync(tClass, field, entity, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, NeoMap searchMap) {
+        return valuesOfDistinctAsync(field, searchMap, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Express searchExpress) {
+        return valuesOfDistinctAsync(field, searchExpress, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, Object entity) {
+        return valuesOfDistinctAsync(field, entity, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field) {
+        return valuesOfDistinctAsync(field, getExecutor());
     }
 
     @Override

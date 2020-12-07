@@ -18,6 +18,26 @@ public interface TableSync extends Sync {
 
     <T> T insert(T object);
 
+
+    /**
+     * 不存在则新增，存在则忽略
+     *
+     * @param dataMap 新增的实体
+     * @param searchColumnKey 作为搜索条件的搜索的key
+     * @return 插入后的数据
+     */
+    NeoMap insertOfUnExist(NeoMap dataMap, String... searchColumnKey);
+
+    /**
+     * 不存在则新增，存在则忽略
+     *
+     * @param object 新增的实体
+     * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
+     * @return 插入后的数据
+     */
+    <T> T insertOfUnExist(T object, String... searchColumnKey);
+
+
     /**
      * save功能
      * <p>
@@ -41,9 +61,9 @@ public interface TableSync extends Sync {
 
     Integer delete(NeoMap searchMap);
 
-    <T> Integer delete(T object);
-
     Integer delete(Express searchExpress);
+
+    <T> Integer delete(T object);
 
     Integer delete( Number id);
 
@@ -137,6 +157,7 @@ public interface TableSync extends Sync {
 
     String value(String field, Number entity);
 
+
     <T> List<T> values(Class<T> tClass, String field, NeoMap searchMap);
 
     <T> List<T> values(Class<T> tClass, String field, Express searchExpress);
@@ -150,6 +171,21 @@ public interface TableSync extends Sync {
     List<String> values(String field, Object entity);
 
     List<String> values(String field);
+
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String field, NeoMap searchMap);
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String field, Express searchExpress);
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String field, Object entity);
+
+    List<String> valuesOfDistinct(String field, NeoMap searchMap);
+
+    List<String> valuesOfDistinct(String field, Express searchExpress);
+
+    List<String> valuesOfDistinct(String field, Object entity);
+
+    List<String> valuesOfDistinct(String field);
 
 
     List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page);

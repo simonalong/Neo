@@ -11,7 +11,7 @@ public interface NeoConstant {
     /**
      * 日志前缀
      */
-    String LOG_PRE = "[Neo] ";
+    String LOG_PRE_NEO = "[Neo] ";
     /**
      * SQL 的order by
      */

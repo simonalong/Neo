@@ -106,6 +106,25 @@ public class NeoTest extends NeoBaseTest {
         Assert.assertEquals(dataMap, resultMap);
     }
 
+    /**
+     * 测试在有数据时候忽略，无数据时候插入
+     */
+    @Test
+    @SneakyThrows
+    public void testInsertOfUnExist() {
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        neo.insertOfUnExist(TABLE_NAME, dataMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+
+        Assert.assertEquals(1L, resultMap.getLong("id").longValue());
+
+        // 再次插入
+        resultMap = neo.insertOfUnExist(TABLE_NAME, dataMap, "group", "name");
+
+        Assert.assertNull(resultMap.getLong("id"));
+    }
+
     /******************************删除******************************/
     @Test
     @SneakyThrows

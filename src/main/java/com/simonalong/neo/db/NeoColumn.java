@@ -1,10 +1,9 @@
 package com.simonalong.neo.db;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 import java.sql.JDBCType;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import com.mysql.cj.MysqlType;
@@ -274,7 +273,7 @@ public final class NeoColumn {
                 }
 
             } catch (SQLException e) {
-                log.warn(LOG_PRE, e);
+                log.warn(LOG_PRE_NEO, e);
             }
             return innerColumn;
         }

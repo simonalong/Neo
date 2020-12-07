@@ -23,6 +23,15 @@ public interface CommandAsync extends Async {
     <T> CompletableFuture<T> insertAsync(String tableName, T object);
 
 
+    CompletableFuture<NeoMap> insertOfUnExistAsync(String tableName, NeoMap dataMap, Executor executor, String... searchColumnKey);
+
+    CompletableFuture<NeoMap> insertOfUnExistAsync(String tableName, NeoMap dataMap, String... searchColumnKey);
+
+    <T> CompletableFuture<T> insertOfUnExistAsync(String tableName, T object, Executor executor, String... searchColumnKey);
+
+    <T> CompletableFuture<T> insertOfUnExistAsync(String tableName, T object, String... searchColumnKey);
+
+
     CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, Executor executor, String... searchColumnKey);
 
     CompletableFuture<NeoMap> saveAsync(String tableName, NeoMap dataMap, String... searchColumnKey);
@@ -59,6 +68,8 @@ public interface CommandAsync extends Async {
 
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity, Executor executor);
 
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity);
+
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Number id, Executor executor);
 
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Number id);
@@ -66,8 +77,6 @@ public interface CommandAsync extends Async {
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Number id, Executor executor);
 
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, Number id);
-
-    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, T searchEntity);
 
     CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, Columns columns, Executor executor);
 
