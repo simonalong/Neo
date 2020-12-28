@@ -248,12 +248,12 @@ public class Express {
     public String toSql(Boolean needWhere) {
         StringBuilder stringBuilder = new StringBuilder();
         Operate operate;
-        boolean needWhereFinal = needWhere;
+        boolean innerNeedWhere = false;
         NeoQueue<Operate> queueCopy = innerOperateQueue.clone();
         while ((operate = queueCopy.poll()) != null) {
             // 如果有任何一个合法的值，即有搜索条件
             if (operate.needWhere()) {
-                needWhereFinal = true;
+                innerNeedWhere = true;
             }
             stringBuilder.append(operate.generateOperate());
         }
@@ -266,8 +266,10 @@ public class Express {
             if (result.startsWith("or ")) {
                 result = result.substring("or ".length()).trim();
             }
-            if (needWhereFinal) {
-                return " where " + result;
+            if (needWhere) {
+                if (innerNeedWhere) {
+                    return " where " + result;
+                }
             }
             return " " + result;
         }
@@ -275,7 +277,7 @@ public class Express {
     }
 
     public String toSql() {
-        return toSql(false);
+        return toSql(true);
     }
 
     enum LogicEnum {
