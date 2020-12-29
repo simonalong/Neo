@@ -3,6 +3,7 @@ package com.simonalong.neo.core.join;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.core.Async;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
 
@@ -59,6 +60,15 @@ public interface JoinnerAsync extends Async {
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage, Executor executor);
 
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage);
+
+
+    CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage, Executor executor);
+
+    CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage);
 
 
     CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap tableMap, Executor executor);
