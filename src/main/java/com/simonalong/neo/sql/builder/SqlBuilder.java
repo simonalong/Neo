@@ -91,7 +91,7 @@ public class SqlBuilder {
             }
         }
         String dom = "`";
-        if (column.startsWith(dom) && column.endsWith(dom)) {
+        if (column.startsWith(dom) || column.endsWith(dom)) {
             return column;
         }
         return "`" + column + "`";
