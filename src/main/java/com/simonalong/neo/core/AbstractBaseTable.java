@@ -490,6 +490,10 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return getDbInner().exist(getTableName(), entity);
     }
 
+    @Override
+    public Boolean exist(Number id) {
+        return getDbInner().exist(getTableName(), id);
+    }
 
     @Override
     public Integer batchInsert(List<NeoMap> dataMapList){
@@ -919,6 +923,10 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         return CompletableFuture.supplyAsync(()-> exist(entity), executor);
     }
 
+    @Override
+    public CompletableFuture<Boolean> existAsync(Number id, Executor executor) {
+        return CompletableFuture.supplyAsync(()-> exist(id), executor);
+    }
 
     @Override
     public CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList, Executor executor) {
@@ -958,5 +966,4 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
         }
         return db;
     }
-
 }

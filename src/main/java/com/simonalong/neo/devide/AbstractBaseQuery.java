@@ -335,6 +335,11 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
     }
 
     @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Number id, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> exist(tableName, id), executor);
+    }
+
+    @Override
     public CompletableFuture<Integer> countAsync(String tableName, Executor executor){
         return CompletableFuture.supplyAsync(() -> count(tableName), executor);
     }

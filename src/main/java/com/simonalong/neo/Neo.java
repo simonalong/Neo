@@ -2109,7 +2109,10 @@ public class Neo extends AbstractExecutorDb {
         }
 
         if (count > 0 && parameters.size() > count) {
-            placeHolderList.addAll((Collection) parameters.get(count));
+            int sizeNum = parameters.size();
+            for (int index = count; index < sizeNum; index++) {
+                placeHolderList.addAll((Collection) parameters.get(index));
+            }
         }
 
         // %s替换数据，?占位数据
@@ -2203,22 +2206,13 @@ public class Neo extends AbstractExecutorDb {
         return result;
     }
 
-    private Pair<String, String> getTableAliasAndColumn(String columnLabel) {
-        if (columnLabel.contains(ALIAS_DOM)) {
-            int index = columnLabel.indexOf(ALIAS_DOM);
-            return new Pair<>(columnLabel.substring(0, index), columnLabel.substring(index + ALIAS_DOM.length()));
-        }
-        return new Pair<>(DEFAULT_TABLE, columnLabel);
-    }
-
     private void generateResult(TableMap row, ResultSetMetaData metaData, ResultSet rs, Integer index)
         throws SQLException {
-        Pair<String, String> pair = getTableAliasAndColumn(metaData.getColumnLabel(index));
-        String tableAlis = pair.getKey();
-        String columnLabel = pair.getValue();
+        String tableName = metaData.getTableName(index);
+        String columnLabel = metaData.getColumnLabel(index);
         Object result = rs.getObject(index);
         if(null != result) {
-            row.put(tableAlis, columnLabel, result);
+            row.put(tableName, columnLabel, result);
         }
     }
 

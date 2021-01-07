@@ -332,4 +332,9 @@ public abstract class AbstractQueryAsync implements QueryAsync {
     public CompletableFuture<Boolean> existAsync(String tableName, Object entity){
         return existAsync(tableName, entity, getExecutor());
     }
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Number id) {
+        return existAsync(tableName, id, getExecutor());
+    }
 }

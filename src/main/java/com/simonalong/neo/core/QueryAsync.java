@@ -273,4 +273,8 @@ public interface QueryAsync extends Async {
     CompletableFuture<Boolean> existAsync(String tableName, Object entity, Executor executor);
 
     CompletableFuture<Boolean> existAsync(String tableName, Object entity);
+
+    CompletableFuture<Boolean> existAsync(String tableName, Number id, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(String tableName, Number id);
 }

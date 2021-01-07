@@ -289,6 +289,8 @@ public interface TableSync extends Sync {
 
     Boolean exist(Object entity);
 
+    Boolean exist(Number id);
+
 
     Integer batchInsert(List<NeoMap> dataMapList);
 

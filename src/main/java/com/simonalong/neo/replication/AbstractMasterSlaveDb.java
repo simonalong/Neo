@@ -561,6 +561,12 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    public Boolean exist(String tableName, Number id) {
+        return doSlaveCall(db -> db.exist(tableName, id));
+    }
+
+
+    @Override
     public Integer batchInsert(String tableName, List<NeoMap> dataMapList) {
         return doMasterCall(db -> db.batchInsert(tableName, dataMapList));
     }

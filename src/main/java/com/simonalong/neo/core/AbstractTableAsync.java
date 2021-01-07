@@ -407,6 +407,11 @@ public abstract class AbstractTableAsync implements TableAsync {
         return existAsync(entity, getExecutor());
     }
 
+    @Override
+    public CompletableFuture<Boolean> existAsync(Number id) {
+        return existAsync(id, getExecutor());
+    }
+
 
     @Override
     public CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList) {

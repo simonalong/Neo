@@ -37,18 +37,6 @@ public interface NeoConstant {
      * 默认表
      */
     String DEFAULT_TABLE = "_default_";
-    /**
-     * 多表时候中间的分割
-     */
-    String ALIAS_DOM = "_NDom_";
-    /**
-     * SQL 的as
-     */
-    String AS = " as ";
-    /**
-     * SQL 的数据库列的分隔标识符
-     */
-    String COLUMN_PRE = "`";
 
     /**
      * 函数：execute
@@ -63,7 +51,6 @@ public interface NeoConstant {
      * bit的个数
      */
     int BIT_NUM = 64;
-
 
     String AND = "and";
     String OR = "or";

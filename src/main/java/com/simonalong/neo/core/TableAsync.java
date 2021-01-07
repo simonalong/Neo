@@ -339,6 +339,10 @@ public interface TableAsync extends Async {
 
     CompletableFuture<Boolean> existAsync(Object entity);
 
+    CompletableFuture<Boolean> existAsync(Number id, Executor executor);
+
+    CompletableFuture<Boolean> existAsync(Number id);
+
 
     CompletableFuture<Integer> batchInsertAsync(List<NeoMap> dataMapList);
 

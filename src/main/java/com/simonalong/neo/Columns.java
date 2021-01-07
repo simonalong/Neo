@@ -1,8 +1,6 @@
 package com.simonalong.neo;
 
-import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
 import static com.simonalong.neo.NeoConstant.ALL_COLUMN_NAME;
-import static com.simonalong.neo.NeoConstant.COLUMN_PRE;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.annotation.Column;
@@ -225,13 +223,13 @@ public final class Columns {
         if(tableFieldsMap.isEmpty()) {
             return "*";
         }
-        return String.join(", ", tableFieldsMap.values().stream().flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
+        return tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value->e.getKey() + "." + value.getCurrentValue())).collect(Collectors.joining(", "));
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Columns) {
-            return this.getTableFieldsMap().equals(Columns.class.cast(obj).getTableFieldsMap());
+            return this.getTableFieldsMap().equals(((Columns) obj).getTableFieldsMap());
         }
         return false;
     }
@@ -278,51 +276,6 @@ public final class Columns {
                 NeoContext.load(db);
             }
             this.currentValue = SqlBuilder.toDbField(fieldName);
-
-            if (!tableName.equals(DEFAULT_TABLE)) {
-                String alias = AliasParser.getAlias(tableName);
-                this.currentValue = alias + "." + filterColumnToFinal(fieldName) + " as " + alias + ALIAS_DOM + reduceDom(fieldName);
-            }
-        }
-
-        /**
-         * 筛选处理为合法的sql字段
-         *
-         * 对于这么几种情况进行处理：{@code name --> `name`} {@code db.name --> db.`name`} {@code db.`name` --> db.`name`}
-         * @param fieldName 指定的列名
-         * @return 处理之后的sql对应的列名
-         */
-        private String filterColumnToFinal(String fieldName) {
-            String point = ".";
-            String dom = "`";
-            fieldName = fieldName.trim();
-            if (fieldName.contains(point)) {
-                int index = fieldName.indexOf(point);
-                String tableName = fieldName.substring(0, index);
-                String columnName = fieldName.substring(index + 1);
-                if (columnName.startsWith(dom) && columnName.endsWith(dom)) {
-                    return fieldName;
-                }
-                return tableName + "." + SqlBuilder.toDbField(columnName);
-            } else {
-                if (fieldName.startsWith(dom) && fieldName.endsWith(dom)) {
-                    return fieldName;
-                }
-                return SqlBuilder.toDbField(fieldName);
-            }
-        }
-
-        /**
-         * 获取列名的原名
-         * <p>{@code `c` 到 c}
-         * @param columnStr 装饰的列名
-         * @return 原列名
-         */
-        private String reduceDom(String columnStr){
-            if (columnStr.startsWith(COLUMN_PRE) && columnStr.endsWith(COLUMN_PRE)){
-                return columnStr.substring(1, columnStr.length() - 1);
-            }
-            return columnStr;
         }
     }
 }

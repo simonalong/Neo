@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @author zhouzhenyong
  * @since 2019/8/18 下午5:59
  */
-public abstract class AbstractDbAsync implements CqrsAsync {
+public abstract class AbstractDbAsync implements CqrsAsync{
 
     @Override
     public CompletableFuture<NeoMap> insertAsync(String tableName, NeoMap dataMap) {
@@ -439,6 +439,11 @@ public abstract class AbstractDbAsync implements CqrsAsync {
     @Override
     public CompletableFuture<Boolean> existAsync(String tableName, Object entity){
         return existAsync(tableName, entity, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existAsync(String tableName, Number id) {
+        return existAsync(tableName, id, getExecutor());
     }
 
 

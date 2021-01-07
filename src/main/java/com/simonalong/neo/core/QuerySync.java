@@ -300,4 +300,8 @@ public interface QuerySync extends Sync {
     default Boolean exist(String tableName, Object entity) {
         return null != one(tableName, entity);
     }
+
+    default Boolean exist(String tableName, Number id) {
+        return null != one(tableName, id);
+    }
 }
