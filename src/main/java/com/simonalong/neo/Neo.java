@@ -424,6 +424,9 @@ public class Neo extends AbstractExecutorDb {
      */
     @Override
     public NeoMap update(String tableName, NeoMap dataMap, NeoMap searchMap) {
+        if (NeoMap.isEmpty(dataMap)) {
+            return null;
+        }
         NeoMap dataMapTem = dataMap.clone();
         NeoMap searchMapTem = searchMap.clone();
         return tx(() -> {

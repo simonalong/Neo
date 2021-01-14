@@ -14,40 +14,39 @@ import java.util.regex.Pattern;
 
 /**
  * 时间格式的各种转换
- *
  * <p>
  *     <ul>
- *         1.LocalDateTime ----> LocalDate
- *         2.LocalDateTime ----> Long
- *         3.LocalDateTime ----> Date
- *         4.LocalDateTime ----> String
- *
- *         1.LocalDate ----> LocalDateTime
- *         2.LocalDate ----> Long
- *         3.LocalDate ----> Date
- *         4.LocalDate ----> String
- *
- *         1.Date ----> LocalDateTime
- *         2.Date ----> LocalDate
- *         3.Date ----> Long
- *         4.Date ----> String
- *
- *         1.Timestamp ----> LocalDateTime
- *         2.Timestamp ----> Long
- *         3.Timestamp ----> String
- *         4.Timestamp ----> LocalDate
- *
- *         1.String ----> LocalDateTime
- *         2.String ----> LocalDate
- *         3.String ----> Date
- *         4.String ----> Timestamp
- *         5.String ----> LocalTime
- *         6.String ----> Time
- *
- *         1.Long ----> Date
- *         2.Long ----> LocalDateTime
- *         3.Long ----> LocalDate
- *         4.Long ----> String
+ *         <li>1.LocalDateTime ----> LocalDate</li>
+ *         <li>2.LocalDateTime ----> Long</li>
+ *         <li>3.LocalDateTime ----> Date</li>
+ *         <li>4.LocalDateTime ----> String</li>
+ *         <p></p>
+ *         <li>1.LocalDate ----> LocalDateTime</li>
+ *         <li>2.LocalDate ----> Long</li>
+ *         <li>3.LocalDate ----> Date</li>
+ *         <li>4.LocalDate ----> String</li>
+ *         <p></p>
+ *         <li>1.Date ----> LocalDateTime</li>
+ *         <li>2.Date ----> LocalDate</li>
+ *         <li>3.Date ----> Long</li>
+ *         <li>4.Date ----> String</li>
+ *         <p></p>
+ *         <li>1.Timestamp ----> LocalDateTime</li>
+ *         <li>2.Timestamp ----> Long</li>
+ *         <li>3.Timestamp ----> String</li>
+ *         <li>4.Timestamp ----> LocalDate</li>
+ *         <p></p>
+ *         <li>1.String ----> LocalDateTime</li>
+ *         <li>2.String ----> LocalDate</li>
+ *         <li>3.String ----> Date</li>
+ *         <li>4.String ----> Timestamp</li>
+ *         <li>5.String ----> LocalTime</li>
+ *         <li>6.String ----> Time</li>
+ *         <p></p>
+ *         <li>1.Long ----> Date</li>
+ *         <li>2.Long ----> LocalDateTime</li>
+ *         <li>3.Long ----> LocalDate</li>
+ *         <li>4.Long ----> String</li>
  *     </ul>
  * @author shizi
  * @since 2020/9/9 8:58 下午
@@ -103,6 +102,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 LocalDate
      */
     private static LocalDate localDateTimeToLocalDate(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
         return localDateTime.toLocalDate();
     }
 
@@ -110,6 +112,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 Long
      */
     public static Long localDateTimeToLong(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
@@ -117,6 +122,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 Date
      */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
@@ -124,6 +132,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 String
      */
     public static String localDateTimeToString(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
         return localDateTime.format(localDateTimeFormat.get(yMdHms));
     }
 
@@ -132,6 +143,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 String
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, String dateTimeFormat) {
+        if (null == localDateTime) {
+            return null;
+        }
         return localDateTime.format(localDateTimeFormat.get(dateTimeFormat));
     }
 
@@ -139,6 +153,9 @@ public class LocalDateTimeUtil {
      * LocalDateTime 转 String
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, DateTimeFormatter dateTimeFormatter) {
+        if (null == localDateTime || null == dateTimeFormatter) {
+            return null;
+        }
         return localDateTime.format(dateTimeFormatter);
     }
 
@@ -147,6 +164,9 @@ public class LocalDateTimeUtil {
      * LocalDate 转 LocalDateTime
      */
     public static LocalDateTime localDateToLocalDateTime(LocalDate localDate) {
+        if (null == localDate) {
+            return null;
+        }
         return LocalDateTime.of(localDate, LocalTime.parse("00:00:00"));
     }
 
@@ -154,6 +174,9 @@ public class LocalDateTimeUtil {
      * LocalDate 转 Long
      */
     public static Long localDateToLong(LocalDate localDate) {
+        if (null == localDate) {
+            return null;
+        }
         return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
@@ -161,6 +184,9 @@ public class LocalDateTimeUtil {
      * LocalDate 转 Date
      */
     public static Date localDateToDate(LocalDate localDate) {
+        if (null == localDate) {
+            return null;
+        }
         return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 
@@ -168,6 +194,9 @@ public class LocalDateTimeUtil {
      * LocalDate 转 String
      */
     public static String localDateToString(LocalDate localDate) {
+        if (null == localDate) {
+            return null;
+        }
         return localDate.format(localDateTimeFormat.get(yMd));
     }
 
@@ -176,6 +205,9 @@ public class LocalDateTimeUtil {
      * Date 转 LocalDateTime
      */
     public static LocalDateTime dateToLocalDateTime(Date date) {
+        if (null == date) {
+            return null;
+        }
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
@@ -183,6 +215,9 @@ public class LocalDateTimeUtil {
      * Date 转 Long
      */
     public static Long dateToLong(Date date) {
+        if (null == date) {
+            return null;
+        }
         return date.getTime();
     }
 
@@ -190,6 +225,9 @@ public class LocalDateTimeUtil {
      * Date 转 LocalDate
      */
     public static LocalDate dateToLocalDate(Date date) {
+        if (null == date) {
+            return null;
+        }
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
     }
 
@@ -197,6 +235,9 @@ public class LocalDateTimeUtil {
      * Date 转 String
      */
     public static String dateToString(Date date) {
+        if (null == date) {
+            return null;
+        }
         return simpleDateFormat.get(yMdHms).format(date);
     }
 
@@ -204,6 +245,9 @@ public class LocalDateTimeUtil {
      * Date 转 String
      */
     public static String dateToString(Date date, SimpleDateFormat simpleDateFormat) {
+        if (null == date || null == simpleDateFormat) {
+            return null;
+        }
         return simpleDateFormat.format(date);
     }
 
@@ -211,6 +255,9 @@ public class LocalDateTimeUtil {
      * Date 转 String
      */
     public static String dateToString(Date date, String simpleDateFormatStr) {
+        if (null == date || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
+            return null;
+        }
         return simpleDateFormat.get(simpleDateFormatStr).format(date);
     }
 
@@ -219,6 +266,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 LocalDateTime
      */
     public static LocalDateTime timestampToLocalDateTime(Timestamp timestamp) {
+        if (null == timestamp) {
+            return null;
+        }
         return timestamp.toLocalDateTime();
     }
 
@@ -226,6 +276,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 Long
      */
     public static Long timestampToLong(Timestamp timestamp) {
+        if (null == timestamp) {
+            return null;
+        }
         return timestamp.getTime();
     }
 
@@ -233,6 +286,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 LocalDate
      */
     public static LocalDate timestampToLocalDate(Timestamp timestamp) {
+        if (null == timestamp) {
+            return null;
+        }
         return LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault()).toLocalDate();
     }
 
@@ -240,6 +296,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 String
      */
     public static String timestampToString(Timestamp timestamp) {
+        if (null == timestamp) {
+            return null;
+        }
         return simpleDateFormat.get(yMdHmsSSS).format(timestamp);
     }
 
@@ -247,6 +306,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 String
      */
     public static String timestampToString(Timestamp timestamp, SimpleDateFormat simpleDateFormat) {
+        if (null == timestamp || null == simpleDateFormat) {
+            return null;
+        }
         return simpleDateFormat.format(timestamp);
     }
 
@@ -254,6 +316,9 @@ public class LocalDateTimeUtil {
      * Timestamp 转 String
      */
     public static String timestampToString(Timestamp timestamp, String simpleDateFormatStr) {
+        if (null == timestamp || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
+            return null;
+        }
         return simpleDateFormat.get(simpleDateFormatStr).format(timestamp);
     }
 
@@ -262,6 +327,9 @@ public class LocalDateTimeUtil {
      * String 转 LocalDateTime
      */
     public static LocalDateTime stringToLocalDateTime(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         return LocalDateTime.parse(strDateTime, DateTimeFormatter.ofPattern(getTimeFormat(strDateTime)));
     }
 
@@ -269,6 +337,9 @@ public class LocalDateTimeUtil {
      * String 转 LocalDateTime
      */
     public static LocalDateTime stringToLocalDateTime(String strDateTime, String formatStr) {
+        if (null == strDateTime || "".equals(strDateTime) || null == formatStr || "".equals(formatStr)) {
+            return null;
+        }
         return LocalDateTime.parse(strDateTime, DateTimeFormatter.ofPattern(formatStr));
     }
 
@@ -276,6 +347,9 @@ public class LocalDateTimeUtil {
      * String 转 LocalDate
      */
     public static LocalDate stringToLocalDate(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         return LocalDate.parse(strDateTime, localDateTimeFormat.get(yMd));
     }
 
@@ -283,6 +357,9 @@ public class LocalDateTimeUtil {
      * String 转 Date
      */
     public static Date stringToDate(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         try {
             return simpleDateFormat.get(getTimeFormat(strDateTime)).parse(strDateTime);
         } catch (ParseException e) {
@@ -294,6 +371,9 @@ public class LocalDateTimeUtil {
      * String 转 Timestamp
      */
     public static Timestamp stringToTimestamp(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         return Timestamp.valueOf(strDateTime);
     }
 
@@ -301,6 +381,9 @@ public class LocalDateTimeUtil {
      * String 转 LocalTime
      */
     public static LocalTime stringToLocalTime(String strDateTime, String datetimeFormat) {
+        if (null == strDateTime || "".equals(strDateTime) || null == datetimeFormat || "".equals(datetimeFormat)) {
+            return null;
+        }
         return LocalTime.parse(strDateTime, DateTimeFormatter.ofPattern(datetimeFormat));
     }
 
@@ -308,6 +391,9 @@ public class LocalDateTimeUtil {
      * String 转 LocalTime
      */
     public static LocalTime stringToLocalTime(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         return LocalTime.parse(strDateTime, DateTimeFormatter.ofPattern(HmsSSS));
     }
 
@@ -315,6 +401,9 @@ public class LocalDateTimeUtil {
      * String 转 Time
      */
     public static Time stringToTime(String strDateTime) {
+        if (null == strDateTime || "".equals(strDateTime)) {
+            return null;
+        }
         return Time.valueOf(strDateTime);
     }
 
@@ -322,6 +411,9 @@ public class LocalDateTimeUtil {
      * Long 转 Date
      */
     public static Date longToDate(Long time) {
+        if (null == time) {
+            return null;
+        }
         return new Date(time);
     }
 
@@ -329,6 +421,9 @@ public class LocalDateTimeUtil {
      * Long 转 java.sql.Date
      */
     public static java.sql.Date longToSqlDate(Long time) {
+        if (null == time) {
+            return null;
+        }
         return new java.sql.Date(time);
     }
 
@@ -336,6 +431,9 @@ public class LocalDateTimeUtil {
      * Long 转 java.sql.Time
      */
     public static java.sql.Time longToTime(Long time) {
+        if (null == time) {
+            return null;
+        }
         return new java.sql.Time(time);
     }
 
@@ -343,14 +441,19 @@ public class LocalDateTimeUtil {
      * Long 转 java.sql.Timestamp
      */
     public static Timestamp longToTimestamp(Long time) {
+        if (null == time) {
+            return null;
+        }
         return new java.sql.Timestamp(time);
     }
-
 
     /**
      * Long 转 LocalDateTime
      */
     public static LocalDateTime longToLocalDateTime(Long time) {
+        if (null == time) {
+            return null;
+        }
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
     }
 
@@ -358,6 +461,9 @@ public class LocalDateTimeUtil {
      * Long 转 LocalDate
      */
     public static LocalDate longToLocalDate(Long time) {
+        if (null == time) {
+            return null;
+        }
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(time),ZoneId.systemDefault()).toLocalDate();
     }
 
@@ -365,6 +471,9 @@ public class LocalDateTimeUtil {
      * Long 转 String
      */
     public static String longToString(Long time) {
+        if (null == time) {
+            return null;
+        }
         return simpleDateFormat.get(yMdHms).format(new Date(time));
     }
 
@@ -372,6 +481,9 @@ public class LocalDateTimeUtil {
      * Long 转 String
      */
     public static String longToString(Long time, String formatKey) {
+        if (null == time || null == formatKey || "".equals(formatKey)) {
+            return null;
+        }
         return simpleDateFormat.get(formatKey).format(new Date(time));
     }
 
