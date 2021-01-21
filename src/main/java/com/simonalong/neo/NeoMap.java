@@ -318,9 +318,8 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      * @param value 待检查的值
      * @return null：普通对象；文本：非普通对象
      */
-    @SuppressWarnings("unchecked")
     public static String valueCheck(Object value){
-        Class vClass = value.getClass();
+        Class<?> vClass = value.getClass();
 
         if (vClass.isEnum()) {
             return "对象是枚举类型";
