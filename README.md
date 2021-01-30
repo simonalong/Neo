@@ -659,7 +659,3 @@ public void devideDbTableTest() {
 - 实体代码生成器
 - 分布式id生成器
 - 分库分表
-
-技术讨论群：
-请先加WX，并注明来源<br/><br/>
-<img src="https://cdn.nlark.com/yuque/0/2020/jpeg/126182/1585718526680-2962b152-e238-410a-9b96-78c4a859cb94.jpeg#align=left&display=inline&height=786&name=WechatIMG22058.jpeg&originHeight=786&originWidth=564&size=54481&status=done&style=none&width=564" width = "200" height = "300" div align=left />
