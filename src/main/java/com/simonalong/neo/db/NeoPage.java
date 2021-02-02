@@ -1,31 +1,38 @@
 package com.simonalong.neo.db;
 
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoMap.NamingChg;
-
 /**
  * @author zhouzhenyong
  * @since 2019/3/15 下午3:31
  */
 public final class NeoPage {
 
-    private Integer pageIndex;
+    private Integer pageNo;
     private Integer pageSize;
 
     private NeoPage() {}
 
+    private NeoPage(PageReq<?> neoPageReq) {
+        this.pageNo = neoPageReq.getPageNo();
+        this.pageSize = neoPageReq.getPageSize();
+    }
+
     /**
      * 创建
-     * @param pageIndex 分页页码
+     *
+     * @param pageNo   分页页码
      * @param pageSize 分页大小
      * @return 分页对象
      */
-    public static NeoPage of(Integer pageIndex, Integer pageSize) {
-        return new NeoPage().setPageIndex(pageIndex).setPageSize(pageSize);
+    public static NeoPage of(Integer pageNo, Integer pageSize) {
+        return new NeoPage().setPageNo(pageNo).setPageSize(pageSize);
     }
 
-    public NeoPage setPageIndex(Integer pageIndex) {
-        this.pageIndex = pageIndex;
+    public static NeoPage from(PageReq<?> neoPageReq) {
+        return new NeoPage().setPageNo(neoPageReq.getPageNo()).setPageSize(neoPageReq.getPageSize());
+    }
+
+    public NeoPage setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
         return this;
     }
 
@@ -35,8 +42,8 @@ public final class NeoPage {
     }
 
     public Integer getStartIndex() {
-        if (pageIndex > 0) {
-            return (pageIndex - 1) * pageSize;
+        if (pageNo > 0) {
+            return (pageNo - 1) * pageSize;
         }
         return 0;
     }

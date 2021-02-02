@@ -3,11 +3,17 @@ package com.simonalong.neo.neo;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * @author zhouzhenyong
@@ -15,263 +21,160 @@ import org.junit.Test;
  */
 public class NeoPageTest extends NeoBaseTest {
 
-    public NeoPageTest() throws SQLException {}
+    public NeoPageTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
 
     /**
      * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  limit 0, 20
      */
     @Test
     @SneakyThrows
     public void testPage1(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page1"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page2"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page3"));
+
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page1"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page2"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page3"));
+
+        // page
+        List<NeoMap> resultList = neo.page(TABLE_NAME, NeoMap.of("group", "group_page"), NeoPage.of(1, 20))
+            .stream().map(e->e.assignExcept("id"))
+            .collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultList);
+
+
+        // getPage
+        PageRsp<NeoMap> resultRsp;
+        resultRsp = neo.getPage(TABLE_NAME, NeoMap.of("group", "group_page"), NeoPage.of(1, 20));
+
+        Assert.assertEquals(3, (int) resultRsp.getTotalNum());
+        Assert.assertEquals(dataList, resultRsp.getDataList().stream().map(e->e.assignExcept("id")).collect(Collectors.toList()));
     }
 
     /**
      * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  limit 0, 20
      */
     @Test
     @SneakyThrows
-    public void testPage2(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
-    }
+    public void testPage5() {
+        List<DemoEntity> dataList = Arrays.asList(
+            new DemoEntity().setGroup("group_page1").setName("name_page").setUserName("user1"),
+            new DemoEntity().setGroup("group_page2").setName("name_page").setUserName("user2"),
+            new DemoEntity().setGroup("group_page3").setName("name_page").setUserName("user3"),
+            new DemoEntity().setGroup("group_page4").setName("name_page").setUserName("user4"),
+            new DemoEntity().setGroup("group_page5").setName("name_page").setUserName("user5")
+        );
+        neo.batchInsertEntity(TABLE_NAME, dataList);
 
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  order by `age` limit 0, 20
-     */
-    @Test
-    @SneakyThrows
-    public void testPage3(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1", "order by", "age"), NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  order by `age` limit 0, 20
-     */
-    @Test
-    @SneakyThrows
-    public void testPage4(){
-        show(neo.page(TABLE_NAME, NeoMap.of("group", "nihao1", "order by", "age"), NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     */
-    @Test
-    @SneakyThrows
-    public void testPage5(){
         DemoEntity search = new DemoEntity();
-        search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
+        search.setName("name_page");
+
+        List<DemoEntity> resultList = neo.page(TABLE_NAME, search, NeoPage.of(1, 20));
+        resultList = resultList.stream().map(e -> e.setId(null)).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultList);
     }
+
 
     /**
      * 查询一行数据
-     * 条件通过NeoMap设置
-     */
-    @Test
-    @SneakyThrows
-    public void testPage6(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  order by `group` limit 0, 20
-     */
-    @Test
-    @SneakyThrows
-    public void testPage7(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-     * from neo_table1 where `group` =  ?  order by `group` limit 0, 20
-     */
-    @Test
-    @SneakyThrows
-    public void testPage8(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.page(TABLE_NAME, search, NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 返回指定的几个列
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
      */
     @Test
     @SneakyThrows
     public void testPage9(){
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page1"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page2"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page3"));
+
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("name", "name_page1"));
+        dataList.add(NeoMap.of("name", "name_page2"));
+        dataList.add(NeoMap.of("name", "name_page3"));
+
+        List<NeoMap> resultList = neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "group_page"), NeoPage.of(1, 20));
+
+        Assert.assertEquals(dataList, resultList);
     }
 
     /**
      * 查询一行数据
-     * 返回指定的几个列
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
-     */
-    @Test
-    @SneakyThrows
-    public void testPage10(){
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), NeoMap.of("group", "nihao1"), NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 返回指定的几个列
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' order by group desc
-     */
-    @Test
-    @SneakyThrows
-    public void testPage11(){
-        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1", "order by", "age desc"), NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 返回指定的几个列
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' order by group desc
-     */
-    @Test
-    @SneakyThrows
-    public void testPage12(){
-        show(neo.page(TABLE_NAME, Columns.of("age", "name"), NeoMap.of("group", "nihao1", "order by", "age desc"), NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1'
-     */
-    @Test
-    @SneakyThrows
-    public void testPage13(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1'
-     */
-    @Test
-    @SneakyThrows
-    public void testPage14(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("nihao1");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
-    }
-
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
      */
     @Test
     @SneakyThrows
     public void testPage15(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
-    }
+        List<DemoEntity> dataList = Arrays.asList(
+            new DemoEntity().setGroup("group_page").setName("name_page1"),
+            new DemoEntity().setGroup("group_page").setName("name_page2"),
+            new DemoEntity().setGroup("group_page").setName("name_page3")
+        );
+        neo.batchInsertEntity(TABLE_NAME, dataList);
 
-    /**
-     * 查询一行数据
-     * 条件通过NeoMap设置
-     * 相当于：select `group`,`name` from neo_table1 where `group` = 'group1' limit 1
-     */
-    @Test
-    @SneakyThrows
-    public void testPage16(){
         DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.page(TABLE_NAME, Columns.of("group", "name"), search, NeoPage.of(1, 20)));
+        search.setGroup("group_page");
+
+        List<DemoEntity> resultList = neo.page(TABLE_NAME, Columns.of("name", "group"), search, NeoPage.of(1, 20));
+
+        Assert.assertEquals(dataList, resultList);
     }
 
     /**
      * 普通的分页处理
-     * select * from neo_table1 limit 0, 20
      */
     @Test
-    public void testExePage1(){
-        String table1 = "neo_table1";
-        neo.exePage("select * from %s", 0, 20, table1);
-    }
+    public void testExePage1() {
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page1"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page2"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page3"));
 
-    /**
-     * 对于sql中包含limit 的处理，这里其实跟list已经没有什么区别了，而且还多出了中间两个参数，不建议这样使用
-     *
-     * [select * from neo_table1 limit ?, ?], {params => [0, 12]}
-     */
-    @Test
-    public void testExePage2(){
-        String table1 = "neo_table1";
-        neo.exePage("select * from %s limit ?, ?", 0, 20, table1, 0, 12);
-    }
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("name", "name_page1"));
+        dataList.add(NeoMap.of("name", "name_page2"));
+        dataList.add(NeoMap.of("name", "name_page3"));
 
-    /**
-     * 添加参数的分页处理
-     * [select * from neo_table1 where id < ? limit 12, 20], {params => [1000]}
-     */
-    @Test
-    public void testExePage3(){
-        String table1 = "neo_table1";
-        neo.exePage("select * from %s where id < ?", 12, 20, table1, 1000);
+        List<NeoMap> resultMapList = neo.exePage("select `name` from %s", 0, 20, TABLE_NAME)
+            .stream().map(e->e.getNeoMap(TABLE_NAME))
+            .map(e->e.assignExcept("id")).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultMapList);
     }
 
     /**
      * 指定分页的页面位置
-     * [sql => select * from neo_table1 where id < ? limit 0, 20], {params => [1000] }
      */
     @Test
     public void testExePage4(){
-        String table1 = "neo_table1";
-        neo.exePage("select * from %s where id < ?", NeoPage.of(1, 20), table1, 1000);
-    }
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page1"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page2"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page3"));
 
-    /**
-     * 测试order by
-     */
-    @Test
-    public void testOrderBy1(){
-        // select `name` from neo_table1 where `group` =  ? order by `name` desc  limit 1
-        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc"), NeoPage.of(1, 12)));
-    }
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("name", "name_page1"));
+        dataList.add(NeoMap.of("name", "name_page2"));
+        dataList.add(NeoMap.of("name", "name_page3"));
 
-    @Test
-    public void testOrderBy2(){
-        // select `name` from neo_table1 where `group` =  ? order by `name` desc, `group` asc  limit 1
-        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name desc, group asc"), NeoPage.of(1, 12)));
-    }
+        List<TableMap> pageList = neo.exePage("select `name` from %s where id < ?", NeoPage.of(1, 20), TABLE_NAME, 1000);
 
-    @Test
-    public void testOrderBy3(){
-        // select `name` from neo_table1 where `group` =  ? order by `name`, `group` desc, `id` asc  limit 1
-        show(neo.page(TABLE_NAME, Columns.of("name"), NeoMap.of("group", "g", "order by", "name, group desc, id asc"), NeoPage.of(1, 12)));
+        List<NeoMap> resultMapList = pageList.stream().map(e->e.getNeoMap(TABLE_NAME))
+            .map(e->e.assignExcept("id")).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultMapList);
     }
 }

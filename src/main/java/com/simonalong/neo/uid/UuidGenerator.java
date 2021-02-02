@@ -2,15 +2,20 @@ package com.simonalong.neo.uid;
 
 import com.simonalong.neo.Neo;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
+import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.UuidException;
 import com.simonalong.neo.uid.splicer.DefaultUuidSplicer;
 import com.simonalong.neo.uid.splicer.UuidSplicer;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.simonalong.neo.NeoConstant.BIT_NUM;
 import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
 
 /**
@@ -22,14 +27,25 @@ import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
 @Slf4j
 public final class UuidGenerator {
 
+    /**
+     * 2020-02-22 00:00:00.000 对应的时间
+     */
+    static Long startTime = 1582300800000L;
+    private static final Integer FIRST_YEAR = 2020;
     private Neo neo;
     private static volatile UuidGenerator instance;
     /**
      * key为对应业务命名空间，value为uuid的序列构造器
      */
     private Map<String, UuidSplicer> uUidBuilderMap = new HashMap<>();
+    /**
+     * 数字和字符的对应map
+     */
+    private NeoMap charMap = NeoMap.of();
 
-    private UuidGenerator() {}
+    private UuidGenerator() {
+        initCharMap();
+    }
 
     /**
      * 全局id生成器的构造函数
@@ -59,6 +75,42 @@ public final class UuidGenerator {
         }
     }
 
+    private void initCharMap() {
+        for (Integer i = 0; i < BIT_NUM; i++) {
+            String key = i + "";
+            if (i < 10) {
+                charMap.put(key, i);
+            } else if (i < 36) {
+                charMap.put(key, (char)(i - 10 + 'a'));
+            } else if (i < 62) {
+                charMap.put(key, (char)(i - 36 + 'A'));
+            } else if (i == 62) {
+                charMap.put(key, "-");
+            } else {
+                charMap.put(key, "_");
+            }
+        }
+    }
+
+    /**
+     * 设置启动时间
+     * <p>
+     * 目前当前的启动时间是按照2020年2月22号算起，如果不设置，则最久可以用到2083年左右
+     * @param year 起始时间
+     * @param month 起始时间
+     * @param dayOfMonth 起始时间
+     * @param hour 起始时间
+     * @param minute 起始时间
+     * @param second 起始时间
+     */
+    public static void setStartTime(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+        if (year < FIRST_YEAR) {
+            throw new NeoException("请设置未来时间");
+        }
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
+        startTime = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime();
+    }
+
     /**
      * 添加命名空间
      *
@@ -78,6 +130,27 @@ public final class UuidGenerator {
         return getUUidSplicer(namespace).splice();
     }
 
+    /**
+     * 获取对应命名空间的全局字符
+     *
+     * <p> 通过long型的uid转为字符为 a~zA~Z0~9和两个特殊字符 - _
+     * @param namespace 命名空间
+     * @return 唯一的字符串，最多占11个字符
+     */
+    public String getUUidStr(String namespace) {
+        long uid = getUUid(namespace);
+        Byte[] dataByte = new Byte[11];
+        long mark = (~(-1L << 6));
+        long uidTem = uid;
+        int index = 0;
+        while (uidTem != 0) {
+            dataByte[index++] = ((Long) (uidTem & mark)).byteValue();
+            uidTem = uidTem >>> 6;
+        }
+
+        return Arrays.stream(dataByte).filter(Objects::nonNull).map(e->charMap.getString(e.toString())).reduce((a, b) -> a + b).orElse("");
+    }
+
     private UuidSplicer getUUidSplicer(String namespace) {
         if (!uUidBuilderMap.containsKey(namespace)) {
             throw new UuidException("命名空间" + namespace + "不存在，请先添加命名空间");
@@ -93,5 +166,41 @@ public final class UuidGenerator {
      */
     private void addUUidSplicer(String namespace, UuidSplicer defaultUuidSplicer) {
         uUidBuilderMap.putIfAbsent(namespace, defaultUuidSplicer);
+    }
+
+    /**
+     * 解析uuid
+     *
+     * <ul>
+     *     <li>uuid：对应的是当前的全局id</li>
+     *     <li>symbol：对应的符号位</li>
+     *     <li>time：对应的时间值</li>
+     *     <li>startTime：起始时间</li>
+     *     <li>abstractTime：相对起始时间的具体时间</li>
+     *     <li>sequence：序列值</li>
+     *     <li>workerId：分配的机器id</li>
+     * </ul>
+     * @param uid 全局id
+     * @return 解析的数据
+     */
+    @SuppressWarnings("all")
+    public static NeoMap parseUUid(Long uid) {
+        long symbolMark = 1 << (UuidConstant.SYMBOL_LEFT_SHIFT);
+        long timeMark = (~(-1L << UuidConstant.TIME_BITS)) << UuidConstant.TIME_LEFT_SHIFT;
+        long seqMark = (~(-1L << UuidConstant.SEQ_BITS)) << UuidConstant.SEQ_LEFT_SHIFT;
+        long workerMark = ~(-1L << UuidConstant.WORKER_BITS);
+
+        NeoMap resultMap = NeoMap.of();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        StringBuilder result = new StringBuilder();
+        resultMap.put("uuid", uid);
+        resultMap.put("symbol", (uid & symbolMark) >>> UuidConstant.SYMBOL_LEFT_SHIFT);
+        resultMap.put("time", (uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT);
+        resultMap.put("startTime", dateFormat.format(new Date(startTime)));
+        resultMap.put("abstractTime", dateFormat.format(new Date(((uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT) + UuidConstant.START_TIME)));
+        resultMap.put("sequence", (uid & seqMark) >> UuidConstant.SEQ_LEFT_SHIFT);
+        resultMap.put("workerId", uid & workerMark);
+        return resultMap;
     }
 }

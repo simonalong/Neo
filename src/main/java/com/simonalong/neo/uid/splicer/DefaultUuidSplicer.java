@@ -6,7 +6,7 @@ import com.simonalong.neo.uid.allocator.DefaultBitAllocator;
 import com.simonalong.neo.exception.UuidException;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 import static com.simonalong.neo.uid.UuidConstant.DELAY_START_TIME;
 import static com.simonalong.neo.uid.UuidConstant.SEQ_LEFT_SHIFT;
 import static com.simonalong.neo.uid.UuidConstant.TIME_LEFT_SHIFT;
@@ -52,7 +52,7 @@ public class DefaultUuidSplicer implements UuidSplicer {
             try {
                 this.wait(DELAY_START_TIME);
             } catch (InterruptedException e) {
-                log.warn(LOG_PRE + "延迟启动失败");
+                log.warn(LOG_PRE_NEO + "延迟启动失败");
                 Thread.currentThread().interrupt();
             }
         }

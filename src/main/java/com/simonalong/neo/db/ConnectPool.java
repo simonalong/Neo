@@ -2,11 +2,13 @@ package com.simonalong.neo.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.sql.TxIsolationEnum;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLTransientConnectionException;
 import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.Getter;
@@ -53,22 +55,26 @@ public final class ConnectPool {
             return con;
         }
 
-        con = dataSource.getConnection();
-        // XA事务获取可重用连接
-        if(neo.isXaTransaction()){
-            ReusableConnection reConnection = ReusableConnection.of(con);
-            connectLocal.set(reConnection);
-            return reConnection;
-        }
+        try {
+            con = dataSource.getConnection();
+            // XA事务获取可重用连接
+            if (neo.isXaTransaction()) {
+                ReusableConnection reConnection = ReusableConnection.of(con);
+                connectLocal.set(reConnection);
+                return reConnection;
+            }
 
-        // 本机事务获取可重用连接，而且设置非自动提交
-        if (neo.isTransaction()) {
-            ReusableConnection reConnection = ReusableConnection.of(con);
-            reConnection.setAutoCommit(false);
-            connectLocal.set(reConnection);
-            return reConnection;
+            // 本机事务获取可重用连接，而且设置非自动提交
+            if (neo.isTransaction()) {
+                ReusableConnection reConnection = ReusableConnection.of(con);
+                reConnection.setAutoCommit(false);
+                connectLocal.set(reConnection);
+                return reConnection;
+            }
+            return con;
+        } catch (SQLTransientConnectionException e) {
+            throw new NeoException(e);
         }
-        return con;
     }
 
     /**

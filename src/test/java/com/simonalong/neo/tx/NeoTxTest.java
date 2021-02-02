@@ -4,9 +4,10 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
 import com.simonalong.neo.sql.TxIsolationEnum;
-import java.sql.SQLException;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -17,14 +18,14 @@ import org.junit.Test;
 @Slf4j
 public class NeoTxTest extends NeoBaseTest {
 
-    public NeoTxTest() throws SQLException {}
+    public NeoTxTest() {}
 
     /**
      * 验证普通的处理
      */
     @Test
-    public void test1(){
-        neo.tx(()->{
+    public void test1() {
+        neo.tx(() -> {
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group111"));
             neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group112"));
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group113"));
@@ -56,9 +57,9 @@ public class NeoTxTest extends NeoBaseTest {
      */
     @Test
     @SuppressWarnings("all")
-    public void test3(){
+    public void test3() {
         DemoEntity entity = null;
-        neo.tx(()->{
+        neo.tx(() -> {
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group31"));
             neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group32"));
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group33"));
@@ -74,8 +75,8 @@ public class NeoTxTest extends NeoBaseTest {
      * 验证异常情况下的回退，并且不影响其他的执行
      */
     @Test
-    public void test4(){
-        show(neo.tx(()->{
+    public void test4() {
+        show(neo.tx(() -> {
             neo.update(TABLE_NAME, NeoMap.of("id", 1, "group", "group31"));
             neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group32"));
             neo.update(TABLE_NAME, NeoMap.of("id", 3, "group", "group33"));
@@ -89,10 +90,10 @@ public class NeoTxTest extends NeoBaseTest {
      * 只读事务
      */
     @Test
-    public void test5(){
+    public void test5() {
         AtomicReference<List<String>> groupList = new AtomicReference<>();
         AtomicReference<List<String>> nameList = new AtomicReference<>();
-        neo.tx(true, ()->{
+        neo.tx(true, () -> {
             groupList.set(neo.values(TABLE_NAME, "group"));
             nameList.set(neo.values(TABLE_NAME, "name"));
         });
@@ -107,9 +108,9 @@ public class NeoTxTest extends NeoBaseTest {
      * 事务的隔离级别，需要返回值
      */
     @Test
-    public void test6(){
+    public void test6() {
         // {age=2, group=kk, id=11, name=name333}
-        show(neo.tx(TxIsolationEnum.TX_R_R, ()->{
+        show(neo.tx(TxIsolationEnum.TX_R_R, () -> {
             neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
             return neo.one(TABLE_NAME, NeoMap.of("id", 11));
         }));
@@ -119,9 +120,9 @@ public class NeoTxTest extends NeoBaseTest {
      * 事务的隔离级别，不需要返回值
      */
     @Test
-    public void test7(){
+    public void test7() {
         // {age=2, group=kk, id=11, name=name333}
-        neo.tx(TxIsolationEnum.TX_R_R, ()->{
+        neo.tx(TxIsolationEnum.TX_R_R, () -> {
             neo.update(TABLE_NAME, NeoMap.of("group", "kk"), NeoMap.of("id", 11));
             neo.one(TABLE_NAME, NeoMap.of("id", 11));
         });
@@ -131,8 +132,8 @@ public class NeoTxTest extends NeoBaseTest {
      * 事务的异常返回
      */
     @Test(expected = Throwable.class)
-    public void test8(){
-        neo.tx(()->{
+    public void test8() {
+        neo.tx(() -> {
             neo.insert(TABLE_NAME, NeoMap.of("id", 12));
         });
     }

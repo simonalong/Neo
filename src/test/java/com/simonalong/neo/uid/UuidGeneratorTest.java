@@ -1,6 +1,5 @@
 package com.simonalong.neo.uid;
 
-import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,7 +15,7 @@ import org.junit.Test;
  */
 public class UuidGeneratorTest extends UuidBaseTest {
 
-    public UuidGeneratorTest() throws SQLException {}
+    public UuidGeneratorTest()  {}
 
     private ExecutorService executorService = Executors.newFixedThreadPool(1000, new ThreadFactory() {
         private AtomicInteger count = new AtomicInteger(0);

@@ -1,23 +1,24 @@
 package com.simonalong.neo.db;
 
 import static com.simonalong.neo.NeoConstant.ALL_FIELD;
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 import com.simonalong.neo.Neo;
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.db.NeoColumn.NeoInnerColumn;
 import com.simonalong.neo.db.NeoTable.Table;
 import com.simonalong.neo.db.TableIndex.Index;
 import com.simonalong.neo.exception.NeoException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
+@EqualsAndHashCode(of = {"rdbmsName", "catalogName", "schemaToTableMap"})
 public final class NeoDb {
 
     private Neo neo;
@@ -35,11 +37,11 @@ public final class NeoDb {
     /**
      * catalog 名字，目录，注意：在某些数据库中，这个就是库名，这个跟NeoDb对象是一对一的
      */
-    private String catalogName;
+    private final String catalogName;
     /**
      * schema（模式）和数据表的映射，其中catalog和schema有些数据库是不支持的，比如mysql就没有schema，则默认为：default
      */
-    private Map<String, Map<String, NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
+    private final Map<String, Map<String, NeoTable>> schemaToTableMap = new ConcurrentHashMap<>(1);
 
     private NeoDb(Neo neo, String rdbmsName, String catalogName) {
         this.neo = neo;
@@ -74,11 +76,11 @@ public final class NeoDb {
      * @param tableName 库中的表名
      * @return 自增的主键的列名，如果没有，则返回null
      */
-    public String getPrimaryAndAutoIncName(String schemaName, String tableName){
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType(String schemaName, String tableName){
         schemaName = base(schemaName);
         NeoTable neoTable = getTable(schemaName, tableName);
         if (null != neoTable) {
-            return neoTable.getPrimaryKeyAutoIncName();
+            return neoTable.getPrimaryKeyAutoIncNameAndType();
         }
         return null;
     }
@@ -88,8 +90,8 @@ public final class NeoDb {
      * @param tableName 表名
      * @return 自增的主键列名
      */
-    public String getPrimaryAndAutoIncName(String tableName){
-        return getPrimaryAndAutoIncName(null, tableName);
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType(String tableName){
+        return getPrimaryKeyAutoIncNameAndType(null, tableName);
     }
 
     /**
@@ -139,19 +141,19 @@ public final class NeoDb {
         });
     }
 
-    public void addColumn(String schema, String tableName, Set<NeoColumn> columnList){
+    public void addColumn(String schema, String tableName, Set<NeoColumn> columnSet){
         schema = base(schema);
         schemaToTableMap.computeIfPresent(schema, (k, v) -> {
             NeoTable table = v.get(tableName);
             if(null != table) {
-                table.setColumnList(columnList);
+                table.setColumnSet(columnSet);
             }
             return v;
         });
     }
 
-    public void addColumn(String tableName, Set<NeoColumn> columnList){
-        addColumn(null, tableName, columnList);
+    public void addColumn(String tableName, Set<NeoColumn> columnSet){
+        addColumn(null, tableName, columnSet);
     }
 
     public void setPrimaryKey(String schema, String tableName, String columnName){
@@ -171,7 +173,7 @@ public final class NeoDb {
                 .findFirst().orElse(null);
         }
         if (null == table) {
-            log.warn(LOG_PRE + "表" + tableName + "没有找到");
+            log.warn(LOG_PRE_NEO + "表" + tableName + "没有找到");
         }
         return table;
     }
@@ -213,7 +215,7 @@ public final class NeoDb {
         if (null == neoTable) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(neoTable.getColumnList());
+        return new ArrayList<>(neoTable.getColumnSet());
     }
 
     public List<Index> getIndexList(String tableName){
@@ -249,10 +251,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     getAllTables(con, tableSet, null, tablePres);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "getAllTables error", e);
+                    log.error(LOG_PRE_NEO + "getAllTables error", e);
                 }
             } else {
-                log.error(LOG_PRE + "getAllTables error", e);
+                log.error(LOG_PRE_NEO + "getAllTables error", e);
             }
         }
         return tableSet;
@@ -263,7 +265,7 @@ public final class NeoDb {
         ResultSet rs = dbMeta.getTables(catalog, null, null, new String[]{"TABLE"});
         List<String> tablePreList = Arrays.asList(tablePres);
         while (rs.next()) {
-            Table table = Table.parse(rs);
+            Table table = Table.parse(neo, rs);
             if (concernTable(tablePreList, table.getTableName())){
                 tableSet.add(table.getTableName());
                 addTable(neo, table);
@@ -302,29 +304,22 @@ public final class NeoDb {
      * 初始化表中的列信息
      * @param tableName 表名
      */
-    @SuppressWarnings("all")
-    private void initColumnMeta(String tableName){
+    private void initColumnMeta(String tableName) {
         try (Connection con = neo.getConnection()) {
-            Map<String, NeoInnerColumn> columnMap = generateColumnMetaMap(con, tableName);
-            String sql = "select * from " + tableName + " limit 1";
-
-            try (PreparedStatement statement = con.prepareStatement(sql)) {
-                ResultSet rs = statement.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                Set<NeoColumn> columnList = new LinkedHashSet<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    NeoColumn column = NeoColumn.parse(metaData, i);
-                    column.setInnerColumn(columnMap.get(column.getColumnName()));
-                    columnList.add(column);
+            try {
+                Set<NeoColumn> columnSet = new HashSet<>();
+                // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
+                ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, tableName, null);
+                while (rs.next()) {
+                    columnSet.add(NeoColumn.from(NeoInnerColumn.parse(neo, rs)));
                 }
-                addColumn(tableName, columnList);
+
+                addColumn(tableName, columnSet);
             } catch (SQLException e) {
-                log.error(LOG_PRE + "initColumnMeta error", e);
+                log.error(LOG_PRE_NEO + "generateColumnMetaMap error", e);
             }
         } catch (SQLException e) {
-            log.error(LOG_PRE + "initColumnMeta error", e);
+            log.error(LOG_PRE_NEO + "initColumnMeta error", e);
         }
     }
 
@@ -339,11 +334,11 @@ public final class NeoDb {
             // 最后一个参数表示是否要求结果的准确性，倒数第二个表示是否唯一索引
             ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, tableName, null);
             while (rs.next()) {
-                NeoInnerColumn innerColumn = NeoInnerColumn.parse(rs);
+                NeoInnerColumn innerColumn = NeoInnerColumn.parse(neo, rs);
                 columnMap.put(innerColumn.getColumnName(), innerColumn);
             }
         } catch (SQLException e) {
-            log.error(LOG_PRE + "generateColumnMetaMap error", e);
+            log.error(LOG_PRE_NEO + "generateColumnMetaMap error", e);
         }
         return columnMap;
     }
@@ -359,10 +354,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initPrimary(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "initPrimary error", ex);
+                    log.error(LOG_PRE_NEO + "initPrimary error", ex);
                 }
             } else {
-                log.error(LOG_PRE + "initPrimary error", e);
+                log.error(LOG_PRE_NEO + "initPrimary error", e);
             }
         }
     }
@@ -386,10 +381,10 @@ public final class NeoDb {
                 try (Connection con = neo.getConnection()) {
                     initIndex(con, tableName, null, null);
                 } catch (SQLException ex) {
-                    log.error(LOG_PRE + "initIndex error", ex);
+                    log.error(LOG_PRE_NEO + "initIndex error", ex);
                 }
             } else {
-                log.error(LOG_PRE + "initIndex error", e);
+                log.error(LOG_PRE_NEO + "initIndex error", e);
             }
         }
     }
@@ -401,7 +396,7 @@ public final class NeoDb {
         while (rs.next()) {
             NeoTable table = getTable(tableName);
             if(null == table) {
-                log.warn(LOG_PRE + "表" + tableName + "没有找到");
+                log.warn(LOG_PRE_NEO + "表" + tableName + "没有找到");
             }else{
                 table.initIndex(rs);
             }

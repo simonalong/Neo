@@ -6,7 +6,7 @@
 
     <groupId>com.github.simonalong</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 
     <name>Neo</name>
     <url>https://github.com/SimonAlong/Neo</url>
@@ -24,7 +24,7 @@
             <name>zhouzhenyong</name>
             <email>simonalongs@126.com</email>
             <roles>
-                <role>developer</role>
+                <role>owner</role>
             </roles>
         </developer>
     </developers>
@@ -116,6 +116,13 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.46</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+            <optional>true</optional>
         </dependency>
 
         <!--模板引擎-->
@@ -186,21 +193,21 @@
                 </executions>
             </plugin>
 
-            <!-- GPG -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--&lt;!&ndash; GPG &ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                <!--<version>1.6</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>sign-artifacts</id>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>sign</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
 
             <!--自动发布到中央仓库后自动执行-->
             <plugin>

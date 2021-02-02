@@ -14,7 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +32,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * key：为表名，value：为表中对应的数据：key为列，value为列值
      */
-    private Map<String, NeoMap> dataMap = new ConcurrentSkipListMap<>();
+    private Map<String, NeoMap> dataMap = new ConcurrentHashMap<>();
 
     public static TableMap of(Object... kvs) {
         return TableMap.of(DEFAULT_TABLE, kvs);
@@ -110,7 +110,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             return tableMap;
         }
 
-        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList);
+        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList, false);
         tableMap.put(tableName, neoMap);
         return tableMap;
     }
@@ -279,15 +279,21 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     @Override
+    @SuppressWarnings("all")
     public Object get(Object key) {
-        return dataMap.get(key);
+        if (dataMap.containsKey(key)) {
+            return dataMap.get(key);
+        } else if (dataMap.containsKey(DEFAULT_TABLE)) {
+            return dataMap.get(DEFAULT_TABLE);
+        }
+        return null;
     }
 
     public Object get(String tableName, String key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).get(key);
         } else if (dataMap.containsKey(DEFAULT_TABLE)) {
-            return dataMap.get(DEFAULT_TABLE).containsValue(key);
+            return dataMap.get(DEFAULT_TABLE).get(key);
         }
         return null;
     }
@@ -463,7 +469,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return dataMap.entrySet().stream().map(v -> new ConcurrentSkipListMap.SimpleImmutableEntry<>(v.getKey(), (Object) v.getValue())).collect(Collectors.toSet());
+        return dataMap.entrySet().stream().map(v -> new NeoMap.Node(v.getKey(), v.getValue())).collect(Collectors.toSet());
     }
 
     public Set<Entry<String, Object>> entrySet(String tableName) {
@@ -599,7 +605,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      * @return 表名和属性名
      */
     private Entry<String, String> getTableAndFieldName(Class<?> tClass, Field field, String tableName, NeoMap.NamingChg namingChg) {
-        String tableFinalName = null;
+        String tableFinalName = tableName;
         String columnFinalName;
 
         if (!namingChg.equals(NeoMap.NamingChg.DEFAULT)) {
@@ -626,7 +632,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             }
         }
 
-        if (null != tableName && !"".equals(tableName)) {
+        if (null != tableName && !"".equals(tableName) && !DEFAULT_TABLE.equals(tableName)) {
             tableFinalName = tableName;
         }
 

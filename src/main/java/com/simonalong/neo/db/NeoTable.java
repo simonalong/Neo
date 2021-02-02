@@ -1,7 +1,7 @@
 package com.simonalong.neo.db;
 
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.core.AbstractBaseTable;
 import com.simonalong.neo.db.TableIndex.Index;
 import java.sql.ResultSet;
@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import lombok.Data;
 import lombok.Getter;
@@ -19,7 +17,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * @author zhouzhenyong
@@ -41,13 +39,13 @@ public class NeoTable extends AbstractBaseTable {
     /**
      * 索引
      */
-    private TableIndex index = new TableIndex();
+    private final TableIndex index = new TableIndex();
     /**
      * 列信息
      */
     @Getter
     @Setter
-    private Set<NeoColumn> columnList = new HashSet<>();
+    private Set<NeoColumn> columnSet = new HashSet<>();
     @Getter
     private Table tableMata;
 
@@ -57,10 +55,10 @@ public class NeoTable extends AbstractBaseTable {
         this.tableName = tableMata.getTableName();
     }
 
-    public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnList){
+    public NeoTable(Neo neo, String tableName, Set<NeoColumn> columnSet){
         this.neo = neo;
         this.tableName = tableName;
-        this.columnList = columnList;
+        this.columnSet = columnSet;
     }
 
     @Override
@@ -108,9 +106,18 @@ public class NeoTable extends AbstractBaseTable {
      * <p>
      * @return 主键且自增的列的名字
      */
-    String getPrimaryKeyAutoIncName() {
-        return columnList.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
+    public String getPrimaryKeyAutoIncName() {
+        return columnSet.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(NeoColumn::getColumnName).findFirst()
             .orElse(null);
+    }
+
+    /**
+     * 获取表中的自增的主键名字和主键对应的java类型
+     * <p>
+     * @return 主键且自增的列的名字
+     */
+    public Pair<String, ? extends Class<?>> getPrimaryKeyAutoIncNameAndType() {
+        return columnSet.stream().filter(NeoColumn::isPrimaryAndAutoInc).map(e-> new Pair<>(e.getColumnName(), e.getJavaClass())).findFirst().orElse(new Pair<>(null, null));
     }
 
     /**
@@ -119,12 +126,19 @@ public class NeoTable extends AbstractBaseTable {
      * @return 主键的列名
      */
     public String getPrimary() {
-        return columnList.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()
+        return columnSet.stream().filter(NeoColumn::getIsPrimaryKey).map(NeoColumn::getColumnName).findFirst()
             .orElse(null);
     }
 
+    /**
+     * 清理表数据
+     */
+    public void truncate() {
+        getDb().truncateTable(getTableName());
+    }
+
     void setPrimary(String columnName) {
-        for (NeoColumn column : columnList) {
+        for (NeoColumn column : columnSet) {
             if(column.getColumnName().equals(columnName)){
                 column.setIsPrimaryKey(true);
             }
@@ -209,21 +223,27 @@ public class NeoTable extends AbstractBaseTable {
 
         private Table(){}
 
-        public static Table parse(ResultSet rs){
+        public static Table parse(Neo neo, ResultSet rs){
             try {
-                return new Table()
-                    .setCatalog(rs.getString(TABLE_CAT))
-                    .setSchema(rs.getString(TABLE_SCHEM))
-                    .setTableName(rs.getString(TABLE_NAME))
-                    .setTableType(rs.getString(TABLE_TYPE))
-                    .setRemarks(rs.getString(REMARKS))
-                    .setTypeCatalog(rs.getString(TYPE_CAT))
-                    .setTypeSchema(rs.getString(TYPE_SCHEM))
-                    .setTypeName(rs.getString(TYPE_NAME))
-                    .setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME))
-                    .setRefGeneration(rs.getString(REF_GENERATION));
+                Table table = new Table();
+                table.setCatalog(rs.getString(TABLE_CAT));
+                table.setSchema(rs.getString(TABLE_SCHEM));
+                table.setTableName(rs.getString(TABLE_NAME));
+                table.setTableType(rs.getString(TABLE_TYPE));
+                table.setRemarks(rs.getString(REMARKS));
+
+                // pg不支持
+                if (!neo.getDbType().equals(DbType.PGSQL)) {
+                    table.setTypeCatalog(rs.getString(TYPE_CAT));
+                    table.setTypeSchema(rs.getString(TYPE_SCHEM));
+                    table.setTypeName(rs.getString(TYPE_NAME));
+                    table.setSelfReferencingColName(rs.getString(SELF_REFERENCING_COL_NAME));
+                    table.setRefGeneration(rs.getString(REF_GENERATION));
+                }
+
+                return table;
             } catch (SQLException e) {
-                log.error(LOG_PRE + "parse error", e);
+                log.error(LOG_PRE_NEO + "parse error", e);
             }
             return new Table();
         }

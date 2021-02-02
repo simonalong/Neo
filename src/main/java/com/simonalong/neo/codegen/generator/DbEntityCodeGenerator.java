@@ -50,7 +50,7 @@ public class DbEntityCodeGenerator extends AbstractEntityCodeGenerator {
             .map(c -> NeoMap.from(new FieldInfo().setFieldType(c.getJavaClass().getSimpleName())
                 .setFieldRemark(c.getInnerColumn().getRemarks())
                 .setFieldName(configContext.getFieldNamingChg().otherToSmallCamel(c.getColumnName()))
-                .setColumnName(c.getColumnName())))
+                .setColumnName(c.getColumnName()), NeoMap.NamingChg.DEFAULT))
             .collect(Collectors.toList());
     }
 

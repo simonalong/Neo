@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -26,26 +28,18 @@ public class ObjectUtilTest extends BaseTest {
 
     @Test
     public void CharTest() {
-        //c
-        show(ObjectUtil.cast(Character.class, 'c'));
-        //a
-        show(ObjectUtil.cast(Character.class, "adsf"));
-        //1
-        show(ObjectUtil.cast(Character.class, 1f));
-        //1
-        show(ObjectUtil.cast(char.class, 1f));
+        Assert.assertEquals(Character.valueOf('c'), ObjectUtil.cast(Character.class, 'c'));
+        Assert.assertEquals(Character.valueOf('a'), ObjectUtil.cast(Character.class, "adsf"));
+        Assert.assertEquals(Character.valueOf('1'), ObjectUtil.cast(Character.class, 1f));
+        Assert.assertEquals(Character.valueOf('1'), ObjectUtil.cast(char.class, 1f));
     }
 
     @Test
     public void StringTest() {
-        //ok
-        show(ObjectUtil.cast(String.class, "ok"));
-        //1
-        show(ObjectUtil.cast(String.class, 1));
-        //1.0
-        show(ObjectUtil.cast(String.class, 1f));
-        //{a=12}
-        show(ObjectUtil.cast(String.class, NeoMap.of("a", 12)));
+        Assert.assertEquals("ok", ObjectUtil.cast(String.class, "ok"));
+        Assert.assertEquals("1", ObjectUtil.cast(String.class, 1));
+        Assert.assertEquals("1.0", ObjectUtil.cast(String.class, 1f));
+        Assert.assertEquals("{a=12}", ObjectUtil.cast(String.class, NeoMap.of("a", 12)));
     }
 
     /**
@@ -53,71 +47,57 @@ public class ObjectUtilTest extends BaseTest {
      */
     @Test
     public void ByteTest() {
-        // 1
-        show(ObjectUtil.cast(Byte.class, 1));
-        // 127
-        show(ObjectUtil.cast(Byte.class, 127));
-        // 127
-        show(ObjectUtil.cast(byte.class, 127));
-        // -128
-        show(ObjectUtil.cast(Byte.class, 128));
-        // -57
-        show(ObjectUtil.cast(Byte.class, 199));
-        // null
-//        show(ObjectUtil.cast(Byte.class, "ok"));
+        Assert.assertEquals(Byte.valueOf("1"), ObjectUtil.cast(Byte.class, 1));
+        Assert.assertEquals(Byte.valueOf("127"), ObjectUtil.cast(Byte.class, 127));
+        Assert.assertEquals(Byte.valueOf("127"), ObjectUtil.cast(byte.class, 127));
+        Assert.assertEquals(Byte.valueOf("-128"), ObjectUtil.cast(Byte.class, 128));
+        Assert.assertEquals(Byte.valueOf("-57"), ObjectUtil.cast(Byte.class, 199));
     }
 
     @Test
     public void ShortTest() {
-        Short s = 1;
-        show(ObjectUtil.cast(Short.class, s));
-        show(ObjectUtil.cast(short.class, s));
-//        show(ObjectUtil.cast(Short.class, "s"));
+        Assert.assertEquals(Short.valueOf("1"), ObjectUtil.cast(Short.class, 1));
+        Assert.assertEquals(Short.valueOf("1"), ObjectUtil.cast(short.class, 1));
     }
 
     @Test
     public void IntegerTest() {
-        Integer s = 1;
-        show(ObjectUtil.cast(Integer.class, s));
-        show(ObjectUtil.cast(int.class, s));
-//        show(ObjectUtil.cast(Integer.class, "s"));
+        Assert.assertEquals(Integer.valueOf("1"), ObjectUtil.cast(Integer.class, 1));
+        Assert.assertEquals(Integer.valueOf("1"), ObjectUtil.cast(int.class, 1));
     }
 
     @Test
     public void LongTest() {
-        Long s = 1L;
-        show(ObjectUtil.cast(Long.class, s));
-        show(ObjectUtil.cast(long.class, s));
-        show(ObjectUtil.cast(Long.class, "s"));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(Long.class, 1L));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(long.class, 1L));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(Long.class, 1L));
     }
 
     @Test
     public void DoubleTest() {
-        Double s = 1D;
-        show(ObjectUtil.cast(Long.class, s));
-        show(ObjectUtil.cast(long.class, s));
-//        show(ObjectUtil.cast(Long.class, "s"));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(Long.class, 1D));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(long.class, 1D));
+        Assert.assertEquals(Long.valueOf("1"), ObjectUtil.cast(Long.class, 1D));
     }
 
     @Test
     public void FloatTest() {
-        Float s = 1F;
-        show(ObjectUtil.cast(Float.class, s));
-        show(ObjectUtil.cast(float.class, s));
-        show(ObjectUtil.cast(Float.class, "s"));
+        Assert.assertEquals(Float.valueOf("1"), ObjectUtil.cast(Float.class, 1F));
+        Assert.assertEquals(Float.valueOf("1"), ObjectUtil.cast(float.class, 1F));
+        Assert.assertEquals(Float.valueOf("1"), ObjectUtil.cast(Float.class, 1F));
     }
 
     @Test
     public void EnumTest() {
-        show(ObjectUtil.cast(EnumEntity.class, "T1"));
-        show(ObjectUtil.cast(EnumEntity.class, 12));
+        Assert.assertEquals(EnumEntity.T1, ObjectUtil.cast(EnumEntity.class, "T1"));
+        Assert.assertNull(ObjectUtil.cast(EnumEntity.class, 12));
     }
 
     @Test
     public void ArrayTest() {
         Integer[] integers = new Integer[]{1, 34, 5, 15};
         // [1,34,5,15]
-        show(JSON.toJSONString(ObjectUtil.toArray(integers)));
+        ObjectUtil.toArray(integers);
     }
 
     @Test

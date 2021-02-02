@@ -3,8 +3,10 @@ package com.simonalong.neo.core.join;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.core.DefaultExecutor;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -62,6 +64,28 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, joinColumns, tableJoinOn, tableMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, joinColumns, tableJoinOn, searchExpress), executor);
+    }
+
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(joinColumns, tableJoinOn, tableMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(joinColumns, tableJoinOn, searchExpress), executor);
+    }
+
+
+    @Override
     public CompletableFuture<List<TableMap>> pageAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(columns, tableJoinOn, searchMap, neoPage), executor);
     }
@@ -73,7 +97,17 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> count(columns, tableJoinOn, searchMap), executor);
+    public CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(joinColumns, tableJoinOn, tableMap, neoPage), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, joinColumns, tableJoinOn, tableMap, neoPage), executor);
+    }
+
+    @Override
+    public CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap searchMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> count(tableJoinOn, searchMap), executor);
     }
 }

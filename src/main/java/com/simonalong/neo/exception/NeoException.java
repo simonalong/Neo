@@ -6,6 +6,10 @@ package com.simonalong.neo.exception;
  */
 public class NeoException extends RuntimeException {
 
+    public NeoException() {
+        super();
+    }
+
     public NeoException(String msg, Throwable throwable){
         super(msg, throwable);
     }

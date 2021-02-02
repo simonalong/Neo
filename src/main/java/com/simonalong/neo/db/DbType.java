@@ -10,8 +10,9 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public enum DbType {
+
     /**
-     * mysql
+     * mysql 默认
      */
     MYSQL("jdbc:mysql"),
     /**

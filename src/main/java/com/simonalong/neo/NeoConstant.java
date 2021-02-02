@@ -11,7 +11,7 @@ public interface NeoConstant {
     /**
      * 日志前缀
      */
-    String LOG_PRE = "[Neo] ";
+    String LOG_PRE_NEO = "[Neo] ";
     /**
      * SQL 的order by
      */
@@ -20,14 +20,7 @@ public interface NeoConstant {
      * SQL 的limit
      */
     String LIMIT = "limit";
-    /**
-     * SQL 的desc
-     */
-    String DESC = "desc";
-    /**
-     * SQL 的asc
-     */
-    String ASC = "asc";
+
     /**
      * 所有列名
      */
@@ -44,18 +37,6 @@ public interface NeoConstant {
      * 默认表
      */
     String DEFAULT_TABLE = "_default_";
-    /**
-     * 多表时候中间的分割
-     */
-    String ALIAS_DOM = "_dom_";
-    /**
-     * SQL 的as
-     */
-    String AS = " as ";
-    /**
-     * SQL 的数据库列的分隔标识符
-     */
-    String COLUMN_PRE = "`";
 
     /**
      * 函数：execute
@@ -65,4 +46,36 @@ public interface NeoConstant {
      * 函数：executeBatch
      */
     String FUN_EXECUTE_BATCH = "executeBatch";
+
+    /**
+     * bit的个数
+     */
+    int BIT_NUM = 64;
+
+    String AND = "and";
+    String OR = "or";
+    String EMPTY = "";
+    /**
+     * SQL 的desc
+     */
+    String DESC = "desc";
+    /**
+     * SQL 的asc
+     */
+    String ASC = "asc";
+    String GROUP_BY = "group by";
+    String IS_NOT_NULL = "is not null";
+    String IS_NULL = "is null";
+    String ONT_IN = "not in";
+    String IN = "in";
+    String NOT_LIKE = "not like";
+    String LIKE = "like";
+
+    String EQUAL = "=";
+    String SPACE = " ";
+    String LESS_EQUAL = "<=";
+    String GREATER_EQUAL = ">=";
+    String LESS_THAN = "<";
+    String GREATER_THAN = ">";
+    String NOT_EQUAL = "!=";
 }

@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 import lombok.Data;
 
 /**
-<#if tableRemark != "">
+<#if tableRemark ??>
  * ${tableRemark}
 </#if>
  * @author robot

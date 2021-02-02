@@ -3,9 +3,9 @@ package com.simonalong.neo.neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
+
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * @author zhouzhenyong
@@ -13,15 +13,21 @@ import org.junit.Test;
  */
 public class NeoCountTest extends NeoBaseTest {
 
-    public NeoCountTest() throws SQLException {}
+    public NeoCountTest() {}
 
-    /**
-     * 查询表的总数
-     */
-    @Test
-    @SneakyThrows
-    public void testCount1(){
-        show(neo.exeCount("select count(1) from %s where `group`=?", TABLE_NAME, "nihao1"));
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
     }
 
     /**
@@ -29,8 +35,21 @@ public class NeoCountTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testCount2(){
-        show(neo.exeCount("select count(1) from neo_table1 where `group`=?", "nihao1"));
+    public void testCount1() {
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        neo.insert(TABLE_NAME, dataMap);
+        Assert.assertEquals(1, (int) neo.exeCount("select count(1) from %s where `group`=?", TABLE_NAME, "group_count"));
+    }
+
+    /**
+     * 查询表的总数
+     */
+    @Test
+    @SneakyThrows
+    public void testCount2() {
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        neo.insert("neo_table1", dataMap);
+        Assert.assertEquals(1, (int) neo.exeCount("select count(1) from neo_table1 where `group`=?", "group_count"));
     }
 
     /**
@@ -39,8 +58,10 @@ public class NeoCountTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testCount3(){
-        show(neo.count(TABLE_NAME));
+    public void testCount3() {
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        neo.insert("neo_table1", dataMap);
+        Assert.assertEquals(1, (int) neo.count(TABLE_NAME));
     }
 
     /**
@@ -49,10 +70,13 @@ public class NeoCountTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testCount4(){
+    public void testCount4() {
         DemoEntity search = new DemoEntity();
-        search.setGroup("group2");
-        show(neo.count(TABLE_NAME, search));
+        search.setGroup("group_count");
+        search.setName("name_count");
+
+        neo.insert("neo_table1", search);
+        Assert.assertEquals(1, (int) neo.count(TABLE_NAME, search));
     }
 
     /**
@@ -61,7 +85,10 @@ public class NeoCountTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testCount5(){
-        show(neo.count(TABLE_NAME, NeoMap.of("group", "nihao1")));
+    public void testCount5() {
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        neo.insert("neo_table1", dataMap);
+
+        Assert.assertEquals(1, (int) neo.count(TABLE_NAME, dataMap));
     }
 }

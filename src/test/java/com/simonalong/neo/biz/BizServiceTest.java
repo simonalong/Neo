@@ -4,9 +4,13 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBizService;
 import com.simonalong.neo.entity.TestEntity;
-import java.sql.SQLException;
 import lombok.SneakyThrows;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author zhouzhenyong
@@ -14,12 +18,12 @@ import org.junit.Test;
  */
 public class BizServiceTest extends AbstractBizService {
 
-    public BizServiceTest() throws SQLException {
+    public BizServiceTest() {
     }
 
     @Override
     public Neo getDb() {
-        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true";
         String user = "neo_test";
         String password = "neo@Test123";
         return Neo.connect(url, user, password);
@@ -30,28 +34,27 @@ public class BizServiceTest extends AbstractBizService {
         return "neo_table1";
     }
 
-    @Test
-    public void testInsert() {
-        TestEntity entity = new TestEntity()
-            .setGroup("ok")
-            .setUserName("me")
-            .setName("hello");
-        System.out.println(insert(entity));
+    @Before
+    public void beforeTest() {
+        getDb().truncateTable(getTableName());
     }
 
     @Test
-    @SneakyThrows
-    public void testInsertAsync(){
-        insertAsync(NeoMap.of("group", "ok")).thenAccept(r->{
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(Thread.currentThread().getName());
-            System.out.println(r);
-        });
+    public void testInsert() {
+        TestEntity entity = new TestEntity().setGroup("ok").setUserName("me").setName("hello");
+        System.out.println(insert(entity));
+    }
 
-        Thread.sleep(10000);
+
+    @Test
+    @SneakyThrows
+    public void testInsertAsync() {
+        CountDownLatch latch = new CountDownLatch(1);
+        insertAsync(NeoMap.of("group", "biz_async_group", "name", "biz_async_name")).thenAccept(r -> latch.countDown());
+
+        latch.await();
+
+        String name = value("name", NeoMap.of("group", "biz_async_group"));
+        Assert.assertEquals("biz_async_name", name);
     }
 }

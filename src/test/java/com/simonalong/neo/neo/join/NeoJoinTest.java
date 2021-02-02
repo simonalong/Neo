@@ -3,7 +3,6 @@ package com.simonalong.neo.neo.join;
 import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.TableJoinOn;
-import com.simonalong.neo.sql.InList;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import org.junit.Test;
 
@@ -141,12 +140,10 @@ public class NeoJoinTest extends NeoBaseTest {
         tableJoinOn.leftJoin("neo_table1", "neo_table2").on("id", "n_id");
         tableJoinOn.leftJoin("neo_table2", "neo_table3").on("n_id", "n_id");
 
-        List<Integer> dataList = Arrays.asList(12, 34, 232);
         // 配置查询条件
         TableMap searchMap = TableMap.of();
         searchMap.put("neo_table1", "name", "nihao");
         searchMap.put("neo_table2", "group", "ok");
-        searchMap.put("neo_table2", "n_id", new InList(dataList));
 
         // select
         //
@@ -367,7 +364,7 @@ public class NeoJoinTest extends NeoBaseTest {
         show(neoJoiner.value(columns, tableJoinOn, searchMap));
         show(neoJoiner.values(columns, tableJoinOn, searchMap));
         show(neoJoiner.page(columns, tableJoinOn, searchMap, NeoPage.of(1, 20)));
-        show(neoJoiner.count(columns, tableJoinOn, searchMap));
+        show(neoJoiner.count(tableJoinOn, searchMap));
 
         show(JoinSqlBuilder.build(columns, tableJoinOn, searchMap));
     }

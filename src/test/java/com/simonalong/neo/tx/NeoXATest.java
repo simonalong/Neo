@@ -6,10 +6,9 @@ import com.mysql.cj.jdbc.MysqlXid;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.db.xa.NeoXa;
+import com.simonalong.neo.xa.NeoXa;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -24,7 +23,7 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class NeoXATest extends NeoBaseTest {
 
-    public NeoXATest() throws SQLException {
+    public NeoXATest()  {
     }
 
     /**

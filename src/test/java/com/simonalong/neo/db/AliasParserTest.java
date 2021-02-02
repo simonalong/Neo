@@ -43,5 +43,4 @@ public class AliasParserTest {
         Assert.assertEquals("g", getAlias("group g"));
         Assert.assertEquals("groupg", getAlias("groupg"));
     }
-
 }

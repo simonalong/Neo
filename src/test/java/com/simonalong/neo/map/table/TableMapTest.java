@@ -23,17 +23,7 @@ public class TableMapTest extends BaseTest {
      * 测试of
      */
     @Test
-    public void testOf1(){
-        TableMap tableMap = TableMap.of();
-        // {}
-        show(tableMap);
-    }
-
-    /**
-     * 测试of
-     */
-    @Test
-    public void testOf2(){
+    public void testOf() {
         TableMap tableMap = TableMap.of("table1", "name", "nana", "age", 12);
         Assert.assertEquals(tableMap.get("table1"), NeoMap.of("name", "nana", "age", 12));
     }
@@ -42,35 +32,35 @@ public class TableMapTest extends BaseTest {
      * 测试from
      */
     @Test
-    public void testFrom1(){
+    public void testFrom1() {
         TableMapEntity entity = new TableMapEntity();
         entity.setName("nana");
         entity.setAge(12);
         entity.setUserName("user");
         TableMap tableMap = TableMap.from("table1", entity);
 
-        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("name", "nana", "age", 12, "userName", "user"));
+        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("name", "nana", "age", 12, "user_name", "user"));
     }
 
     /**
      * 测试from：实体有注解@Table
      */
     @Test
-    public void testFrom2(){
+    public void testFrom2() {
         TableMapEntity2 entity = new TableMapEntity2();
         entity.setName("nana");
         entity.setAge(12);
         entity.setUserName("user");
         TableMap tableMap = TableMap.from(entity);
 
-        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("name", "nana", "age", 12, "userName", "user"));
+        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("name", "nana", "age", 12, "user_name", "user"));
     }
 
     /**
      * 测试from：自定义转换规则
      */
     @Test
-    public void testFrom3(){
+    public void testFrom3() {
         TableMapEntity entity = new TableMapEntity();
         entity.setName("nana");
         entity.setAge(12);
@@ -84,7 +74,7 @@ public class TableMapTest extends BaseTest {
      * 测试from：包含指定的列
      */
     @Test
-    public void testFrom4(){
+    public void testFrom4() {
         TableMapEntity entity = new TableMapEntity();
         entity.setName("nana");
         entity.setAge(12);
@@ -98,7 +88,7 @@ public class TableMapTest extends BaseTest {
      * 测试fromInclude：同from
      */
     @Test
-    public void testFromInclude(){
+    public void testFromInclude() {
         TableMapEntity entity = new TableMapEntity();
         entity.setName("nana");
         entity.setAge(12);
@@ -112,21 +102,21 @@ public class TableMapTest extends BaseTest {
      * 测试 fromExclude
      */
     @Test
-    public void testFromExclude(){
+    public void testFromExclude() {
         TableMapEntity entity = new TableMapEntity();
         entity.setName("nana");
         entity.setAge(12);
         entity.setUserName("user");
         TableMap tableMap = TableMap.fromExclude("table1", entity, "name", "age");
 
-        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("userName", "user"));
+        Assert.assertEquals(tableMap.get("table1"), NeoMap.of("user_name", "user"));
     }
 
     /**
      * 测试：fromArray 和 asArray
      */
     @Test
-    public void testFromArray1(){
+    public void testFromArray1() {
         List<TableMapEntity> entityList = new ArrayList<>();
         entityList.add(new TableMapEntity().setName("nana1").setAge(11));
         entityList.add(new TableMapEntity().setName("nana2").setAge(12));
@@ -141,7 +131,7 @@ public class TableMapTest extends BaseTest {
      * 测试：fromArray：只转换指定的列
      */
     @Test
-    public void testFromArray2(){
+    public void testFromArray2() {
         List<TableMapEntity> entityList = new ArrayList<>();
         entityList.add(new TableMapEntity().setName("nana1").setAge(11));
         entityList.add(new TableMapEntity().setName("nana2").setAge(12));
@@ -163,8 +153,8 @@ public class TableMapTest extends BaseTest {
         entityList.add(new TableMapEntity().setUserName("user1").setAge(11));
         entityList.add(new TableMapEntity().setUserName("user2").setAge(12));
 
+        //[{"table1":{"user_name":"user1","age":11}},{"table1":{"user_name":"user2","age":12}}]
         List<TableMap> resultList = TableMap.fromArray("table1", entityList, NeoMap.NamingChg.UNDERLINE);
-        show(resultList);
 
         List<TableMapEntity> expect = new ArrayList<>();
         expect.add(new TableMapEntity().setUserName("user1").setAge(11));
@@ -181,8 +171,8 @@ public class TableMapTest extends BaseTest {
         entityList.add(new TableMapEntity().setUserName("user1").setAge(11));
         entityList.add(new TableMapEntity().setUserName("user2").setAge(12));
 
+        // [{"table1":{"user_name":"user1"}},{"table1":{"user_name":"user2"}}]
         List<TableMap> resultList = TableMap.fromArray("table1", entityList, NeoMap.NamingChg.UNDERLINE, Columns.of("userName"));
-        show(resultList);
 
         List<TableMapEntity> expect = new ArrayList<>();
         expect.add(new TableMapEntity().setUserName("user1"));
@@ -199,8 +189,8 @@ public class TableMapTest extends BaseTest {
         entityList.add(new TableMapEntity().setUserName("user1").setAge(11));
         entityList.add(new TableMapEntity().setUserName("user2").setAge(12));
 
+        // [{"table1":{"user_name":"user1","age":11}},{"table1":{"user_name":"user2","age":12}}]
         List<TableMap> resultList = TableMap.fromArray("table1", entityList, NeoMap.NamingChg.UNDERLINE);
-        show(resultList);
 
         List<TableMapEntity> expect = new ArrayList<>();
         expect.add(new TableMapEntity().setUserName("user1").setAge(11));
@@ -224,39 +214,35 @@ public class TableMapTest extends BaseTest {
      * 随机获取测试
      */
     @Test
-    public void testGetFirst(){
+    public void testGetFirst() {
         TableMap tableMap = TableMap.of();
         tableMap.put("table1", NeoMap.of("name", "nana", "age", 11));
-        tableMap.put("table2", NeoMap.of("name", "nana", "age", 12));
 
-        // {"age":11,"name":"nana"}
-        show(tableMap.getFirst());
+        Assert.assertEquals(NeoMap.of("name", "nana", "age", 11), tableMap.getFirst());
     }
 
     /**
      * getValueNeoMap
      */
     @Test
-    public void testGetValueNeoMap(){
+    public void testGetValueNeoMap() {
         TableMap tableMap = TableMap.of();
         TableMapInnerEntity innerEntity = new TableMapInnerEntity();
         innerEntity.setName("inner1");
         innerEntity.setDataAddressPath("path");
         tableMap.put("table1", new TableMapEntity().setUserName("user1").setAge(11).setInnerEntity(innerEntity));
 
-        Assert.assertEquals(NeoMap.of("name", "inner1", "dataAddressPath", "path"), tableMap.getValueNeoMap("table1", "innerEntity"));
+        Assert.assertEquals(NeoMap.of("name", "inner1", "data_address_path", "path"), tableMap.getValueNeoMap("table1", "inner_entity"));
     }
 
     /**
      * put测试：
      */
     @Test(expected = NeoMapChgException.class)
-    public void testPut1(){
+    public void testPut1() {
         TableMap tableMap = TableMap.of();
         tableMap.put("a", 1);
         tableMap.put("b", 2);
-
-        show(tableMap.get("a"));
     }
 
     /**
@@ -288,11 +274,11 @@ public class TableMapTest extends BaseTest {
      * 测试as
      */
     @Test
-    public void testAs1(){
+    public void testAs1() {
         TableMap tableMap = TableMap.of();
         tableMap.put(DEFAULT_TABLE, "name", "nana");
         tableMap.put(DEFAULT_TABLE, "age", 12);
-        tableMap.put(DEFAULT_TABLE, "userName", "user");
+        tableMap.put(DEFAULT_TABLE, "user_name", "user");
 
         // {"table1":{"age":12,"name":"nana","userName":"user"}}
         TableMapEntityAs result = tableMap.as(TableMapEntityAs.class);
@@ -311,9 +297,9 @@ public class TableMapTest extends BaseTest {
     @Test
     public void testAs2() {
         TableMap tableMap = TableMap.of();
-        tableMap.put("table1", "name", "nana");
-        tableMap.put("table1", "age", 12);
-        tableMap.put("table1", "user_name", "user");
+        tableMap.put(DEFAULT_TABLE, "name", "nana");
+        tableMap.put(DEFAULT_TABLE, "age", 12);
+        tableMap.put(DEFAULT_TABLE, "user_name", "user");
 
         // {"table1":{"age":12,"name":"nana","userName":"user"}}
         TableMapEntityAs result = tableMap.as(TableMapEntityAs.class, NeoMap.NamingChg.UNDERLINE);
@@ -350,14 +336,14 @@ public class TableMapTest extends BaseTest {
     /**
      * 测试as：测试转换到多表
      * <p>
-     *     其中表名的优先级为：tableName > @Column > @Table
+     * 其中表名的优先级为：tableName > @Column > @Table
      */
     @Test
     public void testAs4_1() {
         TableMap tableMap = TableMap.of();
         tableMap.put("table1", "name", "nana");
         tableMap.put("table2", "age", 12);
-        tableMap.put("table3", "userName", "user");
+        tableMap.put("table3", "user_name", "user");
 
         TableMapEntityAs2 result = tableMap.as(TableMapEntityAs2.class);
 
@@ -372,7 +358,7 @@ public class TableMapTest extends BaseTest {
     /**
      * 测试as：测试转换到多表
      * <p>
-     *     其中表名的优先级为：tableName > @Column > @Table
+     * 其中表名的优先级为：tableName > @Column > @Table
      */
     @Test
     public void testAs4_2() {
@@ -396,7 +382,6 @@ public class TableMapTest extends BaseTest {
         Assert.assertEquals(expect, result);
     }
 
-
     /**
      * 测试as：测试@Column的列和转换规则优先级
      * <p>
@@ -405,8 +390,8 @@ public class TableMapTest extends BaseTest {
     @Test
     public void testAs5() {
         TableMap tableMap = TableMap.of();
-        tableMap.put("table1", "name", "nana");
-        tableMap.put("table1", "user_user", "user");
+        tableMap.put(DEFAULT_TABLE, "name", "nana");
+        tableMap.put(DEFAULT_TABLE, "user_user", "user");
 
         TableMapEntityAs3 result = tableMap.as(TableMapEntityAs3.class, NeoMap.NamingChg.UNDERLINE);
 
@@ -421,7 +406,7 @@ public class TableMapTest extends BaseTest {
      * 测试 asArray
      */
     @Test
-    public void testAsArray1(){
+    public void testAsArray1() {
         List<TableMap> tableMapList = new ArrayList<>();
         tableMapList.add(TableMap.of("table1", "name", "nana1", "age", 11));
         tableMapList.add(TableMap.of("table1", "name", "nana2", "age", 12));
@@ -441,7 +426,7 @@ public class TableMapTest extends BaseTest {
      * 测试 asArray：表名进行覆盖@Table中的表名注解
      */
     @Test
-    public void testAsArray2(){
+    public void testAsArray2() {
         List<TableMap> tableMapList = new ArrayList<>();
         tableMapList.add(TableMap.of("table12", "name", "nana1", "age", 11));
         tableMapList.add(TableMap.of("table12", "name", "nana2", "age", 12));
@@ -462,11 +447,11 @@ public class TableMapTest extends BaseTest {
      * （复杂的多表数据合并为一个实体）
      */
     @Test
-    public void testAsArray3(){
+    public void testAsArray3() {
         List<TableMap> tableMapList = new ArrayList<>();
-        tableMapList.add(TableMap.of("table1", "k1", "nana1", "age1", 11, "userName", "user1"));
-        tableMapList.add(TableMap.of("table2", "k2", "nana2", "age2", 12, "userName", "user2"));
-        tableMapList.add(TableMap.of("table3", "k3", "nana3", "age3", 13, "userName", "user3"));
+        tableMapList.add(TableMap.of("table1", "k1", "nana1", "age1", 11, "user_name", "user1"));
+        tableMapList.add(TableMap.of("table2", "k2", "nana2", "age2", 12, "user_name", "user2"));
+        tableMapList.add(TableMap.of("table3", "k3", "nana3", "age3", 13, "user_name", "user3"));
 
 
         List<TableMapAsArrayEntity3_1> dataList1 = TableMap.asArray(TableMapAsArrayEntity3_1.class, tableMapList);
@@ -480,7 +465,7 @@ public class TableMapTest extends BaseTest {
     }
 
     @Test
-    public void testAssign1(){
+    public void testAssign1() {
         TableMap tableMap = TableMap.of("table1", "k1", "name", "v1", 12);
         NeoMap data = tableMap.assign("table1", "k1");
 
@@ -488,7 +473,7 @@ public class TableMapTest extends BaseTest {
     }
 
     @Test
-    public void testAssign2(){
+    public void testAssign2() {
         TableMap tableMap = TableMap.of("table1", "k1", "name", "v1", 12);
         NeoMap data = tableMap.assign("table1", Columns.of("k1"));
 
@@ -496,7 +481,7 @@ public class TableMapTest extends BaseTest {
     }
 
     @Test
-    public void testAssignExcept(){
+    public void testAssignExcept() {
         TableMap tableMap = TableMap.of("table1", "k1", "name", "v1", 12);
         NeoMap data = tableMap.assignExcept("table1", Columns.of("v1"));
 

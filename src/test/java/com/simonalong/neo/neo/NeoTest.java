@@ -1,24 +1,17 @@
 package com.simonalong.neo.neo;
 
-import com.alibaba.fastjson.JSON;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.TableMap;
+import com.simonalong.neo.*;
+import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * 测试，其中待测试的表结构请见文件 /db/test.sql
@@ -29,7 +22,25 @@ public class NeoTest extends NeoBaseTest {
 
     private ExecutorService pool = Executors.newCachedThreadPool();
 
-    public NeoTest() throws SQLException {}
+    public NeoTest()  {}
+
+    @BeforeClass
+    public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
+    }
+
+    @Before
+    public void beforeTest() {
+        neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        neo.truncateTable(TABLE_NAME);
+        neo.truncateTable("neo_table4");
+    }
 
     /**
      * 链接测试
@@ -47,21 +58,13 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsert1(){
-        NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok"));
-        // {"name":"","id":22,"group":"ok"}
-        show(result);
-    }
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        neo.insert(TABLE_NAME, dataMap);
 
-    /**
-     * insert neoMap
-     * 多个列数据
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert2() {
-        NeoMap result = neo.insert(TABLE_NAME, NeoMap.of("user_name", "zhou", "group", "ok"));
-        // {"user_name":"zhou","name":"","id":23,"group":"ok"}
-        show(result);
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+        resultMap.remove("id");
+
+        Assert.assertEquals(dataMap, resultMap);
     }
 
     /**
@@ -70,57 +73,19 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsert3(){
-        DemoEntity result = neo.insert(TABLE_NAME, NeoMap.of("group", "ok", "name", "haode")).as(DemoEntity.class);
-        // DemoEntity(group=ok, name=haode, userName=null, id=26, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
-        show(result);
-    }
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_insert");
+        demoEntity.setName("name_insert");
 
-    /**
-     * insert entity
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert4(){
-        DemoEntity input = new DemoEntity();
-        input.setGroup("group1");
-        input.setName("name1");
-        input.setUserName("user_name1");
-        DemoEntity result = neo.insert(TABLE_NAME, input);
-        // DemoEntity(group=group1, name=name1, userName=user_name1, id=27, dataBaseName=null, a=null, sl=0, utilDate=null, sqlDate=null, time=null, timestamp=null)
-        show(result);
-    }
+        neo.insert(TABLE_NAME, demoEntity);
 
-    /**
-     * 插入前后的实体变化
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert5(){
-        NeoMap data = NeoMap.of("group", "ok");
-        NeoMap result = neo.insert(TABLE_NAME, data);
-        // {"name":"","id":28,"group":"ok"}
-        show(result);
-        // {"group":"ok"}
-        show(data);
-    }
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group_insert");
 
-    /**
-     * 测试插入时间类型，时间类型自动转换，多次插入有主键冲突，忽略就好
-     */
-    @Test
-    @SneakyThrows
-    public void testInsert6() {
-        String tableName = "neo_table4";
-        Long time = new Date().getTime();
-        Integer id = neo.value(tableName, Integer.class, "id", NeoMap.of("id", 111));
-        if (null != id) {
-            NeoMap data = NeoMap.of("id", 111, "time", time, "year", time, "date", time, "datetime", time);
-            NeoMap result = neo.insert(tableName, data);
-            show(result);
-            show(data);
-        } else {
-            show(neo.one(tableName, NeoMap.of("id", 111)));
-        }
+        DemoEntity result = neo.one(TABLE_NAME, search);
+        result.setId(null);
+
+        Assert.assertEquals(demoEntity, result);
     }
 
     /**
@@ -129,54 +94,83 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsertAsync1(){
-        CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, NeoMap.of("group", "ok"));
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        CompletableFuture<NeoMap> future = neo.insertAsync(TABLE_NAME, dataMap);
         CountDownLatch latch = new CountDownLatch(1);
-        future.thenAccept(r->{
-            show(r);
-            latch.countDown();
-        });
+        future.thenAccept(r-> latch.countDown());
         latch.await();
+
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+        resultMap.remove("id");
+
+        Assert.assertEquals(dataMap, resultMap);
+    }
+
+    /**
+     * 测试在有数据时候忽略，无数据时候插入
+     */
+    @Test
+    @SneakyThrows
+    public void testInsertOfUnExist() {
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        neo.insertOfUnExist(TABLE_NAME, dataMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+
+        Assert.assertEquals(1L, resultMap.getLong("id").longValue());
+
+        // 再次插入
+        resultMap = neo.insertOfUnExist(TABLE_NAME, dataMap, "group", "name");
+
+        Assert.assertNull(resultMap.getLong("id"));
     }
 
     /******************************删除******************************/
     @Test
     @SneakyThrows
-    public void testDelete1(){
-        neo.insert(TABLE_NAME, NeoMap.of("group", "ok"));
-        show(neo.delete(TABLE_NAME, NeoMap.of("group", "ok")));
+    public void testDelete1() {
+        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        neo.insert(TABLE_NAME, dataMap);
+
+        neo.delete(TABLE_NAME, dataMap);
+        Integer result = neo.count(TABLE_NAME, NeoMap.of("group", "group_insert"));
+
+        Assert.assertEquals(0, (int) result);
     }
 
     @Test
     @SneakyThrows
-    public void testDelete2(){
-        DemoEntity input = new DemoEntity();
-        input.setGroup("group1");
-        input.setName("name1");
-        input.setUserName("user_name1");
-        neo.insert(TABLE_NAME, input);
-        show(neo.delete(TABLE_NAME, input));
-    }
+    public void testDelete2() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_insert");
+        demoEntity.setName("name_insert");
 
-    @Test
-    @SneakyThrows
-    public void testDelete3(){
-        DemoEntity input = new DemoEntity();
-        DemoEntity result = neo.insert(TABLE_NAME, input);
-        show(neo.delete(TABLE_NAME, result));
+        neo.insert(TABLE_NAME, demoEntity);
+        neo.delete(TABLE_NAME, demoEntity);
+
+        DemoEntity search = new DemoEntity();
+        search.setGroup("group_insert");
+
+        Integer result = neo.count(TABLE_NAME, search);
+
+        Assert.assertEquals(0, (int) result);
     }
 
     /******************************修改******************************/
     @Test
     @SneakyThrows
-    public void testUpdate0(){
-        NeoMap dataMap = NeoMap.of("group", "ok2");
-        NeoMap dataMap2 = neo.insert(TABLE_NAME, dataMap);
-        show("insert 返回值：" + dataMap2.toString());
-        dataMap2.put("group", "ok3");
-        show("update 入参：" + dataMap2);
-        NeoMap dataMap3 = neo.update(TABLE_NAME, dataMap2);
-        show("update 返回值：" + dataMap3);
-        show("update 执行后入参：" + dataMap2);
+    public void testUpdate1(){
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        NeoMap setDataMap = NeoMap.of("name", "name_update_chg");
+        NeoMap searchMap = NeoMap.of("group", "group_update");
+        neo.update(TABLE_NAME, setDataMap, searchMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, searchMap);
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id"));
     }
 
     /**
@@ -184,11 +178,20 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testUpdate1(){
-        NeoMap dataMap = NeoMap.of("group", "ok2");
-        NeoMap searchMap = NeoMap.of("group", "group2", "name", "name");
-        // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
-        show(neo.update(TABLE_NAME, dataMap, searchMap));
+    public void testUpdate2() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        neo.insert(TABLE_NAME, demoEntity);
+
+        demoEntity.setName("name_update_chg");
+        NeoMap searchMap = NeoMap.of("group", "group_update");
+        neo.update(TABLE_NAME, demoEntity, searchMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, searchMap);
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
@@ -196,41 +199,57 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testUpdate2(){
-        NeoMap dataMap = NeoMap.of("group", "ok3", "name", "name");
-        // update neo_table1 set `group`=?, `name`=? where `name` =  ?
-        show(neo.update(TABLE_NAME, dataMap, Columns.of("name")));
+    public void testUpdate3() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        neo.update(TABLE_NAME, dataMap, Columns.of("group"));
+
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_update"));
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id"));
     }
 
     @Test
     @SneakyThrows
-    public void testUpdate3(){
-        DemoEntity input = new DemoEntity();
-        input.setGroup("group2");
-        // update neo_table1 set `group`=? where `group` =  ? and `name` =  ?
-        show(neo.update(TABLE_NAME, input, NeoMap.of("group", "group1", "name", "name")));
-    }
+    public void testUpdate4() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        demoEntity.setUserName("user_name_update");
+        neo.insert(TABLE_NAME, demoEntity);
 
-    @Test
-    @SneakyThrows
-    public void testUpdate4(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group1");
+        demoEntity.setGroup("group_update_chg");
+        demoEntity.setName("name_update_chg");
+        demoEntity.setUserName("user_name_update");
+        neo.update(TABLE_NAME, demoEntity, Columns.of("userName"));
 
-        DemoEntity data = new DemoEntity();
-        data.setGroup("group2");
-        // update neo_table1 set `group`=? where `group` =  ?
-        show(neo.update(TABLE_NAME, data, search));
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("user_name", "user_name_update"));
+        NeoMap expectMap = NeoMap.of("group", "group_update_chg", "name", "name_update_chg", "user_name", "user_name_update");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
-     * 指定某个列作为查询条件
+     * 搜索类型为主键值
      */
     @Test
     @SneakyThrows
-    public void testUpdate5(){
-        // update neo_table1 set `group`=?, `name`=? where `group` =  ?
-        show(neo.update(TABLE_NAME, NeoMap.of("group", "group1", "name", "name2"), Columns.of("group")));
+    public void testUpdate5() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        neo.insert(TABLE_NAME, demoEntity);
+
+        demoEntity.setName("name_update_chg");
+        neo.update(TABLE_NAME, demoEntity, 1);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
@@ -239,9 +258,17 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testUpdate6(){
-        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
-        show(neo.update(TABLE_NAME, NeoMap.of("id", 2, "group", "group222", "name", "name2")));
+    public void testUpdate6() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        dataMap = neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        neo.update(TABLE_NAME, dataMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
@@ -250,149 +277,290 @@ public class NeoTest extends NeoBaseTest {
      */
     @Test
     @SneakyThrows
-    public void testUpdate7(){
-        DemoEntity search = new DemoEntity();
-        search.setId(281L);
-        search.setGroup("group555");
-        // update neo_table1 set `group`=?, `id`=? where `id` =  ?
-        show(neo.update(TABLE_NAME, search));
+    public void testUpdate7() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        demoEntity = neo.insert(TABLE_NAME, demoEntity);
+
+        demoEntity.setName("name_update_chg");
+        neo.update(TABLE_NAME, demoEntity);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
-     * 指定某个列作为查询条件
+     * 测试返回值
      */
     @Test
     @SneakyThrows
-    public void testUpdate61(){
-        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
-        show(neo.update("neo_table4", NeoMap.of("id", 2, "group", "group222", "name", "name2")));
+    public void testUpdate8() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        dataMap = neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        NeoMap dataMapAfter = neo.update(TABLE_NAME, dataMap);
+
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg", "id", 1);
+
+        Assert.assertEquals(expectMap.toString(), dataMapAfter.toString());
     }
 
     /**
-     * 指定某个列作为查询条件
+     * 测试返回值
      */
     @Test
     @SneakyThrows
-    public void testUpdate8(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group555");
-        search.setName("name333");
-        // update neo_table1 set `group`=?, `name`=? where `name` =  ?
-        show(neo.update(TABLE_NAME, search, Columns.of("name")));
+    public void testUpdate9() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_update");
+        demoEntity.setName("name_update");
+        demoEntity = neo.insert(TABLE_NAME, demoEntity);
+
+        demoEntity.setName("name_update_chg");
+        DemoEntity demoEntity1 = neo.update(TABLE_NAME, demoEntity);
+
+        Assert.assertEquals(demoEntity1, demoEntity.setId(1L).setName("name_update_chg"));
+    }
+
+    @Test
+    public void testUpdate10() {
+        String tableName = "config_center_profile";
+        neo.truncateTable(tableName);
+        neo.insert(tableName, NeoMap.of("name", "tt"));
+
+        NeoMap searchMap = neo.one(tableName, NeoMap.of());
+
+        NeoMap dataMap = searchMap.clone();
+        dataMap.put("name", "tt_chg");
+        show("======================");
+        show(neo.update(tableName, dataMap, searchMap));
+        show("======================");
     }
 
     /**
-     * 指定某个列作为查询条件
-     * 如果采用Columns作为搜索条件，则其中的入参需要根据前面的类型，如果是neoMap则key的值，如果为实体，则为实体名字
+     * 带有时间的更新
+     * CREATE TABLE `config_center_profile` (
+     *   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+     *   `name` varchar(32) NOT NULL DEFAULT 'default' COMMENT '环境变量名字',
+     *   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     *   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+     *   PRIMARY KEY (`id`),
+     *   UNIQUE KEY `uk_name` (`name`)
+     * ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='环境变量表';
      */
     @Test
-    @SneakyThrows
-    public void testUpdate9(){
-        DemoEntity search = new DemoEntity();
-        search.setGroup("group555");
-        search.setName("name333");
-        search.setUserName("userName2222");
-        show(neo.update(TABLE_NAME, search, Columns.of("userName")));
+    public void testUpdate11() {
+        String tableName = "neo_table_time";
+        neo.truncateTable(tableName);
+
+        String createTableSql = "CREATE TABLE if not exists `" + tableName + "` (\n" + "  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',\n" + "  `name` varchar(32) NOT NULL DEFAULT 'default' COMMENT '环境变量名字',\n" + "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" + "  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',\n" + "  PRIMARY KEY (`id`),\n" + "  UNIQUE KEY `uk_name` (`name`)\n" + ") ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='环境变量表'";
+        neo.execute(createTableSql);
+
+        neo.truncateTable(tableName);
+        neo.insert(tableName, NeoMap.of("name", "name_update_time"));
+
+        NeoMap searchMap = neo.one(tableName, NeoMap.of());
+
+        NeoMap dataMap = searchMap.clone();
+        dataMap.put("name", "name_update_time_chg");
+        show("======================");
+        show(neo.update(tableName, dataMap, searchMap));
+        show("======================");
     }
 
     @Test
-    @SneakyThrows
-    public void testUpdate10(){
-        // update neo_table1 set `group`=?, `id`=?, `name`=? where `id` =  ?
-        NeoMap dataMap = NeoMap.of("id", 11, "group", "group222", "name", "name2");
-        show(neo.update("neo_table1", dataMap));
-        show(dataMap);
+    public void testUpdate12() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_update_chg");
+        NeoMap dataMapAfter = neo.update(TABLE_NAME, dataMap, 1);
+
+        NeoMap expectMap = NeoMap.of("group", "group_update", "name", "name_update_chg", "id", 1);
+
+        Assert.assertEquals(expectMap.toString(), dataMapAfter.toString());
     }
 
-    /******************************直接执行******************************/
+    /****************************** 直接执行 ******************************/
     @Test
-    public void testExecute1(){
-        show(neo.execute("explain select * from neo_table1 where name ='name'"));
+    public void testExecute1() {
+        neo.execute("explain select * from neo_table1 where name ='name'");
     }
 
     /**
      * 注意，转换符是直接将对应的输入转换到对应的位置
      */
     @Test
-    public void testExecute2(){
-//        show(neo.execute("update %s set `group`=?, `name`=%s where id = ?", TABLE_NAME, "group121", "'name123'", 121));
-        show(neo.execute("select neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`  from neo_table1 inner join neo_table2 on neo_table1.`id`=neo_table2.`n_id`   where neo_table1.`group` =  ? and neo_table1.`id` =  ? order by sort desc", "group121", 11));
+    public void testExecute2() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        List<List<TableMap>> resultList = neo.execute("select `name`, `group` from %s where `id`=?", TABLE_NAME, 1);
+        NeoMap resultMap = resultList.get(0).get(0).getNeoMap(TABLE_NAME);
+
+        Assert.assertEquals(dataMap, resultMap);
+    }
+
+    /****************************** 直接执行 one ******************************/
+    @Test
+    public void testExecuteOne1() {
+        NeoMap dataMap = NeoMap.of("group", "group_update", "name", "name_update");
+        neo.insert(TABLE_NAME, dataMap);
+
+        TableMap tableMap = neo.exeOne("select `name`, `group` from %s where `id`=?", TABLE_NAME, 1);
+        NeoMap resultMap = tableMap.getNeoMap(TABLE_NAME);
+
+        Assert.assertEquals(dataMap, resultMap);
     }
 
     @Test
-    public void testExecute3(){
-        show(neo.execute("update neo_table1 set `group`='group1', `name`='name1' where id = 122"));
+    public void testExecuteOne2() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setGroup("group_one");
+        demoEntity.setName("name_one");
+        neo.insert(TABLE_NAME, demoEntity);
+
+        DemoEntity result = neo.exeOne(DemoEntity.class, "select `name`, `group` from %s where `id`=?", TABLE_NAME, 1);
+
+        Assert.assertEquals(demoEntity, result);
+    }
+
+    /****************************** 直接执行 list ******************************/
+    @Test
+    public void testExecuteList1() {
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_list", "name", "name_list1"));
+        dataList.add(NeoMap.of("group", "group_list", "name", "name_list2"));
+
+        neo.batchInsert(TABLE_NAME, dataList);
+
+        List<NeoMap> resultList = neo.exeList("select `name`, `group` from %s where `group`=?", TABLE_NAME, "group_list")
+            .stream().map(e->e.getNeoMap(TABLE_NAME)).map(e->e.assignExcept("id")).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultList);
     }
 
     @Test
-    public void testExecute4(){
-        show(neo.execute("select * from neo_table1"));
+    public void testExecuteList2() {
+        List<DemoEntity> dataList = new ArrayList<>();
+        dataList.add(new DemoEntity().setGroup("group_list").setName("name_list1"));
+        dataList.add(new DemoEntity().setGroup("group_list").setName("name_list2"));
+
+        neo.batchInsertEntity(TABLE_NAME, dataList);
+
+        List<DemoEntity> resultList = neo.exeList(DemoEntity.class, "select `name`, `group` from %s where `group`=?", TABLE_NAME, "group_list")
+            .stream().map(e->e.setId(null)).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultList);
+    }
+
+    /****************************** 直接执行 value ******************************/
+    @Test
+    public void testExecuteValue1() {
+        NeoMap dataMap = NeoMap.of("group", "group_value", "name", "name_value");
+        neo.insert(TABLE_NAME, dataMap);
+
+        String name = neo.exeValue("select `name` from %s where `group`=?", TABLE_NAME, "group_value");
+
+        Assert.assertEquals("name_value", name);
     }
 
     @Test
-    public void testExecute4_2(){
-        show(neo.execute("update neo_table1 set `group` = 'group1'"));
+    public void testExecuteValue2() {
+        DemoEntity demoEntity = new DemoEntity();
+        demoEntity.setName("name_value");
+        demoEntity.setAge(12);
+        neo.insert(TABLE_NAME, demoEntity);
+
+        Integer age = neo.exeValue(Integer.class, "select `age` from %s where `name`=?", TABLE_NAME, "name_value");
+
+        Assert.assertEquals(12, (int) age);
     }
 
-    /**
-     * 测试时间
-     */
+    /****************************** 直接执行 values ******************************/
     @Test
-    public void testExecute4_3(){
-        show(neo.execute("select DATE_FORMAT(NOW(),'%b %d %Y %h:%i %p') as time"));
-    }
+    public void testExecuteValues1() {
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_values", "name", "name_values1"));
+        dataList.add(NeoMap.of("group", "group_values", "name", "name_values2"));
 
-    /**
-     * 测试多结果集
-     * CREATE PROCEDURE `pro`()
-     * BEGIN
-     *   explain select * from neo_table1;
-     *   select * from neo_table1;
-     * END
-     */
-    @Test
-    public void testExecute5(){
-        show(neo.execute("call pro()"));
-    }
+        neo.batchInsert(TABLE_NAME, dataList);
 
-    @Test
-    public void testExecute6(){
-        TableMap sql = neo.execute("show create table `xx_test5`").get(0).get(0);
-        show("****");
-        show(sql.get("Create Table"));
+        List<String> resultList = neo.exeValues("select `name` from %s where `group`=?", TABLE_NAME, "group_values");
+
+        Assert.assertEquals(Arrays.asList("name_values1", "name_values2"), resultList);
     }
 
     @Test
-    public void testExecute7(){
-        show(neo.tx(()->{
-            neo.update("neo_table1", NeoMap.of("group", "12"), NeoMap.of("id", 11));
-            return neo.value("neo_table1", "group", NeoMap.of("id", 11));
-        }));
+    public void testExecuteValues2() {
+        List<DemoEntity> dataList = new ArrayList<>();
+        dataList.add(new DemoEntity().setGroup("group_values").setAge(12));
+        dataList.add(new DemoEntity().setGroup("group_values").setAge(22));
+
+        neo.batchInsertEntity(TABLE_NAME, dataList);
+
+        List<Integer> resultList = neo.exeValues(Integer.class, "select `age` from %s where `group`=?", TABLE_NAME, "group_values");
+
+        Assert.assertEquals(Arrays.asList(12, 22), resultList);
+    }
+
+    /****************************** 直接执行 list ******************************/
+    @Test
+    public void testExecutePage1() {
+        List<NeoMap> dataList = new ArrayList<>();
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page1"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page2"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page3"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page4"));
+        dataList.add(NeoMap.of("group", "group_page", "name", "name_page5"));
+
+        neo.batchInsert(TABLE_NAME, dataList);
+
+        List<NeoMap> resultList = neo.exePage("select `name`, `group` from %s where `group`=?", NeoPage.of(1, 20), TABLE_NAME, "group_page")
+            .stream().map(e->e.getNeoMap(TABLE_NAME)).map(e->e.assignExcept("id")).collect(Collectors.toList());
+
+        Assert.assertEquals(dataList, resultList);
+
+        Integer count = neo.exeCount("select count(*) from %s where `group`=?", TABLE_NAME, "group_page");
+        Assert.assertEquals(5, (int) count);
     }
 
     /****************************** 查询 ******************************/
     @Test
-    public void getColumnNameListTest(){
-        show(neo.getColumnNameList(TABLE_NAME));
+    public void getColumnNameListTest() {
+        Set<String> columnSet = new HashSet<>();
+        columnSet.add("desc1");
+        columnSet.add("user_name");
+        columnSet.add("name");
+        columnSet.add("sl");
+        columnSet.add("id");
+        columnSet.add("age");
+        columnSet.add("group");
+        columnSet.add("desc");
+
+        Set<String> resultSet = neo.getColumnNameList(TABLE_NAME);
+        Assert.assertEquals(columnSet, resultSet);
     }
 
     @Test
-    public void getColumnsTest(){
-        show(JSON.toJSONString(neo.getColumnList(TABLE_NAME)));
-    }
+    public void getIndexNameListTest() {
+        List<String> keyList = new ArrayList<>();
+        keyList.add("fk_desc");
+        keyList.add("k_group");
+        keyList.add("PRIMARY");
+        keyList.add("group_index");
 
-    @Test
-    public void getIndexNameListTest(){
-        show(neo.getIndexNameList(TABLE_NAME));
-    }
+        List<String> resultList = neo.getIndexNameList(TABLE_NAME);
 
-    @Test
-    public void getIndexListTest(){
-        show(JSON.toJSONString(neo.getIndexList(TABLE_NAME)));
+        Assert.assertEquals(keyList, resultList);
     }
 
     /****************************** 表的创建语句 ******************************/
-    @Test
+    //@Test
     public void getTableCreateTest(){
 //        mysql version: 5.6
 //        CREATE TABLE `xx_test5` (
@@ -443,48 +611,68 @@ public class NeoTest extends NeoBaseTest {
 //          `year2` year(4) NOT NULL,
 //                PRIMARY KEY (`id`)
 //        ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='配置项';
-        show(neo.getTableCreate("xx_test5"));
+//        show(neo.getTableCreate("xx_test5"));
+    }
+
+    @Test
+    public void getTableCreateTest2() {
+        String createSql = "CREATE TABLE `neo_table1` (\n" + "  `id` int unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `sl` bigint DEFAULT NULL,\n" + "  `desc` mediumtext COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  `desc1` text COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`),\n" + "  FULLTEXT KEY `fk_desc` (`desc`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+
+        Assert.assertEquals(createSql, neo.getTableCreate(TABLE_NAME));
+    }
+
+    /****************************** save ******************************/
+    /**
+     * 不存在数据，则插入
+     */
+    @Test
+    public void saveTest1() {
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("group", "group_save");
+        dataMap.put("name", "name_save");
+
+        neo.save(TABLE_NAME, dataMap);
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_save", "name", "name_save");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
     /**
-     * 测试获取枚举的类型
+     * 不存在数据，则插入
      */
     @Test
-    public void test23(){
-        String sql = "`gander` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '性别：Y=男；N=女'";
+    public void saveTest2() {
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("group", "group_save");
+        dataMap.put("name", "name_save");
 
-        String regex = "(?<= enum)\\((.*)\\)";
-        Matcher matcher = Pattern.compile(regex).matcher(sql);
-        if (matcher.find()) {
-            // 'Y','N'
-            String enums = matcher.group(1);
-            show(enums);
-            List<String> dataList = Arrays.stream(enums.split(",")).map(c -> c.substring(1, c.length() - 1))
-                .collect(Collectors.toList());
-            // [Y, N]
-            show(dataList);
-        }
+        neo.save(TABLE_NAME, dataMap, "group");
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_save", "name", "name_save");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
     }
 
-//    /**
-//     * 全局id生成器
-//     */
-//    @Test
-//    public void testUid(){
-//        neo.openUidGenerator();
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//        show(neo.getUuid());
-//    }
+    /**
+     * 存在数据，则更新
+     */
+    @Test
+    public void saveTest3() {
+        NeoMap dataMap = NeoMap.of();
+        dataMap.put("group", "group_save");
+        dataMap.put("name", "name_save");
+
+        neo.insert(TABLE_NAME, dataMap);
+
+        dataMap.put("name", "name_save_chg");
+        neo.save(TABLE_NAME, dataMap, "group");
+
+        NeoMap resultMap = neo.one(TABLE_NAME, 1);
+        NeoMap expectMap = NeoMap.of("group", "group_save", "name", "name_save_chg");
+
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id", "sl"));
+    }
 }

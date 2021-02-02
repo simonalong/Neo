@@ -2,8 +2,9 @@ package com.simonalong.neo.neo;
 
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.exception.NeoException;
-import java.sql.SQLException;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -12,13 +13,19 @@ import org.junit.Test;
  */
 public class NeoDbTest extends NeoBaseTest {
 
-    public NeoDbTest() throws SQLException {
+    public NeoDbTest()  {
     }
 
     @Test
     public void testDb1() {
         Neo second = Neo.connect(URL, USER, PASSWORD).initDb();
-        show(second.one("neo_table1", 4));
+
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        second.insert("neo_table1", dataMap);
+
+        NeoMap expectMap = NeoMap.of("group", "group_count", "name", "name_count");
+        NeoMap resultMap = second.one("neo_table1", dataMap);
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id"));
     }
 
     /**
@@ -27,7 +34,13 @@ public class NeoDbTest extends NeoBaseTest {
     @Test
     public void testDb2() {
         Neo second = Neo.connect(URL, USER, PASSWORD);
-        show(second.one("neo_table1", 4));
+
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        second.insert("neo_table1", dataMap);
+
+        NeoMap expectMap = NeoMap.of("group", "group_count", "name", "name_count");
+        NeoMap resultMap = second.one("neo_table1", dataMap);
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id"));
     }
 
     /**
@@ -36,7 +49,13 @@ public class NeoDbTest extends NeoBaseTest {
     @Test
     public void testDb3() {
         Neo second = Neo.connect(URL, USER, PASSWORD).initDb("neo_table2");
-        show(second.one("neo_table1", 4));
+
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        second.insert("neo_table1", dataMap);
+
+        NeoMap expectMap = NeoMap.of("group", "group_count", "name", "name_count");
+        NeoMap resultMap = second.one("neo_table1", dataMap);
+        Assert.assertEquals(expectMap, resultMap.assignExcept("id"));
     }
 
     /**
@@ -44,7 +63,9 @@ public class NeoDbTest extends NeoBaseTest {
      */
     @Test(expected = NeoException.class)
     public void testDb4() {
-        Neo second = Neo.connect(URL, USER, PASSWORD).initDb("neo_table2");
-        show(second.one("neo_table9", 4));
+        Neo second = Neo.connect(URL, USER, PASSWORD).initDb("neo_tablexxx");
+
+        NeoMap dataMap = NeoMap.of("group", "group_count", "name", "name_count");
+        second.insert("neo_tablexxx", dataMap);
     }
 }

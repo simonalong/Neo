@@ -1,6 +1,9 @@
 package com.simonalong.neo;
 
 import com.alibaba.fastjson.JSON;
+import org.junit.Test;
+
+import java.sql.Timestamp;
 import java.util.Optional;
 
 /**
@@ -14,7 +17,7 @@ public class BaseTest {
             show("obj is null ");
             return;
         }
-        Optional.of(object).ifPresent(objects1 -> System.out.println(objects1.toString()));
+        Optional.of(object).ifPresent(objects1 -> System.out.println(JSON.toJSONString(objects1)));
     }
 
     public void sleep(Integer seconds){
@@ -24,5 +27,4 @@ public class BaseTest {
             e.printStackTrace();
         }
     }
-
 }

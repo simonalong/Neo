@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 /**
  * 该类主要用于对对应的sql进行解析，用于分析使用
@@ -23,7 +23,7 @@ import static com.simonalong.neo.NeoConstant.LOG_PRE;
 @Slf4j
 public final class SqlExplain {
 
-    private static final String PRE_LOG = LOG_PRE + "[Neo-explain]";
+    private static final String EXPLAIN_LOG_PRE = LOG_PRE_NEO + "[Neo-explain]";
     private static final String ALL = "all";
     private static final String INDEX = "index";
     /**
@@ -53,11 +53,11 @@ public final class SqlExplain {
             if(null != type) {
                 type = type.toLowerCase();
                 if (ALL.equals(type)) {
-                    log.warn(PRE_LOG + " [sql走了全表扫描] [sql => " + sql + " ]");
+                    log.warn(EXPLAIN_LOG_PRE + " [sql走了全表扫描] [sql => " + sql + " ]");
                 } else if (INDEX.equals(type)) {
-                    log.info(PRE_LOG + " [sql走了全索引扫描] [sql => " + sql + " ]");
+                    log.info(EXPLAIN_LOG_PRE + " [sql走了全索引扫描] [sql => " + sql + " ]");
                 } else {
-                    log.debug(PRE_LOG + " [sql索引类型：" + type + "] [sql => " + sql + " ]");
+                    log.debug(EXPLAIN_LOG_PRE + " [sql索引类型：" + type + "] [sql => " + sql + " ]");
                 }
             }
         }

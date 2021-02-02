@@ -7,6 +7,10 @@ import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.NeoTable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -16,6 +20,39 @@ import org.junit.Test;
  * @since 2019-08-17 14:14
  */
 public class NeoDemo {
+
+    @BeforeClass
+    public static void beforeClass() {
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
+        String tableName = "neo_table1";
+        // 连接
+        Neo neo = Neo.connect(url, user, password);
+        neo.truncateTable(tableName);
+    }
+
+    @Before
+    public void beforeTest() {
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
+        String tableName = "neo_table1";
+        // 连接
+        Neo neo = Neo.connect(url, user, password);
+        neo.truncateTable(tableName);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+        String user = "neo_test";
+        String password = "neo@Test123";
+        String tableName = "neo_table1";
+        // 连接
+        Neo neo = Neo.connect(url, user, password);
+        neo.truncateTable(tableName);
+    }
 
     /**
      * CREATE TABLE `neo_table1` (

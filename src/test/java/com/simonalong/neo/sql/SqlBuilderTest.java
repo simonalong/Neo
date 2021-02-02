@@ -2,10 +2,14 @@ package com.simonalong.neo.sql;
 
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoBaseTest;
-import java.sql.SQLException;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import com.simonalong.neo.sql.builder.SqlBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -14,95 +18,82 @@ import org.junit.Test;
  */
 public class SqlBuilderTest extends NeoBaseTest {
 
-    public SqlBuilderTest() throws SQLException {}
+    public SqlBuilderTest() {}
 
     @Test
-    public void inTest(){
+    public void inTest() {
         List<Integer> dataList = new ArrayList<>();
         dataList.add(1);
         dataList.add(2);
         dataList.add(3);
         dataList.add(4);
 
-        // ('1','2','3','4')
-        show(SqlBuilder.buildIn(dataList));
+        String sql = "('1', '2', '3', '4')";
+        String result = SqlBuilder.buildIn(dataList);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildWhereTest1(){
+    public void buildWhereTest1() {
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-        // where `group` =  ? and `name` =  ?
-        show(SqlBuilder.buildWhere(searchMap));
+        String sql = " where `name` = ? and `group` = ?";
+        String result = SqlBuilder.buildWhere(searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildWhereConditionTest1(){
+    public void buildWhereConditionTest1() {
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-        // `group` =  ? and `name` =  ?
-        show(SqlBuilder.buildWhereCondition(searchMap));
+        String sql = "`name` = ? and `group` = ?";
+        String result = SqlBuilder.buildWhereCondition(searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildWhereTest2(){
+    public void buildWhereTest2() {
         NeoMap searchMap = NeoMap.of();
-        //
-        show(SqlBuilder.buildWhere(searchMap));
+        String sql = "";
+        String result = SqlBuilder.buildWhere(searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildConditionTest1(){
+    public void buildConditionTest1() {
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-        // `group` =  ? and `name` =  ?
-        show(SqlBuilder.buildWhereCondition(searchMap));
+        String sql = "`name` = ? and `group` = ?";
+        String result = SqlBuilder.buildWhereCondition(searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildConditionTest2(){
+    public void buildConditionTest2() {
         NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-        // table1.`group` =  ? and table1.`name` =  ?
-        show(searchMap);
-        show(SqlBuilder.buildWhereCondition(searchMap));
+        String sql = "`name` = ? and `group` = ?";
+        String result = SqlBuilder.buildWhereCondition(searchMap);
+
+        Assert.assertEquals(sql, result);
     }
 
     @Test
-    public void buildValueListTest1(){
+    public void buildValueListTest1() {
         NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
-        // {`group`=ok, `name`=haode}
-        show(SqlBuilder.buildValueList(neoMap));
+        List<String> dataList = Arrays.asList("haode", "ok");
+        List<Object> resultList = SqlBuilder.buildValueList(neoMap);
+
+        Assert.assertEquals(dataList, resultList);
     }
 
     @Test
-    public void buildValueListTest2(){
-        NeoMap neoMap = NeoMap.of("name", "like haode#", "age", ">12");
-        // {`group`=ok, `name`=haode}
-        show(SqlBuilder.buildValueList(neoMap));
-    }
-
-    @Test
-    public void buildConditionMetaTest1(){
+    public void buildConditionMetaTest1() {
         NeoMap neoMap = NeoMap.of("name", "haode", "group", "ok");
-        // [`group` =  ?, `name` =  ?]
-        show(SqlBuilder.buildConditionMeta(neoMap));
-    }
+        List<String> dataList = Arrays.asList("`name` = ?", "`group` = ?");
+        List<String> resultList = SqlBuilder.buildConditionMeta(neoMap);
 
-    @Test
-    public void buildConditionMetaTest2() {
-        NeoMap neoMap = NeoMap.of("name", "like haode", "group", "ok", "age", ">12");
-        // [`age` > ?, `group` =  ?, `name` like 'haode%']
-        show(SqlBuilder.buildConditionMeta(neoMap));
+        Assert.assertEquals(dataList, resultList);
     }
-
-    /**
-     * 测试 buildOrderBy 该函数
-     *
-     * <p>
-     *     该函数只识别order by的内容
-     */
-    @Test
-    public void buildOrderByTest1() {
-        NeoMap neoMap = NeoMap.of("name", "nana", "order by", "age desc, user asc");
-        //   order by `age` desc, `user` asc
-        show(SqlBuilder.buildOrderBy(neoMap));
-    }
-
 }

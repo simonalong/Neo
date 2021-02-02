@@ -1,12 +1,11 @@
 package com.simonalong.neo;
 
-import static com.simonalong.neo.NeoConstant.ALIAS_DOM;
 import static com.simonalong.neo.NeoConstant.ALL_COLUMN_NAME;
-import static com.simonalong.neo.NeoConstant.COLUMN_PRE;
 
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.AliasParser;
+import com.simonalong.neo.db.NeoContext;
 import com.simonalong.neo.exception.ColumnParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +18,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.simonalong.neo.sql.builder.SqlBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +45,7 @@ public final class Columns {
      * key为表名，value为表列名的转换后的名字的集合
      */
     @Getter
-    private Map<String, Set<ColumnValue>> tableFieldsMap = new LinkedHashMap<>();
+    private final Map<String, Set<ColumnValue>> tableFieldsMap = new LinkedHashMap<>();
 
     private Columns() {}
 
@@ -56,11 +57,11 @@ public final class Columns {
         return columns.table(DEFAULT_TABLE, fields);
     }
 
-    public static Columns from(Class tClass) {
+    public static Columns from(Class<?> tClass) {
         return Columns.from(tClass, "");
     }
 
-    public static Columns from(Class tClass, String... excludeFields) {
+    public static Columns from(Class<?> tClass, String... excludeFields) {
         if (null == tClass) {
             return Columns.of();
         }
@@ -107,8 +108,13 @@ public final class Columns {
             } else if(null == tableName){
                 throw new ColumnParseException("列中含有符号'*'，表名不能为空");
             } else {
-                fieldList.remove(ALL_COLUMN_NAME);
-                fieldList.addAll(neo.getColumnNameList(AliasParser.getOrigin(tableName)));
+                Set<String> columnNameSet = neo.getColumnNameList(AliasParser.getOrigin(tableName));
+                if(!columnNameSet.isEmpty()) {
+                    fieldList.addAll(columnNameSet);
+                    fieldList.remove(ALL_COLUMN_NAME);
+                } else {
+                    return this;
+                }
             }
         }
         this.tableFieldsMap.compute(tableName, (k, v) -> {
@@ -179,7 +185,7 @@ public final class Columns {
     }
 
     public boolean isEmpty() {
-        return tableFieldsMap.isEmpty();
+        return tableFieldsMap.isEmpty() || tableFieldsMap.values().stream().mapToLong(Collection::size).sum() == 0;
     }
 
     public Stream<String> stream(String tableName) {
@@ -208,15 +214,22 @@ public final class Columns {
         return tableFieldsMap.toString();
     }
 
-    public String toSelectString(){
-        return String.join(", ", tableFieldsMap.values().stream()
-            .flatMap(c->c.stream().map(ColumnValue::getCurrentValue)).collect(Collectors.toSet()));
+    /**
+     * 返回，比如{@code `data_base_name`, `group`, `user_name`, `name`, `id`}
+     *
+     * @return 列的拼接
+     */
+    public String toSelectString() {
+        if(tableFieldsMap.isEmpty()) {
+            return "*";
+        }
+        return tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value->e.getKey() + "." + value.getCurrentValue())).collect(Collectors.joining(", "));
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Columns) {
-            return this.getTableFieldsMap().equals(Columns.class.cast(obj).getTableFieldsMap());
+            return this.getTableFieldsMap().equals(((Columns) obj).getTableFieldsMap());
         }
         return false;
     }
@@ -229,7 +242,7 @@ public final class Columns {
      * @return 转换之后的列名
      */
     private List<ColumnValue> decorateColumn(String tableName, Collection<String> columns) {
-        return columns.stream().map(c -> new ColumnValue(tableName, c)).collect(Collectors.toList());
+        return columns.stream().map(c -> new ColumnValue(neo, tableName, c)).collect(Collectors.toList());
     }
 
     /**
@@ -242,74 +255,27 @@ public final class Columns {
          * 表名
          */
         @Getter
-        private String tableName;
+        private final String tableName;
         /**
          * 列的原名
          */
         @Getter
-        private String metaValue;
+        private final String metaValue;
         /**
          * 列转换之后的名字
          */
         @Getter
         private String currentValue;
 
-        ColumnValue(String tableName, String fieldName) {
+        ColumnValue(Neo db, String tableName, String fieldName) {
             this.tableName = tableName;
             this.metaValue = fieldName;
             this.currentValue = fieldName;
-            if (!fieldName.startsWith(COLUMN_PRE) || !fieldName.endsWith(COLUMN_PRE)) {
-                this.currentValue = toDbField(fieldName);
-            }
 
-            if (!tableName.equals(DEFAULT_TABLE)) {
-                String alias = AliasParser.getAlias(tableName);
-                this.currentValue = alias + "." + filterColumnToFinal(fieldName) + " as " + alias + ALIAS_DOM + reduceDom(fieldName);
+            if(null != db) {
+                NeoContext.load(db);
             }
-        }
-
-        /**
-         * 筛选处理为合法的sql字段
-         *
-         * 对于这么几种情况进行处理：{@code name --> `name`} {@code db.name --> db.`name`} {@code db.`name` --> db.`name`}
-         * @param fieldName 指定的列名
-         * @return 处理之后的sql对应的列名
-         */
-        private String filterColumnToFinal(String fieldName){
-            String point = ".";
-            String dom = "`";
-            fieldName = fieldName.trim();
-            if (fieldName.contains(point)) {
-                Integer index = fieldName.indexOf(point);
-                String tableName = fieldName.substring(0, index);
-                String columnName = fieldName.substring(index + 1);
-                if (columnName.startsWith(dom) && columnName.endsWith(dom)) {
-                    return fieldName;
-                }
-                return tableName + "." + toDbField(columnName);
-            } else {
-                if (fieldName.startsWith(dom) && fieldName.endsWith(dom)) {
-                    return fieldName;
-                }
-                return toDbField(fieldName);
-            }
-        }
-
-        private String toDbField(String field){
-            return COLUMN_PRE + field + COLUMN_PRE;
-        }
-
-        /**
-         * 获取列名的原名
-         * <p>{@code `c` 到 c}
-         * @param columnStr 装饰的列名
-         * @return 原列名
-         */
-        private String reduceDom(String columnStr){
-            if (columnStr.startsWith(COLUMN_PRE) && columnStr.endsWith(COLUMN_PRE)){
-                return columnStr.substring(1, columnStr.length() - 1);
-            }
-            return columnStr;
+            this.currentValue = SqlBuilder.toDbField(fieldName);
         }
     }
 }

@@ -15,27 +15,27 @@ public class TimeRangeStrUtil {
     /**
      * 我们这里最小的单位是毫秒
      */
-    private static final long MILLIS = 1;
+    private final long MILLIS = 1;
     /**
      * 秒
      */
-    private static final long SECOND = 1000 * MILLIS;
+    private final long SECOND = 1000 * MILLIS;
     /**
      * 分钟
      */
-    private static final long MINUTE = 60 * SECOND;
+    private final long MINUTE = 60 * SECOND;
     /**
      * 小时
      */
-    private static final long HOUR = 60 * MINUTE;
+    private final long HOUR = 60 * MINUTE;
     /**
      * 天
      */
-    private static final long DAY = 24 * HOUR;
+    private final long DAY = 24 * HOUR;
     /**
      * 周
      */
-    private static final long WEEK = 7 * DAY;
+    private final long WEEK = 7 * DAY;
 
     /**
      * 计算两个时间的差值，用字符表示

@@ -18,22 +18,4 @@ public class TimeDateConverterTest extends BaseTest {
 
         Assert.assertEquals(String.class, TimeDateConverter.valueToEntityTime(String.class, "").getClass());
     }
-
-    @Test
-    public void dbTimeToLongTest(){
-        java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
-        Assert.assertEquals(Long.class, TimeDateConverter.dbTimeToLong(sqlDate).getClass());
-
-        java.sql.Time sqlTime = new java.sql.Time(System.currentTimeMillis());
-        Assert.assertEquals(Long.class, TimeDateConverter.dbTimeToLong(sqlTime).getClass());
-
-        java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Assert.assertEquals(Long.class, TimeDateConverter.dbTimeToLong(sqlTimestamp).getClass());
-
-        java.util.Date utilDate = new java.util.Date(System.currentTimeMillis());
-        Assert.assertEquals(Date.class, TimeDateConverter.dbTimeToLong(utilDate).getClass());
-
-        String data = "123";
-        Assert.assertEquals(String.class, TimeDateConverter.dbTimeToLong(data).getClass());
-    }
 }

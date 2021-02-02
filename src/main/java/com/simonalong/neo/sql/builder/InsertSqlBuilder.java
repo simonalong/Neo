@@ -39,6 +39,6 @@ public class InsertSqlBuilder {
      * @return 占位符拼接：?, ?, ?, ?
      */
     public String buildInsertValues(NeoMap valueMap) {
-        return String.join(", ", valueMap.keySet().stream().map(f->"?").collect(Collectors.toList()));
+        return valueMap.keySet().stream().map(f->"?").collect(Collectors.joining(", "));
     }
 }

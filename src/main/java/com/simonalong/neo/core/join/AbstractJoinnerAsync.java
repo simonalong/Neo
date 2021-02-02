@@ -2,8 +2,10 @@ package com.simonalong.neo.core.join;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.TableMap;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -55,6 +57,26 @@ public abstract class AbstractJoinnerAsync implements JoinnerAsync {
     }
 
     @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap) {
+        return valuesOfDistinctAsync(tClass, joinColumns, tableJoinOn, tableMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return valuesOfDistinctAsync(tClass, joinColumns, tableJoinOn, searchExpress, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap) {
+        return valuesOfDistinctAsync(joinColumns, tableJoinOn, tableMap, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return valuesOfDistinctAsync(joinColumns, tableJoinOn, searchExpress, getExecutor());
+    }
+
+    @Override
     public CompletableFuture<List<TableMap>> pageAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return pageAsync(columns, tableJoinOn, searchMap, neoPage, getExecutor());
     }
@@ -65,7 +87,17 @@ public abstract class AbstractJoinnerAsync implements JoinnerAsync {
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return countAsync(columns, tableJoinOn, searchMap, getExecutor());
+    public CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage) {
+        return getPageAsync(joinColumns, tableJoinOn, tableMap, neoPage, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage) {
+        return getPageAsync(tClass, joinColumns, tableJoinOn, tableMap, neoPage, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<Integer> countAsync(TableJoinOn tableJoinOn, TableMap searchMap) {
+        return countAsync(tableJoinOn, searchMap, getExecutor());
     }
 }

@@ -2,7 +2,6 @@ package com.simonalong.neo.db;
 
 import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Neo;
-import java.sql.SQLException;
 import org.junit.BeforeClass;
 
 /**
@@ -17,7 +16,7 @@ public class BaseNeoTableTest extends BaseTest {
 
     static Neo neo;
 
-    public BaseNeoTableTest() throws SQLException {}
+    public BaseNeoTableTest()  {}
 
     @BeforeClass
     public static void start(){

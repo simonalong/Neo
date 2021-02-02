@@ -1,11 +1,14 @@
 package com.simonalong.neo.db;
 
-import static com.simonalong.neo.NeoConstant.LOG_PRE;
+import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
 import java.sql.JDBCType;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
+import com.mysql.cj.MysqlType;
+import com.simonalong.neo.Neo;
+import com.simonalong.neo.exception.NeoException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -63,23 +66,24 @@ public final class NeoColumn {
 
     private NeoColumn(){}
 
-    static NeoColumn parse(ResultSetMetaData metaData, Integer index) {
+    static NeoColumn from(NeoInnerColumn innerColumn) {
+        NeoColumn neoColumn = new NeoColumn();
+        neoColumn.setColumnName(innerColumn.getColumnName());
+        neoColumn.setColumnLabel(innerColumn.columnName);
+        neoColumn.innerColumn = innerColumn;
+        neoColumn.size = innerColumn.getColumnSize();
+        neoColumn.columnJDBCType = innerColumn.getColumnJDBCType();
+        neoColumn.columnTypeName = innerColumn.getColumnName();
+        neoColumn.isAutoIncrement = "YES".equals(innerColumn.getIsAutoIncrement());
         try {
-            return new NeoColumn()
-                .setColumnName(metaData.getColumnName(index))
-                .setColumnLabel(metaData.getColumnLabel(index))
-                .setSize(metaData.getColumnDisplaySize(index))
-                .setJavaClass(Class.forName(metaData.getColumnClassName(index)))
-                .setColumnJDBCType(JDBCType.valueOf(metaData.getColumnType(index)))
-                .setColumnTypeName(metaData.getColumnTypeName(index))
-                .setIsAutoIncrement(metaData.isAutoIncrement(index));
-        } catch (SQLException | ClassNotFoundException e) {
-            log.error(LOG_PRE + "parse column error", e);
+            neoColumn.javaClass = Class.forName(MysqlType.getByJdbcType(innerColumn.getDataType()).getClassName());
+        } catch (ClassNotFoundException e) {
+            throw new NeoException(e);
         }
-        return new NeoColumn();
+        return neoColumn;
     }
 
-    Boolean isPrimaryAndAutoInc(){
+    Boolean isPrimaryAndAutoInc() {
         return isAutoIncrement && isPrimaryKey;
     }
 
@@ -234,7 +238,7 @@ public final class NeoColumn {
 
         private NeoInnerColumn(){}
 
-        static NeoInnerColumn parse(ResultSet rs){
+        static NeoInnerColumn parse(Neo neo, ResultSet rs){
             NeoInnerColumn innerColumn = null;
             try {
                 innerColumn =  new NeoInnerColumn();
@@ -257,12 +261,19 @@ public final class NeoColumn {
                 innerColumn.setScopeTable(rs.getString(SCOPE_TABLE));
                 innerColumn.setSourceDataType(rs.getShort(SOURCE_DATA_TYPE));
                 innerColumn.setIsAutoIncrement(rs.getString(IS_AUTOINCREMENT));
-                innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
 
-                // sqlite 不支持该属性
-                innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
+                // pg 不支持属性
+                if (!neo.getDbType().equals(DbType.PGSQL)) {
+                    innerColumn.setIsGeneratedColumn(rs.getString(IS_GENERATEDCOLUMN));
+
+                    // sqlite 不支持属性
+                    if (!neo.getDbType().equals(DbType.SQLITE)) {
+                        innerColumn.setScopeCatalog(rs.getString(SCOPE_CATALOG));
+                    }
+                }
+
             } catch (SQLException e) {
-                log.warn(LOG_PRE, e);
+                log.warn(LOG_PRE_NEO, e);
             }
             return innerColumn;
         }

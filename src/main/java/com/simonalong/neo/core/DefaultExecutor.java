@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author zhouzhenyong
  * @since 2019-08-17 17:16
  */
-public class DefaultExecutor implements AsyncNeo {
+public class DefaultExecutor implements Async {
 
     private static volatile DefaultExecutor instance = null;
 
@@ -45,15 +45,13 @@ public class DefaultExecutor implements AsyncNeo {
             2 * processNum,
             100 * processNum,
             5, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(processNum * 1000),
-            new CountThreadFactory(),
-            new BlockRejectedExecutionHandler());
+            new LinkedBlockingQueue<>(processNum * 1000), new CountThreadFactory(), new BlockRejectedExecutionHandler());
     }
 
     /**
      * 重写拒绝策略，用于在任务量超大情况下任务的阻塞提交
      */
-    private class BlockRejectedExecutionHandler implements RejectedExecutionHandler {
+    private static class BlockRejectedExecutionHandler implements RejectedExecutionHandler {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
@@ -68,9 +66,9 @@ public class DefaultExecutor implements AsyncNeo {
     /**
      * 指定名字的线程工厂
      */
-    private class CountThreadFactory implements ThreadFactory {
+    private static class CountThreadFactory implements ThreadFactory {
 
-        private AtomicInteger threadNum = new AtomicInteger(0);
+        private final AtomicInteger threadNum = new AtomicInteger(0);
         @Override
         public Thread newThread(Runnable r) {
             return new Thread(r, "Thread-Neo-async-Call-" + threadNum.getAndIncrement());
