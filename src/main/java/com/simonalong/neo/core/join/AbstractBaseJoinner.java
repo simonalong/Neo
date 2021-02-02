@@ -6,6 +6,7 @@ import com.simonalong.neo.core.DefaultExecutor;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -61,6 +62,28 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, Executor executor) {
         return CompletableFuture.supplyAsync(() -> values(tClass, columns, tableJoinOn, searchMap), executor);
     }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, joinColumns, tableJoinOn, tableMap), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, joinColumns, tableJoinOn, searchExpress), executor);
+    }
+
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(joinColumns, tableJoinOn, tableMap), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(joinColumns, tableJoinOn, searchExpress), executor);
+    }
+
 
     @Override
     public CompletableFuture<List<TableMap>> pageAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage, Executor executor) {

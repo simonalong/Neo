@@ -101,6 +101,27 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
+        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+    }
+
+    @Override
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
+        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+    }
+
+    @Override
+    public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    }
+
+
+    @Override
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }

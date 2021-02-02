@@ -143,6 +143,22 @@ public abstract class AbstractQueryAsync implements QueryAsync {
         return valuesAsync(tableName, tClass, field, entity, getExecutor());
     }
 
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return valuesAsync(tClass, tableName, field, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return valuesAsync(tClass, tableName, field, searchExpress, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Object entity) {
+        return valuesAsync(tClass, tableName, field, entity, getExecutor());
+    }
+
     @Override
     public CompletableFuture<List<String>> valuesAsync(String tableName, String field, NeoMap searchMap) {
         return valuesAsync(tableName, field, searchMap, getExecutor());
@@ -177,6 +193,23 @@ public abstract class AbstractQueryAsync implements QueryAsync {
     public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity) {
         return valuesOfDistinctAsync(tableName, tClass, field, entity, getExecutor());
     }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
+        return valuesOfDistinctAsync(tClass, tableName, field, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Express searchExpress) {
+        return valuesOfDistinctAsync(tClass, tableName, field, searchExpress, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Object entity) {
+        return valuesOfDistinctAsync(tClass, tableName, field, entity, getExecutor());
+    }
+
 
     @Override
     public CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, NeoMap searchMap) {

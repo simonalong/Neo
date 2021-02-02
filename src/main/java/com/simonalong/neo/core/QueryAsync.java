@@ -130,17 +130,32 @@ public interface QueryAsync extends Async {
     CompletableFuture<String> valueAsync(String tableName, String field, Object entity);
 
 
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Express searchExpress, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Express searchExpress);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Object entity);
+
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Express searchExpress);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Object entity, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String tableName, String field, Object entity);
+
 
     CompletableFuture<List<String>> valuesAsync(String tableName, String field, NeoMap searchMap, Executor executor);
 
@@ -158,18 +173,31 @@ public interface QueryAsync extends Async {
 
     CompletableFuture<List<String>> valuesAsync(String tableName, String field);
 
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Express searchExpress, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Express searchExpress);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor);
-
+    @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity);
+
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, NeoMap searchMap);
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Express searchExpress, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Express searchExpress);
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Object entity, Executor executor);
+
+    <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String tableName, String field, Object entity);
 
     CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field, NeoMap searchMap, Executor executor);
 

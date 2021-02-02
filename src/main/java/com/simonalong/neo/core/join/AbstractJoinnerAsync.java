@@ -5,6 +5,7 @@ import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.express.Express;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -53,6 +54,26 @@ public abstract class AbstractJoinnerAsync implements JoinnerAsync {
     @Override
     public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
         return valuesAsync(tClass, columns, tableJoinOn, searchMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap) {
+        return valuesOfDistinctAsync(tClass, joinColumns, tableJoinOn, tableMap, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return valuesOfDistinctAsync(tClass, joinColumns, tableJoinOn, searchExpress, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap) {
+        return valuesOfDistinctAsync(joinColumns, tableJoinOn, tableMap, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress) {
+        return valuesOfDistinctAsync(joinColumns, tableJoinOn, searchExpress, getExecutor());
     }
 
     @Override

@@ -80,6 +80,24 @@ public interface JoinnerSync {
     <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
 
     /**
+     * 筛选唯一数值
+     *
+     * @param tClass 类型
+     * @param columns 多表中的某个表的某个列
+     * @param tableJoinOn 多表的关联关系
+     * @param searchMap 多表的搜索条件
+     * @param <T> 类型
+     * @return 返回集合
+     */
+    <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
+
+    <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+
+    List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
+
+    List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+
+    /**
      * 根据分页，查询多行数据对象
      *
      * @param columns 多表查询的数据

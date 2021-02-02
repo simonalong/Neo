@@ -26,6 +26,14 @@ public class JoinSqlBuilder {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
     }
 
+    public String buildDistinct(Columns columns, TableJoinOn joiner, TableMap searchMap) {
+        return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
+    }
+
+    public String buildDistinct(Columns columns, TableJoinOn joiner, Express searchExpress) {
+        return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
+    }
+
     public String buildCount(TableJoinOn joiner, TableMap searchMap) {
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
