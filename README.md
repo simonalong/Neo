@@ -159,6 +159,71 @@ public void testDemo2() {
 ```
 表示更新表`table_name`，其中条件为`id`，对应修改的值为`name`
 
+### 指定实体
+上面我们对数据的操作全都是基于map，下面我们基于实体DO对数据库进行操作
+```java
+/**
+ * 指定表的话，就更简单
+ */
+@Test
+public void testDemo3() {
+    String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    String user = "neo_test";
+    String password = "neo@Test123";
+    String tableName = "neo_table1";
+    // 连接
+    Neo neo = Neo.connect(url, user, password);
+    NeoTable table = neo.getTable(tableName);
+
+    // 实体数据
+    DemoEntity3 entity = new DemoEntity3().setGroup("group1").setUsName("name1");
+
+    // 插入
+    DemoEntity3 result = table.insert(entity);
+
+    result.setUsName("name2");
+
+    // 更新
+    table.update(result);
+
+    // 删除
+    table.delete(result);
+
+    // 查询一行
+    table.one(result);
+
+    // 查询多行
+    table.list(result);
+
+    // 查询指定列的
+    table.value("group", NeoMap.of("user_name", "name2"));
+
+    // 查询指定列的多个值
+    table.values("group", NeoMap.of("user_name", "name2"));
+
+    // 查询分页，第一个参数是搜索条件
+    table.page(NeoMap.of("user_name", "name2"), NeoPage.of(1, 20));
+    
+    // 分页个数
+    table.count(data);
+
+    // 批量插入
+    List<DemoEntity3> list = new ArrayList<>();
+    list.add(new DemoEntity().setGroup("group1").setName("name1").setUserName("userName1"));
+    list.add(new DemoEntity().setGroup("group2").setName("name2").setUserName("userName2"));
+    list.add(new DemoEntity().setGroup("group3").setName("name3").setUserName("userName3"));
+    table.batchInsertEntity(list);
+    
+    // 批量更新
+    List<DemoEntity3> updateList = new ArrayList<>();
+    updateList.add(new DemoEntity().setId(1L).setGroup("group1").setName("name1").setUserName("userName1"));
+    updateList.add(new DemoEntity().setId(2L).setGroup("group2").setName("name2").setUserName("userName2"));
+    updateList.add(new DemoEntity().setId(3L).setGroup("group3").setName("name3").setUserName("userName3"));
+    table.batchUpdateEntity(list, Columns.of("id"));
+}
+```
+
+
 ### 复杂查询
 除了基本的查询外，对于复杂的条件查询，可以采用稍微复杂点的搜索方式，不过使用也还是很简单
 version >= 0.6.0
@@ -237,70 +302,6 @@ public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
 ```java
 // 连接
 Neo neo = Neo.connect(datasource);
-```
-
-### 指定实体
-上面我们对数据的操作全都是基于map，下面我们基于实体DO对数据库进行操作
-```java
-/**
- * 指定表的话，就更简单
- */
-@Test
-public void testDemo3() {
-    String url = "jdbc:mysql://127.0.0.1:3306/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
-    String user = "neo_test";
-    String password = "neo@Test123";
-    String tableName = "neo_table1";
-    // 连接
-    Neo neo = Neo.connect(url, user, password);
-    NeoTable table = neo.getTable(tableName);
-
-    // 实体数据
-    DemoEntity3 entity = new DemoEntity3().setGroup("group1").setUsName("name1");
-
-    // 插入
-    DemoEntity3 result = table.insert(entity);
-
-    result.setUsName("name2");
-
-    // 更新
-    table.update(result);
-
-    // 删除
-    table.delete(result);
-
-    // 查询一行
-    table.one(result);
-
-    // 查询多行
-    table.list(result);
-
-    // 查询指定列的
-    table.value("group", NeoMap.of("user_name", "name2"));
-
-    // 查询指定列的多个值
-    table.values("group", NeoMap.of("user_name", "name2"));
-
-    // 查询分页，第一个参数是搜索条件
-    table.page(NeoMap.of("user_name", "name2"), NeoPage.of(1, 20));
-    
-    // 分页个数
-    table.count(data);
-
-    // 批量插入
-    List<DemoEntity3> list = new ArrayList<>();
-    list.add(new DemoEntity().setGroup("group1").setName("name1").setUserName("userName1"));
-    list.add(new DemoEntity().setGroup("group2").setName("name2").setUserName("userName2"));
-    list.add(new DemoEntity().setGroup("group3").setName("name3").setUserName("userName3"));
-    table.batchInsertEntity(list);
-    
-    // 批量更新
-    List<DemoEntity3> updateList = new ArrayList<>();
-    updateList.add(new DemoEntity().setId(1L).setGroup("group1").setName("name1").setUserName("userName1"));
-    updateList.add(new DemoEntity().setId(2L).setGroup("group2").setName("name2").setUserName("userName2"));
-    updateList.add(new DemoEntity().setId(3L).setGroup("group3").setName("name3").setUserName("userName3"));
-    table.batchUpdateEntity(list, Columns.of("id"));
-}
 ```
 
 ### 实体和DB字段映射
