@@ -112,7 +112,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate And(Object... objects) {
-        return And(Operate.parse(Express.LogicEnum.AND_EM, objects));
+        return And(Operate.parse(SearchExpress.LogicEnum.AND_EM, objects));
     }
 
     /**
@@ -187,7 +187,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate AndEm(Object... objects) {
-        return AndEm(Operate.parse(Express.LogicEnum.AND_EM, objects));
+        return AndEm(Operate.parse(SearchExpress.LogicEnum.AND_EM, objects));
     }
 
     public static Operate AndEm(NeoQueue<Operate> operateQueue) {
@@ -256,7 +256,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Or(Object... objects) {
-        return Or(Operate.parse(Express.LogicEnum.OR_EM, objects));
+        return Or(Operate.parse(SearchExpress.LogicEnum.OR_EM, objects));
     }
 
     public static Operate Or(NeoQueue<Operate> operateQueue) {
@@ -338,7 +338,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate OrEm(Object... objects) {
-        return OrEm(Operate.parse(Express.LogicEnum.OR_EM, objects));
+        return OrEm(Operate.parse(SearchExpress.LogicEnum.OR_EM, objects));
     }
 
     public static Operate OrEm(NeoQueue<Operate> operateQueue) {
@@ -420,7 +420,7 @@ public abstract class BaseOperate implements Operate {
      * @return 操作符
      */
     public static Operate Em(Object... objects) {
-        return OrEm(Operate.parse(Express.LogicEnum.EMPTY, objects));
+        return OrEm(Operate.parse(SearchExpress.LogicEnum.EMPTY, objects));
     }
 
     public static Operate Em(NeoQueue<Operate> operateQueue) {

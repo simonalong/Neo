@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.TableJoinOn;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 import lombok.experimental.UtilityClass;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public class JoinSqlBuilder {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String build(Columns columns, TableJoinOn joiner, Express searchExpress) {
+    public String build(Columns columns, TableJoinOn joiner, SearchExpress searchExpress) {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
     }
 
@@ -30,7 +30,7 @@ public class JoinSqlBuilder {
         return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildDistinct(Columns columns, TableJoinOn joiner, Express searchExpress) {
+    public String buildDistinct(Columns columns, TableJoinOn joiner, SearchExpress searchExpress) {
         return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
     }
 
@@ -38,7 +38,7 @@ public class JoinSqlBuilder {
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildCount(TableJoinOn joiner, Express searchExpress) {
+    public String buildCount(TableJoinOn joiner, SearchExpress searchExpress) {
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
     }
 
@@ -72,7 +72,7 @@ public class JoinSqlBuilder {
         return "";
     }
 
-    public String buildConditionWithWhere(Express searchExpress) {
+    public String buildConditionWithWhere(SearchExpress searchExpress) {
         return searchExpress.toSql();
     }
 
@@ -106,7 +106,7 @@ public class JoinSqlBuilder {
         return searchMap.clone().entrySet().stream().flatMap(e-> ((NeoMap) e.getValue()).valueStream()).collect(Collectors.toList());
     }
 
-    public List<Object> buildValueList(Express searchExpress) {
+    public List<Object> buildValueList(SearchExpress searchExpress) {
         return searchExpress.toValue();
     }
 }

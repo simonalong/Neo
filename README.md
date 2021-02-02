@@ -159,6 +159,79 @@ public void testDemo2() {
 ```
 表示更新表`table_name`，其中条件为`id`，对应修改的值为`name`
 
+### 复杂查询
+除了基本的查询外，对于复杂的条件查询，可以采用稍微复杂点的搜索方式，不过使用也还是很简单
+version >= 0.6.0
+
+```java
+/**
+ * 复杂表达式的搜索
+ * <p>其中有默认的过滤原则
+ */
+@Test
+public void oneTest() {
+    NeoMap dataMap = NeoMap.of("group", "group_insert_express", "name", "name_insert_express");
+    neo.insert(TABLE_NAME, dataMap);
+
+    SearchExpress searchExpress;
+
+    searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
+    Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchExpress).assignExcept("id"));
+}
+```
+除了默认的and，类SearchExpress还有更复杂的使用方式，类`Neo`支持SearchExpress作为更复杂的条件搜索
+```java
+NeoMap one(String tableName, Columns columns, SearchExpress searchExpress);
+String value(String tableName, String field, SearchExpress searchExpress);
+List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress);
+// ...等等可以NeoMap的api，都是对应的SearchExpress作为搜索条件
+```
+```java
+new SearchExpress().append(BetweenAnd("age", 1, 4));
+new SearchExpress().and(In("id", dataList));
+new SearchExpress().and(Like("name", "%chou"));
+new SearchExpress().and(IsNull("name"));
+new SearchExpress().and("name", 12).append(GroupBy("group"));
+new SearchExpress().append(OrderBy("create_time"));
+new SearchExpress().append(Exists("select id from xxx"));
+new SearchExpress().and(LessThan("name", "tt"));
+
+// ...等等所有表达式都支持...
+```
+
+#### 提示
+SearchExpress也可以用来生成sql进行拼接使用，这个时候使用就需要做另外的方式进行处理，举个真实案例如下
+```java
+public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
+    PageRsp<AlarmPeopleDO> pageRsp = new PageRsp<>();
+    PeopleQueryReq req = pageReq.getParam();
+    if (null == req) {
+        PageRsp<AlarmPeopleDO> rsp = new PageRsp<>();
+        rsp.setTotalNum(0);
+        rsp.setDataList(Collections.emptyList());
+        return rsp;
+    }
+
+    Express searchExpress = new Express();
+    searchExpress.and("people.`profile`", req.getProfile());
+    searchExpress.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
+    searchExpress.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
+    searchExpress.append(BaseOperate.OrderByDesc("people_group.`update_time`"));
+
+    String pageSql = "select distinct people.* from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
+    String countSql = "select count(distinct people.`id`) from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
+
+    List<Object> parameterList = new ArrayList<>();
+    parameterList.add(searchExpress.toSql());
+    // 注意，这里需要用到这里的value才行
+    parameterList.add(searchExpress.toValue());
+
+    pageRsp.setDataList(alarmDb.exePage(AlarmPeopleDO.class, pageSql, NeoPage.from(pageReq), parameterList.toArray()));
+    pageRsp.setTotalNum(alarmDb.exeCount(countSql, parameterList.toArray()));
+    return pageRsp;
+}
+```
+
 #### 注意
 生成一个Neo对象除了可以通过url、user和password，还可以通过DataSource方式
 ```java

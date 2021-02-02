@@ -6,7 +6,7 @@ import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.exception.NeoException;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 import com.simonalong.neo.util.ExceptionUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,7 +61,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public Integer delete(String tableName, Express searchExpress) {
+    public Integer delete(String tableName, SearchExpress searchExpress) {
         return doMasterCall(db -> db.delete(tableName, searchExpress));
     }
 
@@ -86,12 +86,12 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public NeoMap update(String tableName, NeoMap dataMap, Express searchExpress){
+    public NeoMap update(String tableName, NeoMap dataMap, SearchExpress searchExpress){
         return doMasterCall(db -> db.update(tableName, dataMap, searchExpress));
     }
 
     @Override
-    public <T> T update(String tableName, T setEntity, Express searchExpress) {
+    public <T> T update(String tableName, T setEntity, SearchExpress searchExpress) {
         return doMasterCall(db -> db.update(tableName, setEntity, searchExpress));
     }
 
@@ -141,7 +141,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress){
         return doSlaveCall(db -> db.one(tableName, columns, searchExpress));
     }
 
@@ -171,7 +171,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public NeoMap one(String tableName, Express searchExpress) {
+    public NeoMap one(String tableName, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.one(tableName, searchExpress));
     }
 
@@ -201,7 +201,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+    public List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.list(tableName, columns, searchExpress));
     }
 
@@ -226,7 +226,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Express searchExpress){
+    public List<NeoMap> list(String tableName, SearchExpress searchExpress){
         return doSlaveCall(db -> db.list(tableName, searchExpress));
     }
 
@@ -236,8 +236,8 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, Express express) {
-        return doSlaveCall(db -> db.list(tClass, tableName, columns, express));
+    public <T> List<T> list(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress) {
+        return doSlaveCall(db -> db.list(tClass, tableName, columns, searchExpress));
     }
 
     @Override
@@ -251,7 +251,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> List<T> list(Class<T> tClass, String tableName, Express searchExpress) {
+    public <T> List<T> list(Class<T> tClass, String tableName, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.list(tClass, tableName, searchExpress));
     }
 
@@ -267,7 +267,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> T value(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.value(tClass, tableName, field, searchExpress));
     }
 
@@ -288,7 +288,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public String value(String tableName, String field, Express searchExpress) {
+    public String value(String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.value(tableName, field, searchExpress));
     }
 
@@ -320,7 +320,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.values(tClass, tableName, field, searchExpress));
     }
 
@@ -335,7 +335,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<String> values(String tableName, String field, Express searchExpress) {
+    public List<String> values(String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.values(tableName, field, searchExpress));
     }
 
@@ -355,7 +355,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.valuesOfDistinct(tClass, tableName, field, searchExpress));
     }
 
@@ -370,7 +370,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+    public List<String> valuesOfDistinct(String tableName, String field, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.valuesOfDistinct(tableName, field, searchExpress));
     }
 
@@ -390,7 +390,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         return doSlaveCall(db -> db.page(tableName, columns, searchExpress, page));
     }
 
@@ -405,7 +405,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.page(tableName, searchExpress, page));
     }
 
@@ -430,12 +430,12 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page) {
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.page(tClass, tableName, columns, searchExpress, page));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
+    public <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.page(tClass, tableName, searchExpress, page));
     }
 
@@ -460,7 +460,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, Columns columns, Express searchExpress, NeoPage page) {
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.getPage(tableName, columns, searchExpress, page));
     }
 
@@ -475,7 +475,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, Express searchExpress, NeoPage page) {
+    public PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.getPage(tableName, searchExpress, page));
     }
 
@@ -500,7 +500,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, Express searchExpress, NeoPage page) {
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchExpress, page));
     }
 
@@ -510,7 +510,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Express searchExpress, NeoPage page) {
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
         return doSlaveCall(db -> db.getPage(tClass, tableName, searchExpress, page));
     }
 
@@ -531,7 +531,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public Integer count(String tableName, Express searchExpress) {
+    public Integer count(String tableName, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.count(tableName, searchExpress));
     }
 
@@ -551,7 +551,7 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public Boolean exist(String tableName, Express searchExpress) {
+    public Boolean exist(String tableName, SearchExpress searchExpress) {
         return doSlaveCall(db -> db.exist(tableName, searchExpress));
     }
 

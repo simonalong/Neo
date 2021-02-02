@@ -6,7 +6,7 @@ import com.simonalong.neo.core.DefaultExecutor;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -69,7 +69,7 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, SearchExpress searchExpress, Executor executor) {
         return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, joinColumns, tableJoinOn, searchExpress), executor);
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractBaseJoinner extends AbstractJoinnerAsync implement
     }
 
     @Override
-    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, Express searchExpress, Executor executor) {
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(Columns joinColumns, TableJoinOn tableJoinOn, SearchExpress searchExpress, Executor executor) {
         return CompletableFuture.supplyAsync(() -> valuesOfDistinct(joinColumns, tableJoinOn, searchExpress), executor);
     }
 

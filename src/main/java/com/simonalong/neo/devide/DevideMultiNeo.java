@@ -3,7 +3,7 @@ package com.simonalong.neo.devide;
 import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.exception.NeoNotSupport;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 import com.simonalong.neo.util.CharSequenceUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.simonalong.neo.NeoConstant.*;
 
@@ -57,7 +56,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress){
         return executeOne(tableName, (db, actTableName) -> db.one(actTableName, columns, searchExpress));
     }
 
@@ -87,7 +86,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public NeoMap one(String tableName, Express searchExpress) {
+    public NeoMap one(String tableName, SearchExpress searchExpress) {
         return executeOne(tableName, (db, actTableName) -> db.one(actTableName, searchExpress));
     }
 
@@ -97,7 +96,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+    public List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress) {
         return executeList(tableName, (db, actTableName) -> db.list(actTableName, columns, searchExpress));
     }
 
@@ -121,7 +120,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
 
-    public List<NeoMap> list(String tableName, Express searchExpress){
+    public List<NeoMap> list(String tableName, SearchExpress searchExpress){
         return executeList(tableName, (db, actTableName) -> db.list(actTableName, searchExpress));
     }
 
@@ -143,7 +142,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> T value(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return executeOne(tableName, (db, actTableName) -> db.value(tClass, actTableName, field, searchExpress));
     }
 
@@ -160,7 +159,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public String value(String tableName, String field, Express searchExpress) {
+    public String value(String tableName, String field, SearchExpress searchExpress) {
         return executeOne(tableName, (db, actTableName) -> db.value(actTableName, field, searchExpress));
     }
 
@@ -193,7 +192,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return executeList(tableName, (db, actTableName) -> db.values(tClass, actTableName, field, searchExpress));
     }
 
@@ -208,7 +207,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<String> values(String tableName, String field, Express searchExpress) {
+    public List<String> values(String tableName, String field, SearchExpress searchExpress) {
         return executeList(tableName, (db, actTableName) -> db.values(actTableName, field, searchExpress));
     }
 
@@ -228,7 +227,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, searchExpress));
     }
 
@@ -243,7 +242,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+    public List<String> valuesOfDistinct(String tableName, String field, SearchExpress searchExpress) {
         return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, searchExpress));
     }
 
@@ -264,7 +263,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
     }
 
@@ -282,7 +281,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
         return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
     }
 
@@ -310,7 +309,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public Integer count(String tableName, Express searchExpress) {
+    public Integer count(String tableName, SearchExpress searchExpress) {
         return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchExpress)).stream().reduce(Integer::sum).orElse(0);
     }
 
@@ -490,8 +489,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
             if (searchMap.containsKey(ORDER_BY)) {
                 orderByValue = searchMap.getString(ORDER_BY);
             }
-        } else if (searchObject instanceof Express) {
-            Express searchExpress = (Express) searchObject;
+        } else if (searchObject instanceof SearchExpress) {
+            SearchExpress searchExpress = (SearchExpress) searchObject;
             orderByValue = searchExpress.getFirstOperateStr(ORDER_BY);
             if (CharSequenceUtil.isNotEmpty(orderByValue)) {
                 orderByValue = orderByValue.trim();

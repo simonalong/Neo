@@ -5,7 +5,7 @@ import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 
 import java.util.List;
 
@@ -25,11 +25,11 @@ public interface JoinnerSync {
      */
     TableMap one(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    TableMap one(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    TableMap one(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     /**
      * 查询多行数据对象
@@ -41,11 +41,11 @@ public interface JoinnerSync {
      */
     List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     /**
      * 查询某个列的一个值
@@ -57,11 +57,11 @@ public interface JoinnerSync {
      */
     String value(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    String value(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    String value(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     /**
      * 查询某个列的多个值
@@ -73,11 +73,11 @@ public interface JoinnerSync {
      */
     List<String> values(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    List<String> values(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    List<String> values(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     /**
      * 筛选唯一数值
@@ -91,11 +91,11 @@ public interface JoinnerSync {
      */
     <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap);
 
-    List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, Express searchExpress);
+    List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress);
 
     /**
      * 根据分页，查询多行数据对象
@@ -108,17 +108,17 @@ public interface JoinnerSync {
      */
     List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage);
 
-    List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, Express searchExpress, NeoPage neoPage);
+    List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage);
 
     <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage);
 
-    <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress, NeoPage neoPage);
+    <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage);
 
     default PageRsp<TableMap> getPage(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return new PageRsp<>(page(columns, tableJoinOn, searchMap, neoPage), count(tableJoinOn, searchMap));
     }
 
-    default PageRsp<TableMap> getPage(Columns columns, TableJoinOn tableJoinOn, Express searchExpress, NeoPage neoPage) {
+    default PageRsp<TableMap> getPage(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage) {
         return new PageRsp<>(page(columns, tableJoinOn, searchExpress, neoPage), count(tableJoinOn, searchExpress));
     }
 
@@ -126,7 +126,7 @@ public interface JoinnerSync {
         return new PageRsp<>(page(tClass, columns, tableJoinOn, searchMap, neoPage), count(tableJoinOn, searchMap));
     }
 
-    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, Express searchExpress, NeoPage neoPage) {
+    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage) {
         return new PageRsp<>(page(tClass, columns, tableJoinOn, searchExpress, neoPage), count(tableJoinOn, searchExpress));
     }
 
@@ -139,5 +139,5 @@ public interface JoinnerSync {
      */
     Integer count(TableJoinOn tableJoinOn, TableMap searchMap);
 
-    Integer count(TableJoinOn tableJoinOn, Express searchExpress);
+    Integer count(TableJoinOn tableJoinOn, SearchExpress searchExpress);
 }

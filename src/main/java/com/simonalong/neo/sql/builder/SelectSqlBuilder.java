@@ -3,7 +3,7 @@ package com.simonalong.neo.sql.builder;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -26,11 +26,11 @@ public class SelectSqlBuilder {
         return buildList(neo, tableName, columns, searchMap) + limitOne();
     }
 
-    public String buildOne(Neo neo, String tableName, Columns columns, Express searchExpress) {
+    public String buildOne(Neo neo, String tableName, Columns columns, SearchExpress searchExpress) {
         return buildList(neo, tableName, columns, searchExpress) + limitOne();
     }
 
-    public String buildOne(Neo neo, String tableName, Express searchExpress) {
+    public String buildOne(Neo neo, String tableName, SearchExpress searchExpress) {
         return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
     }
 
@@ -47,11 +47,11 @@ public class SelectSqlBuilder {
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
-    public String buildList(Neo neo, String tableName, Columns columns, Express searchExpress) {
+    public String buildList(Neo neo, String tableName, Columns columns, SearchExpress searchExpress) {
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + searchExpress.toSql();
     }
 
-    public String buildList(Neo neo, String tableName, Express searchExpress) {
+    public String buildList(Neo neo, String tableName, SearchExpress searchExpress) {
         return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchExpress.toSql();
     }
 
@@ -67,7 +67,7 @@ public class SelectSqlBuilder {
         return buildValues(tableName, false, field, searchMap) + limitOne();
     }
 
-    public String buildValue(String tableName, String field, Express searchExpress) {
+    public String buildValue(String tableName, String field, SearchExpress searchExpress) {
         return buildValues(tableName, false, field, searchExpress) + limitOne();
     }
 
@@ -88,7 +88,7 @@ public class SelectSqlBuilder {
         }
     }
 
-    public String buildValues(String tableName, Boolean distinct, String field, Express searchExpress) {
+    public String buildValues(String tableName, Boolean distinct, String field, SearchExpress searchExpress) {
         if (distinct) {
             return "select distinct " + SqlBuilder.toDbField(field) + " from " + tableName + searchExpress.toSql();
         } else {
@@ -111,7 +111,7 @@ public class SelectSqlBuilder {
         return buildList(neo, tableName, columns, searchMap) + " limit " + pageSize + " offset " + startIndex;
     }
 
-    public String buildPage(Neo neo, String tableName, Columns columns, Express searchExpress, Integer startIndex, Integer pageSize) {
+    public String buildPage(Neo neo, String tableName, Columns columns, SearchExpress searchExpress, Integer startIndex, Integer pageSize) {
         return buildList(neo, tableName, columns, searchExpress) + " limit " + pageSize + " offset " + startIndex;
     }
 
@@ -126,7 +126,7 @@ public class SelectSqlBuilder {
         return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
-    public String buildCount(String tableName, Express searchExpress) {
+    public String buildCount(String tableName, SearchExpress searchExpress) {
         return "select count(1) from " + tableName + searchExpress.toSql();
     }
 

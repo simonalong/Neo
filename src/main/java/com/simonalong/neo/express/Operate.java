@@ -106,7 +106,7 @@ public interface Operate {
      * @return 操作符队列
      */
     @SuppressWarnings({"rawtypes"})
-    static NeoQueue<Operate> parse(Express.LogicEnum logicOperate, Object... objects) {
+    static NeoQueue<Operate> parse(SearchExpress.LogicEnum logicOperate, Object... objects) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         List<Object> parameters = Arrays.asList(objects);
 

@@ -9,17 +9,17 @@ import java.util.*;
  * @author shizi
  * @since 2020/8/29 11:14 上午
  */
-public class Express {
+public class SearchExpress {
 
     NeoQueue<Operate> innerOperateQueue = NeoQueue.of();
 
-    public Express() {}
+    public SearchExpress() {}
 
-    public Express(Object... objects) {
+    public SearchExpress(Object... objects) {
         init(Operate.parse(LogicEnum.AND_EM, objects));
     }
 
-    public Express(NeoQueue<Operate> neoQueue) {
+    public SearchExpress(NeoQueue<Operate> neoQueue) {
         init(neoQueue);
     }
 
@@ -74,7 +74,7 @@ public class Express {
      * @param objects 待处理对象
      * @return this
      */
-    public Express and(Object... objects) {
+    public SearchExpress and(Object... objects) {
         and(Operate.parse(LogicEnum.AND_EM, objects));
         return this;
     }
@@ -85,13 +85,13 @@ public class Express {
      * @param queue   操作符队列
      * @return this
      */
-    public Express and(NeoQueue<Operate> queue) {
+    public SearchExpress and(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.And(queue));
         return this;
     }
 
     /**
-     * and操作：objects对应的是k-v-k-v...这样的结构，最后生成的sql是：k1=? and k2=? and k3=? ...，跟{@link Express#and(Object...)}区别就是没有括号
+     * and操作：objects对应的是k-v-k-v...这样的结构，最后生成的sql是：k1=? and k2=? and k3=? ...，跟{@link SearchExpress#and(Object...)}区别就是没有括号
      * <p>
      *     参数类型可以为三种类型：
      *     <ul>
@@ -103,7 +103,7 @@ public class Express {
      * @param objects 待处理对象
      * @return this
      */
-    public Express andEm(Object... objects) {
+    public SearchExpress andEm(Object... objects) {
         andEm(Operate.parse(LogicEnum.AND_EM, objects));
         return this;
     }
@@ -114,7 +114,7 @@ public class Express {
      * @param queue   操作符队列
      * @return this
      */
-    public Express andEm(NeoQueue<Operate> queue) {
+    public SearchExpress andEm(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
         return this;
     }
@@ -132,7 +132,7 @@ public class Express {
      * @param objects 待处理对象
      * @return this
      */
-    public Express or(Object... objects) {
+    public SearchExpress or(Object... objects) {
         or(Operate.parse(LogicEnum.OR_EM, objects));
         return this;
     }
@@ -143,7 +143,7 @@ public class Express {
      * @param queue   操作符队列
      * @return this
      */
-    public Express or(NeoQueue<Operate> queue) {
+    public SearchExpress or(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.Or(queue));
         return this;
     }
@@ -161,7 +161,7 @@ public class Express {
      * @param objects 待处理对象
      * @return this
      */
-    public Express orEm(Object... objects) {
+    public SearchExpress orEm(Object... objects) {
         orEm(Operate.parse(LogicEnum.OR_EM, objects));
         return this;
     }
@@ -172,7 +172,7 @@ public class Express {
      * @param queue   操作符队列
      * @return this
      */
-    public Express orEm(NeoQueue<Operate> queue) {
+    public SearchExpress orEm(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.OrEm(queue));
         return this;
     }
@@ -190,7 +190,7 @@ public class Express {
      * @param objects 待处理对象
      * @return this
      */
-    public Express append(Object... objects) {
+    public SearchExpress append(Object... objects) {
         append(Operate.parse(LogicEnum.EMPTY, objects));
         return this;
     }
@@ -201,7 +201,7 @@ public class Express {
      * @param queue   操作符队列
      * @return this
      */
-    public Express append(NeoQueue<Operate> queue) {
+    public SearchExpress append(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.Em(queue));
         return this;
     }

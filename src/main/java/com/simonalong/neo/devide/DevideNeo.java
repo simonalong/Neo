@@ -5,7 +5,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 import com.simonalong.neo.xa.NeoXa;
 import com.simonalong.neo.devide.strategy.DevideStrategy;
 import com.simonalong.neo.devide.strategy.DevideStrategyFactory;
@@ -238,7 +238,7 @@ public final class DevideNeo extends AbstractBaseDb {
      * @param searchExpress    查询表达式
      * @return 实际库名。没有找到，则报异常
      */
-    private Neo getDevideDb(String tableName, Express searchExpress) {
+    private Neo getDevideDb(String tableName, SearchExpress searchExpress) {
         validate(tableName);
         Neo dbFinal = devideStrategy.getDb(dbList, getDevideDbColumnValue(tableName, searchExpress));
         if (null != dbFinal) {
@@ -285,7 +285,7 @@ public final class DevideNeo extends AbstractBaseDb {
         throw new NotFindDevideTableException(tableName);
     }
 
-    private String getDevideTable(String tableName, Express searchExpress) {
+    private String getDevideTable(String tableName, SearchExpress searchExpress) {
         validate(tableName);
         String tableNameFinal = devideStrategy.getTable(tableName, getDevideTableColumnValue(tableName, searchExpress));
         if (null != tableNameFinal) {
@@ -388,8 +388,8 @@ public final class DevideNeo extends AbstractBaseDb {
                 if (null != primaryColumnName && primaryColumnName.equals(devideColumn)) {
                     return object;
                 }
-            } else if(object instanceof Express) {
-                Express searchExpress = (Express) object;
+            } else if(object instanceof SearchExpress) {
+                SearchExpress searchExpress = (SearchExpress) object;
                 return searchExpress.getValue(tableDevideConfig.getColumnName());
             } else if (null != object) {
                 return NeoMap.from(object).get(tableDevideConfig.getColumnName());
@@ -427,8 +427,8 @@ public final class DevideNeo extends AbstractBaseDb {
                 if (null != primaryColumnName && primaryColumnName.equals(devideDbColumnName)) {
                     return object;
                 }
-            } else if(object instanceof Express) {
-                Express searchExpress = (Express) object;
+            } else if(object instanceof SearchExpress) {
+                SearchExpress searchExpress = (SearchExpress) object;
                 return searchExpress.getValue(devideDbColumnName);
             } else if (null != object) {
                 return NeoMap.from(object).get(devideDbColumnName);
@@ -500,7 +500,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public Integer delete(String tableName, Express searchExpress) {
+    public Integer delete(String tableName, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -560,7 +560,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public NeoMap update(String tableName, NeoMap dataMap, Express searchExpress) {
+    public NeoMap update(String tableName, NeoMap dataMap, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -572,7 +572,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public <T> T update(String tableName, T setEntity, Express searchExpress) {
+    public <T> T update(String tableName, T setEntity, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -698,7 +698,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public NeoMap one(String tableName, Columns columns, Express searchExpress){
+    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress){
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -806,7 +806,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public NeoMap one(String tableName, Express searchExpress) {
+    public NeoMap one(String tableName, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -835,7 +835,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Columns columns, Express searchExpress) {
+    public List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -879,7 +879,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Express searchExpress) {
+    public List<NeoMap> list(String tableName, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -954,7 +954,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public <T> T value(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> T value(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1011,7 +1011,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public String value(String tableName, String field, Express searchExpress) {
+    public String value(String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1103,7 +1103,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1137,7 +1137,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<String> values(String tableName, String field, Express searchExpress) {
+    public List<String> values(String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1175,7 +1175,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, Express searchExpress) {
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1208,7 +1208,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<String> valuesOfDistinct(String tableName, String field, Express searchExpress) {
+    public List<String> valuesOfDistinct(String tableName, String field, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1252,7 +1252,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, Express searchExpress, NeoPage page){
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1302,7 +1302,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Express searchExpress, NeoPage page) {
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1355,7 +1355,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public Integer count(String tableName, Express searchExpress) {
+    public Integer count(String tableName, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {

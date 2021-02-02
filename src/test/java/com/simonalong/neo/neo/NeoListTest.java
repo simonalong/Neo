@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import com.simonalong.neo.express.Express;
+import com.simonalong.neo.express.SearchExpress;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,7 +173,7 @@ public class NeoListTest extends NeoBaseTest {
         );
         neo.batchInsert(TABLE_NAME, dataList);
 
-        Express searchExpress = new Express();
+        SearchExpress searchExpress = new SearchExpress();
         searchExpress.andEm("name", "name_list");
         searchExpress.append(OrderBy("group"));
 
@@ -198,7 +198,7 @@ public class NeoListTest extends NeoBaseTest {
         );
         neo.batchInsert(TABLE_NAME, dataList);
 
-        Express searchExpress = new Express();
+        SearchExpress searchExpress = new SearchExpress();
         searchExpress.andEm("name", "name_list");
         searchExpress.append(OrderBy("group", "desc"));
 
