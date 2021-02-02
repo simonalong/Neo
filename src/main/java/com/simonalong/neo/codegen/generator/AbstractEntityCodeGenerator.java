@@ -36,7 +36,7 @@ abstract class AbstractEntityCodeGenerator implements Generator{
     /**
      * template的配置
      */
-    private Configuration configuration = new Configuration(Configuration.VERSION_2_3_22);
+    private final Configuration configuration = new Configuration(Configuration.VERSION_2_3_22);
 
     AbstractEntityCodeGenerator(){
         configuration.setTemplateLoader(new ClassTemplateLoader(AbstractEntityCodeGenerator.class, "/template"));

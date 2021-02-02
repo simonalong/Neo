@@ -22,7 +22,7 @@ public class DbEntityCodeGenerator extends AbstractEntityCodeGenerator {
 
         List<String> tableNameList = getShowTableList(neo);
 
-        if (null != tableNameList && tableNameList.size() > 0) {
+        if (tableNameList.size() > 0) {
             tableNameList.forEach(t -> {
                 generateImport(neo, t, dataMap);
                 dataMap.put("tableName", t);
