@@ -52,7 +52,7 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
             return "";
         }
         List<String> options = optionList.stream().map(String::valueOf).collect(Collectors.toList());
-        if (null == options || options.isEmpty() || !options.contains("COMMENT")) {
+        if (options.isEmpty() || !options.contains("COMMENT")) {
             return "";
         }
 
@@ -79,7 +79,7 @@ public class CreateSqlEntityCodeGenerator extends AbstractEntityCodeGenerator {
         if (null == columnSpecStrings || columnSpecStrings.isEmpty()) {
             return null;
         }
-        Integer index = columnSpecStrings.indexOf("COMMENT");
+        int index = columnSpecStrings.indexOf("COMMENT");
         if (-1 != index) {
             return columnSpecStrings.get(index + 1);
         }
