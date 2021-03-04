@@ -733,3 +733,7 @@ public void devideDbTableTest() {
 - 实体代码生成器
 - 分布式id生成器
 - 分库分表
+
+## 技术咨询
+目前咨询人数不多，暂时没有建群，有需求请添加微信
+zhoumo187108
