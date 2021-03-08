@@ -14,40 +14,40 @@ import java.util.regex.Pattern;
 
 /**
  * 时间格式的各种转换
- * <p>
- *     <ul>
- *         <li>1.LocalDateTime ----> LocalDate</li>
- *         <li>2.LocalDateTime ----> Long</li>
- *         <li>3.LocalDateTime ----> Date</li>
- *         <li>4.LocalDateTime ----> String</li>
- *         <p></p>
- *         <li>1.LocalDate ----> LocalDateTime</li>
- *         <li>2.LocalDate ----> Long</li>
- *         <li>3.LocalDate ----> Date</li>
- *         <li>4.LocalDate ----> String</li>
- *         <p></p>
- *         <li>1.Date ----> LocalDateTime</li>
- *         <li>2.Date ----> LocalDate</li>
- *         <li>3.Date ----> Long</li>
- *         <li>4.Date ----> String</li>
- *         <p></p>
- *         <li>1.Timestamp ----> LocalDateTime</li>
- *         <li>2.Timestamp ----> Long</li>
- *         <li>3.Timestamp ----> String</li>
- *         <li>4.Timestamp ----> LocalDate</li>
- *         <p></p>
- *         <li>1.String ----> LocalDateTime</li>
- *         <li>2.String ----> LocalDate</li>
- *         <li>3.String ----> Date</li>
- *         <li>4.String ----> Timestamp</li>
- *         <li>5.String ----> LocalTime</li>
- *         <li>6.String ----> Time</li>
- *         <p></p>
- *         <li>1.Long ----> Date</li>
- *         <li>2.Long ----> LocalDateTime</li>
- *         <li>3.Long ----> LocalDate</li>
- *         <li>4.Long ----> String</li>
- *     </ul>
+ * <ul>
+ *     <li>1.LocalDateTime {@code ---->} LocalDate</li>
+ *     <li>2.LocalDateTime {@code ---->} Long</li>
+ *     <li>3.LocalDateTime {@code ---->} Date</li>
+ *     <li>4.LocalDateTime {@code ---->} String</li>
+ *
+ *     <li>1.LocalDate {@code ---->} LocalDateTime</li>
+ *     <li>2.LocalDate {@code ---->} Long</li>
+ *     <li>3.LocalDate {@code ---->} Date</li>
+ *     <li>4.LocalDate {@code ---->} String</li>
+ *
+ *     <li>1.Date {@code ---->} LocalDateTime</li>
+ *     <li>2.Date {@code ---->} LocalDate</li>
+ *     <li>3.Date {@code ---->} Long</li>
+ *     <li>4.Date {@code ---->} String</li>
+ *
+ *     <li>1.Timestamp {@code ---->} LocalDateTime</li>
+ *     <li>2.Timestamp {@code ---->} Long</li>
+ *     <li>3.Timestamp {@code ---->} String</li>
+ *     <li>4.Timestamp {@code ---->} LocalDate</li>
+ *
+ *     <li>1.String {@code ---->} LocalDateTime</li>
+ *     <li>2.String {@code ---->} LocalDate</li>
+ *     <li>3.String {@code ---->} Date</li>
+ *     <li>4.String {@code ---->} Timestamp</li>
+ *     <li>5.String {@code ---->} LocalTime</li>
+ *     <li>6.String {@code ---->} Time</li>
+ *
+ *     <li>1.Long {@code ---->} Date</li>
+ *     <li>2.Long {@code ---->} LocalDateTime</li>
+ *     <li>3.Long {@code ---->} LocalDate</li>
+ *     <li>4.Long {@code ---->} String</li>
+ * </ul>
+ *
  * @author shizi
  * @since 2020/9/9 8:58 下午
  */
@@ -110,6 +110,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDateTime 转 Long
+     *
+     * @param localDateTime 时间
+     * @return 转换后的数据
      */
     public static Long localDateTimeToLong(LocalDateTime localDateTime) {
         if (null == localDateTime) {
@@ -120,6 +123,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDateTime 转 Date
+     *
+     * @param localDateTime 时间
+     * @return 转换后的Date类型数据
      */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
         if (null == localDateTime) {
@@ -130,6 +136,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDateTime 转 String
+     *
+     * @param localDateTime 时间
+     * @return 转换后的时间
      */
     public static String localDateTimeToString(LocalDateTime localDateTime) {
         if (null == localDateTime) {
@@ -138,9 +147,12 @@ public class LocalDateTimeUtil {
         return localDateTime.format(localDateTimeFormat.get(yMdHms));
     }
 
-
     /**
      * LocalDateTime 转 String
+     *
+     * @param localDateTime  时间
+     * @param dateTimeFormat 时间格式
+     * @return 转换后的时间
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, String dateTimeFormat) {
         if (null == localDateTime) {
@@ -151,6 +163,10 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDateTime 转 String
+     *
+     * @param localDateTime     时间
+     * @param dateTimeFormatter 时间格式
+     * @return 转换后的时间
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, DateTimeFormatter dateTimeFormatter) {
         if (null == localDateTime || null == dateTimeFormatter) {
@@ -159,9 +175,11 @@ public class LocalDateTimeUtil {
         return localDateTime.format(dateTimeFormatter);
     }
 
-
     /**
      * LocalDate 转 LocalDateTime
+     *
+     * @param localDate 时间
+     * @return 转换后的时间
      */
     public static LocalDateTime localDateToLocalDateTime(LocalDate localDate) {
         if (null == localDate) {
@@ -172,6 +190,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDate 转 Long
+     *
+     * @param localDate 时间
+     * @return 转换后的时间
      */
     public static Long localDateToLong(LocalDate localDate) {
         if (null == localDate) {
@@ -182,6 +203,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDate 转 Date
+     *
+     * @param localDate 时间
+     * @return 转换后的时间
      */
     public static Date localDateToDate(LocalDate localDate) {
         if (null == localDate) {
@@ -192,6 +216,9 @@ public class LocalDateTimeUtil {
 
     /**
      * LocalDate 转 String
+     *
+     * @param localDate 时间
+     * @return 转换后的时间
      */
     public static String localDateToString(LocalDate localDate) {
         if (null == localDate) {
@@ -200,9 +227,11 @@ public class LocalDateTimeUtil {
         return localDate.format(localDateTimeFormat.get(yMd));
     }
 
-
     /**
      * Date 转 LocalDateTime
+     *
+     * @param date 时间
+     * @return 转换后的时间
      */
     public static LocalDateTime dateToLocalDateTime(Date date) {
         if (null == date) {
@@ -213,6 +242,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Date 转 Long
+     *
+     * @param date 时间
+     * @return 转换后的时间
      */
     public static Long dateToLong(Date date) {
         if (null == date) {
@@ -223,6 +255,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Date 转 LocalDate
+     *
+     * @param date 时间
+     * @return 转换后的时间
      */
     public static LocalDate dateToLocalDate(Date date) {
         if (null == date) {
@@ -233,6 +268,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Date 转 String
+     *
+     * @param date 日期
+     * @return 转换后的字符串
      */
     public static String dateToString(Date date) {
         if (null == date) {
@@ -243,6 +281,10 @@ public class LocalDateTimeUtil {
 
     /**
      * Date 转 String
+     *
+     * @param date             日期
+     * @param simpleDateFormat 日期格式
+     * @return 转换后的字符串
      */
     public static String dateToString(Date date, SimpleDateFormat simpleDateFormat) {
         if (null == date || null == simpleDateFormat) {
@@ -253,6 +295,10 @@ public class LocalDateTimeUtil {
 
     /**
      * Date 转 String
+     *
+     * @param date                日期
+     * @param simpleDateFormatStr 日期转换格式
+     * @return 转换后的日期字符串
      */
     public static String dateToString(Date date, String simpleDateFormatStr) {
         if (null == date || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
@@ -261,9 +307,11 @@ public class LocalDateTimeUtil {
         return simpleDateFormat.get(simpleDateFormatStr).format(date);
     }
 
-
     /**
      * Timestamp 转 LocalDateTime
+     *
+     * @param timestamp 日期
+     * @return 转换后的时间
      */
     public static LocalDateTime timestampToLocalDateTime(Timestamp timestamp) {
         if (null == timestamp) {
@@ -274,6 +322,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Timestamp 转 Long
+     *
+     * @param timestamp 时间格式
+     * @return 转换后的时间
      */
     public static Long timestampToLong(Timestamp timestamp) {
         if (null == timestamp) {
@@ -284,6 +335,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Timestamp 转 LocalDate
+     *
+     * @param timestamp 时间
+     * @return 转换后的时间
      */
     public static LocalDate timestampToLocalDate(Timestamp timestamp) {
         if (null == timestamp) {
@@ -292,8 +346,12 @@ public class LocalDateTimeUtil {
         return LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault()).toLocalDate();
     }
 
+
     /**
      * Timestamp 转 String
+     *
+     * @param timestamp 时间
+     * @return 转换后的字符串
      */
     public static String timestampToString(Timestamp timestamp) {
         if (null == timestamp) {
@@ -304,6 +362,10 @@ public class LocalDateTimeUtil {
 
     /**
      * Timestamp 转 String
+     *
+     * @param timestamp        时间
+     * @param simpleDateFormat 时间格式
+     * @return 转换后的时间字符串
      */
     public static String timestampToString(Timestamp timestamp, SimpleDateFormat simpleDateFormat) {
         if (null == timestamp || null == simpleDateFormat) {
@@ -314,6 +376,10 @@ public class LocalDateTimeUtil {
 
     /**
      * Timestamp 转 String
+     *
+     * @param timestamp           时间
+     * @param simpleDateFormatStr 时间转换格式
+     * @return 转换后的时间字符串
      */
     public static String timestampToString(Timestamp timestamp, String simpleDateFormatStr) {
         if (null == timestamp || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
@@ -322,9 +388,11 @@ public class LocalDateTimeUtil {
         return simpleDateFormat.get(simpleDateFormatStr).format(timestamp);
     }
 
-
     /**
      * String 转 LocalDateTime
+     *
+     * @param strDateTime 时间字符串
+     * @return 转换后的日期
      */
     public static LocalDateTime stringToLocalDateTime(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -335,6 +403,10 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 LocalDateTime
+     *
+     * @param strDateTime 字符串类型的时间
+     * @param formatStr   时间转换格式
+     * @return 时间
      */
     public static LocalDateTime stringToLocalDateTime(String strDateTime, String formatStr) {
         if (null == strDateTime || "".equals(strDateTime) || null == formatStr || "".equals(formatStr)) {
@@ -345,6 +417,9 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 LocalDate
+     *
+     * @param strDateTime 字符串类型的时间
+     * @return 时间
      */
     public static LocalDate stringToLocalDate(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -355,6 +430,9 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 Date
+     *
+     * @param strDateTime 字符串类型的时间
+     * @return 日期
      */
     public static Date stringToDate(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -369,6 +447,9 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 Timestamp
+     *
+     * @param strDateTime 字符串类型的时间
+     * @return 日期
      */
     public static Timestamp stringToTimestamp(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -379,6 +460,10 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 LocalTime
+     *
+     * @param strDateTime    字符串类型的时间
+     * @param datetimeFormat 日期转化格式
+     * @return 日期
      */
     public static LocalTime stringToLocalTime(String strDateTime, String datetimeFormat) {
         if (null == strDateTime || "".equals(strDateTime) || null == datetimeFormat || "".equals(datetimeFormat)) {
@@ -389,6 +474,9 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 LocalTime
+     *
+     * @param strDateTime 字符串类型的时间
+     * @return 日期
      */
     public static LocalTime stringToLocalTime(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -399,6 +487,9 @@ public class LocalDateTimeUtil {
 
     /**
      * String 转 Time
+     *
+     * @param strDateTime 字符串类型的时间
+     * @return 时间
      */
     public static Time stringToTime(String strDateTime) {
         if (null == strDateTime || "".equals(strDateTime)) {
@@ -409,6 +500,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 Date
+     *
+     * @param time 时间对应的long类型
+     * @return 日期
      */
     public static Date longToDate(Long time) {
         if (null == time) {
@@ -419,6 +513,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 java.sql.Date
+     *
+     * @param time long类型的时间
+     * @return 日期
      */
     public static java.sql.Date longToSqlDate(Long time) {
         if (null == time) {
@@ -429,6 +526,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 java.sql.Time
+     *
+     * @param time long类型的时间
+     * @return 日期
      */
     public static java.sql.Time longToTime(Long time) {
         if (null == time) {
@@ -439,6 +539,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 java.sql.Timestamp
+     *
+     * @param time long类型的时间
+     * @return 日期
      */
     public static Timestamp longToTimestamp(Long time) {
         if (null == time) {
@@ -449,6 +552,9 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 LocalDateTime
+     *
+     * @param time long类型的时间
+     * @return 日期
      */
     public static LocalDateTime longToLocalDateTime(Long time) {
         if (null == time) {
@@ -459,16 +565,22 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 LocalDate
+     *
+     * @param time long类型的时间
+     * @return 日期
      */
     public static LocalDate longToLocalDate(Long time) {
         if (null == time) {
             return null;
         }
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time),ZoneId.systemDefault()).toLocalDate();
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault()).toLocalDate();
     }
 
     /**
      * Long 转 String
+     *
+     * @param time long类型的时间
+     * @return 时间字符串
      */
     public static String longToString(Long time) {
         if (null == time) {
@@ -479,6 +591,10 @@ public class LocalDateTimeUtil {
 
     /**
      * Long 转 String
+     *
+     * @param time      long类型的时间
+     * @param formatKey 时间格式key
+     * @return 时间字符串
      */
     public static String longToString(Long time, String formatKey) {
         if (null == time || null == formatKey || "".equals(formatKey)) {
@@ -493,7 +609,7 @@ public class LocalDateTimeUtil {
         }
         String data;
         data = strDateTime.trim();
-        if ("".equals(data) || "null".equals(data)){
+        if ("".equals(data) || "null".equals(data)) {
             throw new RuntimeException("获取时间格式错误, time =" + strDateTime);
         }
         String timeFormat = yMdHms;

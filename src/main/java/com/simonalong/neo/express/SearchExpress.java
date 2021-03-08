@@ -242,7 +242,7 @@ public class SearchExpress {
 
     /**
      * 转化为带?的sql字段
-     *
+     * @param needWhere 是否需要where
      * @return sql字段
      */
     public String toSql(Boolean needWhere) {
