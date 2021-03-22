@@ -603,6 +603,227 @@ public class LocalDateTimeUtil {
         return simpleDateFormat.get(formatKey).format(new Date(time));
     }
 
+    public static Date setYear(Date date, Integer year) {
+        if (null == date || null == year) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withYear(year));
+    }
+
+    public static Date setMonth(Date date, Integer month) {
+        if (null == date || null == month) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withMonth(month));
+    }
+
+    public static Date setDay(Date date, Integer day) {
+        if (null == date || null == day) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withDayOfMonth(day));
+    }
+
+    public static Date setHour(Date date, Integer hour) {
+        if (null == date || null == hour) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withHour(hour));
+    }
+
+    public static Date setMinute(Date date, Integer minute) {
+        if (null == date || null == minute) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withMinute(minute));
+    }
+
+    public static Date setSecond(Date date, Integer second) {
+        if (null == date || null == second) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withSecond(second));
+    }
+
+    public static Long setYear(Long time, Integer year) {
+        if (null == time || null == year) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withYear(year));
+    }
+
+    public static Long setMonth(Long time, Integer month) {
+        if (null == time || null == month) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withMonth(month));
+    }
+
+    public static Long setDay(Long time, Integer day) {
+        if (null == time || null == day) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withDayOfMonth(day));
+    }
+
+    public static Long setHour(Long time, Integer hour) {
+        if (null == time || null == hour) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withHour(hour));
+    }
+
+    public static Long setMinute(Long time, Integer minute) {
+        if (null == time || null == minute) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withMinute(minute));
+    }
+
+    public static Long setSecond(Long time, Integer second) {
+        if (null == time || null == second) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withSecond(second));
+    }
+
+
+    public static Date plusYears(Date date, Integer years) {
+        if (null == date) {
+            return null;
+        }
+        Integer yearCopy = years;
+        if (null == years) {
+            yearCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusYears(yearCopy));
+    }
+
+    public static Date plusMonths(Date date, Integer months) {
+        if (null == date) {
+            return null;
+        }
+        Integer monthsCopy = months;
+        if (null == months) {
+            monthsCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusMonths(monthsCopy));
+    }
+
+    public static Date plusDays(Date date, Integer days) {
+        if (null == date) {
+            return null;
+        }
+        Integer daysCopy = days;
+        if (null == days) {
+            daysCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusDays(daysCopy));
+    }
+
+    public static Date plusHours(Date date, Integer hours) {
+        if (null == date) {
+            return null;
+        }
+        Integer hoursCopy = hours;
+        if (null == hours) {
+            hoursCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusHours(hoursCopy));
+    }
+
+    public static Date plusMinutes(Date date, Integer minutes) {
+        if (null == date) {
+            return null;
+        }
+        Integer minutesCopy = minutes;
+        if (null == minutes) {
+            minutesCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusMinutes(minutesCopy));
+    }
+
+    public static Date plusSeconds(Date date, Integer seconds) {
+        if (null == date) {
+            return null;
+        }
+        Integer secondsCopy = seconds;
+        if (null == seconds) {
+            secondsCopy = 0;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).plusSeconds(secondsCopy));
+    }
+
+    public static Long plusYears(Long time, Integer years) {
+        if (null == time || null == years) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusYears(years));
+    }
+
+    public static Long plusMonths(Long time, Integer months) {
+        if (null == time || null == months) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusMonths(months));
+    }
+
+    public static Long plusDays(Long time, Integer days) {
+        if (null == time || null == days) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusDays(days));
+    }
+
+    public static Long plusHours(Long time, Integer hours) {
+        if (null == time || null == hours) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusHours(hours));
+    }
+
+    public static Long plusMinutes(Long time, Integer minutes) {
+        if (null == time || null == minutes) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusMinutes(minutes));
+    }
+
+    public static Long plusSeconds(Long time, Integer seconds) {
+        if (null == time || null == seconds) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).plusSeconds(seconds));
+    }
+
+    public static Date setDayStart(Date date) {
+        if (null == date) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withHour(0).withMinute(0).withSecond(0));
+    }
+
+    public static Long setDayStart(Long time) {
+        if (null == time) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withHour(0).withMinute(0).withSecond(0));
+    }
+
+    public static Date setDayEnd(Date date) {
+        if (null == date) {
+            return null;
+        }
+        return localDateTimeToDate(dateToLocalDateTime(date).withHour(23).withMinute(59).withSecond(59));
+    }
+
+    public static Long setDayEnd(Long time) {
+        if (null == time) {
+            return null;
+        }
+        return localDateTimeToLong(longToLocalDateTime(time).withHour(23).withMinute(59).withSecond(59));
+    }
+
     private static String getTimeFormat(String strDateTime) {
         if (null == strDateTime) {
             throw new RuntimeException("获取时间格式错误, time =" + strDateTime);
