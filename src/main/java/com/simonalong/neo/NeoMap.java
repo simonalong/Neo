@@ -1152,9 +1152,13 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
 
     public enum NamingChg {
         /**
-         * 不转换
+         * 默认为不转换
          */
         DEFAULT(t -> t, t -> t),
+        /**
+         * 不转换
+         */
+        NOME(t -> t, t -> t),
         /**
          * 小驼峰到大驼峰 {@code dataBaseUser <------> DateBaseUser }
          */
