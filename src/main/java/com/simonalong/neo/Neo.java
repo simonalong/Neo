@@ -45,7 +45,7 @@ public class Neo extends AbstractExecutorDb {
     @Getter
     private DbType dbType = DbType.MYSQL;
     @Getter
-    private ConnectFactory pool;
+    private ConnectFactory connectFactory;
     private final SqlStandard standard = SqlStandard.getInstance();
     private final SqlMonitor monitor = SqlMonitor.getInstance();
     private final SqlExplain explain = SqlExplain.getInstance();
@@ -89,7 +89,7 @@ public class Neo extends AbstractExecutorDb {
         target.setExplainFlag(source.getExplainFlag());
         target.setStandardFlag(source.getStandardFlag());
         target.setMonitorFlag(source.getMonitorFlag());
-        target.init(source.getPool().getDataSource());
+        target.init(source.getConnectFactory().getDataSource());
     }
 
     /**
@@ -156,7 +156,7 @@ public class Neo extends AbstractExecutorDb {
     }
 
     public void init(DataSource dataSource){
-        this.pool = new ConnectFactory(this, dataSource);
+        this.connectFactory = new ConnectFactory(this, dataSource);
         Connection connection;
         try {
             connection = dataSource.getConnection();
@@ -168,8 +168,8 @@ public class Neo extends AbstractExecutorDb {
     }
 
     public void initFromDruid(Properties properties) {
-        this.pool = new ConnectFactory(this);
-        this.pool.initFromDruid(properties);
+        this.connectFactory = new ConnectFactory(this);
+        this.connectFactory.initFromDruid(properties);
         this.name = properties.getProperty("druid.url");
         this.dbType = DbType.parse(this.name);
     }
@@ -179,8 +179,8 @@ public class Neo extends AbstractExecutorDb {
         properties.setProperty("dataSource.remarks", "true");
         properties.setProperty("dataSource.useInformationSchema", "true");
 
-        this.pool = new ConnectFactory(this);
-        this.pool.initFromHikariCP(properties);
+        this.connectFactory = new ConnectFactory(this);
+        this.connectFactory.initFromHikariCP(properties);
         // 配置dbType
         if(properties.containsKey("jdbc-url")){
             this.name = properties.getProperty("jdbc-url");
@@ -204,7 +204,7 @@ public class Neo extends AbstractExecutorDb {
 
     public Connection getConnection(){
         try {
-            return getPool().getConnect();
+            return getConnectFactory().getConnect();
         } catch (SQLException e) {
             log.error(LOG_PRE_NEO + "get connect fail", e);
             return null;
@@ -218,7 +218,7 @@ public class Neo extends AbstractExecutorDb {
      * @return 初始化db之后的表信息
      */
     public Neo initDb(String... tablePres) {
-        try (Connection con = pool.getConnect()) {
+        try (Connection con = connectFactory.getConnect()) {
             this.db = NeoDb.of(this, con.getCatalog(), con.getSchema(), tablePres);
         } catch (SQLException e) {
             if (e instanceof SQLFeatureNotSupportedException) {
@@ -1611,12 +1611,12 @@ public class Neo extends AbstractExecutorDb {
         }
         txNumIncrement();
         try {
-            pool.setTxConfig(isolationEnum, readOnly);
+            connectFactory.setTxConfig(isolationEnum, readOnly);
             if (openTxMonitor()) {
                 monitor.startTx();
             }
             T result = supplier.get();
-            pool.submit();
+            connectFactory.submit();
 
             if (openTxMonitor()) {
                 monitor.calculate(result);
@@ -1625,7 +1625,7 @@ public class Neo extends AbstractExecutorDb {
         } catch (Throwable e) {
             log.error(LOG_PRE_NEO + "[提交失败，事务回滚]", e);
             try {
-                pool.rollback();
+                connectFactory.rollback();
                 throw new NeoTxException(e);
             } catch (SQLException e1) {
                 log.error(LOG_PRE_NEO + "[回滚失败]", e);
@@ -1727,7 +1727,7 @@ public class Neo extends AbstractExecutorDb {
 
             // sql 多行查询的explain衡量
             explain(multiLine, sqlPair);
-            try (Connection con = pool.getConnect()) {
+            try (Connection con = connectFactory.getConnect()) {
                 try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                     if (standardFlag) {
                         // sql规范化校验
@@ -1777,7 +1777,7 @@ public class Neo extends AbstractExecutorDb {
             List<NeoMap> parameterList = sqlPair.getValue();
 
             return tx(() -> {
-                try (Connection con = pool.getConnect()) {
+                try (Connection con = connectFactory.getConnect()) {
                     try (PreparedStatement state = con.prepareStatement(sql)) {
                         if (standardFlag) {
                             // sql规范化校验
