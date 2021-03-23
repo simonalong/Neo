@@ -17,19 +17,19 @@ import lombok.Getter;
  * @author zhouzhenyong
  * @since 2019/3/16 上午9:34
  */
-public final class ConnectPool {
+public final class ConnectFactory {
 
     private final Neo neo;
     @Getter
     private DataSource dataSource;
     private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
-    public ConnectPool(Neo neo, DataSource dataSource) {
+    public ConnectFactory(Neo neo, DataSource dataSource) {
         this.neo = neo;
         this.dataSource = dataSource;
     }
 
-    public ConnectPool(Neo neo) {
+    public ConnectFactory(Neo neo) {
         this.neo = neo;
     }
 

@@ -45,7 +45,7 @@ public class Neo extends AbstractExecutorDb {
     @Getter
     private DbType dbType = DbType.MYSQL;
     @Getter
-    private ConnectPool pool;
+    private ConnectFactory pool;
     private final SqlStandard standard = SqlStandard.getInstance();
     private final SqlMonitor monitor = SqlMonitor.getInstance();
     private final SqlExplain explain = SqlExplain.getInstance();
@@ -156,7 +156,7 @@ public class Neo extends AbstractExecutorDb {
     }
 
     public void init(DataSource dataSource){
-        this.pool = new ConnectPool(this, dataSource);
+        this.pool = new ConnectFactory(this, dataSource);
         Connection connection;
         try {
             connection = dataSource.getConnection();
@@ -168,7 +168,7 @@ public class Neo extends AbstractExecutorDb {
     }
 
     public void initFromDruid(Properties properties) {
-        this.pool = new ConnectPool(this);
+        this.pool = new ConnectFactory(this);
         this.pool.initFromDruid(properties);
         this.name = properties.getProperty("druid.url");
         this.dbType = DbType.parse(this.name);
@@ -179,7 +179,7 @@ public class Neo extends AbstractExecutorDb {
         properties.setProperty("dataSource.remarks", "true");
         properties.setProperty("dataSource.useInformationSchema", "true");
 
-        this.pool = new ConnectPool(this);
+        this.pool = new ConnectFactory(this);
         this.pool.initFromHikariCP(properties);
         // 配置dbType
         if(properties.containsKey("jdbc-url")){
