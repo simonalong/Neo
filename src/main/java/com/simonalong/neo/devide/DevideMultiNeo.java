@@ -4,7 +4,7 @@ import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.exception.NeoNotSupport;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import com.simonalong.neo.util.CharSequenceUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +57,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress){
-        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, columns, searchExpress));
+    public NeoMap one(String tableName, Columns columns, SearchQuery searchQuery){
+        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, columns, searchQuery));
     }
 
     @Override
@@ -87,8 +87,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public NeoMap one(String tableName, SearchExpress searchExpress) {
-        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, searchExpress));
+    public NeoMap one(String tableName, SearchQuery searchQuery) {
+        return executeOne(tableName, (db, actTableName) -> db.one(actTableName, searchQuery));
     }
 
     @Override
@@ -97,8 +97,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress) {
-        return executeList(tableName, (db, actTableName) -> db.list(actTableName, columns, searchExpress));
+    public List<NeoMap> list(String tableName, Columns columns, SearchQuery searchQuery) {
+        return executeList(tableName, (db, actTableName) -> db.list(actTableName, columns, searchQuery));
     }
 
     @Override
@@ -121,8 +121,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
 
-    public List<NeoMap> list(String tableName, SearchExpress searchExpress){
-        return executeList(tableName, (db, actTableName) -> db.list(actTableName, searchExpress));
+    public List<NeoMap> list(String tableName, SearchQuery searchQuery){
+        return executeList(tableName, (db, actTableName) -> db.list(actTableName, searchQuery));
     }
 
     @Override
@@ -143,8 +143,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> T value(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
-        return executeOne(tableName, (db, actTableName) -> db.value(tClass, actTableName, field, searchExpress));
+    public <T> T value(Class<T> tClass, String tableName, String field, SearchQuery searchQuery) {
+        return executeOne(tableName, (db, actTableName) -> db.value(tClass, actTableName, field, searchQuery));
     }
 
     @SuppressWarnings("all")
@@ -160,8 +160,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public String value(String tableName, String field, SearchExpress searchExpress) {
-        return executeOne(tableName, (db, actTableName) -> db.value(actTableName, field, searchExpress));
+    public String value(String tableName, String field, SearchQuery searchQuery) {
+        return executeOne(tableName, (db, actTableName) -> db.value(actTableName, field, searchQuery));
     }
 
     @SuppressWarnings("all")
@@ -193,8 +193,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> List<T> values(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
-        return executeList(tableName, (db, actTableName) -> db.values(tClass, actTableName, field, searchExpress));
+    public <T> List<T> values(Class<T> tClass, String tableName, String field, SearchQuery searchQuery) {
+        return executeList(tableName, (db, actTableName) -> db.values(tClass, actTableName, field, searchQuery));
     }
 
     @Override
@@ -208,8 +208,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<String> values(String tableName, String field, SearchExpress searchExpress) {
-        return executeList(tableName, (db, actTableName) -> db.values(actTableName, field, searchExpress));
+    public List<String> values(String tableName, String field, SearchQuery searchQuery) {
+        return executeList(tableName, (db, actTableName) -> db.values(actTableName, field, searchQuery));
     }
 
     @Override
@@ -228,8 +228,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchExpress searchExpress) {
-        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, searchExpress));
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchQuery searchQuery) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(tClass, actTableName, field, searchQuery));
     }
 
     @Override
@@ -243,8 +243,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<String> valuesOfDistinct(String tableName, String field, SearchExpress searchExpress) {
-        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, searchExpress));
+    public List<String> valuesOfDistinct(String tableName, String field, SearchQuery searchQuery) {
+        return executeList(tableName, (db, actTableName) -> db.valuesOfDistinct(actTableName, field, searchQuery));
     }
 
     @Override
@@ -266,8 +266,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     @Deprecated
-    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
-        return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
+    public List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page){
+        return executePage(searchQuery, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchQuery, extendPage)));
     }
 
     @Override
@@ -287,8 +287,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
     @Override
     @Deprecated
-    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
-        return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
+    public List<NeoMap> page(String tableName, SearchQuery searchQuery, NeoPage page) {
+        return executePage(searchQuery, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchQuery, extendPage)));
     }
 
     @Override
@@ -319,8 +319,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return executePage(searchExpress, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
+    public List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return executePage(searchQuery, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchQuery, extendPage)));
     }
 
     @Override
@@ -337,8 +337,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return executePage(searchExpress, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
+    public List<NeoMap> page(String tableName, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return executePage(searchQuery, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchQuery, extendPage)));
     }
 
     @Override
@@ -366,8 +366,8 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
-    public Integer count(String tableName, SearchExpress searchExpress) {
-        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchExpress)).stream().reduce(Integer::sum).orElse(0);
+    public Integer count(String tableName, SearchQuery searchQuery) {
+        return executeOneToList(tableName, (db, actTableName) -> db.count(actTableName, searchQuery)).stream().reduce(Integer::sum).orElse(0);
     }
 
     @Override
@@ -593,9 +593,9 @@ public class DevideMultiNeo extends AbstractBaseQuery {
             if (searchMap.containsKey(ORDER_BY)) {
                 orderByValue = searchMap.getString(ORDER_BY);
             }
-        } else if (searchObject instanceof SearchExpress) {
-            SearchExpress searchExpress = (SearchExpress) searchObject;
-            orderByValue = searchExpress.getFirstOperateStr(ORDER_BY);
+        } else if (searchObject instanceof SearchQuery) {
+            SearchQuery searchQuery = (SearchQuery) searchObject;
+            orderByValue = searchQuery.getFirstOperateStr(ORDER_BY);
             if (CharSequenceUtil.isNotEmpty(orderByValue)) {
                 orderByValue = orderByValue.trim();
                 orderByValue = orderByValue.substring(NeoConstant.GROUP_BY.length());

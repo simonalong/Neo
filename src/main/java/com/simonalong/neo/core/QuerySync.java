@@ -5,7 +5,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.db.PageRsp;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 一行数据对应的Map，key为列名，value为列对应的值
      */
-    NeoMap one(String tableName, Columns columns, SearchExpress searchExpress);
+    NeoMap one(String tableName, Columns columns, SearchQuery searchQuery);
 
     /**
      * 查询一行数据
@@ -88,10 +88,10 @@ public interface QuerySync extends Sync {
      * 查询一行数据
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 一行数据对应的Map，key为列名，value为列对应的值
      */
-    NeoMap one(String tableName, SearchExpress searchExpress);
+    NeoMap one(String tableName, SearchQuery searchQuery);
 
     /**
      * 查询一行数据
@@ -117,12 +117,12 @@ public interface QuerySync extends Sync {
      * @param tClass        这行数据对应的类型
      * @param tableName     表名
      * @param columns       列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @param <T>           类型对应的泛型
      * @return 类型对应的值
      */
-    default <T> T one(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress) {
-        NeoMap data = one(tableName, columns, searchExpress);
+    default <T> T one(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery) {
+        NeoMap data = one(tableName, columns, searchQuery);
         if (null == data) {
             return null;
         }
@@ -186,12 +186,12 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        一行数据对应的类型
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T>           类型对应的泛型
      * @return 类型对应的值
      */
-    default <T> T one(Class<T> tClass, String tableName, SearchExpress searchExpress) {
-        NeoMap data = one(tableName, searchExpress);
+    default <T> T one(Class<T> tClass, String tableName, SearchQuery searchQuery) {
+        NeoMap data = one(tableName, searchQuery);
         if (null == data) {
             return null;
         }
@@ -213,10 +213,10 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 多行数据
      */
-    List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress);
+    List<NeoMap> list(String tableName, Columns columns, SearchQuery searchQuery);
 
     /**
      * 查询多行数据
@@ -261,10 +261,10 @@ public interface QuerySync extends Sync {
      * 查询多行数据
      *
      * @param tableName     表名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 多行数据
      */
-    List<NeoMap> list(String tableName, SearchExpress searchExpress);
+    List<NeoMap> list(String tableName, SearchQuery searchQuery);
 
 
     /**
@@ -291,7 +291,7 @@ public interface QuerySync extends Sync {
      * @param <T>       数据类型对应的泛型
      * @return 多行数据
      */
-    default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, SearchExpress express) {
+    default <T> List<T> list(Class<T> tClass, String tableName, Columns columns, SearchQuery express) {
         return NeoMap.asArray(list(tableName, columns, express), tClass);
     }
 
@@ -326,12 +326,12 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        集合中对应的数据类型
      * @param tableName     表名
-     * @param searchExpress 列名
+     * @param searchQuery 列名
      * @param <T>           数据类型对应的泛型
      * @return 多行数据
      */
-    default <T> List<T> list(Class<T> tClass, String tableName, SearchExpress searchExpress) {
-        return NeoMap.asArray(list(tableName, searchExpress), tClass);
+    default <T> List<T> list(Class<T> tClass, String tableName, SearchQuery searchQuery) {
+        return NeoMap.asArray(list(tableName, searchQuery), tClass);
     }
 
 
@@ -359,11 +359,11 @@ public interface QuerySync extends Sync {
      * @param tClass        某列的值的对应类型
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T>           类型对应的泛型
      * @return 某行某列的值
      */
-    <T> T value(Class<T> tClass, String tableName, String field, SearchExpress searchExpress);
+    <T> T value(Class<T> tClass, String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 查询某行某列的值
@@ -392,10 +392,10 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 某列对应的值
      */
-    String value(String tableName, String field, SearchExpress searchExpress);
+    String value(String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 查询某行某列的值，返回String类型
@@ -442,11 +442,11 @@ public interface QuerySync extends Sync {
      * @param tClass        值对应的类型
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂查询条件
+     * @param searchQuery 复杂查询条件
      * @param <T>           类型对应的泛型
      * @return 某列对应的集合
      */
-    <T> List<T> values(Class<T> tClass, String tableName, String field, SearchExpress searchExpress);
+    <T> List<T> values(Class<T> tClass, String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 查询某列对应的集合
@@ -475,10 +475,10 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 某列对应的集合，类型为String类型
      */
-    List<String> values(String tableName, String field, SearchExpress searchExpress);
+    List<String> values(String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 某列对应的集合
@@ -518,11 +518,11 @@ public interface QuerySync extends Sync {
      * @param tClass        列值对应的类型
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T>           类型对应的泛型
      * @return 去重后的某列的集合
      */
-    <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchExpress searchExpress);
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 查询某列集合，列中的值去重
@@ -551,10 +551,10 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param field         列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 去重后的某列的集合
      */
-    List<String> valuesOfDistinct(String tableName, String field, SearchExpress searchExpress);
+    List<String> valuesOfDistinct(String tableName, String field, SearchQuery searchQuery);
 
     /**
      * 查询某列集合，列中的值去重
@@ -592,12 +592,12 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @return 查询的分页数据
      */
     @Deprecated
-    List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page);
+    List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page);
 
     /**
      * 查询分页数据
@@ -627,12 +627,12 @@ public interface QuerySync extends Sync {
      * 查询分页数据
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @return 查询的分页数据
      */
     @Deprecated
-    List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page);
+    List<NeoMap> page(String tableName, SearchQuery searchQuery, NeoPage page);
 
     /**
      * 查询分页数据
@@ -684,11 +684,11 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页请求
      * @return 查询的分页数据
      */
-    List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq);
+    List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq);
 
     /**
      * 查询分页数据
@@ -716,11 +716,11 @@ public interface QuerySync extends Sync {
      * 查询分页数据
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页请求
      * @return 查询的分页数据
      */
-    List<NeoMap> page(String tableName, SearchExpress searchExpress, PageReq<?> pageReq);
+    List<NeoMap> page(String tableName, SearchQuery searchQuery, PageReq<?> pageReq);
 
     /**
      * 查询分页数据
@@ -775,14 +775,14 @@ public interface QuerySync extends Sync {
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
     @Deprecated
-    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return NeoMap.asArray(page(tableName, columns, searchExpress, page), tClass);
+    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return NeoMap.asArray(page(tableName, columns, searchQuery, page), tClass);
     }
 
     /**
@@ -790,14 +790,14 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @param <T>           分页数据对应的类型的泛型
      * @return 分页数据
      */
     @Deprecated
-    default <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
-        return NeoMap.asArray(page(tableName, searchExpress, page), tClass);
+    default <T> List<T> page(Class<T> tClass, String tableName, SearchQuery searchQuery, NeoPage page) {
+        return NeoMap.asArray(page(tableName, searchQuery, page), tClass);
     }
 
     /**
@@ -863,13 +863,13 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @return 分页数据
      */
     @Deprecated
-    default PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tableName, columns, searchExpress, page), count(tableName, searchExpress));
+    default PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tableName, columns, searchQuery, page), count(tableName, searchQuery));
     }
 
     /**
@@ -904,13 +904,13 @@ public interface QuerySync extends Sync {
      * 查询分页数据
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @return 分页数据
      */
     @Deprecated
-    default PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tableName, searchExpress, page), count(tableName, searchExpress));
+    default PageRsp<NeoMap> getPage(String tableName, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tableName, searchQuery, page), count(tableName, searchQuery));
     }
 
     /**
@@ -974,14 +974,14 @@ public interface QuerySync extends Sync {
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
      * @param columns       列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
     @Deprecated
-    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tClass, tableName, columns, searchExpress, page), count(tableName, searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tClass, tableName, columns, searchQuery, page), count(tableName, searchQuery));
     }
 
 
@@ -1005,14 +1005,14 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page          分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
     @Deprecated
-    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tClass, tableName, searchExpress, page), count(tableName, searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tClass, tableName, searchQuery, page), count(tableName, searchQuery));
     }
 
     /**
@@ -1066,13 +1066,13 @@ public interface QuerySync extends Sync {
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
-    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return NeoMap.asArray(page(tableName, columns, searchExpress, pageReq), tClass);
+    default <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return NeoMap.asArray(page(tableName, columns, searchQuery, pageReq), tClass);
     }
 
     /**
@@ -1080,13 +1080,13 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @param <T>           分页数据对应的类型的泛型
      * @return 分页数据
      */
-    default <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return NeoMap.asArray(page(tableName, searchExpress, pageReq), tClass);
+    default <T> List<T> page(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return NeoMap.asArray(page(tableName, searchQuery, pageReq), tClass);
     }
 
     /**
@@ -1148,12 +1148,12 @@ public interface QuerySync extends Sync {
      *
      * @param tableName     表名
      * @param columns       多个列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @return 分页数据
      */
-    default PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return new PageRsp<>(page(tableName, columns, searchExpress, pageReq), count(tableName, searchExpress));
+    default PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return new PageRsp<>(page(tableName, columns, searchQuery, pageReq), count(tableName, searchQuery));
     }
 
     /**
@@ -1186,12 +1186,12 @@ public interface QuerySync extends Sync {
      * 查询分页数据
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @return 分页数据
      */
-    default PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return new PageRsp<>(page(tableName, searchExpress, pageReq), count(tableName, searchExpress));
+    default PageRsp<NeoMap> getPage(String tableName, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return new PageRsp<>(page(tableName, searchQuery, pageReq), count(tableName, searchQuery));
     }
 
     /**
@@ -1251,13 +1251,13 @@ public interface QuerySync extends Sync {
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
      * @param columns       列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
-    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return new PageRsp<>(page(tClass, tableName, columns, searchExpress, pageReq), count(tableName, searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return new PageRsp<>(page(tClass, tableName, columns, searchQuery, pageReq), count(tableName, searchQuery));
     }
 
 
@@ -1280,13 +1280,13 @@ public interface QuerySync extends Sync {
      *
      * @param tClass        分页数据对应的类型
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param pageReq       分页信息
      * @param <T>           分页数据对应类型的泛型
      * @return 分页数据
      */
-    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
-        return new PageRsp<>(page(tClass, tableName, searchExpress, pageReq), count(tableName, searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return new PageRsp<>(page(tClass, tableName, searchQuery, pageReq), count(tableName, searchQuery));
     }
 
     /**
@@ -1330,10 +1330,10 @@ public interface QuerySync extends Sync {
      * 查询个数
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 个数
      */
-    Integer count(String tableName, SearchExpress searchExpress);
+    Integer count(String tableName, SearchQuery searchQuery);
 
     /**
      * 查询个数
@@ -1367,11 +1367,11 @@ public interface QuerySync extends Sync {
      * 查询是否存在
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 存在与否
      */
-    default Boolean exist(String tableName, SearchExpress searchExpress) {
-        return 0 != count(tableName, searchExpress);
+    default Boolean exist(String tableName, SearchQuery searchQuery) {
+        return 0 != count(tableName, searchQuery);
     }
 
     /**

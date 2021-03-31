@@ -2,7 +2,7 @@ package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collections;
@@ -21,8 +21,8 @@ public class UpdateSqlBuilder {
         return "update " + tableName + buildSetValues(dataMap) + SqlBuilder.buildWhere(searchMap);
     }
 
-    public String build(String tableName, NeoMap dataMap, SearchExpress searchExpress) {
-        return "update " + tableName + buildSetValues(dataMap) + searchExpress.toSql();
+    public String build(String tableName, NeoMap dataMap, SearchQuery searchQuery) {
+        return "update " + tableName + buildSetValues(dataMap) + searchQuery.toSql();
     }
 
     public String buildSetValues(NeoMap searchMap) {

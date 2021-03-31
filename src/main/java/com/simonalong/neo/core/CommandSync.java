@@ -2,7 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 
@@ -90,10 +90,10 @@ public interface CommandSync extends Sync {
      * 数据删除
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 影响的条数
      */
-    Integer delete(String tableName, SearchExpress searchExpress);
+    Integer delete(String tableName, SearchQuery searchQuery);
 
     /**
      * 数据删除
@@ -224,21 +224,21 @@ public interface CommandSync extends Sync {
      *
      * @param tableName     表名
      * @param dataMap       待更新的数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 更新后的数据
      */
-    NeoMap update(String tableName, NeoMap dataMap, SearchExpress searchExpress);
+    NeoMap update(String tableName, NeoMap dataMap, SearchQuery searchQuery);
 
     /**
      * 数据更新
      *
      * @param tableName     表名
      * @param setEntity     待更新的数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T>           待更新数据类型的泛型
      * @return 更新后的数据
      */
-    <T> T update(String tableName, T setEntity, SearchExpress searchExpress);
+    <T> T update(String tableName, T setEntity, SearchQuery searchQuery);
 
 
     /**

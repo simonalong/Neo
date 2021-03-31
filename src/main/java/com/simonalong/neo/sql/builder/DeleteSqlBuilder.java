@@ -1,7 +1,7 @@
 package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -15,7 +15,7 @@ public class DeleteSqlBuilder {
         return "delete from " + tableName + SqlBuilder.buildWhere(valueMap);
     }
 
-    public String build(String tableName, SearchExpress searchExpress) {
-        return "delete from " + tableName + searchExpress.toSql();
+    public String build(String tableName, SearchQuery searchQuery) {
+        return "delete from " + tableName + searchQuery.toSql();
     }
 }

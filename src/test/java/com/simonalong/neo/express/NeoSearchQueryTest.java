@@ -15,7 +15,7 @@ import static com.simonalong.neo.express.BaseOperate.BetweenAnd;
  * @author shizi
  * @since 2020/8/31 10:52 上午
  */
-public class NeoSearchExpressTest extends NeoBaseTest {
+public class NeoSearchQueryTest extends NeoBaseTest {
 
     @BeforeClass
     public static void beforeClass() {
@@ -41,10 +41,10 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         NeoMap dataMap = NeoMap.of("group", "group_insert_express", "name", "name_insert_express");
         neo.insert(TABLE_NAME, dataMap);
 
-        SearchExpress searchExpress;
+        SearchQuery searchQuery;
 
-        searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
-        Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchExpress).assignExcept("id"));
+        searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express");
+        Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchQuery).assignExcept("id"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 5));
 
-        SearchExpress searchExpress;
+        SearchQuery searchQuery;
 
         List<NeoMap> dataList = new ArrayList<>();
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 1));
@@ -64,15 +64,15 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 5));
 
-        searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
-        Assert.assertEquals(dataList, neo.list(TABLE_NAME, searchExpress).stream().map(e->e.assignExcept("id")).collect(Collectors.toList()));
+        searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express");
+        Assert.assertEquals(dataList, neo.list(TABLE_NAME, searchQuery).stream().map(e->e.assignExcept("id")).collect(Collectors.toList()));
 
         // 精确测试
         dataList = new ArrayList<>();
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 1));
 
-        searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express", "age", 1);
-        Assert.assertEquals(dataList, neo.list(TABLE_NAME, searchExpress).stream().map(e->e.assignExcept("id")).collect(Collectors.toList()));
+        searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express", "age", 1);
+        Assert.assertEquals(dataList, neo.list(TABLE_NAME, searchQuery).stream().map(e->e.assignExcept("id")).collect(Collectors.toList()));
     }
 
     @Test
@@ -80,15 +80,15 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express_1", "age", 1));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express_2", "age", 2));
 
-        SearchExpress searchExpress;
+        SearchQuery searchQuery;
 
         // select name from neo_table1 where (age=?)    value: 1
-        searchExpress = new SearchExpress().and("age", 1);
-        Assert.assertEquals("name_insert_express_1", neo.value(TABLE_NAME, "name", searchExpress));
+        searchQuery = new SearchQuery().and("age", 1);
+        Assert.assertEquals("name_insert_express_1", neo.value(TABLE_NAME, "name", searchQuery));
 
         // select age from neo_table1 where (group=? and name=?)    value: group_insert_express, name_insert_express_2
-        searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express_2");
-        Assert.assertEquals("2", neo.value(TABLE_NAME, "age", searchExpress));
+        searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express_2");
+        Assert.assertEquals("2", neo.value(TABLE_NAME, "age", searchQuery));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 3));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
 
-        SearchExpress searchExpress;
+        SearchQuery searchQuery;
 
         List<Integer> dataList = new ArrayList<>();
         dataList.add(1);
@@ -107,8 +107,8 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         dataList.add(4);
 
         // select age from neo_table1 where (group=? and age=?)    value: group_insert_express, name_insert_express
-        searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
-        Assert.assertEquals(dataList, neo.values(Integer.class, TABLE_NAME, "age", searchExpress));
+        searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express");
+        Assert.assertEquals(dataList, neo.values(Integer.class, TABLE_NAME, "age", searchQuery));
     }
 
     @Test
@@ -122,8 +122,8 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 1));
         dataList.add(NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 2));
 
-        SearchExpress searchExpress = new SearchExpress().and("group", "group_insert_express");
-        List<NeoMap> pageList = neo.page(TABLE_NAME, searchExpress, NeoPage.of(1, 2)).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        SearchQuery searchQuery = new SearchQuery().and("group", "group_insert_express");
+        List<NeoMap> pageList = neo.page(TABLE_NAME, searchQuery, NeoPage.of(1, 2)).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
 
         Assert.assertEquals(dataList, pageList);
     }
@@ -135,7 +135,7 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 3));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
 
-        SearchExpress searchExpress;
+        SearchQuery searchQuery;
 
         List<NeoMap> dataList = new ArrayList<>();
         dataList.add(NeoMap.of("age", 1));
@@ -143,8 +143,8 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         dataList.add(NeoMap.of("age", 3));
         dataList.add(NeoMap.of("age", 4));
 
-        searchExpress = new SearchExpress().and("group", "group_insert_express");
-        Assert.assertEquals(dataList, neo.page(TABLE_NAME, Columns.of("age"), searchExpress, NeoPage.of(1, 10)));
+        searchQuery = new SearchQuery().and("group", "group_insert_express");
+        Assert.assertEquals(dataList, neo.page(TABLE_NAME, Columns.of("age"), searchQuery, NeoPage.of(1, 10)));
     }
 
     @Test
@@ -154,8 +154,8 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 3));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
 
-        SearchExpress searchExpress = new SearchExpress().and("group", "group_insert_express");
-        Assert.assertEquals(Integer.valueOf(4), neo.count(TABLE_NAME, searchExpress));
+        SearchQuery searchQuery = new SearchQuery().and("group", "group_insert_express");
+        Assert.assertEquals(Integer.valueOf(4), neo.count(TABLE_NAME, searchQuery));
     }
 
     @Test
@@ -165,10 +165,10 @@ public class NeoSearchExpressTest extends NeoBaseTest {
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 3));
         neo.insert(TABLE_NAME, NeoMap.of("group", "group_insert_express", "name", "name_insert_express", "age", 4));
 
-        Assert.assertEquals(Integer.valueOf(4), neo.count(TABLE_NAME, new SearchExpress().append(BetweenAnd("age", 1, 4))));
-        Assert.assertEquals(Integer.valueOf(3), neo.count(TABLE_NAME, new SearchExpress().append(BetweenAnd("age", 2, 4))));
-        Assert.assertEquals(Integer.valueOf(2), neo.count(TABLE_NAME, new SearchExpress().append(BetweenAnd("age", 3, 4))));
-        Assert.assertEquals(Integer.valueOf(1), neo.count(TABLE_NAME, new SearchExpress().append(BetweenAnd("age", 4, 4))));
+        Assert.assertEquals(Integer.valueOf(4), neo.count(TABLE_NAME, new SearchQuery().append(BetweenAnd("age", 1, 4))));
+        Assert.assertEquals(Integer.valueOf(3), neo.count(TABLE_NAME, new SearchQuery().append(BetweenAnd("age", 2, 4))));
+        Assert.assertEquals(Integer.valueOf(2), neo.count(TABLE_NAME, new SearchQuery().append(BetweenAnd("age", 3, 4))));
+        Assert.assertEquals(Integer.valueOf(1), neo.count(TABLE_NAME, new SearchQuery().append(BetweenAnd("age", 4, 4))));
     }
 
 }

@@ -238,17 +238,17 @@ public void oneTest() {
     NeoMap dataMap = NeoMap.of("group", "group_insert_express", "name", "name_insert_express");
     neo.insert(TABLE_NAME, dataMap);
 
-    SearchExpress searchExpress;
+    SearchExpress searchQuery;
 
-    searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
-    Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchExpress).assignExcept("id"));
+    searchQuery = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
+    Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchQuery).assignExcept("id"));
 }
 ```
 除了默认的and，类SearchExpress还有更复杂的使用方式，类`Neo`支持SearchExpress作为更复杂的条件搜索
 ```java
-NeoMap one(String tableName, Columns columns, SearchExpress searchExpress);
-String value(String tableName, String field, SearchExpress searchExpress);
-List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress);
+NeoMap one(String tableName, Columns columns, SearchExpress searchQuery);
+String value(String tableName, String field, SearchExpress searchQuery);
+List<NeoMap> list(String tableName, Columns columns, SearchExpress searchQuery);
 // ...等等可以NeoMap的api，都是对应的SearchExpress作为搜索条件
 ```
 ```java
@@ -277,19 +277,19 @@ public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
         return rsp;
     }
 
-    Express searchExpress = new Express();
-    searchExpress.and("people.`profile`", req.getProfile());
-    searchExpress.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
-    searchExpress.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
-    searchExpress.append(BaseOperate.OrderByDesc("people_group.`update_time`"));
+    Express searchQuery = new Express();
+    searchQuery.and("people.`profile`", req.getProfile());
+    searchQuery.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
+    searchQuery.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
+    searchQuery.append(BaseOperate.OrderByDesc("people_group.`update_time`"));
 
     String pageSql = "select distinct people.* from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
     String countSql = "select count(distinct people.`id`) from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
 
     List<Object> parameterList = new ArrayList<>();
-    parameterList.add(searchExpress.toSql());
+    parameterList.add(searchQuery.toSql());
     // 注意，这里需要用到这里的value才行
-    parameterList.add(searchExpress.toValue());
+    parameterList.add(searchQuery.toValue());
 
     pageRsp.setDataList(alarmDb.exePage(AlarmPeopleDO.class, pageSql, NeoPage.from(pageReq), parameterList.toArray()));
     pageRsp.setTotalNum(alarmDb.exeCount(countSql, parameterList.toArray()));

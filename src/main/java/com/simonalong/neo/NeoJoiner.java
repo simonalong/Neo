@@ -3,7 +3,7 @@ package com.simonalong.neo;
 import com.simonalong.neo.core.join.AbstractBaseJoinner;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 
 import java.util.List;
@@ -26,8 +26,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public TableMap one(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeOne(JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public TableMap one(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeOne(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -36,8 +36,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeOne(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeOne(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -46,8 +46,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeList(JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeList(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -56,8 +56,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeList(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeList(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -66,8 +66,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public String value(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValue(JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public String value(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValue(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -76,8 +76,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValue(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValue(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -86,8 +86,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public List<String> values(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValues(JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public List<String> values(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValues(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -96,8 +96,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValues(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValues(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -106,8 +106,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -116,8 +116,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
 
@@ -127,8 +127,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage) {
-        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), neoPage, JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
+        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -137,8 +137,8 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchExpress searchExpress, NeoPage neoPage) {
-        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchExpress), neoPage, JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
+        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
@@ -147,7 +147,7 @@ public class NeoJoiner extends AbstractBaseJoinner {
     }
 
     @Override
-    public Integer count(TableJoinOn tableJoinOn, SearchExpress searchExpress) {
-        return neo.exeCount(JoinSqlBuilder.buildCount(tableJoinOn, searchExpress), JoinSqlBuilder.buildValueList(searchExpress).toArray());
+    public Integer count(TableJoinOn tableJoinOn, SearchQuery searchQuery) {
+        return neo.exeCount(JoinSqlBuilder.buildCount(tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 }
