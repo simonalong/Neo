@@ -4,6 +4,7 @@ import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import com.simonalong.neo.*;
 import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.express.SearchExpress;
@@ -387,6 +388,11 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return doSlaveCall(db -> db.page(tableName, columns, searchMap, page));
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, columns, searchMap, pageReq));
     }
 
     @Override

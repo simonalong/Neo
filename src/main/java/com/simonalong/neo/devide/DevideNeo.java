@@ -5,6 +5,7 @@ import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.AbstractBaseDb;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.express.SearchExpress;
 import com.simonalong.neo.xa.NeoXa;
 import com.simonalong.neo.devide.strategy.DevideStrategy;
@@ -1247,6 +1248,23 @@ public final class DevideNeo extends AbstractBaseDb {
                 .collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
+        if (null != neo) {
+            return neo.page(actTableName, columns, searchMap, pageReq);
+        } else {
+            NeoPage aggregate = NeoPage.of(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<NeoMap> allDataList = getNeoList().stream()
+                .flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream())
+                .collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }

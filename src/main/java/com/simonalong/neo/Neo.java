@@ -1247,6 +1247,26 @@ public class Neo extends AbstractExecutorDb {
         return result.stream().map(table->table.getNeoMap(tableName)).collect(Collectors.toList());
     }
 
+    /**
+     * 查询分页数据
+     *
+     * @param tableName 表名
+     * @param columns   多个列名
+     * @param searchMap 搜索条件
+     * @param pageReq   分页请求
+     * @return 查询的分页数据
+     */
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        checkDb(tableName);
+        NeoMap searchMapTem = searchMap.clone();
+        List<TableMap> result = execute(true,
+            () -> generatePageSqlPair(tableName, columns, searchMapTem, pageReq.getStartIndex(), pageReq.getPageSize()),
+            this::executeList);
+
+        return result.stream().map(table->table.getNeoMap(tableName)).collect(Collectors.toList());
+    }
+
     @Override
     public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         checkDb(tableName);

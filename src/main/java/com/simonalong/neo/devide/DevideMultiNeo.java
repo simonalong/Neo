@@ -2,6 +2,7 @@ package com.simonalong.neo.devide;
 
 import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.exception.NeoNotSupport;
 import com.simonalong.neo.express.SearchExpress;
 import com.simonalong.neo.util.CharSequenceUtil;
@@ -263,6 +264,11 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
+    }
+
+    @Override
     public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
     }
@@ -434,11 +440,61 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      * @param function     原始数据生成回调
      * @return 分页过滤处理后的数据
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     private List<NeoMap> executePage(Object searchObject, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
         NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
         Integer startIndex = page.getStartIndex();
         Integer pageSize = page.getPageSize();
+        List<NeoMap> resultList = function.apply(extendPage);
+        // 获取排序条件
+        List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchObject);
+        if (!resultList.isEmpty()) {
+            // 多数据的归并后排序
+            resultList = resultList.stream().sorted((a, b) -> {
+                for (ColumnSortConfig sortConfig : columnSortConfigList) {
+                    Comparable<Object> comparableLeft = a.get(Comparable.class, sortConfig.getColumnName());
+                    Comparable<Object> comparableRight = b.get(Comparable.class, sortConfig.getColumnName());
+                    Integer sort = sortConfig.getSort();
+                    if (1 == sort) {
+                        int compareResult = comparableLeft.compareTo(comparableRight);
+                        if (0 != compareResult) {
+                            return compareResult;
+                        }
+                    } else {
+                        int compareResult = comparableRight.compareTo(comparableLeft);
+                        if (0 != compareResult) {
+                            return compareResult;
+                        }
+                    }
+                }
+                return 0;
+            }).collect(Collectors.toList());
+            if (startIndex + pageSize < resultList.size()) {
+                return resultList.subList(startIndex, startIndex + pageSize);
+            } else {
+                return Collections.emptyList();
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 多库或者多表数据分页的合并
+     *
+     * @param searchObject 搜索条件：NeoMap类型或者Express表达式类型
+     * @param pageReq         分页
+     * @param function     原始数据生成回调
+     * @return 分页过滤处理后的数据
+     */
+    @SuppressWarnings("unchecked")
+    private List<NeoMap> executePage(Object searchObject, PageReq<?> pageReq, Function<PageReq<?>, List<NeoMap>> function) {
+        PageReq<?> extendPage = new PageReq<>();
+        extendPage.setPageNo(0);
+        extendPage.setPageSize(pageReq.getStartIndex() + pageReq.getPageSize());
+
+        Integer startIndex = pageReq.getStartIndex();
+        Integer pageSize = pageReq.getPageSize();
         List<NeoMap> resultList = function.apply(extendPage);
         // 获取排序条件
         List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchObject);
