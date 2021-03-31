@@ -386,9 +386,173 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return doSlaveCall(db -> db.page(tableName, columns, searchMap, page));
     }
+
+    @Override
+    @Deprecated
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
+        return doSlaveCall(db -> db.page(tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, columns, entity, page));
+    }
+
+    @Override
+    @Deprecated
+    public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(String tableName, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, entity, page));
+    }
+
+    @Override
+    @Deprecated
+    public List<NeoMap> page(String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, columns, page));
+    }
+
+    @Override
+    @Deprecated
+    public List<NeoMap> page(String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.page(tableName, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.page(tClass, tableName, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(String tableName, Columns columns, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, entity, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(String tableName, T entity, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, entity, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, page));
+    }
+
+    @Override
+    @Deprecated
+    public PageRsp<NeoMap> getPage(String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tableName, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchMap, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchExpress, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, page));
+    }
+
+    @Override
+    @Deprecated
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoPage page) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, page));
+    }
+
 
     @Override
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
@@ -396,138 +560,138 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
-        return doSlaveCall(db -> db.page(tableName, columns, searchExpress, page));
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, columns, searchExpress, pageReq));
     }
 
     @Override
-    public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, columns, entity, page));
+    public <T> List<T> page(String tableName, Columns columns, T entity, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, columns, entity, pageReq));
     }
 
     @Override
-    public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, searchMap, page));
+    public List<NeoMap> page(String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, searchMap, pageReq));
     }
 
     @Override
-    public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, searchExpress, page));
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, searchExpress, pageReq));
     }
 
     @Override
-    public <T> List<T> page(String tableName, T entity, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, entity, page));
+    public <T> List<T> page(String tableName, T entity, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, entity, pageReq));
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, columns, page));
+    public List<NeoMap> page(String tableName, Columns columns, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, columns, pageReq));
     }
 
     @Override
-    public List<NeoMap> page(String tableName, NeoPage page) {
-        return doSlaveCall(db -> db.page(tableName, page));
+    public List<NeoMap> page(String tableName, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tableName, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchMap, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchMap, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchExpress, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, searchExpress, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, searchExpress, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, searchExpress, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, searchMap, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, searchMap, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, columns, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, columns, pageReq));
     }
 
     @Override
-    public <T> List<T> page(Class<T> tClass, String tableName, NeoPage page) {
-        return doSlaveCall(db -> db.page(tClass, tableName, page));
+    public <T> List<T> page(Class<T> tClass, String tableName, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.page(tClass, tableName, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, columns, searchMap, page));
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchMap, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, columns, searchExpress, page));
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, searchExpress, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(String tableName, Columns columns, T entity, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, columns, entity, page));
+    public <T> PageRsp<T> getPage(String tableName, Columns columns, T entity, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, entity, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, searchMap, page));
+    public PageRsp<NeoMap> getPage(String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, searchMap, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, searchExpress, page));
+    public PageRsp<NeoMap> getPage(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, searchExpress, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(String tableName, T entity, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, entity, page));
+    public <T> PageRsp<T> getPage(String tableName, T entity, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, entity, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, columns, page));
+    public PageRsp<NeoMap> getPage(String tableName, Columns columns, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, columns, pageReq));
     }
 
     @Override
-    public PageRsp<NeoMap> getPage(String tableName, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tableName, page));
+    public PageRsp<NeoMap> getPage(String tableName, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tableName, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchMap, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchMap, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchExpress, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, searchExpress, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, searchMap, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchMap, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, searchExpress, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, searchExpress, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, columns, pageReq));
     }
 
     @Override
-    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, NeoPage page) {
-        return doSlaveCall(db -> db.getPage(tClass, tableName, page));
+    public <T> PageRsp<T> getPage(Class<T> tClass, String tableName, PageReq<?> pageReq) {
+        return doSlaveCall(db -> db.getPage(tClass, tableName, pageReq));
     }
 
 

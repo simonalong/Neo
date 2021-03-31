@@ -182,14 +182,14 @@ public final class DevideNeo extends AbstractBaseDb {
      */
     private void validateTable() {
         if (!dbList.isEmpty()) {
-            for (Neo db: dbList) {
-                List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e->e.getActTableNameList().stream()).collect(Collectors.toList());
+            for (Neo db : dbList) {
+                List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e -> e.getActTableNameList().stream()).collect(Collectors.toList());
                 for (String tableName : actTableNameList) {
                     db.test(tableName);
                 }
             }
         } else if (null != defaultDb) {
-            List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e->e.getActTableNameList().stream()).collect(Collectors.toList());
+            List<String> actTableNameList = devideTableInfoMap.values().stream().flatMap(e -> e.getActTableNameList().stream()).collect(Collectors.toList());
             for (String tableName : actTableNameList) {
                 defaultDb.test(tableName);
             }
@@ -235,8 +235,8 @@ public final class DevideNeo extends AbstractBaseDb {
     /**
      * 分库路由获取实际的表名
      *
-     * @param tableName        逻辑表明
-     * @param searchExpress    查询表达式
+     * @param tableName     逻辑表明
+     * @param searchExpress 查询表达式
      * @return 实际库名。没有找到，则报异常
      */
     private Neo getDevideDb(String tableName, SearchExpress searchExpress) {
@@ -389,7 +389,7 @@ public final class DevideNeo extends AbstractBaseDb {
                 if (null != primaryColumnName && primaryColumnName.equals(devideColumn)) {
                     return object;
                 }
-            } else if(object instanceof SearchExpress) {
+            } else if (object instanceof SearchExpress) {
                 SearchExpress searchExpress = (SearchExpress) object;
                 return searchExpress.getValue(tableDevideConfig.getColumnName());
             } else if (null != object) {
@@ -428,7 +428,7 @@ public final class DevideNeo extends AbstractBaseDb {
                 if (null != primaryColumnName && primaryColumnName.equals(devideDbColumnName)) {
                     return object;
                 }
-            } else if(object instanceof SearchExpress) {
+            } else if (object instanceof SearchExpress) {
                 SearchExpress searchExpress = (SearchExpress) object;
                 return searchExpress.getValue(devideDbColumnName);
             } else if (null != object) {
@@ -699,7 +699,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress){
+    public NeoMap one(String tableName, Columns columns, SearchExpress searchExpress) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
@@ -1074,8 +1074,7 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.values(tClass, actTableName, field, searchMap);
         } else {
-            return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -1098,8 +1097,7 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.values(tClass, actTableName, field, searchMap);
         } else {
-            return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchMap).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -1110,8 +1108,7 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.values(tClass, actTableName, field, searchExpress);
         } else {
-            return neoXa.call(
-                () -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
+            return neoXa.call(() -> getNeoList().stream().flatMap(db -> db.values(tClass, actTableName, field, searchExpress).stream()).collect(Collectors.toList()));
         }
     }
 
@@ -1236,6 +1233,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchMap);
         String actTableName = getDevideTable(tableName, searchMap);
@@ -1243,9 +1241,7 @@ public final class DevideNeo extends AbstractBaseDb {
             return neo.page(actTableName, columns, searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream())
-                .collect(Collectors.toList());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1253,33 +1249,15 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
-        Neo neo = getDevideDb(tableName, searchMap);
-        String actTableName = getDevideTable(tableName, searchMap);
-        if (null != neo) {
-            return neo.page(actTableName, columns, searchMap, pageReq);
-        } else {
-            NeoPage aggregate = NeoPage.of(0, pageReq.getStartIndex() + pageReq.getPageSize());
-            List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream())
-                .collect(Collectors.toList());
-            Integer startIndex = pageReq.getStartIndex();
-            Integer pageSize = pageReq.getPageSize();
-            return allDataList.subList(startIndex, startIndex + pageSize);
-        }
-    }
-
-    @Override
-    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
+    @Deprecated
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
         if (null != neo) {
             return neo.page(actTableName, columns, searchExpress, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(actTableName, columns, searchExpress, aggregate).stream())
-                .collect(Collectors.toList());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchExpress, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1287,6 +1265,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         Neo neo = getDevideDb(tableName, entity);
         String actTableName = getDevideTable(tableName, entity);
@@ -1301,8 +1280,8 @@ public final class DevideNeo extends AbstractBaseDb {
         }
     }
 
-    @SuppressWarnings("all")
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchMap);
         String actTableName = getDevideTable(tableName, searchMap);
@@ -1310,9 +1289,7 @@ public final class DevideNeo extends AbstractBaseDb {
             return neo.page(actTableName, searchMap, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(actTableName, searchMap, aggregate).stream())
-                .collect(Collectors.toList());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchMap, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1320,6 +1297,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
         Neo neo = getDevideDb(tableName, searchExpress);
         String actTableName = getDevideTable(tableName, searchExpress);
@@ -1327,9 +1305,7 @@ public final class DevideNeo extends AbstractBaseDb {
             return neo.page(actTableName, searchExpress, page);
         } else {
             NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
-            List<NeoMap> allDataList = getNeoList().stream()
-                .flatMap(db -> db.page(actTableName, searchExpress, aggregate).stream())
-                .collect(Collectors.toList());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchExpress, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
             Integer pageSize = page.getPageSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
@@ -1337,6 +1313,7 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
         Neo neo = getDevideDb(tableName, entity);
         String actTableName = getDevideTable(tableName, entity);
@@ -1352,14 +1329,118 @@ public final class DevideNeo extends AbstractBaseDb {
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, NeoPage page) {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, NeoPage page) {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
+
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
+        if (null != neo) {
+            return neo.page(actTableName, columns, searchMap, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
+        if (null != neo) {
+            return neo.page(actTableName, columns, searchExpress, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchExpress, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public <T> List<T> page(String tableName, Columns columns, T entity, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
+        if (null != neo) {
+            return neo.page(actTableName, columns, entity, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, entity, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, searchMap);
+        String actTableName = getDevideTable(tableName, searchMap);
+        if (null != neo) {
+            return neo.page(actTableName, searchMap, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchMap, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, searchExpress);
+        String actTableName = getDevideTable(tableName, searchExpress);
+        if (null != neo) {
+            return neo.page(actTableName, searchExpress, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchExpress, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public <T> List<T> page(String tableName, T entity, PageReq<?> pageReq) {
+        Neo neo = getDevideDb(tableName, entity);
+        String actTableName = getDevideTable(tableName, entity);
+        if (null != neo) {
+            return neo.page(actTableName, entity, pageReq);
+        } else {
+            PageReq<?> aggregate = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+            List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, entity, aggregate).stream()).collect(Collectors.toList());
+            Integer startIndex = pageReq.getStartIndex();
+            Integer pageSize = pageReq.getPageSize();
+            return allDataList.subList(startIndex, startIndex + pageSize);
+        }
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, PageReq<?> pageReq) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, PageReq<?> pageReq) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {

@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -126,6 +127,7 @@ public interface ExecuteSql {
      * @param parameters 占位符对应的参数
      * @return 某个对应集合的数据
      */
+    @Deprecated
     List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters);
 
     /**
@@ -138,7 +140,30 @@ public interface ExecuteSql {
      * @param <T>        返回值对应的类型
      * @return 某个对应集合的数据
      */
+    @Deprecated
     <T> List<T> exePage(Class<T> tClass, String sql, NeoPage neoPage, Object... parameters);
+
+    /**
+     * 执行分页，返回值为某个分页对应的集合数据
+     *
+     * @param sql        包含占位对应的sql
+     * @param pageReq    分页对应的配置
+     * @param parameters 占位符对应的参数
+     * @return 某个对应集合的数据
+     */
+    List<TableMap> exePage(String sql, PageReq<?> pageReq, Object... parameters);
+
+    /**
+     * 执行分页，返回值为某个分页对应的集合数据
+     *
+     * @param tClass     集合中对应的类型
+     * @param sql        包含占位对应的sql
+     * @param pageReq    分页对应的配置
+     * @param parameters 占位符对应的参数
+     * @param <T>        返回值对应的类型
+     * @return 某个对应集合的数据
+     */
+    <T> List<T> exePage(Class<T> tClass, String sql, PageReq<?> pageReq, Object... parameters);
 
     /**
      * 获取对应行的个数

@@ -1,6 +1,8 @@
 package com.simonalong.neo.db;
 
 /**
+ * 该类弃用，已经转移到类{@link PageReq}
+ *
  * @author zhouzhenyong
  * @since 2019/3/15 下午3:31
  */

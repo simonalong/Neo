@@ -259,21 +259,19 @@ public class DevideMultiNeo extends AbstractBaseQuery {
 
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         return executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
     }
 
     @Override
-    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
-        return executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
-    }
-
-    @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, NeoPage page){
         return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
     }
 
     @Override
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, Columns columns, T entity, NeoPage page) {
         NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
@@ -282,16 +280,19 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, NeoMap searchMap, NeoPage page) {
         return executePage(searchMap, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage)));
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, SearchExpress searchExpress, NeoPage page) {
         return executePage(searchExpress, page, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
     }
 
     @Override
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <T> List<T> page(String tableName, T entity, NeoPage page) {
         NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
@@ -300,14 +301,64 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, NeoPage page) {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
 
     @Override
+    @Deprecated
     public List<NeoMap> page(String tableName, NeoPage page) {
         throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
     }
+
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return executePage(searchExpress, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchExpress, extendPage)));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> page(String tableName, Columns columns, T entity, PageReq<?> pageReq) {
+        NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
+        List<NeoMap> dataMapList = executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, columns, searchMap, extendPage)));
+        return NeoMap.asArray(dataMapList, NeoMap.NamingChg.UNDERLINE, (Class<T>) entity.getClass());
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, NeoMap searchMap, PageReq<?> pageReq) {
+        return executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage)));
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, SearchExpress searchExpress, PageReq<?> pageReq) {
+        return executePage(searchExpress, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchExpress, extendPage)));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> page(String tableName, T entity, PageReq<?> pageReq) {
+        NeoMap searchMap = NeoMap.from(entity, NeoMap.NamingChg.UNDERLINE);
+        List<NeoMap> dataMapList = executePage(searchMap, pageReq, (extendPage) -> executeList(tableName, (db, actTableName) -> db.page(actTableName, searchMap, extendPage)));
+        return NeoMap.asArray(dataMapList, NeoMap.NamingChg.UNDERLINE, (Class<T>) entity.getClass());
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, Columns columns, PageReq<?> pageReq) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
+    @Override
+    public List<NeoMap> page(String tableName, PageReq<?> pageReq) {
+        throw new NeoNotSupport("数据量太大，该api分库分表场景不支持");
+    }
+
 
     @Override
     public Integer count(String tableName, NeoMap searchMap) {
@@ -489,10 +540,7 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      */
     @SuppressWarnings("unchecked")
     private List<NeoMap> executePage(Object searchObject, PageReq<?> pageReq, Function<PageReq<?>, List<NeoMap>> function) {
-        PageReq<?> extendPage = new PageReq<>();
-        extendPage.setPageNo(0);
-        extendPage.setPageSize(pageReq.getStartIndex() + pageReq.getPageSize());
-
+        PageReq<?> extendPage = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
         Integer startIndex = pageReq.getStartIndex();
         Integer pageSize = pageReq.getPageSize();
         List<NeoMap> resultList = function.apply(extendPage);
