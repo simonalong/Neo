@@ -723,6 +723,32 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
+     * 根据传入的类进行对应类型的获取
+     *
+     * @param tClass 目标值的class
+     * @param keys 多层嵌套key
+     * @param <T> 目标值的类型
+     * @return 目标值
+     */
+    public <T> T getOfDeep(Class<T> tClass, String... keys){
+        return ObjectUtil.cast(tClass, getOfDeep(keys));
+    }
+
+    /**
+     * 根据传入的类进行对应类型的获取，若没有获取到，则返回默认值
+     *
+     * @param tClass 目标的class
+     * @param key map的key
+     * @param defaultValue 默认值
+     * @param <T> 目标的类型
+     * @return 目标值
+     */
+    public <T> T getOfDeep(Class<T> tClass, String key, T defaultValue){
+        T result = getOfDeep(tClass, key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
      * 获取字符
      *
      * @param key map的key
@@ -734,6 +760,21 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
 
     public Character getChar(String key, Character defaultValue) {
         Character result = getChar(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    /**
+     * 获取字符
+     *
+     * @param keys 嵌套多层的key
+     * @return 字符，如果是字符串，则返回字符串的第一个字符
+     */
+    public Character getCharOfDeep(String... keys){
+        return ObjectUtil.toChar(getOfDeep(keys));
+    }
+
+    public Character getCharOfDeep(Character defaultValue, String... keys) {
+        Character result = getCharOfDeep(keys);
         return (null == result) ? defaultValue : result;
     }
 
@@ -753,6 +794,21 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
+     * 返回值为String类型的值
+     *
+     * @param keys 多层嵌套key
+     * @return String类型的值
+     */
+    public String getStringOfDeep(String... keys){
+        return ObjectUtil.toStr(getOfDeep(keys));
+    }
+
+    public String getStringOfDeep(Object defaultValue, String... keys){
+        String result = getStringOfDeep(keys);
+        return (null == result) ? defaultValue.toString() : result;
+    }
+
+    /**
      * 获取值类型为Boolean的值
      * @param key map中对应的key
      * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
@@ -766,6 +822,20 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return (null == result) ? defaultValue : result;
     }
 
+    /**
+     * 获取值类型为Boolean的值
+     * @param keys 多层嵌套key
+     * @return 若值为true或者TRUE，则返回true，否则其他任何值都返回false，包括false和null
+     */
+    public Boolean getBooleanOfDeep(String... keys) {
+        return ObjectUtil.toBoolean(getOfDeep(keys));
+    }
+
+    public Boolean getBooleanOfDeep(Boolean defaultValue, String... keys) {
+        Boolean result = getBooleanOfDeep(keys);
+        return (null == result) ? defaultValue : result;
+    }
+
     public Byte getByte(String key){
         return ObjectUtil.toByte(get(key));
     }
@@ -775,7 +845,16 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return (null == result) ? defaultValue : result;
     }
 
-    public Short getShort(String key){
+    public Byte getByteOfDeep(String... keys) {
+        return ObjectUtil.toByte(getOfDeep(keys));
+    }
+
+    public Byte getByteOfDeep(Byte defaultValue, String... keys) {
+        Byte result = getByteOfDeep(keys);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Short getShort(String key) {
         return ObjectUtil.toShort(get(key));
     }
 
@@ -784,7 +863,16 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return (null == result) ? defaultValue : result;
     }
 
-    public Integer getInteger(String key){
+    public Short getShortOfDeep(String... keys) {
+        return ObjectUtil.toShort(getOfDeep(keys));
+    }
+
+    public Short getShortOfDeep(Integer defaultValue, String... keys) {
+        Short result = getShortOfDeep(keys);
+        return (null == result) ? defaultValue.shortValue() : result;
+    }
+
+    public Integer getInteger(String key) {
         return ObjectUtil.toInt(get(key));
     }
 
@@ -793,12 +881,30 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return (null == result) ? defaultValue : result;
     }
 
-    public Long getLong(String key){
+    public Integer getIntegerOfDeep(String... keys) {
+        return ObjectUtil.toInt(getOfDeep(keys));
+    }
+
+    public Integer getIntegerOfDeep(Integer defaultValue, String... keys) {
+        Integer result = getIntegerOfDeep(keys);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Long getLong(String key) {
         return ObjectUtil.toLong(get(key));
     }
 
     public Long getLong(String key, Long defaultValue) {
         Long result = getLong(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Long getLongOfDeep(String... keys) {
+        return ObjectUtil.toLong(getOfDeep(keys));
+    }
+
+    public Long getLongOfDeep(Long defaultValue, String... keys) {
+        Long result = getLongOfDeep(keys);
         return (null == result) ? defaultValue : result;
     }
 
@@ -811,12 +917,30 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return (null == result) ? defaultValue : result;
     }
 
+    public Double getDoubleOfDeep(String... keys){
+        return ObjectUtil.toDouble(getOfDeep(keys));
+    }
+
+    public Double getDoubleOfDeep(Double defaultValue, String... keys) {
+        Double result = getDoubleOfDeep(keys);
+        return (null == result) ? defaultValue : result;
+    }
+
     public Float getFloat(String key){
         return ObjectUtil.toFloat(get(key));
     }
 
     public Float getFloat(String key, Float defaultValue) {
         Float result = getFloat(key);
+        return (null == result) ? defaultValue : result;
+    }
+
+    public Float getFloatOfDeep(String... keys){
+        return ObjectUtil.toFloat(getOfDeep(keys));
+    }
+
+    public Float getFloatOfDeep(Float defaultValue, String... keys) {
+        Float result = getFloatOfDeep(keys);
         return (null == result) ? defaultValue : result;
     }
 
@@ -832,8 +956,16 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return ObjectUtil.toList(get(key)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toList());
     }
 
+    public <T> List<T> getListOfDeep(Class<T> tClass, String... keys){
+        return ObjectUtil.toList(getOfDeep(keys)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toList());
+    }
+
     public <T> Set<T> getSet(Class<T> tClass, String key){
         return ObjectUtil.toSet(get(key)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
+    }
+
+    public <T> Set<T> getSetOfDeep(Class<T> tClass, String... keys){
+        return ObjectUtil.toSet(getOfDeep(keys)).stream().map(r -> ObjectUtil.cast(tClass, r)).collect(Collectors.toSet());
     }
 
     /**
@@ -845,6 +977,10 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      */
     public NeoMap getNeoMap(String key){
         return ObjectUtil.toNeoMap(get(key));
+    }
+
+    public NeoMap getNeoMapOfDeep(String... keys){
+        return ObjectUtil.toNeoMap(getOfDeep(keys));
     }
 
     /**
@@ -952,6 +1088,31 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     @Override
     public Object get(Object key) {
         return dataMap.get(key);
+    }
+
+    public Object getOfDeep(String... keys) {
+        return doGet(dataMap, 0, keys);
+    }
+
+    public Object getOfDeep(Object defaultValue, String... keys) {
+        Object value = doGet(dataMap, 0, keys);
+        return (null == value) ? defaultValue : value;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Object doGet(Object innerMap, Integer index, String... keys) {
+        if (null == innerMap || null == keys || keys.length == 0) {
+            return null;
+        }
+
+        if ((index + 1) > keys.length) {
+            return innerMap;
+        }
+        String key = keys[index];
+        if (innerMap instanceof Map && ((Map) innerMap).containsKey(key)) {
+            return doGet(((Map) innerMap).get(key), index + 1, keys);
+        }
+        return null;
     }
 
     /**

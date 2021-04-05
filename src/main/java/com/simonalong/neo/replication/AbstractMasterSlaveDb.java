@@ -816,14 +816,26 @@ public abstract class AbstractMasterSlaveDb extends AbstractExecutorDb implement
         return doMasterCall(db -> db.exePage(tClass, sql, startIndex, pageSize, parameters));
     }
 
+    @Deprecated
     @Override
     public List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters) {
         return doMasterCall(db -> db.exePage(sql, neoPage, parameters));
     }
 
+    @Deprecated
     @Override
     public <T> List<T> exePage(Class<T> tClass, String sql, NeoPage neoPage, Object... parameters) {
         return doMasterCall(db -> db.exePage(tClass, sql, neoPage, parameters));
+    }
+
+    @Override
+    public List<TableMap> exePage(String sql, PageReq<?> pageReq, Object... parameters) {
+        return doMasterCall(db -> db.exePage(sql, pageReq, parameters));
+    }
+
+    @Override
+    public <T> List<T> exePage(Class<T> tClass, String sql, PageReq<?> pageReq, Object... parameters) {
+        return doMasterCall(db -> db.exePage(tClass, sql, pageReq, parameters));
     }
 
     @Override

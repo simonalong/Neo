@@ -8,12 +8,7 @@ import com.simonalong.neo.entity.EnumEntity;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.map.table.NeoMapEnum;
@@ -452,8 +447,8 @@ public class NeoMapTest extends BaseTest {
     @Test
     public void getShortTest(){
         NeoMap neoMap = NeoMap.of("flag", 'a', "test", "d", "test2", 12, "t", 12.0f);
-        show(neoMap.getShort("flag"));
-        show(neoMap.getShort("test"));
+//        show(neoMap.getShort("flag"));
+//        show(neoMap.getShort("test"));
         show(neoMap.getShort("test2"));
         show(neoMap.getShort("t"));
     }
@@ -907,5 +902,113 @@ public class NeoMapTest extends BaseTest {
         dataMap.put("c", 4);
         dataMap.put("d", 5);
         show(dataMap.toFastJsonString());
+    }
+
+    @Test
+    public void getOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertNull(dataMap.getOfDeep("key1", "key2", "key32", "key3"));
+        Assert.assertEquals(12, dataMap.getOfDeep(12, "key1", "key2", "key32", "key3"));
+    }
+
+    @Test
+    public void getStringOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertNull(dataMap.getStringOfDeep("key1", "key2", "key32", "key3"));
+        Assert.assertEquals("12", dataMap.getStringOfDeep(12, "key1", "key2", "key32", "key3"));
+    }
+
+    @Test
+    public void getBooleanOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":true}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertTrue(dataMap.getBooleanOfDeep("key1", "key2", "key32", "key4"));
+        Assert.assertEquals(false, dataMap.getBooleanOfDeep(false, "key1", "key2", "key32", "key3"));
+    }
+
+    @Test
+    public void getShortOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertEquals(new Short("12"), dataMap.getShortOfDeep("key1", "key2", "key32", "key4"));
+        Assert.assertEquals(new Short("23"), dataMap.getShortOfDeep(23, "key1", "key2", "key32", "key3"));
+    }
+
+    @Test
+    public void getIntegerOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertEquals(new Integer(12), dataMap.getIntegerOfDeep("key1", "key2", "key32", "key4"));
+        Assert.assertEquals(new Integer(23), dataMap.getIntegerOfDeep(23, "key1", "key2", "key32", "key3"));
+    }
+
+    @Test
+    public void getLongOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertEquals(12, dataMap.getLongOfDeep("key1", "key2", "key32", "key4").longValue());
+        Assert.assertEquals(23L, dataMap.getLongOfDeep(23L, "key1", "key2", "key32", "key3").longValue());
+    }
+
+    @Test
+    public void getDoubleOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertEquals(12, dataMap.getDoubleOfDeep("key1", "key2", "key32", "key4").longValue());
+        Assert.assertEquals(23, dataMap.getDoubleOfDeep(23D, "key1", "key2", "key32", "key3").longValue());
+    }
+
+    @Test
+    public void getFloatOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Assert.assertEquals(12, dataMap.getFloatOfDeep("key1", "key2", "key32", "key4").longValue());
+        Assert.assertEquals(23, dataMap.getFloatOfDeep(23f, "key1", "key2", "key32", "key3").longValue());
+    }
+
+    @Test
+    public void getListOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":[12,32,43,55]}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        List<Integer> dataList = Arrays.asList(12, 32, 43, 55);
+        Assert.assertEquals(dataList.toString(), dataMap.getListOfDeep(Integer.class, "key1", "key2", "key32", "key4").toString());
+    }
+
+    @Test
+    public void getSetOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":[12,32,43, 55,55]}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+        Set<Integer> dataSet = new TreeSet<>();
+        dataSet.add(12);
+        dataSet.add(32);
+        dataSet.add(43);
+        dataSet.add(55);
+        dataSet.add(55);
+
+        Set<Integer> expectSet = new TreeSet<>();
+        expectSet.addAll(dataMap.getSetOfDeep(Integer.class, "key1", "key2", "key32", "key4"));
+        Assert.assertEquals(dataSet.toString(), expectSet.toString());
+    }
+
+    @Test
+    public void getNeoMapOfDeepTest() {
+        // {"test1":{"nihao":{"women":"ok","key3":{"key4":12}}}}
+        String text = "{\"key1\":{\"key2\":{\"key31\":\"ok\",\"key32\":{\"key4\":12}}}}";
+        NeoMap dataMap = NeoMap.fromFastJsonStr(text);
+
+        NeoMap expectMap = NeoMap.of("key4", 12);
+        Assert.assertEquals(expectMap, dataMap.getNeoMapOfDeep("key1", "key2", "key32"));
     }
 }
