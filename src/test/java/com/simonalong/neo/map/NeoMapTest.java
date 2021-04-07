@@ -198,6 +198,19 @@ public class NeoMapTest extends BaseTest {
     }
 
     /**
+     * 测试as：有@Column注解时候，按照注解中的值作为NeoMap中的key，无视转换规则
+     */
+    @Test
+    public void testAs7() {
+        NeoMap neoMap = NeoMap.of("name", "zhou", "age", 1);
+        NeoMapFinalEntity finalEntity = neoMap.as(NeoMapFinalEntity.class);
+
+        NeoMapFinalEntity expect = new NeoMapFinalEntity();
+        expect.setName("zhou");
+        Assert.assertEquals(expect, finalEntity);
+    }
+
+    /**
      * 测试from：转换规则同as，默认key不转换
      */
     @Test

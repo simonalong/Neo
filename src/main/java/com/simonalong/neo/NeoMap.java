@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -558,6 +559,10 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
             Field[] fields = tClass.getDeclaredFields();
             if (fields.length != 0) {
                 Stream.of(fields).forEach(f -> {
+                    // final字段不处理
+                    if (Modifier.isFinal(f.getModifiers())) {
+                        return;
+                    }
                     f.setAccessible(true);
                     try {
                         Object value = getValue(f);

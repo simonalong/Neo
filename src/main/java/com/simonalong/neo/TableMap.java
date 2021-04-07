@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -550,6 +551,10 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             Field[] fields = tClass.getDeclaredFields();
             if (fields.length != 0) {
                 Stream.of(fields).forEach(f -> {
+                    // final字段不处理
+                    if (Modifier.isFinal(f.getModifiers())) {
+                        return;
+                    }
                     f.setAccessible(true);
                     try {
                         Object value = getValue(tClass, tableName, f, namingChg);
