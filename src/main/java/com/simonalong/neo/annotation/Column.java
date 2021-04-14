@@ -1,5 +1,7 @@
 package com.simonalong.neo.annotation;
 
+import com.simonalong.neo.NeoMap;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,6 +19,7 @@ public @interface Column {
 
     /**
      * 列名
+     * <p> 提示：修饰的属性名和db列名，默认按照{@link NeoMap.NamingChg#UNDERLINE}转换，可以通过{@link NeoMap.NamingChg}进行配置
      * @return 列名
      */
     String value() default "";
