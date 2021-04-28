@@ -1,5 +1,6 @@
 package com.simonalong.neo;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.NeoMap.NamingChg;
 import com.simonalong.neo.core.AbstractExecutorDb;
 import com.simonalong.neo.db.*;
@@ -1883,10 +1884,10 @@ public class Neo extends AbstractExecutorDb {
                         }
                         return batchCount;
                     } catch (Throwable e) {
-                        log.error(LOG_PRE_NEO + "[执行异常] [sql=> " + sql + " ]", e);
+                        log.error(LOG_PRE_NEO + "[执行异常] [sql=> {}][parameters={}]", sql, JSON.toJSONString(parameterList), e);
                     }
                 } catch (SQLException e) {
-                    log.error(LOG_PRE_NEO + "[执行异常] [sql=> " + sql + " ]", e);
+                    log.error(LOG_PRE_NEO + "[执行异常] [sql=> {}][parameters={}]", sql, JSON.toJSONString(parameterList), e);
                     throw new NeoException(e);
                 } finally {
                     if (openMonitor()) {

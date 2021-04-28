@@ -980,7 +980,7 @@ public interface TableSync extends Sync {
     /**
      * 批量更新实体
      * @param dataList 待更新的实体
-     * @param searchColumns 待更新实体中的columns指定的列作为搜索条件
+     * @param searchColumns 待更新实体转换到NeoMap后对应的列名
      * @param <T> 实体对应类型的泛型
      * @return 成功更新的个数
      */

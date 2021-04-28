@@ -156,7 +156,7 @@ public class TimeDateConverter {
         } else if(fieldTime instanceof java.sql.Time){
             return ((java.sql.Time) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Timestamp){
-            return ((java.sql.Timestamp) fieldTime).getTime();
+            return LocalDateTimeUtil.timestampToString((java.sql.Timestamp) fieldTime);
         } else if(fieldTime instanceof Date){
             return ((Date) fieldTime).getTime();
         } else if(fieldTime instanceof java.time.LocalDate){
