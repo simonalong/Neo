@@ -12,6 +12,7 @@ import com.simonalong.neo.express.SearchQuery;
 import com.simonalong.neo.sql.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.sql.builder.*;
+import com.simonalong.neo.tenant.TenantHandler;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -74,6 +75,11 @@ public class Neo extends AbstractExecutorDb {
     @Setter
     @Getter
     private Boolean standardFlag = true;
+    /**
+     * 租户管理器
+     */
+    @Getter
+    private TenantHandler tenantHandler = null;
     /**
      * 事务开启开启个数
      */
@@ -264,6 +270,10 @@ public class Neo extends AbstractExecutorDb {
 
     public void test(String tableName) {
         execute("select 1 from " + tableName);
+    }
+
+    public void setTenantHandler(TenantHandler tenantHandler) {
+        this.tenantHandler = tenantHandler;
     }
 
     public NeoJoiner joiner() {
@@ -1931,7 +1941,7 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap) {
         valueMap = filterColumn(tableName, valueMap);
-        return new Pair<>(InsertSqlBuilder.build(tableName, valueMap), new ArrayList<>(valueMap.values()));
+        return new Pair<>(InsertSqlBuilder.build(tenantHandler, tableName, valueMap), new ArrayList<>(valueMap.values()));
     }
 
     /**
@@ -1939,11 +1949,11 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterColumn(tableName, searchMap);
-        return new Pair<>(DeleteSqlBuilder.build(tableName, searchMap), SqlBuilder.buildValueList(searchMap));
+        return new Pair<>(DeleteSqlBuilder.build(tenantHandler, tableName, searchMap), SqlBuilder.buildValueList(searchMap));
     }
 
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, SearchQuery searchQuery) {
-        return new Pair<>(DeleteSqlBuilder.build(tableName, searchQuery), new ArrayList<>(searchQuery.toValue()));
+        return new Pair<>(DeleteSqlBuilder.build(tenantHandler, tableName, searchQuery), new ArrayList<>(searchQuery.toValue()));
     }
 
     /**
@@ -1953,21 +1963,25 @@ public class Neo extends AbstractExecutorDb {
         NeoMap searchMapTem = filterColumn(tableName, searchMap);
         NeoMap updateMap = filterColumn(tableName, dataMap);
 
+        // 该行数据要在valueList初始化之前执行
+        String sql = UpdateSqlBuilder.build(tenantHandler, tableName, updateMap, searchMapTem);
+
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));
         valueList.addAll(generateValueList(searchMapTem));
-
-        return new Pair<>(UpdateSqlBuilder.build(tableName, updateMap, searchMapTem), valueList);
+        return new Pair<>(sql, valueList);
     }
 
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, SearchQuery searchQuery) {
         NeoMap updateMap = filterColumn(tableName, dataMap);
 
+        // 该行数据要在valueList初始化之前执行
+        String sql = UpdateSqlBuilder.build(tenantHandler, tableName, updateMap, searchQuery);
+
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));
         valueList.addAll(searchQuery.toValue());
-
-        return new Pair<>(UpdateSqlBuilder.build(tableName, updateMap, searchQuery), valueList);
+        return new Pair<>(sql, valueList);
     }
 
     /**
@@ -2025,11 +2039,11 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterColumn(tableName, searchMap);
-        return new Pair<>(SelectSqlBuilder.buildCount(tableName, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildCount(tenantHandler, tableName, searchMap), generateValueList(searchMap));
     }
 
     private Pair<String, List<Object>> generateCountSqlPair(String tableName, SearchQuery searchQuery) {
-        return new Pair<>(SelectSqlBuilder.buildCount(tableName, searchQuery), searchQuery.toValue());
+        return new Pair<>(SelectSqlBuilder.buildCount(tenantHandler, tableName, searchQuery), searchQuery.toValue());
     }
 
     /**
@@ -2037,14 +2051,14 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, NeoMap searchMap) {
         searchMap = filterColumn(tableName, searchMap);
-        return new Pair<>(SelectSqlBuilder.buildValue(tableName, field, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildValue(tenantHandler, tableName, field, searchMap), generateValueList(searchMap));
     }
 
     /**
      * 生成查询总数的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateValueSqlPair(String tableName, String field, SearchQuery searchQuery) {
-        return new Pair<>(SelectSqlBuilder.buildValue(tableName, field, searchQuery), searchQuery.toValue());
+        return new Pair<>(SelectSqlBuilder.buildValue(tenantHandler, tableName, field, searchQuery), searchQuery.toValue());
     }
 
     /**
@@ -2052,14 +2066,14 @@ public class Neo extends AbstractExecutorDb {
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, Boolean distinct, String field, NeoMap searchMap) {
         searchMap = filterColumn(tableName, searchMap);
-        return new Pair<>(SelectSqlBuilder.buildValues(tableName, distinct, field, searchMap), generateValueList(searchMap));
+        return new Pair<>(SelectSqlBuilder.buildValues(tenantHandler, tableName, distinct, field, searchMap), generateValueList(searchMap));
     }
 
     /**
      * 生成查询值列表的sql和参数 key: select xxx value: 对应的参数
      */
     private Pair<String, List<Object>> generateValuesSqlPair(String tableName, Boolean distinct, String field, SearchQuery searchQuery) {
-        return new Pair<>(SelectSqlBuilder.buildValues(tableName, distinct, field, searchQuery), searchQuery.toValue());
+        return new Pair<>(SelectSqlBuilder.buildValues(tenantHandler, tableName, distinct, field, searchQuery), searchQuery.toValue());
     }
 
 
@@ -2101,7 +2115,7 @@ public class Neo extends AbstractExecutorDb {
      * 通过表名和查询参数生成查询一行数据的sql
      */
     private Pair<String, List<NeoMap>> generateBatchInsertPair(String tableName, NeoMap insertColumns, List<NeoMap> parameters) {
-        String sql = InsertSqlBuilder.build(tableName, insertColumns);
+        String sql = InsertSqlBuilder.build(tenantHandler, tableName, insertColumns);
         List<NeoMap> indexAndValueMap = new ArrayList<>();
         int index;
         List<String> keys = new ArrayList<>(insertColumns.keySet());
@@ -2126,7 +2140,7 @@ public class Neo extends AbstractExecutorDb {
      * @return sql以及对应的占位符中的值
      */
     private Pair<String, List<Object>> generateBatchUpdateSqlPair(String tableName, List<NeoMap> updateDataColumnList, Columns conditionColumns) {
-        return new Pair<>(UpdateSqlBuilder.buildBatch(tableName, updateDataColumnList, conditionColumns), SqlBuilder.buildBatchValueList(updateDataColumnList));
+        return new Pair<>(UpdateSqlBuilder.buildBatch(tenantHandler, tableName, updateDataColumnList, conditionColumns), SqlBuilder.buildBatchValueList(updateDataColumnList));
     }
 
     private List<Object> generateValueList(NeoMap searchMap) {

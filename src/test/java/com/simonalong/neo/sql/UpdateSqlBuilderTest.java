@@ -20,7 +20,7 @@ public class UpdateSqlBuilderTest extends BaseTest {
     @Test
     public void testBuild() {
         String sql = "update table1 set `address` = ?, `age` = ? where `name` = ? and `id` = ?";
-        String result = UpdateSqlBuilder.build("table1", NeoMap.of("age", 12, "address", "河南"), NeoMap.of("id", 123, "name", "nana"));
+        String result = UpdateSqlBuilder.build(null, "table1", NeoMap.of("age", 12, "address", "河南"), NeoMap.of("id", 123, "name", "nana"));
 
         Assert.assertEquals(sql, result);
     }
@@ -43,7 +43,7 @@ public class UpdateSqlBuilderTest extends BaseTest {
             NeoMap.of("group", "group5", "name", "name5chg", "user_name", "user_name5")
         );
         String sql = "update table1 a join( select ? as `user_name`, ? as `name`, ? as `group` union  select ? as `user_name`, ? as `name`, ? as `group` union  select ? as `user_name`, ? as `name`, ? as `group`) b using(`name`) set a.`user_name`=b.`user_name`, a.`group`=b.`group`";
-        String result = UpdateSqlBuilder.buildBatch("table1", dataList, Columns.of("name"));
+        String result = UpdateSqlBuilder.buildBatch(null, "table1", dataList, Columns.of("name"));
 
         Assert.assertEquals(sql, result);
 

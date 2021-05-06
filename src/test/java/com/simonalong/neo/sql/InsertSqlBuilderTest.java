@@ -15,7 +15,7 @@ public class InsertSqlBuilderTest extends BaseTest {
     @Test
     public void testBuild() {
         String sql = "insert into table1 (`name`, `age`) values (?, ?)";
-        String result = InsertSqlBuilder.build("table1", NeoMap.of("name", "nana", "age", 12));
+        String result = InsertSqlBuilder.build(null, "table1", NeoMap.of("name", "nana", "age", 12));
 
         Assert.assertEquals(sql, result);
     }

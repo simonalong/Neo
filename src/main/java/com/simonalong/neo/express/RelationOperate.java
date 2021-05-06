@@ -32,6 +32,11 @@ public abstract class RelationOperate extends BaseOperate {
     }
 
     @Override
+    public String getColumn() {
+        return key;
+    }
+
+    @Override
     public Boolean doNeedWhere() {
         return true;
     }

@@ -15,6 +15,12 @@ import static com.simonalong.neo.express.BaseOperate.*;
 public interface Operate {
 
     /**
+     * 列名
+     *
+     * @return 返回列名
+     */
+    String getColumn();
+    /**
      * 生成运算符
      *
      * @return 运算符表达式

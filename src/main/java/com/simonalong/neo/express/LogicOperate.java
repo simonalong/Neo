@@ -24,6 +24,11 @@ public abstract class LogicOperate extends BaseOperate {
     }
 
     @Override
+    public String getColumn() {
+        return null;
+    }
+
+    @Override
     public void offerOperate(Operate value) {
         this.childOperateQueue.offer(value);
     }

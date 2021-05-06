@@ -1,6 +1,7 @@
 package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.tenant.TenantHandler;
 import lombok.experimental.UtilityClass;
 
 import java.util.Set;
@@ -11,16 +12,18 @@ import java.util.stream.Collectors;
  * @since 2020/3/22 下午7:49
  */
 @UtilityClass
-public class InsertSqlBuilder {
+public class InsertSqlBuilder extends BaseSqlBuilder {
 
     /**
      * 返回insert的拼接sql
      *
+     * @param tenantHandler 租户管理器
      * @param tableName 表名
      * @param valueMap 数据实体
      * @return 拼接的sql，比如：insert into table1 (`age`, `name`) values (?, ?)
      */
-    public String build(String tableName, NeoMap valueMap) {
+    public String build(TenantHandler tenantHandler, String tableName, NeoMap valueMap) {
+        stuffTenantId(tenantHandler, tableName, valueMap);
         return "insert into " + tableName + " (" + buildInsertTable(valueMap.keySet()) + ") values (" + buildInsertValues(valueMap) + ")";
     }
 

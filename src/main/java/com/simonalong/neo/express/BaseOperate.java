@@ -39,6 +39,11 @@ public abstract class BaseOperate implements Operate {
     }
 
     @Override
+    public String getColumn() {
+        return null;
+    }
+
+    @Override
     public Boolean doNeedWhere() {
         for (Operate operate : childOperateQueue) {
             if (operate.needWhere()) {

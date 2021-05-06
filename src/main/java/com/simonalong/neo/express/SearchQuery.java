@@ -27,6 +27,16 @@ public class SearchQuery {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
     }
 
+    public Boolean containKey(String key) {
+        for (Operate operate : innerOperateQueue) {
+            if (null != operate.getColumn() && key.equals(operate.getColumn())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * 根据表达式获取表达式的第一个整体字符
      * <p>

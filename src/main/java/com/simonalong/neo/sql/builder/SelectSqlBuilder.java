@@ -4,6 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.express.SearchQuery;
+import com.simonalong.neo.tenant.TenantHandler;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -11,7 +12,7 @@ import lombok.experimental.UtilityClass;
  * @since 2020/3/22 下午8:19
  */
 @UtilityClass
-public class SelectSqlBuilder {
+public class SelectSqlBuilder extends BaseSqlBuilder {
 
     /**
      * 拼接 select one，多列单值
@@ -31,6 +32,7 @@ public class SelectSqlBuilder {
     }
 
     public String buildOne(Neo neo, String tableName, SearchQuery searchQuery) {
+        stuffTenantId(neo.getTenantHandler(), tableName, searchQuery);
         return "select " + buildColumns(neo, tableName, null) + " from " + tableName + searchQuery.toSql();
     }
 
@@ -44,10 +46,12 @@ public class SelectSqlBuilder {
      * @return 拼接字段：select `group`, `user_name` from  where `id` =  ? and `name` =  ?
      */
     public String buildList(Neo neo, String tableName, Columns columns, NeoMap searchMap) {
+        stuffTenantId(neo.getTenantHandler(), tableName, searchMap);
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
     public String buildList(Neo neo, String tableName, Columns columns, SearchQuery searchQuery) {
+        stuffTenantId(neo.getTenantHandler(), tableName, searchQuery);
         return "select " + buildColumns(neo, tableName, columns) + " from " + tableName + searchQuery.toSql();
     }
 
@@ -63,12 +67,12 @@ public class SelectSqlBuilder {
      * @param searchMap 搜索条件
      * @return 拼接字段：select `group` from neo_table1 where `id` =  ? and `name` =  ? limit 1
      */
-    public String buildValue(String tableName, String field, NeoMap searchMap) {
-        return buildValues(tableName, false, field, searchMap) + limitOne();
+    public String buildValue(TenantHandler tenantHandler, String tableName, String field, NeoMap searchMap) {
+        return buildValues(tenantHandler, tableName, false, field, searchMap) + limitOne();
     }
 
-    public String buildValue(String tableName, String field, SearchQuery searchQuery) {
-        return buildValues(tableName, false, field, searchQuery) + limitOne();
+    public String buildValue(TenantHandler tenantHandler, String tableName, String field, SearchQuery searchQuery) {
+        return buildValues(tenantHandler, tableName, false, field, searchQuery) + limitOne();
     }
 
     /**
@@ -80,7 +84,8 @@ public class SelectSqlBuilder {
      * @param searchMap 搜索条件
      * @return 拼接字段：select `group` from neo_table1 where `id` =  ? and `name` =  ?
      */
-    public String buildValues(String tableName, Boolean distinct, String field, NeoMap searchMap) {
+    public String buildValues(TenantHandler tenantHandler, String tableName, Boolean distinct, String field, NeoMap searchMap) {
+        stuffTenantId(tenantHandler, tableName, searchMap);
         if (distinct) {
             return "select distinct " + SqlBuilder.toDbField(field) + " from " + tableName + SqlBuilder.buildWhere(searchMap);
         } else {
@@ -88,13 +93,15 @@ public class SelectSqlBuilder {
         }
     }
 
-    public String buildValues(String tableName, Boolean distinct, String field, SearchQuery searchQuery) {
+    public String buildValues(TenantHandler tenantHandler, String tableName, Boolean distinct, String field, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, tableName, searchQuery);
         if (distinct) {
             return "select distinct " + SqlBuilder.toDbField(field) + " from " + tableName + searchQuery.toSql();
         } else {
             return "select " + SqlBuilder.toDbField(field) + " from " + tableName + searchQuery.toSql();
         }
     }
+
 
     /**
      * 拼接 select page，多列多值，按照分页
@@ -122,11 +129,13 @@ public class SelectSqlBuilder {
      * @param searchMap 搜索条件
      * @return 拼接字段：select count(1) from neo_table1 where `id` =  ? and `name` =  ? limit 1
      */
-    public String buildCount(String tableName, NeoMap searchMap) {
+    public String buildCount(TenantHandler tenantHandler, String tableName, NeoMap searchMap) {
+        stuffTenantId(tenantHandler, tableName, searchMap);
         return "select count(1) from " + tableName + SqlBuilder.buildWhere(searchMap);
     }
 
-    public String buildCount(String tableName, SearchQuery searchQuery) {
+    public String buildCount(TenantHandler tenantHandler, String tableName, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, tableName, searchQuery);
         return "select count(1) from " + tableName + searchQuery.toSql();
     }
 
