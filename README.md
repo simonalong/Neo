@@ -717,6 +717,42 @@ public void devideDbTableTest() {
 ...
 ```
 
+### 多租户
+在配置部分设置租户管理器
+
+```java
+// 设置租户信息
+TenantHandler tenantHandler = new TenantHandler();
+tenantHandler.setIncludeTables("*");
+tenantHandler.setExcludeTables("neo_table1", "neo_table2");
+tenantHandler.setColumnName("tenant_id");
+
+neo.setTenantHandler(tenantHandler);
+```
+在应用的上下文部分，比如filter部分，设置租户id
+
+```java
+// 模拟租户1添加数据
+TenantContextHolder.setTenantId("tenant_1");
+```
+
+然后其他地方就可以正常的使用了，示例，如下执行，不需要显示传入字段 tenant_id
+```java
+neo.insert(tableName, NeoMap.of("group", "test", "name", "nihao1"));
+```
+目前内置支持的api都支持：insert、delete、update、one、page、getPage、list、count等
+
+join，exe开头的几个函数不支持，因为这种sql比较复杂
+
+#### 注意
+对于在业务中使用了多线程的，在使用TenantContextHolder这个的时候，线程池必须用类`TtlExecutors`代理才行，示例：
+```java
+ExecutorService executorService = TtlExecutors.getTtlExecutorService(Executors.newFixedThreadPool(2));
+```
+解释：
+原因在于父线程和子线程的数据传递部分，这里采用的是阿里巴巴的TTl，也就是ITl（InheritableThreadLocal）的扩展版。ITL在线程池情况下由于线程复用会导致数据传递，而TTL能够在线程池情况下也能正常的在父子线程数据传递，采用的方式是线程池需要封装一层。
+
+
 ### 更多功能
 - 数据库连接
 - 基本功能
