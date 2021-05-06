@@ -62,6 +62,7 @@ public class SelectSqlBuilder extends BaseSqlBuilder {
     /**
      * 拼接 select value 单列单值
      *
+     * @param tenantHandler 租户管理器
      * @param tableName 表名
      * @param field     某个列
      * @param searchMap 搜索条件
@@ -78,6 +79,7 @@ public class SelectSqlBuilder extends BaseSqlBuilder {
     /**
      * 拼接 select values 单列多值
      *
+     * @param tenantHandler 租户管理器
      * @param tableName 表名
      * @param distinct  是否唯一，true不重复，false有重复
      * @param field     某个列
@@ -125,6 +127,7 @@ public class SelectSqlBuilder extends BaseSqlBuilder {
     /**
      * 拼接 select count， 单列单值，整数
      *
+     * @param tenantHandler 租户管理器
      * @param tableName 表名
      * @param searchMap 搜索条件
      * @return 拼接字段：select count(1) from neo_table1 where `id` =  ? and `name` =  ? limit 1
