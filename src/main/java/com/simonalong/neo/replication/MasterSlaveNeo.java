@@ -178,6 +178,8 @@ public class MasterSlaveNeo extends AbstractMasterSlaveDb {
             throw new NeoException("没有找到别名为" + alias + "的库");
         }
 
+        // todo 这里写的还是有点问题，后面要进行优化
+
         masterDbMap.get(alias).setActiveFlag(false);
 
         // 去激活的是当前正在使用的

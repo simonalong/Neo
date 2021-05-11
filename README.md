@@ -238,17 +238,17 @@ public void oneTest() {
     NeoMap dataMap = NeoMap.of("group", "group_insert_express", "name", "name_insert_express");
     neo.insert(TABLE_NAME, dataMap);
 
-    SearchExpress searchExpress;
+    SearchExpress searchQuery;
 
-    searchExpress = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
-    Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchExpress).assignExcept("id"));
+    searchQuery = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
+    Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchQuery).assignExcept("id"));
 }
 ```
 除了默认的and，类SearchExpress还有更复杂的使用方式，类`Neo`支持SearchExpress作为更复杂的条件搜索
 ```java
-NeoMap one(String tableName, Columns columns, SearchExpress searchExpress);
-String value(String tableName, String field, SearchExpress searchExpress);
-List<NeoMap> list(String tableName, Columns columns, SearchExpress searchExpress);
+NeoMap one(String tableName, Columns columns, SearchExpress searchQuery);
+String value(String tableName, String field, SearchExpress searchQuery);
+List<NeoMap> list(String tableName, Columns columns, SearchExpress searchQuery);
 // ...等等可以NeoMap的api，都是对应的SearchExpress作为搜索条件
 ```
 ```java
@@ -277,19 +277,19 @@ public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
         return rsp;
     }
 
-    Express searchExpress = new Express();
-    searchExpress.and("people.`profile`", req.getProfile());
-    searchExpress.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
-    searchExpress.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
-    searchExpress.append(BaseOperate.OrderByDesc("people_group.`update_time`"));
+    Express searchQuery = new Express();
+    searchQuery.and("people.`profile`", req.getProfile());
+    searchQuery.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
+    searchQuery.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
+    searchQuery.append(BaseOperate.OrderByDesc("people_group.`update_time`"));
 
     String pageSql = "select distinct people.* from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
     String countSql = "select count(distinct people.`id`) from xxx_alarm_people as people left join xxx_alarm_people_group_rel as rel on people.`id` = rel.people_id left join xxx_alarm_people_group as people_group on rel.`group_id` = people_group.`id` %s";
 
     List<Object> parameterList = new ArrayList<>();
-    parameterList.add(searchExpress.toSql());
+    parameterList.add(searchQuery.toSql());
     // 注意，这里需要用到这里的value才行
-    parameterList.add(searchExpress.toValue());
+    parameterList.add(searchQuery.toValue());
 
     pageRsp.setDataList(alarmDb.exePage(AlarmPeopleDO.class, pageSql, NeoPage.from(pageReq), parameterList.toArray()));
     pageRsp.setTotalNum(alarmDb.exeCount(countSql, parameterList.toArray()));
@@ -716,6 +716,42 @@ public void devideDbTableTest() {
     <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, NeoMap searchMap, Executor executor);
 ...
 ```
+
+### 多租户
+在配置部分设置租户管理器
+
+```java
+// 设置租户信息
+TenantHandler tenantHandler = new TenantHandler();
+tenantHandler.setIncludeTables("*");
+tenantHandler.setExcludeTables("neo_table1", "neo_table2");
+tenantHandler.setColumnName("tenant_id");
+
+neo.setTenantHandler(tenantHandler);
+```
+在应用的上下文部分，比如filter部分，设置租户id
+
+```java
+// 模拟租户1添加数据
+TenantContextHolder.setTenantId("tenant_1");
+```
+
+然后其他地方就可以正常的使用了，示例，如下执行，不需要显示传入字段 tenant_id
+```java
+neo.insert(tableName, NeoMap.of("group", "test", "name", "nihao1"));
+```
+目前内置支持的api都支持：insert、delete、update、one、page、getPage、list、count等
+
+join，exe开头的几个函数不支持，因为这种sql比较复杂
+
+#### 注意
+对于在业务中使用了多线程的，在使用TenantContextHolder这个的时候，线程池必须用类`TtlExecutors`代理才行，示例：
+```java
+ExecutorService executorService = TtlExecutors.getTtlExecutorService(Executors.newFixedThreadPool(2));
+```
+解释：
+原因在于父线程和子线程的数据传递部分，这里采用的是阿里巴巴的TTl，也就是ITl（InheritableThreadLocal）的扩展版。ITL在线程池情况下由于线程复用会导致数据传递，而TTL能够在线程池情况下也能正常的在父子线程数据传递，采用的方式是线程池需要封装一层。
+
 
 ### 更多功能
 - 数据库连接

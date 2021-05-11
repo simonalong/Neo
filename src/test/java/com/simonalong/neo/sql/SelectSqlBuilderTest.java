@@ -33,7 +33,7 @@ public class SelectSqlBuilderTest extends NeoBaseTest {
     @Test
     public void testBuildValue() {
         String sql = "select `group` from neo_table1 where `name` = ? and `id` = ? limit 1";
-        String result = SelectSqlBuilder.buildValue("neo_table1", "group", NeoMap.of("id", 31, "name", "kk"));
+        String result = SelectSqlBuilder.buildValue(null, "neo_table1", "group", NeoMap.of("id", 31, "name", "kk"));
 
         Assert.assertEquals(sql, result);
     }
@@ -41,7 +41,7 @@ public class SelectSqlBuilderTest extends NeoBaseTest {
     @Test
     public void testBuildValues() {
         String sql = "select `group` from neo_table1 where `name` = ? and `id` = ?";
-        String result = SelectSqlBuilder.buildValues("neo_table1", false, "group", NeoMap.of("id", 31, "name", "kk"));
+        String result = SelectSqlBuilder.buildValues(null, "neo_table1", false, "group", NeoMap.of("id", 31, "name", "kk"));
 
         Assert.assertEquals(sql, result);
     }
@@ -57,7 +57,7 @@ public class SelectSqlBuilderTest extends NeoBaseTest {
     @Test
     public void testBuildCount() {
         String sql = "select count(1) from neo_table1 where `name` = ? and `id` = ?";
-        String result = SelectSqlBuilder.buildCount("neo_table1", NeoMap.of("id", 31, "name", "kk"));
+        String result = SelectSqlBuilder.buildCount(null, "neo_table1", NeoMap.of("id", 31, "name", "kk"));
 
         Assert.assertEquals(sql, result);
     }

@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.TableJoinOn;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import lombok.experimental.UtilityClass;
 
 import java.util.*;
@@ -22,24 +22,24 @@ public class JoinSqlBuilder {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String build(Columns columns, TableJoinOn joiner, SearchExpress searchExpress) {
-        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
+    public String build(Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
     public String buildDistinct(Columns columns, TableJoinOn joiner, TableMap searchMap) {
         return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildDistinct(Columns columns, TableJoinOn joiner, SearchExpress searchExpress) {
-        return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
+    public String buildDistinct(Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+        return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
     public String buildCount(TableJoinOn joiner, TableMap searchMap) {
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildCount(TableJoinOn joiner, SearchExpress searchExpress) {
-        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchExpress);
+    public String buildCount(TableJoinOn joiner, SearchQuery searchQuery) {
+        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
     /**
@@ -72,8 +72,8 @@ public class JoinSqlBuilder {
         return "";
     }
 
-    public String buildConditionWithWhere(SearchExpress searchExpress) {
-        return searchExpress.toSql();
+    public String buildConditionWithWhere(SearchQuery searchQuery) {
+        return searchQuery.toSql();
     }
 
     /**
@@ -106,7 +106,7 @@ public class JoinSqlBuilder {
         return searchMap.clone().entrySet().stream().flatMap(e-> ((NeoMap) e.getValue()).valueStream()).collect(Collectors.toList());
     }
 
-    public List<Object> buildValueList(SearchExpress searchExpress) {
-        return searchExpress.toValue();
+    public List<Object> buildValueList(SearchQuery searchQuery) {
+        return searchQuery.toValue();
     }
 }

@@ -223,7 +223,13 @@ public final class Columns {
         if(tableFieldsMap.isEmpty()) {
             return "*";
         }
-        return tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value->e.getKey() + "." + value.getCurrentValue())).collect(Collectors.joining(", "));
+        return tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value -> {
+            if(null == e.getKey() || "".equals(e.getKey())) {
+                return value.getCurrentValue();
+            } else {
+                return e.getKey() + "." + value.getCurrentValue();
+            }
+        })).collect(Collectors.joining(", "));
     }
 
     @Override

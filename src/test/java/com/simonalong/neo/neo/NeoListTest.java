@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.entity.DemoEntity;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,12 +173,12 @@ public class NeoListTest extends NeoBaseTest {
         );
         neo.batchInsert(TABLE_NAME, dataList);
 
-        SearchExpress searchExpress = new SearchExpress();
-        searchExpress.andEm("name", "name_list");
-        searchExpress.append(OrderBy("group"));
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.andEm("name", "name_list");
+        searchQuery.append(OrderBy("group"));
 
         // 搜索查询
-        List<NeoMap> resultMapList = neo.list(TABLE_NAME, searchExpress).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        List<NeoMap> resultMapList = neo.list(TABLE_NAME, searchQuery).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
         Assert.assertEquals(dataList.toString(), resultMapList.toString());
     }
 
@@ -198,12 +198,12 @@ public class NeoListTest extends NeoBaseTest {
         );
         neo.batchInsert(TABLE_NAME, dataList);
 
-        SearchExpress searchExpress = new SearchExpress();
-        searchExpress.andEm("name", "name_list");
-        searchExpress.append(OrderBy("group", "desc"));
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.andEm("name", "name_list");
+        searchQuery.append(OrderBy("group", "desc"));
 
         // 搜索查询
-        List<NeoMap> resultMapList = neo.list(TABLE_NAME, searchExpress).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
+        List<NeoMap> resultMapList = neo.list(TABLE_NAME, searchQuery).stream().map(e->e.assignExcept("id")).collect(Collectors.toList());
 
         // 比较
         dataList = Arrays.asList(

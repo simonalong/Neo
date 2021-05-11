@@ -4,7 +4,7 @@ import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageRsp;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public interface TableSync extends Sync {
      *
      * @param object 新增的实体
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
-     * @param <T> 待插入的对象类型
+     * @param <T> 搜索类型
      * @return 插入后的数据
      */
     <T> T insertOfUnExist(T object, String... searchColumnKey);
@@ -66,7 +66,7 @@ public interface TableSync extends Sync {
      *     数据如果存在，则更新，否则插入
      * @param object 待更新或者插入的数据
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
-     * @param <T> 待插入的对象类型
+     * @param <T> 搜索类型
      * @return 更新或者插入后的数据
      */
     <T> T save(T object, String... searchColumnKey);
@@ -80,10 +80,10 @@ public interface TableSync extends Sync {
 
     /**
      * 删除数据
-     * @param searchExpress 复杂的删除条件
+     * @param searchQuery 复杂的删除条件
      * @return 删除个数
      */
-    Integer delete(SearchExpress searchExpress);
+    Integer delete(SearchQuery searchQuery);
 
     /**
      * 删除数据
@@ -112,10 +112,10 @@ public interface TableSync extends Sync {
     /**
      * 更新数据
      * @param dataMap 待更新的数据
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @return 更新后的数据
      */
-    NeoMap update(NeoMap dataMap, SearchExpress searchExpress);
+    NeoMap update(NeoMap dataMap, SearchQuery searchQuery);
 
     /**
      * 更新数据
@@ -129,11 +129,11 @@ public interface TableSync extends Sync {
     /**
      * 更新数据
      * @param setEntity 待更新的数据
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @param <T> 待更新数据的泛型
      * @return 更新后的数据
      */
-    <T> T update(T setEntity, SearchExpress searchExpress);
+    <T> T update(T setEntity, SearchQuery searchQuery);
 
     /**
      * 更新数据
@@ -196,10 +196,10 @@ public interface TableSync extends Sync {
     /**
      * 查询指定列的一行数据
      * @param columns 要查询的列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 指定列的数据
      */
-    NeoMap one(Columns columns, SearchExpress searchExpress);
+    NeoMap one(Columns columns, SearchQuery searchQuery);
 
     /**
      * 查询指定列的一个数据
@@ -227,10 +227,10 @@ public interface TableSync extends Sync {
 
     /**
      * 查询指定列的一行数据一行
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 对应的数据
      */
-    NeoMap one(SearchExpress searchExpress);
+    NeoMap one(SearchQuery searchQuery);
 
     /**
      * 查询指定列的一行数据一行
@@ -261,11 +261,11 @@ public interface TableSync extends Sync {
      * 查询指定列的一行数据一行
      * @param tClass 获得的数据的类型
      * @param columns 要获取的列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 获取的类型的泛型
      * @return 指定列的对应类型的值
      */
-    <T> T one(Class<T> tClass, Columns columns, SearchExpress searchExpress);
+    <T> T one(Class<T> tClass, Columns columns, SearchQuery searchQuery);
 
     /**
      * 查询指定列的一行数据一行
@@ -289,11 +289,11 @@ public interface TableSync extends Sync {
     /**
      * 查询指定列的一行数据一行
      * @param tClass 获取数据的类型
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 数据类型的泛型
      * @return 指定类型的值
      */
-    <T> T one(Class<T> tClass, SearchExpress searchExpress);
+    <T> T one(Class<T> tClass, SearchQuery searchQuery);
 
     /**
      * 查询指定列的一行数据一行
@@ -316,10 +316,10 @@ public interface TableSync extends Sync {
     /**
      * 获取多行数据
      * @param columns 要获取的列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 多行数据
      */
-    List<NeoMap> list(Columns columns, SearchExpress searchExpress);
+    List<NeoMap> list(Columns columns, SearchQuery searchQuery);
 
     /**
      * 获取多行数据
@@ -339,10 +339,10 @@ public interface TableSync extends Sync {
 
     /**
      * 获取多行数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 多行数据
      */
-    List<NeoMap> list(SearchExpress searchExpress);
+    List<NeoMap> list(SearchQuery searchQuery);
 
     /**
      * 获取多行数据
@@ -373,11 +373,11 @@ public interface TableSync extends Sync {
      * 多行数据：指定列
      * @param tClass 对应的类型
      * @param columns 指定列
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @param <T> 要获取的类型的泛型
      * @return 指定列的多行数据
      */
-    <T> List<T> list(Class<T> tClass, Columns columns, SearchExpress searchExpress);
+    <T> List<T> list(Class<T> tClass, Columns columns, SearchQuery searchQuery);
 
     /**
      * 多行数据：指定列
@@ -391,11 +391,11 @@ public interface TableSync extends Sync {
     /**
      * 多行数据：指定列
      * @param tClass 对应的类型
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @param <T> 对应类型的泛型
      * @return 指定列的多行数据
      */
-    <T> List<T> list(Class<T> tClass, SearchExpress searchExpress);
+    <T> List<T> list(Class<T> tClass, SearchQuery searchQuery);
 
     /**
      * 多行数据：指定列
@@ -421,11 +421,11 @@ public interface TableSync extends Sync {
      * 获取某行某列的某个值
      * @param tClass 值对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 值对应类型的泛型
      * @return 列对应的值
      */
-    <T> T value(Class<T> tClass, String column, SearchExpress searchExpress);
+    <T> T value(Class<T> tClass, String column, SearchQuery searchQuery);
 
     /**
      * 获取某行某列的某个值
@@ -448,10 +448,10 @@ public interface TableSync extends Sync {
     /**
      * 获取某行某列的某个值
      * @param column 列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 列对应的值
      */
-    String value(String column, SearchExpress searchExpress);
+    String value(String column, SearchQuery searchQuery);
 
     /**
      * 获取某行某列的某个值
@@ -485,11 +485,11 @@ public interface TableSync extends Sync {
      * 获取一列的多个值
      * @param tClass 列对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 列对应的类型的泛型
      * @return 一列的多个值
      */
-    <T> List<T> values(Class<T> tClass, String column, SearchExpress searchExpress);
+    <T> List<T> values(Class<T> tClass, String column, SearchQuery searchQuery);
 
     /**
      * 获取一列的多个值
@@ -512,10 +512,10 @@ public interface TableSync extends Sync {
     /**
      * 获取一列的多个值
      * @param column 列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 一列的多个值
      */
-    List<String> values(String column, SearchExpress searchExpress);
+    List<String> values(String column, SearchQuery searchQuery);
 
     /**
      * 获取一列的多个值
@@ -547,11 +547,11 @@ public interface TableSync extends Sync {
      * 获取一列的多个值：去重
      * @param tClass 列对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 列对应的类型的泛型
      * @return 一列对应的多个值
      */
-    <T> List<T> valuesOfDistinct(Class<T> tClass, String column, SearchExpress searchExpress);
+    <T> List<T> valuesOfDistinct(Class<T> tClass, String column, SearchQuery searchQuery);
 
     /**
      * 获取一列的多个值：去重
@@ -574,10 +574,10 @@ public interface TableSync extends Sync {
     /**
      * 获取一列的多个值：去重
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 一列对应的多个值
      */
-    List<String> valuesOfDistinct(String column, SearchExpress searchExpress);
+    List<String> valuesOfDistinct(String column, SearchQuery searchQuery);
 
     /**
      * 获取一列的多个值：去重
@@ -607,11 +607,11 @@ public interface TableSync extends Sync {
     /**
      * 获取分页集合
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页集合
      */
-    List<NeoMap> page(Columns columns, SearchExpress searchExpress, NeoPage page);
+    List<NeoMap> page(Columns columns, SearchQuery searchQuery, NeoPage page);
 
     /**
      * 获取分页集合
@@ -633,11 +633,11 @@ public interface TableSync extends Sync {
 
     /**
      * 获取分页集合
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页集合
      */
-    List<NeoMap> page(SearchExpress searchExpress, NeoPage page);
+    List<NeoMap> page(SearchQuery searchQuery, NeoPage page);
 
     /**
      * 获取分页集合
@@ -678,12 +678,12 @@ public interface TableSync extends Sync {
      * 获取分页集合
      * @param tClass 分页对应的类型
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
-    <T> List<T> page(Class<T> tClass, Columns columns, SearchExpress searchExpress, NeoPage page);
+    <T> List<T> page(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page);
 
     /**
      * 获取分页集合
@@ -698,12 +698,12 @@ public interface TableSync extends Sync {
     /**
      * 获取分页集合
      * @param tClass 分页对应的类型
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
-    <T> List<T> page(Class<T> tClass, SearchExpress searchExpress, NeoPage page);
+    <T> List<T> page(Class<T> tClass, SearchQuery searchQuery, NeoPage page);
 
     /**
      * 获取分页集合
@@ -739,12 +739,12 @@ public interface TableSync extends Sync {
     /**
      * 获取分页数据
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页数据
      */
-    default PageRsp<NeoMap> getPage(Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(columns, searchExpress, page), count(searchExpress));
+    default PageRsp<NeoMap> getPage(Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(columns, searchQuery, page), count(searchQuery));
     }
 
     /**
@@ -771,12 +771,12 @@ public interface TableSync extends Sync {
 
     /**
      * 获取分页数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页数据
      */
-    default PageRsp<NeoMap> getPage(SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(searchExpress, page), count(searchExpress));
+    default PageRsp<NeoMap> getPage(SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(searchQuery, page), count(searchQuery));
     }
 
     /**
@@ -826,13 +826,13 @@ public interface TableSync extends Sync {
      * 获取分页数据
      * @param tClass 分页数据对应的类型
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页对应类型的泛型
      * @return 分页数据
      */
-    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tClass, columns, searchExpress, page), count(searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tClass, columns, searchQuery, page), count(searchQuery));
     }
 
     /**
@@ -850,13 +850,13 @@ public interface TableSync extends Sync {
     /**
      * 获取分页数据
      * @param tClass 分页数据对应的类型
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页数据对应类型的泛型
      * @return 分页数据
      */
-    default <T> PageRsp<T> getPage(Class<T> tClass, SearchExpress searchExpress, NeoPage page) {
-        return new PageRsp<>(page(tClass, searchExpress, page), count(searchExpress));
+    default <T> PageRsp<T> getPage(Class<T> tClass, SearchQuery searchQuery, NeoPage page) {
+        return new PageRsp<>(page(tClass, searchQuery, page), count(searchQuery));
     }
 
     /**
@@ -892,10 +892,10 @@ public interface TableSync extends Sync {
 
     /**
      * 获取个数
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 个数
      */
-    Integer count(SearchExpress searchExpress);
+    Integer count(SearchQuery searchQuery);
 
     /**
      * 获取个数
@@ -920,10 +920,10 @@ public interface TableSync extends Sync {
 
     /**
      * 数据是否存在
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 存在与否
      */
-    Boolean exist(SearchExpress searchExpress);
+    Boolean exist(SearchQuery searchQuery);
 
     /**
      * 数据是否存在
@@ -982,7 +982,7 @@ public interface TableSync extends Sync {
     /**
      * 批量更新实体
      * @param dataList 待更新的实体
-     * @param searchColumns 待更新实体中的columns指定的列作为搜索条件
+     * @param searchColumns 待更新实体转换到NeoMap后对应的列名
      * @param <T> 实体对应类型的泛型
      * @return 成功更新的个数
      */

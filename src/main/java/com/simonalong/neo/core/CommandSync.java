@@ -2,7 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public interface CommandSync extends Sync {
      * @param tableName       表名
      * @param object          新增的实体
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
-     * @param <T> 待插入的对象类型
+     * @param <T> 搜索类型
      * @return 插入后的数据
      */
     <T> T insertOfUnExist(String tableName, T object, String... searchColumnKey);
@@ -74,7 +74,7 @@ public interface CommandSync extends Sync {
      * @param tableName       表名
      * @param object          待更新或者插入的数据
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
-     * @param <T> 待插入的对象类型
+     * @param <T> 搜索类型
      * @return 更新或者插入后的数据
      */
     <T> T save(String tableName, T object, String... searchColumnKey);
@@ -92,10 +92,10 @@ public interface CommandSync extends Sync {
      * 数据删除
      *
      * @param tableName     表名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 影响的条数
      */
-    Integer delete(String tableName, SearchExpress searchExpress);
+    Integer delete(String tableName, SearchQuery searchQuery);
 
     /**
      * 数据删除
@@ -226,21 +226,21 @@ public interface CommandSync extends Sync {
      *
      * @param tableName     表名
      * @param dataMap       待更新的数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 更新后的数据
      */
-    NeoMap update(String tableName, NeoMap dataMap, SearchExpress searchExpress);
+    NeoMap update(String tableName, NeoMap dataMap, SearchQuery searchQuery);
 
     /**
      * 数据更新
      *
      * @param tableName     表名
      * @param setEntity     待更新的数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T>           待更新数据类型的泛型
      * @return 更新后的数据
      */
-    <T> T update(String tableName, T setEntity, SearchExpress searchExpress);
+    <T> T update(String tableName, T setEntity, SearchQuery searchQuery);
 
 
     /**

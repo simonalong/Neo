@@ -1,5 +1,6 @@
 package com.simonalong.neo.util;
 
+import com.alibaba.fastjson.JSON;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.ValueCastClassException;
@@ -407,6 +408,10 @@ public class ObjectUtil {
         // 原先的值为NeoMap类型
         if (value instanceof NeoMap) {
             return ((NeoMap) value).as(tClass);
+        }
+
+        if (value instanceof String) {
+            return JSON.parseObject((String) value, tClass);
         }
 
         throw new ValueCastClassException("值 " + value + " 向类型 " + tClass.getName() + " 转换异常");

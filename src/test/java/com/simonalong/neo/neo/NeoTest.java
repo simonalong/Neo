@@ -61,6 +61,8 @@ public class NeoTest extends NeoBaseTest {
         NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
         neo.insert(TABLE_NAME, dataMap);
 
+        show(neo.exeValue(Integer.class, "select max(id) from %s", TABLE_NAME));
+
         NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
         resultMap.remove("id");
 

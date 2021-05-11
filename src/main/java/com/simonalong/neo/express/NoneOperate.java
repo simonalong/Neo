@@ -20,6 +20,11 @@ public class NoneOperate extends BaseOperate{
     }
 
     @Override
+    public String getColumn() {
+        return null;
+    }
+
+    @Override
     public String generateOperate() {
         return " " + partSql;
     }

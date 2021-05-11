@@ -2,7 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,9 +45,9 @@ public interface CommandAsync extends Async {
 
     CompletableFuture<Integer> deleteAsync(String tableName, NeoMap dataMap);
 
-    CompletableFuture<Integer> deleteAsync(String tableName, SearchExpress searchExpress, Executor executor);
+    CompletableFuture<Integer> deleteAsync(String tableName, SearchQuery searchQuery, Executor executor);
 
-    CompletableFuture<Integer> deleteAsync(String tableName, SearchExpress searchExpress);
+    CompletableFuture<Integer> deleteAsync(String tableName, SearchQuery searchQuery);
 
     <T> CompletableFuture<Integer> deleteAsync(String tableName, T object, Executor executor);
 
@@ -95,13 +95,13 @@ public interface CommandAsync extends Async {
     <T> CompletableFuture<T> updateAsync(String tableName, T entity);
 
 
-    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, SearchExpress searchExpress, Executor executor);
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, SearchQuery searchQuery, Executor executor);
 
-    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, SearchExpress searchExpress);
+    CompletableFuture<NeoMap> updateAsync(String tableName, NeoMap dataMap, SearchQuery searchQuery);
 
-    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, SearchExpress searchExpress, Executor executor);
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, SearchQuery searchQuery, Executor executor);
 
-    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, SearchExpress searchExpress);
+    <T> CompletableFuture<T> updateAsync(String tableName, T setEntity, SearchQuery searchQuery);
 
 
     CompletableFuture<Integer> batchInsertAsync(String tableName, List<NeoMap> dataMapList);

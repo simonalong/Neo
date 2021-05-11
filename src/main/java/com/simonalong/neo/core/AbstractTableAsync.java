@@ -3,7 +3,7 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -67,8 +67,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, SearchExpress searchExpress) {
-        return updateAsync(dataMap, searchExpress, getExecutor());
+    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, SearchQuery searchQuery) {
+        return updateAsync(dataMap, searchQuery, getExecutor());
     }
 
     @Override
@@ -107,8 +107,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<NeoMap> oneAsync(Columns columns, SearchExpress searchExpress) {
-        return oneAsync(columns, searchExpress, getExecutor());
+    public CompletableFuture<NeoMap> oneAsync(Columns columns, SearchQuery searchQuery) {
+        return oneAsync(columns, searchQuery, getExecutor());
     }
 
     @Override
@@ -137,8 +137,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress) {
-        return oneAsync(tClass, columns, searchExpress, getExecutor());
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery) {
+        return oneAsync(tClass, columns, searchQuery, getExecutor());
     }
 
     @Override
@@ -147,8 +147,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, SearchExpress searchExpress) {
-        return oneAsync(tClass, searchExpress, getExecutor());
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, SearchQuery searchQuery) {
+        return oneAsync(tClass, searchQuery, getExecutor());
     }
 
     @Override
@@ -162,8 +162,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> listAsync(Columns columns, SearchExpress searchExpress) {
-        return listAsync(columns, searchExpress, getExecutor());
+    public CompletableFuture<List<NeoMap>> listAsync(Columns columns, SearchQuery searchQuery) {
+        return listAsync(columns, searchQuery, getExecutor());
     }
 
     @Override
@@ -177,8 +177,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> listAsync(SearchExpress searchExpress) {
-        return listAsync(searchExpress, getExecutor());
+    public CompletableFuture<List<NeoMap>> listAsync(SearchQuery searchQuery) {
+        return listAsync(searchQuery, getExecutor());
     }
 
     @Override
@@ -192,8 +192,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress) {
-        return listAsync(tClass, columns, searchExpress, getExecutor());
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery) {
+        return listAsync(tClass, columns, searchQuery, getExecutor());
     }
 
     @Override
@@ -207,8 +207,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, SearchExpress searchExpress) {
-        return valuesAsync(tClass, field, searchExpress, getExecutor());
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String field, SearchQuery searchQuery) {
+        return valuesAsync(tClass, field, searchQuery, getExecutor());
     }
 
     @Override
@@ -222,8 +222,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<String>> valuesAsync(String field, SearchExpress searchExpress) {
-        return valuesAsync(field, searchExpress, getExecutor());
+    public CompletableFuture<List<String>> valuesAsync(String field, SearchQuery searchQuery) {
+        return valuesAsync(field, searchQuery, getExecutor());
     }
 
     @Override
@@ -242,8 +242,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, SearchExpress searchExpress) {
-        return valuesOfDistinctAsync(tClass, field, searchExpress, getExecutor());
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String field, SearchQuery searchQuery) {
+        return valuesOfDistinctAsync(tClass, field, searchQuery, getExecutor());
     }
 
     @Override
@@ -257,8 +257,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, SearchExpress searchExpress) {
-        return valuesOfDistinctAsync(field, searchExpress, getExecutor());
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String field, SearchQuery searchQuery) {
+        return valuesOfDistinctAsync(field, searchQuery, getExecutor());
     }
 
     @Override
@@ -277,8 +277,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, SearchExpress searchExpress) {
-        return valueAsync(tClass, field, searchExpress, getExecutor());
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String field, SearchQuery searchQuery) {
+        return valueAsync(tClass, field, searchQuery, getExecutor());
     }
 
     @Override
@@ -292,8 +292,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<String> valueAsync(String field, SearchExpress searchExpress) {
-        return valueAsync(field, searchExpress, getExecutor());
+    public CompletableFuture<String> valueAsync(String field, SearchQuery searchQuery) {
+        return valueAsync(field, searchQuery, getExecutor());
     }
 
     @Override
@@ -307,8 +307,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return pageAsync(columns, searchExpress, page, getExecutor());
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return pageAsync(columns, searchQuery, page, getExecutor());
     }
 
     @Override
@@ -322,8 +322,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(SearchExpress searchExpress, NeoPage page) {
-        return pageAsync(searchExpress, page, getExecutor());
+    public CompletableFuture<List<NeoMap>> pageAsync(SearchQuery searchQuery, NeoPage page) {
+        return pageAsync(searchQuery, page, getExecutor());
     }
 
     @Override
@@ -347,8 +347,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return pageAsync(tClass, columns, searchExpress, page, getExecutor());
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return pageAsync(tClass, columns, searchQuery, page, getExecutor());
     }
 
     @Override
@@ -357,8 +357,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchExpress searchExpress, NeoPage page) {
-        return pageAsync(tClass, searchExpress, page, getExecutor());
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchQuery searchQuery, NeoPage page) {
+        return pageAsync(tClass, searchQuery, page, getExecutor());
     }
 
     @Override
@@ -377,8 +377,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(SearchExpress searchExpress) {
-        return countAsync(searchExpress, getExecutor());
+    public CompletableFuture<Integer> countAsync(SearchQuery searchQuery) {
+        return countAsync(searchQuery, getExecutor());
     }
 
     @Override
@@ -398,8 +398,8 @@ public abstract class AbstractTableAsync implements TableAsync {
     }
 
     @Override
-    public CompletableFuture<Boolean> existAsync(SearchExpress searchExpress) {
-        return existAsync(searchExpress, getExecutor());
+    public CompletableFuture<Boolean> existAsync(SearchQuery searchQuery) {
+        return existAsync(searchQuery, getExecutor());
     }
 
     @Override

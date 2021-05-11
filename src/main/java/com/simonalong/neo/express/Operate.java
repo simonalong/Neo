@@ -15,6 +15,12 @@ import static com.simonalong.neo.express.BaseOperate.*;
 public interface Operate {
 
     /**
+     * 列名
+     *
+     * @return 返回列名
+     */
+    String getColumn();
+    /**
      * 生成运算符
      *
      * @return 运算符表达式
@@ -106,7 +112,7 @@ public interface Operate {
      * @return 操作符队列
      */
     @SuppressWarnings({"rawtypes"})
-    static NeoQueue<Operate> parse(SearchExpress.LogicEnum logicOperate, Object... objects) {
+    static NeoQueue<Operate> parse(SearchQuery.LogicEnum logicOperate, Object... objects) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         List<Object> parameters = Arrays.asList(objects);
 

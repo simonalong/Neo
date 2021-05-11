@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
@@ -129,12 +129,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 删除数据
-     * @param searchExpress 复杂的删除条件
+     * @param searchQuery 复杂的删除条件
      * @return 删除个数
      */
     @Override
-    public Integer delete(SearchExpress searchExpress) {
-        return getDbInner().delete(getTableName(), searchExpress);
+    public Integer delete(SearchQuery searchQuery) {
+        return getDbInner().delete(getTableName(), searchQuery);
     }
 
     /**
@@ -172,12 +172,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 更新数据
      * @param dataMap 待更新的数据
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @return 更新后的数据
      */
     @Override
-    public NeoMap update(NeoMap dataMap, SearchExpress searchExpress) {
-        return getDbInner().update(getTableName(), dataMap, searchExpress);
+    public NeoMap update(NeoMap dataMap, SearchQuery searchQuery) {
+        return getDbInner().update(getTableName(), dataMap, searchQuery);
     }
 
 
@@ -196,13 +196,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 更新数据
      * @param setEntity 待更新的数据
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @param <T> 待更新数据的泛型
      * @return 更新后的数据
      */
     @Override
-    public <T> T update(T setEntity, SearchExpress searchExpress) {
-        return getDbInner().update(getTableName(), setEntity, searchExpress);
+    public <T> T update(T setEntity, SearchQuery searchQuery) {
+        return getDbInner().update(getTableName(), setEntity, searchQuery);
     }
 
     /**
@@ -287,12 +287,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 查询指定列的一行数据
      * @param columns 要查询的列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 指定列的数据
      */
     @Override
-    public NeoMap one(Columns columns, SearchExpress searchExpress) {
-        return getDbInner().one(getTableName(), columns, searchExpress);
+    public NeoMap one(Columns columns, SearchQuery searchQuery) {
+        return getDbInner().one(getTableName(), columns, searchQuery);
     }
 
     /**
@@ -330,12 +330,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 查询指定列的一行数据一行
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 对应的数据
      */
     @Override
-    public NeoMap one(SearchExpress searchExpress) {
-        return getDbInner().one(getTableName(), searchExpress);
+    public NeoMap one(SearchQuery searchQuery) {
+        return getDbInner().one(getTableName(), searchQuery);
     }
 
     /**
@@ -376,13 +376,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 查询指定列的一行数据一行
      * @param tClass 获得的数据的类型
      * @param columns 要获取的列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 获取的类型的泛型
      * @return 指定列的对应类型的值
      */
     @Override
-    public <T> T one(Class<T> tClass, Columns columns, SearchExpress searchExpress) {
-        return getDbInner().one(tClass, getTableName(), searchExpress);
+    public <T> T one(Class<T> tClass, Columns columns, SearchQuery searchQuery) {
+        return getDbInner().one(tClass, getTableName(), searchQuery);
     }
 
     /**
@@ -413,13 +413,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 查询指定列的一行数据一行
      * @param tClass 获取数据的类型
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 数据类型的泛型
      * @return 指定类型的值
      */
     @Override
-    public <T> T one(Class<T> tClass, SearchExpress searchExpress) {
-        return getDbInner().one(tClass, getTableName(), searchExpress);
+    public <T> T one(Class<T> tClass, SearchQuery searchQuery) {
+        return getDbInner().one(tClass, getTableName(), searchQuery);
     }
 
     /**
@@ -448,12 +448,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取多行数据
      * @param columns 要获取的列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 多行数据
      */
     @Override
-    public List<NeoMap> list(Columns columns, SearchExpress searchExpress) {
-        return getDbInner().list(getTableName(), columns, searchExpress);
+    public List<NeoMap> list(Columns columns, SearchQuery searchQuery) {
+        return getDbInner().list(getTableName(), columns, searchQuery);
     }
 
     /**
@@ -480,12 +480,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 获取多行数据
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 多行数据
      */
     @Override
-    public List<NeoMap> list(SearchExpress searchExpress) {
-        return getDbInner().list(getTableName(), searchExpress);
+    public List<NeoMap> list(SearchQuery searchQuery) {
+        return getDbInner().list(getTableName(), searchQuery);
     }
 
     /**
@@ -526,13 +526,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 多行数据：指定列
      * @param tClass 对应的类型
      * @param columns 指定列
-     * @param searchExpress 复杂的搜索条件
+     * @param searchQuery 复杂的搜索条件
      * @param <T> 要获取的类型的泛型
      * @return 指定列的多行数据
      */
     @Override
-    public <T> List<T> list(Class<T> tClass, Columns columns, SearchExpress searchExpress) {
-        return getDbInner().list(tClass, getTableName(), columns, searchExpress);
+    public <T> List<T> list(Class<T> tClass, Columns columns, SearchQuery searchQuery) {
+        return getDbInner().list(tClass, getTableName(), columns, searchQuery);
     }
 
     /**
@@ -550,13 +550,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 多行数据：指定列
      * @param tClass 对应的类型
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @param <T> 对应类型的泛型
      * @return 指定列的多行数据
      */
     @Override
-    public <T> List<T> list(Class<T> tClass, SearchExpress searchExpress) {
-        return getDbInner().list(tClass, getTableName(), searchExpress);
+    public <T> List<T> list(Class<T> tClass, SearchQuery searchQuery) {
+        return getDbInner().list(tClass, getTableName(), searchQuery);
     }
 
     /**
@@ -588,13 +588,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取某行某列的某个值
      * @param tClass 值对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 值对应类型的泛型
      * @return 列对应的值
      */
     @Override
-    public <T> T value(Class<T> tClass, String column, SearchExpress searchExpress) {
-        return getDbInner().value(tClass, getTableName(), column, searchExpress);
+    public <T> T value(Class<T> tClass, String column, SearchQuery searchQuery) {
+        return getDbInner().value(tClass, getTableName(), column, searchQuery);
     }
 
     /**
@@ -624,12 +624,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取某行某列的某个值
      * @param column 列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 列对应的值
      */
     @Override
-    public String value(String column, SearchExpress searchExpress) {
-        return getDbInner().value(getTableName(), column, searchExpress);
+    public String value(String column, SearchQuery searchQuery) {
+        return getDbInner().value(getTableName(), column, searchQuery);
     }
 
     /**
@@ -672,13 +672,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取一列的多个值
      * @param tClass 列对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 列对应的类型的泛型
      * @return 一列的多个值
      */
     @Override
-    public <T> List<T> values(Class<T> tClass, String column, SearchExpress searchExpress) {
-        return getDbInner().values(tClass, getTableName(), column, searchExpress);
+    public <T> List<T> values(Class<T> tClass, String column, SearchQuery searchQuery) {
+        return getDbInner().values(tClass, getTableName(), column, searchQuery);
     }
 
     /**
@@ -708,12 +708,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取一列的多个值
      * @param column 列名
-     * @param searchExpress 搜索条件
+     * @param searchQuery 搜索条件
      * @return 一列的多个值
      */
     @Override
-    public List<String> values(String column, SearchExpress searchExpress) {
-        return getDbInner().values(getTableName(), column, searchExpress);
+    public List<String> values(String column, SearchQuery searchQuery) {
+        return getDbInner().values(getTableName(), column, searchQuery);
     }
 
     /**
@@ -754,13 +754,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取一列的多个值：去重
      * @param tClass 列对应的类型
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param <T> 列对应的类型的泛型
      * @return 一列对应的多个值
      */
     @Override
-    public <T> List<T> valuesOfDistinct(Class<T> tClass, String column, SearchExpress searchExpress) {
-        return getDbInner().valuesOfDistinct(tClass, getTableName(), column, searchExpress);
+    public <T> List<T> valuesOfDistinct(Class<T> tClass, String column, SearchQuery searchQuery) {
+        return getDbInner().valuesOfDistinct(tClass, getTableName(), column, searchQuery);
     }
 
     /**
@@ -790,12 +790,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取一列的多个值：去重
      * @param column 列名
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 一列对应的多个值
      */
     @Override
-    public List<String> valuesOfDistinct(String column, SearchExpress searchExpress) {
-        return getDbInner().valuesOfDistinct(getTableName(), column, searchExpress);
+    public List<String> valuesOfDistinct(String column, SearchQuery searchQuery) {
+        return getDbInner().valuesOfDistinct(getTableName(), column, searchQuery);
     }
 
     /**
@@ -834,13 +834,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取分页集合
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页集合
      */
     @Override
-    public List<NeoMap> page(Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return getDbInner().page(getTableName(), columns, searchExpress, page);
+    public List<NeoMap> page(Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return getDbInner().page(getTableName(), columns, searchQuery, page);
     }
 
 
@@ -870,13 +870,13 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 获取分页集合
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @return 分页集合
      */
     @Override
-    public List<NeoMap> page(SearchExpress searchExpress, NeoPage page) {
-        return getDbInner().page(getTableName(), searchExpress, page);
+    public List<NeoMap> page(SearchQuery searchQuery, NeoPage page) {
+        return getDbInner().page(getTableName(), searchQuery, page);
     }
 
     /**
@@ -930,14 +930,14 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * 获取分页集合
      * @param tClass 分页对应的类型
      * @param columns 多个列
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
     @Override
-    public <T> List<T> page(Class<T> tClass, Columns columns, SearchExpress searchExpress, NeoPage page) {
-        return getDbInner().page(tClass, getTableName(), columns, searchExpress, page);
+    public <T> List<T> page(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), columns, searchQuery, page);
     }
 
 
@@ -957,14 +957,14 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 获取分页集合
      * @param tClass 分页对应的类型
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @param page 分页信息
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
     @Override
-    public <T> List<T> page(Class<T> tClass, SearchExpress searchExpress, NeoPage page) {
-        return getDbInner().page(tClass, getTableName(), searchExpress, page);
+    public <T> List<T> page(Class<T> tClass, SearchQuery searchQuery, NeoPage page) {
+        return getDbInner().page(tClass, getTableName(), searchQuery, page);
     }
 
     /**
@@ -1004,12 +1004,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 获取个数
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 个数
      */
     @Override
-    public Integer count(SearchExpress searchExpress) {
-        return getDbInner().count(getTableName(), searchExpress);
+    public Integer count(SearchQuery searchQuery) {
+        return getDbInner().count(getTableName(), searchQuery);
     }
 
     /**
@@ -1044,12 +1044,12 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 数据是否存在
-     * @param searchExpress 复杂搜索条件
+     * @param searchQuery 复杂搜索条件
      * @return 存在与否
      */
     @Override
-    public Boolean exist(SearchExpress searchExpress) {
-        return getDbInner().exist(getTableName(), searchExpress);
+    public Boolean exist(SearchQuery searchQuery) {
+        return getDbInner().exist(getTableName(), searchQuery);
     }
 
     /**
@@ -1128,7 +1128,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     /**
      * 批量更新实体
      * @param dataList 待更新的实体
-     * @param searchColumns 待更新实体中的columns指定的列作为搜索条件
+     * @param searchColumns 待更新实体转换到NeoMap后对应的列名
      * @param <T> 实体对应类型的泛型
      * @return 成功更新的个数
      */
@@ -1191,8 +1191,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> update(dataMap, searchExpress), executor);
+    public CompletableFuture<NeoMap> updateAsync(NeoMap dataMap, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> update(dataMap, searchQuery), executor);
     }
 
     @Override
@@ -1231,8 +1231,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<NeoMap> oneAsync(Columns columns, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> one(columns, searchExpress), executor);
+    public CompletableFuture<NeoMap> oneAsync(Columns columns, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(columns, searchQuery), executor);
     }
 
     @Override
@@ -1261,8 +1261,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> one(tClass, columns, searchExpress), executor);
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, columns, searchQuery), executor);
     }
 
     @Override
@@ -1271,8 +1271,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> one(tClass, searchExpress), executor);
+    public <T> CompletableFuture<T> oneAsync(Class<T> tClass, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> one(tClass, searchQuery), executor);
     }
 
     @Override
@@ -1286,8 +1286,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> listAsync(Columns columns, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> list(columns, searchExpress), executor);
+    public CompletableFuture<List<NeoMap>> listAsync(Columns columns, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(columns, searchQuery), executor);
     }
 
     @Override
@@ -1301,8 +1301,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> listAsync(SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> list(searchExpress), executor);
+    public CompletableFuture<List<NeoMap>> listAsync(SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(searchQuery), executor);
     }
 
     @Override
@@ -1316,8 +1316,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> list(tClass, columns, searchExpress), executor);
+    public <T> CompletableFuture<List<T>> listAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> list(tClass, columns, searchQuery), executor);
     }
 
     @Override
@@ -1331,8 +1331,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> values(tClass, column, searchExpress), executor);
+    public <T> CompletableFuture<List<T>> valuesAsync(Class<T> tClass, String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> values(tClass, column, searchQuery), executor);
     }
 
     @Override
@@ -1346,8 +1346,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<String>> valuesAsync(String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> values(column, searchExpress), executor);
+    public CompletableFuture<List<String>> valuesAsync(String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> values(column, searchQuery), executor);
     }
 
     @Override
@@ -1366,8 +1366,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, column, searchExpress), executor);
+    public <T> CompletableFuture<List<T>> valuesOfDistinctAsync(Class<T> tClass, String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(tClass, column, searchQuery), executor);
     }
 
     @Override
@@ -1381,8 +1381,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<String>> valuesOfDistinctAsync(String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(column, searchExpress), executor);
+    public CompletableFuture<List<String>> valuesOfDistinctAsync(String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> valuesOfDistinct(column, searchQuery), executor);
     }
 
     @Override
@@ -1402,8 +1402,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> value(tClass, column, searchExpress), executor);
+    public <T> CompletableFuture<T> valueAsync(Class<T> tClass, String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> value(tClass, column, searchQuery), executor);
     }
 
     @Override
@@ -1417,8 +1417,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<String> valueAsync(String column, SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> value(column, searchExpress), executor);
+    public CompletableFuture<String> valueAsync(String column, SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> value(column, searchQuery), executor);
     }
 
     @Override
@@ -1432,8 +1432,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchExpress searchExpress, NeoPage page, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(columns, searchExpress, page), executor);
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(columns, searchQuery, page), executor);
     }
 
 
@@ -1448,8 +1448,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<List<NeoMap>> pageAsync(SearchExpress searchExpress, NeoPage page, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(searchExpress, page), executor);
+    public CompletableFuture<List<NeoMap>> pageAsync(SearchQuery searchQuery, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(searchQuery, page), executor);
     }
 
     @Override
@@ -1474,8 +1474,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchExpress searchExpress, NeoPage page, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchExpress, page), executor);
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchQuery, page), executor);
     }
 
     @Override
@@ -1484,8 +1484,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchExpress searchExpress, NeoPage page, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> page(tClass, searchExpress, page), executor);
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchQuery searchQuery, NeoPage page, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, searchQuery, page), executor);
     }
 
     @Override
@@ -1505,8 +1505,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<Integer> countAsync(SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> count(searchExpress), executor);
+    public CompletableFuture<Integer> countAsync(SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> count(searchQuery), executor);
     }
 
     @Override
@@ -1526,8 +1526,8 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
-    public CompletableFuture<Boolean> existAsync(SearchExpress searchExpress, Executor executor) {
-        return CompletableFuture.supplyAsync(()-> exist(searchExpress), executor);
+    public CompletableFuture<Boolean> existAsync(SearchQuery searchQuery, Executor executor) {
+        return CompletableFuture.supplyAsync(()-> exist(searchQuery), executor);
     }
 
     @Override

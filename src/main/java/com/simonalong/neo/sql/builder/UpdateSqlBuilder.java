@@ -2,7 +2,8 @@ package com.simonalong.neo.sql.builder;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.express.SearchExpress;
+import com.simonalong.neo.express.SearchQuery;
+import com.simonalong.neo.tenant.TenantHandler;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collections;
@@ -15,17 +16,19 @@ import java.util.stream.Collectors;
  * @since 2020/3/22 下午8:04
  */
 @UtilityClass
-public class UpdateSqlBuilder {
+public class UpdateSqlBuilder extends BaseSqlBuilder {
 
-    public String build(String tableName, NeoMap dataMap, NeoMap searchMap) {
+    public String build(TenantHandler tenantHandler, String tableName, NeoMap dataMap, NeoMap searchMap) {
+        stuffTenantId(tenantHandler, tableName, searchMap);
         return "update " + tableName + buildSetValues(dataMap) + SqlBuilder.buildWhere(searchMap);
     }
 
-    public String build(String tableName, NeoMap dataMap, SearchExpress searchExpress) {
-        return "update " + tableName + buildSetValues(dataMap) + searchExpress.toSql();
+    public String build(TenantHandler tenantHandler, String tableName, NeoMap dataMap, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, tableName, searchQuery);
+        return "update " + tableName + buildSetValues(dataMap) + searchQuery.toSql();
     }
 
-    public String buildSetValues(NeoMap searchMap) {
+    private String buildSetValues(NeoMap searchMap) {
         return " set " + searchMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + " = ?").collect(Collectors.joining(", "));
     }
 
@@ -41,15 +44,18 @@ public class UpdateSqlBuilder {
      * ) b using(`id`)
      * set a.`name`=b.`name`;
      * }
+     * @param tenantHandler 租户管理器
      * @param tableName 表名
      * @param updateDataColumnList 待更新的列的数据值
      * @param conditionColumns 待更新数据作为where后面的条件对应的列
      * @return update 批量更新语句
      * @since 0.5.2
      */
-    public String buildBatch(String tableName, List<NeoMap> updateDataColumnList, Columns conditionColumns) {
+    public String buildBatch(TenantHandler tenantHandler, String tableName, List<NeoMap> updateDataColumnList, Columns conditionColumns) {
+        stuffTenantId(tenantHandler, tableName, updateDataColumnList);
+
         // 这里取所有的keySet的并集
-        Set<String> keys = updateDataColumnList.stream().map(NeoMap::keySet).reduce((a,b)->{
+        Set<String> keys = updateDataColumnList.stream().map(NeoMap::keySet).reduce((a, b) -> {
             a.addAll(b);
             return a;
         }).orElse(Collections.emptySet());
