@@ -2303,7 +2303,11 @@ public class Neo extends AbstractExecutorDb {
         String columnLabel = metaData.getColumnLabel(index);
         Object result = rs.getObject(index);
         if (null != result) {
-            row.put(tableName, columnLabel, result);
+            if (null == tableName || "".equals(tableName)) {
+                row.put(DEFAULT_TABLE, columnLabel, result);
+            } else {
+                row.put(tableName, columnLabel, result);
+            }
         }
     }
 

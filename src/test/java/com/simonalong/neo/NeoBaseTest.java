@@ -1,6 +1,7 @@
 package com.simonalong.neo;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * CREATE TABLE `neo_table1` (
