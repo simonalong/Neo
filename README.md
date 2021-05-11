@@ -277,7 +277,7 @@ public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
         return rsp;
     }
 
-    Express searchQuery = new Express();
+    SearchQuery searchQuery = new SearchQuery();
     searchQuery.and("people.`profile`", req.getProfile());
     searchQuery.and(BaseOperate.Like("people.`name`", "%" + req.getName() + "%"));
     searchQuery.and(BaseOperate.Like("people_group.`group`", "%" + req.getGroup() + "%"));
