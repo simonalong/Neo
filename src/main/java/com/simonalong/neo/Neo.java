@@ -1228,7 +1228,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     @Deprecated
     public List<TableMap> exePage(String sql, NeoPage neoPage, Object... parameters) {
-        return exePage(sql, neoPage.getStartIndex(), neoPage.getPageSize(), parameters);
+        return exePage(sql, neoPage.getStartIndex(), neoPage.getSize(), parameters);
     }
 
     @Override
@@ -1262,7 +1262,7 @@ public class Neo extends AbstractExecutorDb {
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, NeoPage page) {
         checkDb(tableName);
         NeoMap searchMapTem = searchMap.clone();
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, page.getStartIndex(), page.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, page.getStartIndex(), page.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }
@@ -1271,7 +1271,7 @@ public class Neo extends AbstractExecutorDb {
     @Deprecated
     public List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page) {
         checkDb(tableName);
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, page.getStartIndex(), page.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, page.getStartIndex(), page.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }

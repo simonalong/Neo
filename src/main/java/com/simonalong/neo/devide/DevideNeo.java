@@ -1240,10 +1240,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, columns, searchMap, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchMap, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }
@@ -1256,10 +1256,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, columns, searchQuery, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, searchQuery, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }
@@ -1272,10 +1272,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, columns, entity, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, columns, entity, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }
@@ -1288,10 +1288,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, searchMap, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchMap, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }
@@ -1304,10 +1304,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, searchQuery, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<NeoMap> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, searchQuery, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }
@@ -1320,10 +1320,10 @@ public final class DevideNeo extends AbstractBaseDb {
         if (null != neo) {
             return neo.page(actTableName, entity, page);
         } else {
-            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+            NeoPage aggregate = NeoPage.of(0, page.getStartIndex() + page.getSize());
             List<T> allDataList = getNeoList().stream().flatMap(db -> db.page(actTableName, entity, aggregate).stream()).collect(Collectors.toList());
             Integer startIndex = page.getStartIndex();
-            Integer pageSize = page.getPageSize();
+            Integer pageSize = page.getSize();
             return allDataList.subList(startIndex, startIndex + pageSize);
         }
     }

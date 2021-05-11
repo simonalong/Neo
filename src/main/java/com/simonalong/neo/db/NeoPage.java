@@ -9,14 +9,14 @@ package com.simonalong.neo.db;
 @Deprecated
 public final class NeoPage {
 
-    private Integer pageNo;
-    private Integer pageSize;
+    private Integer current;
+    private Integer size;
 
     private NeoPage() {}
 
     private NeoPage(PageReq<?> neoPageReq) {
-        this.pageNo = neoPageReq.getPageNo();
-        this.pageSize = neoPageReq.getPageSize();
+        this.current = neoPageReq.getPageNo();
+        this.size = neoPageReq.getPageSize();
     }
 
     /**
@@ -27,31 +27,31 @@ public final class NeoPage {
      * @return 分页对象
      */
     public static NeoPage of(Integer pageNo, Integer pageSize) {
-        return new NeoPage().setPageNo(pageNo).setPageSize(pageSize);
+        return new NeoPage().setCurrent(pageNo).setSize(pageSize);
     }
 
     public static NeoPage from(PageReq<?> neoPageReq) {
-        return new NeoPage().setPageNo(neoPageReq.getPageNo()).setPageSize(neoPageReq.getPageSize());
+        return new NeoPage().setCurrent(neoPageReq.getPageNo()).setSize(neoPageReq.getPageSize());
     }
 
-    public NeoPage setPageNo(Integer pageNo) {
-        this.pageNo = pageNo;
+    public NeoPage setCurrent(Integer current) {
+        this.current = current;
         return this;
     }
 
-    public NeoPage setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
+    public NeoPage setSize(Integer size) {
+        this.size = size;
         return this;
     }
 
     public Integer getStartIndex() {
-        if (pageNo > 0) {
-            return (pageNo - 1) * pageSize;
+        if (current > 0) {
+            return (current - 1) * size;
         }
         return 0;
     }
 
-    public Integer getPageSize() {
-        return pageSize;
+    public Integer getSize() {
+        return size;
     }
 }

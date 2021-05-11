@@ -238,34 +238,34 @@ public void oneTest() {
     NeoMap dataMap = NeoMap.of("group", "group_insert_express", "name", "name_insert_express");
     neo.insert(TABLE_NAME, dataMap);
 
-    SearchExpress searchQuery;
+    SearchQuery searchQuery;
 
-    searchQuery = new SearchExpress().and("group", "group_insert_express", "name", "name_insert_express");
+    searchQuery = new SearchQuery().and("group", "group_insert_express", "name", "name_insert_express");
     Assert.assertEquals(dataMap, neo.one(TABLE_NAME, searchQuery).assignExcept("id"));
 }
 ```
-除了默认的and，类SearchExpress还有更复杂的使用方式，类`Neo`支持SearchExpress作为更复杂的条件搜索
+除了默认的and，类SearchQuery还有更复杂的使用方式，类`Neo`支持SearchQuery作为更复杂的条件搜索
 ```java
-NeoMap one(String tableName, Columns columns, SearchExpress searchQuery);
-String value(String tableName, String field, SearchExpress searchQuery);
-List<NeoMap> list(String tableName, Columns columns, SearchExpress searchQuery);
-// ...等等可以NeoMap的api，都是对应的SearchExpress作为搜索条件
+NeoMap one(String tableName, Columns columns, SearchQuery searchQuery);
+String value(String tableName, String field, SearchQuery searchQuery);
+List<NeoMap> list(String tableName, Columns columns, SearchQuery searchQuery);
+// ...等等可以NeoMap的api，都是对应的SearchQuery作为搜索条件
 ```
 ```java
-new SearchExpress().append(BetweenAnd("age", 1, 4));
-new SearchExpress().and(In("id", dataList));
-new SearchExpress().and(Like("name", "%chou"));
-new SearchExpress().and(IsNull("name"));
-new SearchExpress().and("name", 12).append(GroupBy("group"));
-new SearchExpress().append(OrderBy("create_time"));
-new SearchExpress().append(Exists("select id from xxx"));
-new SearchExpress().and(LessThan("name", "tt"));
+new SearchQuery().append(BetweenAnd("age", 1, 4));
+new SearchQuery().and(In("id", dataList));
+new SearchQuery().and(Like("name", "%chou"));
+new SearchQuery().and(IsNull("name"));
+new SearchQuery().and("name", 12).append(GroupBy("group"));
+new SearchQuery().append(OrderBy("create_time"));
+new SearchQuery().append(Exists("select id from xxx"));
+new SearchQuery().and(LessThan("name", "tt"));
 
 // ...等等所有表达式都支持...
 ```
 
 #### 提示
-SearchExpress也可以用来生成sql进行拼接使用，这个时候使用就需要做另外的方式进行处理，举个真实案例如下
+SearchQuery也可以用来生成sql进行拼接使用，这个时候使用就需要做另外的方式进行处理，举个真实案例如下
 ```java
 public PageRsp<AlarmPeopleDO> getPageList(PageReq<PeopleQueryReq> pageReq) {
     PageRsp<AlarmPeopleDO> pageRsp = new PageRsp<>();

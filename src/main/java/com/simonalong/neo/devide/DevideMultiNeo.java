@@ -31,12 +31,12 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     /**
      * 待分库的库集合
      */
-    private List<Neo> dbList;
+    private final List<Neo> dbList;
     private Neo defaultDb;
     /**
      * 表的哈希处理映射, key：表名，value表的哈希信息
      */
-    private Map<String, TableDevideConfig> devideTableInfoMap;
+    private final Map<String, TableDevideConfig> devideTableInfoMap;
 
     public DevideMultiNeo(List<Neo> dbList, Neo defaultDb, Map<String, TableDevideConfig> devideTableInfoMap) {
         this.dbList = dbList;
@@ -494,9 +494,9 @@ public class DevideMultiNeo extends AbstractBaseQuery {
     @Deprecated
     @SuppressWarnings("unchecked")
     private List<NeoMap> executePage(Object searchObject, NeoPage page, Function<NeoPage, List<NeoMap>> function) {
-        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getPageSize());
+        NeoPage extendPage = NeoPage.of(0, page.getStartIndex() + page.getSize());
         Integer startIndex = page.getStartIndex();
-        Integer pageSize = page.getPageSize();
+        Integer pageSize = page.getSize();
         List<NeoMap> resultList = function.apply(extendPage);
         // 获取排序条件
         List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchObject);
