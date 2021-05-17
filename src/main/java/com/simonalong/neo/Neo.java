@@ -115,6 +115,12 @@ public class Neo extends AbstractExecutorDb {
         return neo;
     }
 
+    public static Neo connect(String url, String username, String password, String driverClassName) {
+        Neo neo = new Neo();
+        neo.init(url, username, password, driverClassName);
+        return neo;
+    }
+
     public static Neo connectFromHikariCP(Properties properties) {
         Neo neo = new Neo();
         neo.initFromHikariCP(properties);
@@ -147,9 +153,17 @@ public class Neo extends AbstractExecutorDb {
      * @param password 密码
      */
     public void init(String url, String username, String password) {
+        init(url, username, password, null);
+    }
+
+    public void init(String url, String username, String password, String driverClassName) {
         Properties baseProper = new Properties();
         if (null != url) {
             baseProper.setProperty("jdbcUrl", url);
+        }
+
+        if (null != driverClassName) {
+            baseProper.setProperty("driverClassName", driverClassName);
         }
 
         if (null != username) {

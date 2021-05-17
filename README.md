@@ -42,6 +42,8 @@ public void testDemo1() {
     String tableName = "neo_table1";
     // 连接
     Neo neo = Neo.connect(url, user, password);
+    // 或者添加driverClassName字段
+    // Neo neo = Neo.connect(url, user, password, "com.mysql.cj.jdbc.Driver");
 
     // 插入
     NeoMap data = neo.insert(tableName, NeoMap.of("group", "value", "name", "name1"));
