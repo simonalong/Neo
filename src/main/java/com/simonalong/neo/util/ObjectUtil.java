@@ -1,6 +1,7 @@
 package com.simonalong.neo.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.TimeDateConverter;
 import com.simonalong.neo.exception.ValueCastClassException;
@@ -412,6 +413,10 @@ public class ObjectUtil {
 
         if (value instanceof String) {
             return JSON.parseObject((String) value, tClass);
+        }
+
+        if (value instanceof JSONObject) {
+            return ((JSONObject) value).toJavaObject(tClass);
         }
 
         throw new ValueCastClassException("值 " + value + " 向类型 " + tClass.getName() + " 转换异常");

@@ -13,6 +13,7 @@ import com.simonalong.neo.sql.*;
 import com.simonalong.neo.sql.SqlStandard.LogType;
 import com.simonalong.neo.sql.builder.*;
 import com.simonalong.neo.tenant.TenantHandler;
+import com.simonalong.neo.util.ExceptionUtil;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -1725,13 +1726,13 @@ public class Neo extends AbstractExecutorDb {
             }
             return result;
         } catch (Throwable e) {
-            log.error(LOG_PRE_NEO + "[提交失败，事务回滚]", e);
+            log.error(LOG_PRE_NEO + "[提交失败，事务回滚]");
             try {
                 connectFactory.rollback();
-                throw new NeoTxException(e);
+                throw new NeoTxException(ExceptionUtil.unwrapException(e));
             } catch (SQLException e1) {
-                log.error(LOG_PRE_NEO + "[回滚失败]", e);
-                throw new NeoTxException(e);
+                log.error(LOG_PRE_NEO + "[回滚失败]");
+                throw new NeoTxException(ExceptionUtil.unwrapException(e));
             }
         } finally {
             txNumDecrement();
