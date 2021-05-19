@@ -7,15 +7,8 @@ import com.simonalong.neo.annotation.Column;
 import com.simonalong.neo.db.AliasParser;
 import com.simonalong.neo.db.NeoContext;
 import com.simonalong.neo.exception.ColumnParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,7 +112,7 @@ public final class Columns {
         }
         this.tableFieldsMap.compute(tableName, (k, v) -> {
             if (null == v) {
-                return new HashSet<>(decorateColumn(tableName, fieldList));
+                return new LinkedHashSet<>(decorateColumn(tableName, fieldList));
             } else {
                 v.addAll(decorateColumn(tableName, fieldList));
                 return v;
