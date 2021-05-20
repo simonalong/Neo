@@ -3,6 +3,7 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.exception.DbNotSetException;
 import com.simonalong.neo.db.NeoPage;
 import java.util.List;
@@ -826,6 +827,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(Columns columns, NeoMap searchMap, NeoPage page){
         return getDbInner().page(getTableName(), columns, searchMap, page);
@@ -838,6 +840,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(Columns columns, SearchQuery searchQuery, NeoPage page) {
         return getDbInner().page(getTableName(), columns, searchQuery, page);
@@ -852,6 +855,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 实体类型对应的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Columns columns, T entity, NeoPage page){
         return getDbInner().page(getTableName(), columns, entity, page);
@@ -863,6 +867,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(NeoMap searchMap, NeoPage page){
         return getDbInner().page(getTableName(), searchMap, page);
@@ -874,6 +879,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(SearchQuery searchQuery, NeoPage page) {
         return getDbInner().page(getTableName(), searchQuery, page);
@@ -886,6 +892,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 实体对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(T entity, NeoPage page){
         return getDbInner().page(getTableName(), entity, page);
@@ -897,6 +904,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(Columns columns, NeoPage page){
         return getDbInner().page(getTableName(), columns, page);
@@ -907,6 +915,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param page 分页信息
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public List<NeoMap> page(NeoPage page){
         return getDbInner().page(getTableName(), page);
@@ -921,6 +930,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), columns, searchMap, page);
@@ -935,6 +945,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), columns, searchQuery, page);
@@ -949,6 +960,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, NeoMap searchMap, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), searchMap, page);
@@ -962,6 +974,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, SearchQuery searchQuery, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), searchQuery, page);
@@ -975,6 +988,7 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, Columns columns, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), columns, page);
@@ -987,10 +1001,200 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
      * @param <T> 分页对应类型的泛型
      * @return 分页集合
      */
+    @Deprecated
     @Override
     public <T> List<T> page(Class<T> tClass, NeoPage page) {
         return getDbInner().page(tClass, getTableName(), page);
     }
+
+
+    /**
+     * 获取分页集合
+     *
+     * @param columns   多个列
+     * @param searchMap 搜索条件
+     * @param pageReq   分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), columns, searchMap, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param columns           多个列
+     * @param searchQuery 复杂搜索条件
+     * @param pageReq           分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), columns, searchQuery, pageReq);
+    }
+
+
+    /**
+     * 获取分页集合
+     *
+     * @param columns 多个列
+     * @param entity  实体搜索条件
+     * @param pageReq 分页信息
+     * @param <T>     实体类型对应的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Columns columns, T entity, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), columns, entity, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param searchMap 搜索条件
+     * @param pageReq   分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(NeoMap searchMap, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), searchMap, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param searchQuery 复杂搜索条件
+     * @param pageReq           分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(SearchQuery searchQuery, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), searchQuery, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param entity  实体搜索条件
+     * @param pageReq 分页信息
+     * @param <T>     实体对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(T entity, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), entity, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param columns 多个列
+     * @param pageReq 分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(Columns columns, PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), columns, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param pageReq 分页信息
+     * @return 分页集合
+     */
+    @Override
+    public List<NeoMap> page(PageReq<?> pageReq) {
+        return getDbInner().page(getTableName(), pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass    分页対应的类型
+     * @param columns   多个列
+     * @param searchMap 搜索条件
+     * @param pageReq   分页信息
+     * @param <T>       分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), columns, searchMap, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass            分页对应的类型
+     * @param columns           多个列
+     * @param searchQuery 复杂搜索条件
+     * @param pageReq           分页信息
+     * @param <T>               分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), columns, searchQuery, pageReq);
+    }
+
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass    分页对应的类型
+     * @param searchMap 搜索条件
+     * @param pageReq   分页信息
+     * @param <T>       分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, NeoMap searchMap, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), searchMap, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass            分页对应的类型
+     * @param searchQuery 复杂搜索条件
+     * @param pageReq           分页信息
+     * @param <T>               分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, SearchQuery searchQuery, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), searchQuery, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass  分页对应的类型
+     * @param columns 多个列
+     * @param pageReq 分页信息
+     * @param <T>     分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), columns, pageReq);
+    }
+
+    /**
+     * 获取分页集合
+     *
+     * @param tClass  分页对应的类型
+     * @param pageReq 分页信息
+     * @param <T>     分页对应类型的泛型
+     * @return 分页集合
+     */
+    @Override
+    public <T> List<T> page(Class<T> tClass, PageReq<?> pageReq) {
+        return getDbInner().page(tClass, getTableName(), pageReq);
+    }
+
 
     /**
      * 获取个数
@@ -1427,75 +1631,162 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(columns, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(columns, searchQuery, page), executor);
     }
 
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(columns, entity, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(T entity, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(entity, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(columns, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(page), executor);
     }
 
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, columns, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, page), executor);
+    }
+
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(columns, searchQuery, pageReq), executor);
+    }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Columns columns, T entity, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(columns, entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(T entity, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(Columns columns, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(columns, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(pageReq), executor);
+    }
+
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, columns, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, pageReq), executor);
     }
 
 

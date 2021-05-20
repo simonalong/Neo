@@ -2,6 +2,7 @@ package com.simonalong.neo.core;
 
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -58,8 +59,14 @@ public abstract class AbstractExecutorDb extends AbstractBaseDb implements Execu
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters) {
         return exePageAsync(sql, neoPage, getExecutor(), parameters);
+    }
+
+    @Override
+    public CompletableFuture<List<TableMap>> exePageAsync(String sql, PageReq<?> pageReq, Object... parameters) {
+        return exePageAsync(sql, pageReq, getExecutor(), parameters);
     }
 
     @Override

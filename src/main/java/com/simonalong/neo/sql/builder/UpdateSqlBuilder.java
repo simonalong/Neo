@@ -5,6 +5,7 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.express.SearchQuery;
 import com.simonalong.neo.tenant.TenantHandler;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,21 +16,30 @@ import java.util.stream.Collectors;
  * @author shizi
  * @since 2020/3/22 下午8:04
  */
+@Slf4j
 @UtilityClass
 public class UpdateSqlBuilder extends BaseSqlBuilder {
 
     public String build(TenantHandler tenantHandler, String tableName, NeoMap dataMap, NeoMap searchMap) {
+        if (NeoMap.isEmpty(dataMap)) {
+            log.warn("待更新数据为空");
+            return null;
+        }
         stuffTenantId(tenantHandler, tableName, searchMap);
         return "update " + tableName + buildSetValues(dataMap) + SqlBuilder.buildWhere(searchMap);
     }
 
     public String build(TenantHandler tenantHandler, String tableName, NeoMap dataMap, SearchQuery searchQuery) {
+        if (NeoMap.isEmpty(dataMap)) {
+            log.warn("待更新数据为空");
+            return null;
+        }
         stuffTenantId(tenantHandler, tableName, searchQuery);
         return "update " + tableName + buildSetValues(dataMap) + searchQuery.toSql();
     }
 
-    private String buildSetValues(NeoMap searchMap) {
-        return " set " + searchMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + " = ?").collect(Collectors.joining(", "));
+    private String buildSetValues(NeoMap dataMap) {
+        return " set " + dataMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + " = ?").collect(Collectors.joining(", "));
     }
 
     /**

@@ -1828,6 +1828,10 @@ public class Neo extends AbstractExecutorDb {
             String sql = sqlPair.getKey();
             List<Object> parameters = sqlPair.getValue();
 
+            if (null == sql) {
+                return null;
+            }
+
             // sql 多行查询的explain衡量
             explain(multiLine, sqlPair);
             try (Connection con = connectFactory.getConnect()) {
@@ -1980,6 +1984,10 @@ public class Neo extends AbstractExecutorDb {
 
         // 该行数据要在valueList初始化之前执行
         String sql = UpdateSqlBuilder.build(tenantHandler, tableName, updateMap, searchMapTem);
+        if (null == sql) {
+            log.warn(LOG_PRE_NEO + "sql为空");
+            return new Pair<>(null, new ArrayList<>());
+        }
 
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));

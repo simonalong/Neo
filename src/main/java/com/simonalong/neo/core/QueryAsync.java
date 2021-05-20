@@ -3,6 +3,8 @@ package com.simonalong.neo.core;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
@@ -132,14 +134,19 @@ public interface QueryAsync extends Async {
 
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, SearchQuery searchQuery, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, SearchQuery searchQuery);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesAsync(String tableName, Class<T> tClass, String field, Object entity);
 
@@ -175,14 +182,19 @@ public interface QueryAsync extends Async {
 
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, NeoMap searchMap);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, SearchQuery searchQuery, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, SearchQuery searchQuery);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity, Executor executor);
+
     @Deprecated
     <T> CompletableFuture<List<T>> valuesOfDistinctAsync(String tableName, Class<T> tClass, String field, Object entity);
 
@@ -216,61 +228,228 @@ public interface QueryAsync extends Async {
     CompletableFuture<List<String>> valuesOfDistinctAsync(String tableName, String field);
 
 
+    /**
+     * 弃用，其中参数NeoPage弃用，变更为{@link PageReq}
+     *
+     * @param tableName 表名
+     * @param columns   列
+     * @param searchMap 搜索条件
+     * @param page      分页
+     * @param executor  线程池
+     * @return 异步的分页列表
+     */
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, NeoPage page);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, NeoPage page);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, NeoPage page);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoPage page);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page, Executor executor);
 
+    @Deprecated
     CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page);
 
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, PageReq<?> pageReq);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, PageReq<?> pageReq);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<List<NeoMap>> pageAsync(String tableName, PageReq<?> pageReq);
+
+
+    /**
+     * pageAsync弃用，其中参数NeoPage弃用，修改为{@link PageReq}
+     *
+     * @param tClass    返回的类型
+     * @param tableName 表名
+     * @param columns   列
+     * @param searchMap 搜索条件
+     * @param page      分页数据
+     * @param executor  执行器
+     * @param <T>       具体类型
+     * @return 返回数据
+     */
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page, Executor executor);
 
+    @Deprecated
     <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page);
+
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq);
+
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, T entity, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, T entity, PageReq<?> pageReq);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, PageReq<?> pageReq);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, PageReq<?> pageReq, Executor executor);
+
+    CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, PageReq<?> pageReq);
+
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq, Executor executor);
+
+    <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq);
 
 
     CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap, Executor executor);

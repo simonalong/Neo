@@ -1,6 +1,5 @@
 package com.simonalong.neo.express;
 
-
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.db.NeoPage;
@@ -1095,6 +1094,7 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
+    @Deprecated
     public static Operate Page(NeoPage neoPage) {
         return new RelationOperate(null, null) {
 

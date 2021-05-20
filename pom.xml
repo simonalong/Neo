@@ -39,7 +39,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <groovy.version>3.0.8</groovy.version>
     </properties>
 
     <dependencies>
@@ -128,13 +127,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.22</version>
-        </dependency>
-
-        <!-- guava包 -->
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
         </dependency>
 
         <!--sql解析器-->

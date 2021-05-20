@@ -184,83 +184,84 @@ public interface ExecuteSql {
     List<List<TableMap>> execute(String sql, Object... parameters);
 
 
+    CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters);
+
+    <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters);
+
+    CompletableFuture<List<TableMap>> exeListAsync(String sql, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Object... parameters);
+
+    <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Object... parameters);
+
+    CompletableFuture<String> exeValueAsync(String sql, Object... parameters);
+
+    <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Object... parameters);
+
+    CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters);
+
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
+
+    @Deprecated
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
+
+    CompletableFuture<List<TableMap>> exePageAsync(String sql, PageReq<?> pageReq, Object... parameters);
+
+    CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters);
+
+    CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Object... parameters);
+
+
     default CompletableFuture<TableMap> exeOneAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeOne(sql, parameters), executor);
     }
-
-    CompletableFuture<TableMap> exeOneAsync(String sql, Object... parameters);
 
     default <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeOne(tClass, sql, parameters), executor);
     }
 
-    <T> CompletableFuture<T> exeOneAsync(Class<T> tClass, String sql, Object... parameters);
-
-
     default CompletableFuture<List<TableMap>> exeListAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeList(sql, parameters), executor);
     }
-
-    CompletableFuture<List<TableMap>> exeListAsync(String sql, Object... parameters);
 
     default <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeList(tClass, sql, parameters), executor);
     }
 
-    <T> CompletableFuture<List<T>> exeListAsync(Class<T> tClass, String sql, Object... parameters);
-
-
     default <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeValue(tClass, sql, parameters), executor);
     }
-
-    <T> CompletableFuture<T> exeValueAsync(Class<T> tClass, String sql, Object... parameters);
-
 
     default CompletableFuture<String> exeValueAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeValue(sql, parameters), executor);
     }
 
-    CompletableFuture<String> exeValueAsync(String sql, Object... parameters);
-
-
     default <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeValues(tClass, sql, parameters, parameters), executor);
     }
-
-    <T> CompletableFuture<List<T>> exeValuesAsync(Class<T> tClass, String sql, Object... parameters);
-
 
     default CompletableFuture<List<String>> exeValuesAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeValues(sql, parameters, parameters), executor);
     }
 
-    CompletableFuture<List<String>> exeValuesAsync(String sql, Object... parameters);
-
-
     default CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exePage(sql, startIndex, pageSize, parameters), executor);
     }
 
-    CompletableFuture<List<TableMap>> exePageAsync(String sql, Integer startIndex, Integer pageSize, Object... parameters);
-
-
+    @Deprecated
     default CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exePage(sql, neoPage, parameters), executor);
     }
 
-    CompletableFuture<List<TableMap>> exePageAsync(String sql, NeoPage neoPage, Object... parameters);
-
+    default CompletableFuture<List<TableMap>> exePageAsync(String sql, PageReq<?> pageReq, Executor executor, Object... parameters) {
+        return CompletableFuture.supplyAsync(() -> exePage(sql, pageReq, parameters), executor);
+    }
 
     default CompletableFuture<Integer> exeCountAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> exeCount(sql, parameters), executor);
     }
 
-    CompletableFuture<Integer> exeCountAsync(String sql, Object... parameters);
-
     default CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Executor executor, Object... parameters) {
         return CompletableFuture.supplyAsync(() -> execute(sql, parameters), executor);
     }
-
-    CompletableFuture<List<List<TableMap>>> executeAsync(String sql, Object... parameters);
 }

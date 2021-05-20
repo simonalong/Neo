@@ -2,6 +2,7 @@ package com.simonalong.neo.core.join;
 
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.TableMap;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
@@ -76,24 +77,50 @@ public abstract class AbstractJoinnerAsync implements JoinnerAsync {
         return valuesOfDistinctAsync(joinColumns, tableJoinOn, searchQuery, getExecutor());
     }
 
+
     @Override
+    @Deprecated
     public CompletableFuture<List<TableMap>> pageAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return pageAsync(columns, tableJoinOn, searchMap, neoPage, getExecutor());
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return pageAsync(tClass, columns, tableJoinOn, searchMap, neoPage, getExecutor());
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage) {
         return getPageAsync(joinColumns, tableJoinOn, tableMap, neoPage, getExecutor());
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, NeoPage neoPage) {
         return getPageAsync(tClass, joinColumns, tableJoinOn, tableMap, neoPage, getExecutor());
+    }
+
+
+    @Override
+    public CompletableFuture<List<TableMap>> pageAsync(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, PageReq<?> pageReq) {
+        return pageAsync(columns, tableJoinOn, searchMap, pageReq, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, PageReq<?> pageReq) {
+        return pageAsync(tClass, columns, tableJoinOn, searchMap, pageReq, getExecutor());
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<TableMap>> getPageAsync(Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, PageReq<?> pageReq) {
+        return getPageAsync(joinColumns, tableJoinOn, tableMap, pageReq, getExecutor());
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, Columns joinColumns, TableJoinOn tableJoinOn, TableMap tableMap, PageReq<?> pageReq) {
+        return getPageAsync(tClass, joinColumns, tableJoinOn, tableMap, pageReq, getExecutor());
     }
 
     @Override

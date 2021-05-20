@@ -18,11 +18,17 @@ import java.util.List;
 public class UpdateSqlBuilderTest extends BaseTest {
 
     @Test
-    public void testBuild() {
+    public void testUpdate1() {
         String sql = "update table1 set `address` = ?, `age` = ? where `name` = ? and `id` = ?";
         String result = UpdateSqlBuilder.build(null, "table1", NeoMap.of("age", 12, "address", "河南"), NeoMap.of("id", 123, "name", "nana"));
 
         Assert.assertEquals(sql, result);
+    }
+
+    @Test
+    public void testUpdate2() {
+        String result = UpdateSqlBuilder.build(null, "table1", NeoMap.of(), NeoMap.of("id", 123, "name", "nana"));
+        Assert.assertNull(result);
     }
 
     /**
@@ -36,7 +42,7 @@ public class UpdateSqlBuilderTest extends BaseTest {
      * set a.`user_name`=b.`user_name`, a.`group`=b.`group`
      */
     @Test
-    public void testBuild1() {
+    public void testBatchUpdate() {
         List<NeoMap> dataList = Arrays.asList(
             NeoMap.of("group", "group3", "name", "name3chg", "user_name", "user_name3"),
             NeoMap.of("group", "group4", "name", "name4chg"),

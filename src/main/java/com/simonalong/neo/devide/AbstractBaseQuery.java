@@ -5,6 +5,8 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.core.DefaultExecutor;
 import com.simonalong.neo.core.QuerySync;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
+import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.express.SearchQuery;
 
 import java.util.List;
@@ -265,75 +267,234 @@ public abstract class AbstractBaseQuery extends AbstractQueryAsync implements Qu
         return CompletableFuture.supplyAsync(() -> value(tableName, field, entity), executor);
     }
 
+
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, entity, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tableName, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, entity, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, columns, page), executor);
     }
 
     @Override
+    @Deprecated
     public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoPage page, Executor executor){
         return CompletableFuture.supplyAsync(() -> page(tableName, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchMap, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchQuery, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, page), executor);
     }
 
     @Override
+    @Deprecated
     public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoPage page, Executor executor) {
         return CompletableFuture.supplyAsync(() -> page(tClass, tableName, page), executor);
     }
+
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tableName, columns, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, columns, entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tableName, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(String tableName, T entity, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, Columns columns, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, columns, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<List<NeoMap>> pageAsync(String tableName, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> page(tableName, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, columns, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> pageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> page(tClass, tableName, pageReq), executor);
+    }
+
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, columns, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, Columns columns, T entity, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, columns, entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(String tableName, T entity, PageReq<?> pageReq, Executor executor){
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, entity, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, Columns columns, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, columns, pageReq), executor);
+    }
+
+    @Override
+    public CompletableFuture<PageRsp<NeoMap>> getPageAsync(String tableName, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tableName, pageReq), executor);
+    }
+
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, columns, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, columns, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, NeoMap searchMap, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, searchMap, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, SearchQuery searchQuery, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, searchQuery, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, Columns columns, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, columns, pageReq), executor);
+    }
+
+    @Override
+    public <T> CompletableFuture<PageRsp<T>> getPageAsync(Class<T> tClass, String tableName, PageReq<?> pageReq, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> getPage(tClass, tableName, pageReq), executor);
+    }
+
 
     @Override
     public CompletableFuture<Integer> countAsync(String tableName, NeoMap searchMap, Executor executor){
