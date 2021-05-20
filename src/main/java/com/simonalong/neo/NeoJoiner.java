@@ -1,6 +1,7 @@
 package com.simonalong.neo;
 
 import com.simonalong.neo.core.join.AbstractBaseJoinner;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.express.SearchQuery;
@@ -124,6 +125,26 @@ public class NeoJoiner extends AbstractBaseJoinner {
     @Override
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
         return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
+    }
+
+    @Override
+    public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
+        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
+        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
+    }
+
+    @Override
+    public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
+        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+    }
+
+    @Override
+    public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, PageReq<?> pageReq) {
+        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), pageReq, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override

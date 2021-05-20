@@ -56,7 +56,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      */
     private Map<String, Object> dataMap = new ConcurrentHashMap<>();
     @Getter
-    private Set<String> nullValueKeySet = new HashSet<>();
+    private final Set<String> nullValueKeySet = new HashSet<>();
     /**
      * 只是支持value为空
      */
@@ -267,7 +267,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         }
 
         if (Map.class.isAssignableFrom(object.getClass())) {
-            return neoMap.append(Map.class.cast(object));
+            return neoMap.append((Map) object);
         }
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
