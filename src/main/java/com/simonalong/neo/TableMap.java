@@ -33,7 +33,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * key：为表名，value：为表中对应的数据：key为列，value为列值
      */
-    private Map<String, NeoMap> dataMap = new ConcurrentHashMap<>();
+    private final Map<String, NeoMap> dataMap = new ConcurrentHashMap<>();
 
     public static TableMap of(Object... kvs) {
         return TableMap.of(DEFAULT_TABLE, kvs);
