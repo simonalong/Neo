@@ -50,6 +50,16 @@ public class NeoTest extends NeoBaseTest {
         neo.test();
     }
 
+    @Test
+    public void connectTest2() {
+        Neo db = Neo.connect(URL, USER, PASSWORD, "com.mysql.cj.jdbc.Driver");
+        db.insert(TABLE_NAME, NeoMap.of("name", "n", "group", "xx"));
+
+        Assert.assertEquals("n", db.value(TABLE_NAME, "name", NeoMap.of("group", "xx")));
+
+        db.delete(TABLE_NAME, NeoMap.of("group", "xx"));
+    }
+
     /******************************插入******************************/
     /**
      * insert neoMap
