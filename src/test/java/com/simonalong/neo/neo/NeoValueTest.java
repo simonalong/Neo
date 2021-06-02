@@ -77,4 +77,17 @@ public class NeoValueTest extends NeoBaseTest {
 
         Assert.assertEquals("name_value", name);
     }
+
+    /**
+     * 查询多行数据，测试搜索条件
+     */
+    @Test
+    @SneakyThrows
+    public void testValue4() {
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_value", "name", "name_value"));
+
+        String name = neo.value(TABLE_NAME, "name", NeoMap.of());
+
+        Assert.assertEquals("name_value", name);
+    }
 }

@@ -851,7 +851,7 @@ public class Neo extends AbstractExecutorDb {
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空");
+            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -890,7 +890,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空");
+            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1054,7 +1054,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空");
+            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1141,7 +1141,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空");
+            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
