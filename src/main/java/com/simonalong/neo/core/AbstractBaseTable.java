@@ -220,6 +220,18 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
 
     /**
      * 更新数据
+     * @param setEntity 待更新的数据
+     * @param id 主键
+     * @param <T> 搜索条件对应的泛型
+     * @return 更新后的数据
+     */
+    @Override
+    public <T> T update(T setEntity, Number id) {
+        return getDbInner().update(getTableName(), setEntity, id);
+    }
+
+    /**
+     * 更新数据
      * @param dataMap 待更新的数据
      * @param columns 将待更新中的数据key对应的value作为条件，其中由columns来指定
      * @return 更新后的数据
@@ -239,6 +251,18 @@ public abstract class AbstractBaseTable extends AbstractTableAsync implements Ta
     @Override
     public <T> NeoMap update(NeoMap setMap, T searchEntity){
         return getDbInner().update(getTableName(), setMap, searchEntity);
+    }
+
+    /**
+     * 更新数据
+     * @param setMap 待更新的数据
+     * @param id 主键
+     * @param <T> 搜索条件对应的泛型
+     * @return 更新后的数据
+     */
+    @Override
+    public <T> NeoMap update(NeoMap setMap, Number id){
+        return getDbInner().update(getTableName(), setMap, id);
     }
 
     /**
