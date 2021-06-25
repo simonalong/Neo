@@ -45,6 +45,7 @@ public interface TableSync extends Sync {
      *
      * @param object 新增的实体
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
+     * @param <T> 类型
      * @return 插入后的数据
      */
     <T> T insertOfUnExist(T object, String... searchColumnKey);
@@ -66,6 +67,7 @@ public interface TableSync extends Sync {
      *     数据如果存在，则更新，否则插入
      * @param object 待更新或者插入的数据
      * @param searchColumnKey 作为搜索条件的数据的key，这个key是属性名转换为db字段的名字
+     * @param <T> 类型
      * @return 更新或者插入后的数据
      */
     <T> T save(T object, String... searchColumnKey);
