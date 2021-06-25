@@ -30,7 +30,11 @@ public enum DbType {
     /**
      * oracle
      */
-    ORACLE("jdbc:oracle");
+    ORACLE("jdbc:oracle"),
+    /**
+     * mariadb
+     */
+    MARIADB("jdbc:mariadb");
 
     private String name;
 

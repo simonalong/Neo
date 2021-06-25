@@ -455,6 +455,7 @@ public class Neo extends AbstractExecutorDb {
         if (NeoMap.isEmpty(dataMap)) {
             return null;
         }
+        checkDb(tableName);
         NeoMap dataMapTem = dataMap.clone();
         NeoMap searchMapTem = searchMap.clone();
         return tx(() -> {
@@ -2351,7 +2352,7 @@ public class Neo extends AbstractExecutorDb {
      *
      * @param tableName 表名
      */
-    private void checkDb(String tableName) {
+    public void checkDb(String tableName) {
         if (null == db) {
             initDb(tableName);
         } else if (!db.containTable(tableName)) {

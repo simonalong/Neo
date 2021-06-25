@@ -172,6 +172,16 @@ public final class NeoDb {
             table = schemaToTableMap.get(schemaName).values().stream().filter(t -> t.getTableName().equals(tableName))
                 .findFirst().orElse(null);
         }
+
+        if (null != table) {
+            return table;
+        }
+        neo.checkDb(tableName);
+        if (schemaToTableMap.containsKey(schemaName)) {
+            table = schemaToTableMap.get(schemaName).values().stream().filter(t -> t.getTableName().equals(tableName))
+                .findFirst().orElse(null);
+        }
+
         if (null == table) {
             log.warn(LOG_PRE_NEO + "表" + tableName + "没有找到");
         }

@@ -1,6 +1,7 @@
 package com.simonalong.neo.neo;
 
 import com.simonalong.neo.*;
+import com.simonalong.neo.db.DbType;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.entity.DemoEntity;
 
@@ -628,9 +629,16 @@ public class NeoTest extends NeoBaseTest {
 
     @Test
     public void getTableCreateTest2() {
-        String createSql = "CREATE TABLE `neo_table1` (\n" + "  `id` int unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `sl` bigint DEFAULT NULL,\n" + "  `desc` mediumtext COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  `desc1` text COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`),\n" + "  FULLTEXT KEY `fk_desc` (`desc`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+        DbType dbType = neo.getDbType();
+        if (DbType.MYSQL.equals(dbType)) {
+            String createSqlOfMysql = "CREATE TABLE `neo_table1` (\n" + "  `id` int unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `sl` bigint DEFAULT NULL,\n" + "  `desc` mediumtext COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  `desc1` text COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`),\n" + "  FULLTEXT KEY `fk_desc` (`desc`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
-        Assert.assertEquals(createSql, neo.getTableCreate(TABLE_NAME));
+            Assert.assertEquals(createSqlOfMysql, neo.getTableCreate(TABLE_NAME));
+        } else if (DbType.MARIADB.equals(dbType)) {
+            String createSqlOfMariaDb = "CREATE TABLE `neo_table1` (\n" + "  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int(11) DEFAULT NULL,\n" + "  `sl` bigint(20) DEFAULT NULL,\n" + "  `desc` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '描述',\n" + "  `desc1` text COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '描述',\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`),\n" + "  FULLTEXT KEY `fk_desc` (`desc`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+
+            Assert.assertEquals(createSqlOfMariaDb, neo.getTableCreate(TABLE_NAME));
+        }
     }
 
     /****************************** save ******************************/

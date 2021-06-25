@@ -28,6 +28,10 @@ public class NeoBaseTest extends BaseTest {
     protected static final String USER = "neo_test";
     protected static final String PASSWORD = "neo@Test123";
 
+//    protected static final String URL = "jdbc:mariadb://127.0.0.1:23316/neo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true";
+//    protected static final String USER = "root";
+//    protected static final String PASSWORD = "root";
+
     public static final String TABLE_NAME = "neo_table1";
 
     public static Neo neo;

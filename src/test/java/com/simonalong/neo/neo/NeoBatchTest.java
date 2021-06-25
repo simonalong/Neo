@@ -9,10 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * 批次执行
@@ -25,6 +22,11 @@ public class NeoBatchTest extends NeoBaseTest {
 
     @BeforeClass
     public static void beforeClass() {
+        neo.truncateTable(TABLE_NAME);
+    }
+
+    @Before
+    public void beforeTest() {
         neo.truncateTable(TABLE_NAME);
     }
 
