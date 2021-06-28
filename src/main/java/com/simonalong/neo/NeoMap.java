@@ -362,6 +362,13 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
                 }
                 return true;
             }).forEach(f -> {
+                if (f.getName().equals("serialVersionUID")) {
+                    return;
+                }
+                // 如果属性是合成的，则不考虑，比如jacoco编译期间生成的jacocoData字段
+                if (f.isSynthetic()) {
+                    return;
+                }
                 f.setAccessible(true);
                 try {
                     Object value = TimeDateConverter.entityTimeToLong(f.get(object));
