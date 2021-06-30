@@ -190,7 +190,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
                 if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
                     uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
-                    log.error(LOG_PRE_NEO + "namespace have full worker, init fail");
+                    log.error(LOG_PRE_NEO + "namespace: {} have full worker, init fail", namespace);
                     return 0;
                 }
             }
