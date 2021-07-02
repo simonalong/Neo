@@ -21,7 +21,7 @@ public class GeneratorConfig {
     /**
      * 属性名字的字符转换，默认为不转换
      */
-    private NeoMap.NamingChg fieldNamingChg = NeoMap.NamingChg.DEFAULT;
+    private NeoMap.NamingChg fieldNamingChg = NeoMap.NamingChg.UNDERLINE;
     /**
      * entity实体的包路径
      */

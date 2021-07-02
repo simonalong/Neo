@@ -1,9 +1,6 @@
 package com.simonalong.neo.express;
 
-import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoConstant;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.devide.DevideMultiNeo;
@@ -21,7 +18,7 @@ import static com.simonalong.neo.express.BaseOperate.*;
  * @author shizi
  * @since 2020/8/29 11:13 上午
  */
-public class SearchQueryTest extends NeoBaseTest {
+public class SearchQueryTest extends BaseTest {
 
     /**
      * 测试and所有形式
