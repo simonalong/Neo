@@ -1727,7 +1727,7 @@ public class Neo extends AbstractExecutorDb {
             }
             return result;
         } catch (Throwable e) {
-            log.error(LOG_PRE_NEO + "[提交失败，事务回滚]");
+            log.error(LOG_PRE_NEO + "[提交失败，事务回滚], {}", e.getMessage());
             try {
                 connectFactory.rollback();
                 throw new NeoTxException(ExceptionUtil.unwrapException(e));
