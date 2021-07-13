@@ -182,23 +182,23 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * 如果数据达到最大，则阻止进程启动
      */
     private void insertWorker() {
-        Integer result = neo.tx(() -> {
-            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ? for update", NEO_UUID_TABLE, namespace);
+        try {
+            // 强制加表锁
+            neo.execute("lock tables %s write", NEO_UUID_TABLE);
+            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ?", NEO_UUID_TABLE, namespace);
             if (null == maxWorkerId) {
                 uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, 0));
             } else {
                 if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
                     uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
-                    log.error(LOG_PRE_NEO + "namespace: {} have full worker, init fail", namespace);
-                    return 0;
+                    log.error(LOG_PRE_NEO + "namespace {} have full worker, init fail", namespace);
+                    throw new WorkerIdFullException("namespace " + namespace + " have full worker, init fail");
                 }
             }
-            return 1;
-        });
-
-        if (0 == result) {
-            throw new WorkerIdFullException("namespace " + namespace + " have full worker, init fail");
+        } finally {
+            // 解锁
+            neo.execute("unlock tables");
         }
     }
 
