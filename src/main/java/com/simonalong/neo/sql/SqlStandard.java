@@ -22,8 +22,8 @@ public final class SqlStandard {
     /**
      * 规范映射
      */
-    private Map<Pattern, Standard> patternTypeMap = new ConcurrentHashMap<>();
-    private static SqlStandard instance = new SqlStandard();
+    private final Map<Pattern, Standard> patternTypeMap = new ConcurrentHashMap<>();
+    private static final SqlStandard instance = new SqlStandard();
 
     private SqlStandard() {
         Arrays.asList(StandardEnum.values())
@@ -90,9 +90,9 @@ public final class SqlStandard {
      * 规范类
      */
     static class Standard{
-        private String regex;
-        private String desc;
-        private LogType logType;
+        private final String regex;
+        private final String desc;
+        private final LogType logType;
 
         Standard(LogType logType){
             this.regex = "";
@@ -139,7 +139,7 @@ public final class SqlStandard {
          */
         UPDATE_NO_WHERE(new Standard("^(update |UPDATE |Update )+(?!.*((WHERE)|(where)|(Where)|(USING)|(using))).*$", "update 更新语句中，没有条件子句", LogType.WARN));
 
-        private Standard standard;
+        private final Standard standard;
     }
 
     public enum LogType{
@@ -159,6 +159,6 @@ public final class SqlStandard {
         /**
          * 这个为禁用，其他的均为打印日志，sql如果匹配上，则直接抛出异常，并禁止
          */
-        FORBIDDEN;
+        FORBIDDEN
     }
 }

@@ -168,9 +168,7 @@ public final class Columns {
     }
 
     public boolean contains(String data) {
-        return tableFieldsMap.entrySet().stream().anyMatch(e -> {
-            return e.getValue().stream().anyMatch(c -> c.getMetaValue().equals(data));
-        });
+        return tableFieldsMap.entrySet().stream().anyMatch(e -> e.getValue().stream().anyMatch(c -> c.getMetaValue().equals(data)));
     }
 
     public void remove(String key) {

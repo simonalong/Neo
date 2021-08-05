@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
  * @author shizi
  * @since 2020/8/30 3:31 上午
  */
+@SuppressWarnings("unused")
 public class NeoQueue<T> implements Deque<T> {
 
     private final Deque<T> dataDeque = new ConcurrentLinkedDeque<>();

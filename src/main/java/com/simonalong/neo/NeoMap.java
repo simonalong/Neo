@@ -47,6 +47,7 @@ import static com.simonalong.neo.util.LogicOperateUtil.*;
  * @since 2019/3/12 下午12:46
  */
 @Slf4j
+@SuppressWarnings("unused")
 @NoArgsConstructor
 public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneable, Serializable {
 
@@ -56,7 +57,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      */
     private Map<String, Object> dataMap = new ConcurrentHashMap<>();
     @Getter
-    private Set<String> nullValueKeySet = new HashSet<>();
+    private final Set<String> nullValueKeySet = new HashSet<>();
     /**
      * 只是支持value为空
      */
@@ -113,7 +114,6 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         return valueList;
     }
 
-    @SuppressWarnings("unchecked")
     public static NeoMap fromMap(Map<String, ?> dataMap) {
         NeoMap map = NeoMap.of();
         if (null == dataMap) {
@@ -254,7 +254,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
      * @param supportValueNull 是否支持value为空
      * @return 转换之后的NeoMap
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static NeoMap from(Object object, NamingChg namingChg, List<String> inFieldList, List<String> exFieldList, Boolean supportValueNull) {
         NeoMap neoMap = NeoMap.of().setNamingChg(namingChg).setSupportValueNull(supportValueNull);
         if (null == object) {
@@ -267,7 +267,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         }
 
         if (Map.class.isAssignableFrom(object.getClass())) {
-            return neoMap.append(Map.class.cast(object));
+            return neoMap.append((Map) object);
         }
         return innerFrom(neoMap, object, inFieldList, exFieldList);
     }
@@ -1070,6 +1070,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     @Override
+    @SuppressWarnings("all")
     public boolean containsKey(Object key) {
         if (null == key) {
             return false;
@@ -1161,6 +1162,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     @Override
+    @SuppressWarnings("all")
     public Object remove(Object key) {
         if (supportValueNull) {
             nullValueKeySet.remove(key);

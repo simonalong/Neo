@@ -31,5 +31,5 @@ public enum TxIsolationEnum {
      */
     TX_SE(Connection.TRANSACTION_SERIALIZABLE);
 
-    private int level;
+    private final int level;
 }

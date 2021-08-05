@@ -38,6 +38,7 @@ import static com.simonalong.neo.NeoConstant.*;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
+@SuppressWarnings("unused")
 @EqualsAndHashCode(of = {"name"}, callSuper = false)
 public class Neo extends AbstractExecutorDb {
 
@@ -1760,7 +1761,7 @@ public class Neo extends AbstractExecutorDb {
      */
     public String getTableCreate(String tableName) {
         List<List<TableMap>> table = execute("show create table `" + tableName + "`");
-        return ((NeoMap) table.get(0).get(0).getFirst()).getString("Create Table");
+        return table.get(0).get(0).getFirst().getString("Create Table");
     }
 
     /**

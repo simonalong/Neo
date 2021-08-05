@@ -39,15 +39,6 @@ public interface NeoConstant {
     String DEFAULT_TABLE = "_default_";
 
     /**
-     * 函数：execute
-     */
-    String FUN_EXECUTE = "execute";
-    /**
-     * 函数：executeBatch
-     */
-    String FUN_EXECUTE_BATCH = "executeBatch";
-
-    /**
      * bit的个数
      */
     int BIT_NUM = 64;

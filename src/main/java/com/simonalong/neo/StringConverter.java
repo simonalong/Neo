@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  * @author zhouzhenyong
  * @since 2019/3/18 下午10:03
  */
+@SuppressWarnings("unused")
 public final class StringConverter {
 
     /**

@@ -27,6 +27,7 @@ import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
  * @author shizi
  * @since 2020/3/21 下午8:10
  */
+@SuppressWarnings("unused")
 public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
@@ -104,7 +105,6 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      * @param exFieldList 排除的对象的属性名列表
      * @return 转换之后的TableMap
      */
-    @SuppressWarnings("unchecked")
     private static TableMap from(String tableName, Object object, NeoMap.NamingChg namingChg, List<String> inFieldList, List<String> exFieldList) {
         TableMap tableMap = TableMap.of(tableName);
         if (null == object) {
@@ -252,6 +252,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return dataMap.containsKey(key);
     }
 
+    @SuppressWarnings("all")
     public boolean containsKey(String tableName, Object key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).containsKey(key);
@@ -266,6 +267,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     @Override
+    @SuppressWarnings("all")
     public boolean containsValue(Object value) {
         return dataMap.containsKey(value);
     }
@@ -363,7 +365,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public Object put(String key, Object value) {
         if (value instanceof NeoMap) {
-            return dataMap.put(key, NeoMap.class.cast(value));
+            return dataMap.put(key, (NeoMap) value);
         } else {
             return dataMap.put(key, NeoMap.from(value));
         }
@@ -400,6 +402,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return dataMap.remove(key);
     }
 
+    @SuppressWarnings("all")
     public Object remove(String tableName, Object key) {
         if (dataMap.containsKey(tableName)) {
             return dataMap.get(tableName).remove(key);
@@ -486,6 +489,9 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public boolean equals(Object o) {
+        if (!(o instanceof Map)) {
+            return false;
+        }
         return dataMap.equals(o);
     }
 
@@ -750,7 +756,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public TableMap assignExceptKeys(String... keys) {
-        entrySet().stream().map(e -> (NeoMap) e.getValue()).forEach(m -> m.assignExcept(keys));
+        values().stream().map(o -> (NeoMap) o).forEach(m -> m.assignExcept(keys));
         return this;
     }
 
