@@ -40,8 +40,8 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * worker_x 节点信息
      */
     private ScheduledThreadPoolExecutor scheduler;
-    private Neo neo;
-    private String namespace;
+    private final Neo neo;
+    private final String namespace;
     private UuidGeneratorDO uuidGeneratorDO;
 
     public DefaultWorkerIdHandler(String namespace, Neo neo) {
@@ -98,10 +98,9 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     private void initHeartBeatReport() {
         scheduler = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-            private AtomicInteger threadNum = new AtomicInteger(0);
+            private final AtomicInteger threadNum = new AtomicInteger(0);
 
             @Override
-            @SuppressWarnings("all")
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r, "Neo-Heart-Thread-" + threadNum.getAndIncrement());
                 thread.setDaemon(true);
@@ -155,7 +154,6 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      *
      * @return true：分配成功，false：分配失败
      */
-    @SuppressWarnings("all")
     private Boolean applyWorkerFromExistExpire() {
         Integer minId = neo.exeValue(Integer.class, "select min(id) from %s where namespace =? and last_expire_time < ?", NEO_UUID_TABLE, namespace, new Date());
         if (null == minId) {
