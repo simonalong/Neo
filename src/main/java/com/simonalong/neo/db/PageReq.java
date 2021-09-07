@@ -1,5 +1,6 @@
 package com.simonalong.neo.db;
 
+import com.isyscore.isc.mikilin.annotation.Matcher;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,18 +12,22 @@ import lombok.Data;
 @AllArgsConstructor
 public class PageReq<T> {
 
-    private Integer pageNo;
-    private Integer pageSize;
+    @Matcher(isNull = "false")
+    @Matcher(range = "[0,)")
+    private Integer current;
+    @Matcher(isNull = "false")
+    @Matcher(range = "[0,)")
+    private Integer size;
     private T param;
 
     public PageReq(){}
 
-    public PageReq(Integer pageNo, Integer pageSize) {
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
+    public PageReq(Integer current, Integer size) {
+        this.current = current;
+        this.size = size;
     }
 
     public Integer getStartIndex() {
-        return pageNo > 1 ? (pageNo - 1) * pageSize : 0;
+        return current > 1 ? (current - 1) * size : 0;
     }
 }

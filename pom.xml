@@ -148,6 +148,14 @@
             <artifactId>transmittable-thread-local</artifactId>
             <version>2.12.1</version>
         </dependency>
+
+        <!--核查框架-->
+        <dependency>
+            <groupId>com.github.isyscore</groupId>
+            <artifactId>isc-mikilin</artifactId>
+            <version>1.2.4-SNAPSHOT</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
