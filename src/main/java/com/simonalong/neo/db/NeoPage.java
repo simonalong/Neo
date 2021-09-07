@@ -15,8 +15,8 @@ public final class NeoPage {
     private NeoPage() {}
 
     private NeoPage(PageReq<?> neoPageReq) {
-        this.current = neoPageReq.getPageNo();
-        this.size = neoPageReq.getPageSize();
+        this.current = neoPageReq.getCurrent();
+        this.size = neoPageReq.getSize();
     }
 
     /**
@@ -31,7 +31,7 @@ public final class NeoPage {
     }
 
     public static NeoPage from(PageReq<?> neoPageReq) {
-        return new NeoPage().setCurrent(neoPageReq.getPageNo()).setSize(neoPageReq.getPageSize());
+        return new NeoPage().setCurrent(neoPageReq.getCurrent()).setSize(neoPageReq.getSize());
     }
 
     public NeoPage setCurrent(Integer current) {

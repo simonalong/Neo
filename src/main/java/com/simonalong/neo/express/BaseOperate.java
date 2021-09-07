@@ -1089,7 +1089,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " limit " + pageReq.getPageSize() + " offset " + pageReq.getStartIndex();
+                return " limit " + pageReq.getSize() + " offset " + pageReq.getStartIndex();
             }
         };
     }

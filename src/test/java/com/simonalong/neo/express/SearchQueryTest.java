@@ -498,8 +498,8 @@ public class SearchQueryTest extends BaseTest {
 
         sql = " limit 20 offset 0";
         PageReq<Object> pageReq = new PageReq<>();
-        pageReq.setPageNo(1);
-        pageReq.setPageSize(20);
+        pageReq.setCurrent(1);
+        pageReq.setSize(20);
         searchQuery = new SearchQuery().append(Page(pageReq));
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());

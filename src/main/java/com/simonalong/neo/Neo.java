@@ -853,7 +853,7 @@ public class Neo extends AbstractExecutorDb {
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -892,7 +892,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1056,7 +1056,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1143,7 +1143,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1256,7 +1256,7 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public List<TableMap> exePage(String sql, PageReq<?> pageReq, Object... parameters) {
-        return exePage(sql, pageReq.getStartIndex(), pageReq.getPageSize(), parameters);
+        return exePage(sql, pageReq.getStartIndex(), pageReq.getSize(), parameters);
     }
 
     @Override
@@ -1348,7 +1348,7 @@ public class Neo extends AbstractExecutorDb {
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
         checkDb(tableName);
         NeoMap searchMapTem = searchMap.clone();
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, pageReq.getStartIndex(), pageReq.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, pageReq.getStartIndex(), pageReq.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }
@@ -1356,7 +1356,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
         checkDb(tableName);
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, pageReq.getStartIndex(), pageReq.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, pageReq.getStartIndex(), pageReq.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }
