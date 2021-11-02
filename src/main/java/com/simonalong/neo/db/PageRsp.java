@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author shizi
@@ -24,4 +26,11 @@ public class PageRsp<T> {
      * 总个数
      */
     private Integer totalNum;
+
+    public <R> PageRsp<R> convert(Function<T, R> function) {
+        PageRsp<R> pageRsp = new PageRsp<>();
+        pageRsp.setDataList(dataList.stream().map(function).collect(Collectors.toList()));
+        pageRsp.setTotalNum(totalNum);
+        return pageRsp;
+    }
 }

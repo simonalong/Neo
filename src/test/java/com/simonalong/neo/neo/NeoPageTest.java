@@ -5,6 +5,7 @@ import com.simonalong.neo.NeoBaseTest;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.db.PageRsp;
 import com.simonalong.neo.entity.DemoEntity;
 import java.util.ArrayList;
@@ -133,6 +134,30 @@ public class NeoPageTest extends NeoBaseTest {
         List<DemoEntity> resultList = neo.page(TABLE_NAME, Columns.of("name", "group"), search, NeoPage.of(1, 20));
 
         Assert.assertEquals(dataList, resultList);
+    }
+
+    /**
+     * 查询一行数据
+     */
+    @Test
+    @SneakyThrows
+    public void testGetPage1(){
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page1"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page2"));
+        neo.insert(TABLE_NAME, NeoMap.of("group", "group_page", "name", "name_page3"));
+
+        List<DemoEntity> dataList = Arrays.asList(
+            new DemoEntity().setGroup("group_page").setName("name_page1").setId(1L),
+            new DemoEntity().setGroup("group_page").setName("name_page2").setId(2L),
+            new DemoEntity().setGroup("group_page").setName("name_page3").setId(3L)
+        );
+
+        PageReq<?> pageReq = new PageReq<>();
+        pageReq.setCurrent(1);
+        pageReq.setSize(20);
+        PageRsp<DemoEntity> pageRsp = neo.getPage(TABLE_NAME, NeoMap.of("group", "group_page"), pageReq).convert(e-> e.as(DemoEntity.class));
+
+        Assert.assertEquals(dataList, pageRsp.getDataList());
     }
 
     /**
