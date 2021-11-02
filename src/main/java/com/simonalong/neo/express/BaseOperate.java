@@ -674,14 +674,18 @@ public abstract class BaseOperate implements Operate {
      * @param value value
      * @return 模糊匹配的字符串
      */
-    public static Operate Like(String key, String value) {
+    public static Operate Like(String key, Object value) {
         return new RelationOperate(key, NeoConstant.LIKE, value) {
 
             @Override
             public Boolean valueLegal() {
                 boolean leftFix = false;
                 boolean rightFix = false;
-                String value = ((String) getValue()).trim();
+                Object valueObj = getValue();
+                if (!(valueObj instanceof String)) {
+                    return false;
+                }
+                String value = ((String) valueObj).trim();
                 if (value.startsWith("%")) {
                     value = value.substring(1).trim();
                     leftFix = true;
@@ -729,14 +733,18 @@ public abstract class BaseOperate implements Operate {
      * @param value value
      * @return 模糊匹配的字符串
      */
-    public static Operate NotLike(String key, String value) {
+    public static Operate NotLike(String key, Object value) {
         return new RelationOperate(key, NeoConstant.NOT_LIKE, value) {
 
             @Override
             public Boolean valueLegal() {
                 boolean leftFix = false;
                 boolean rightFix = false;
-                String value = ((String) getValue()).trim();
+                Object valueObj = getValue();
+                if (!(valueObj instanceof String)) {
+                    return false;
+                }
+                String value = ((String) valueObj).trim();
                 if (value.startsWith("%")) {
                     value = value.substring(1).trim();
                     leftFix = true;
@@ -785,12 +793,16 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static Operate In(String key, Collection collection) {
+    public static Operate In(String key, Object collection) {
         return new RelationOperate(key, NeoConstant.IN, collection) {
 
             @Override
             public Boolean valueLegal() {
-                return null != getValue() && !((Collection)getValue()).isEmpty();
+                Object valueObj = getValue();
+                if (!(valueObj instanceof Collection)) {
+                    return false;
+                }
+                return null != getValue() && !((Collection)valueObj).isEmpty();
             }
 
             @Override
@@ -803,7 +815,7 @@ public abstract class BaseOperate implements Operate {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " in " + SqlBuilder.buildIn(collection);
+                return SqlBuilder.toDbField(super.getKey()) + " in " + SqlBuilder.buildIn((Collection)getValue());
             }
         };
     }
@@ -816,12 +828,16 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static Operate NotIn(String key, Collection collection) {
+    public static Operate NotIn(String key, Object collection) {
         return new RelationOperate(key, NeoConstant.ONT_IN, collection) {
 
             @Override
             public Boolean valueLegal() {
-                return null != getValue() && !((Collection)getValue()).isEmpty();
+                Object valueObj = getValue();
+                if (!(valueObj instanceof Collection)) {
+                    return false;
+                }
+                return null != getValue() && !((Collection)valueObj).isEmpty();
             }
 
             @Override
@@ -831,7 +847,10 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " not in " + SqlBuilder.buildIn(collection);
+                if (!valueLegal()) {
+                    return "";
+                }
+                return SqlBuilder.toDbField(super.getKey()) + " not in " + SqlBuilder.buildIn((Collection)getValue());
             }
         };
     }

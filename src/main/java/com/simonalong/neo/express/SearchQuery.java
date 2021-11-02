@@ -2,8 +2,13 @@ package com.simonalong.neo.express;
 
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.NeoPage;
+import com.simonalong.neo.db.PageReq;
 
 import java.util.*;
+import java.util.function.BiFunction;
+
+import static com.simonalong.neo.express.BaseOperate.*;
 
 /**
  * @author shizi
@@ -206,6 +211,23 @@ public class SearchQuery {
     }
 
     /**
+     * 空操作
+     * <p>
+     *     参数类型可以为三种类型：
+     *     <ul>
+     *         <li>1.kvkvkv类型：String-Object-String-Object-...</li>
+     *         <li>2.Operate类型(BaseOperate内部子类)</li>
+     *         <li>3.集合类型：对应的内部元素为Operate类型</li>
+     *     </ul>
+     *
+     * @param objects 待处理对象
+     * @return this
+     */
+    public SearchQuery em(Object... objects) {
+        return append(objects);
+    }
+
+    /**
      * empty操作
      *
      * @param queue   操作符队列
@@ -250,6 +272,130 @@ public class SearchQuery {
         return valueQueue.toList();
     }
 
+    public SearchQuery equal(Object... objects) {
+        return doAppendKeyValue(BaseOperate::Equal, objects);
+    }
+
+    public SearchQuery notEqual(Object... objects) {
+        return doAppendKeyValue(BaseOperate::NotEqual, objects);
+    }
+
+    public SearchQuery greaterThan(Object... objects) {
+        return doAppendKeyValue(BaseOperate::GreaterThan, objects);
+    }
+
+    public SearchQuery greaterEqual(Object... objects) {
+        return doAppendKeyValue(BaseOperate::GreaterEqual, objects);
+    }
+
+    public SearchQuery lessThan(Object... objects) {
+        return doAppendKeyValue(BaseOperate::LessThan, objects);
+    }
+
+    public SearchQuery lessEqual(Object... objects) {
+        return doAppendKeyValue(BaseOperate::LessEqual, objects);
+    }
+
+    public SearchQuery like(Object... objects) {
+        return doAppendKeyValue(BaseOperate::Like, objects);
+    }
+
+    public SearchQuery notLike(Object... objects) {
+        return doAppendKeyValue(BaseOperate::NotLike, objects);
+    }
+
+    public SearchQuery in(Object... objects) {
+        return doAppendKeyValue(BaseOperate::In, objects);
+    }
+
+    public SearchQuery notIn(Object... objects) {
+        return doAppendKeyValue(BaseOperate::NotIn, objects);
+    }
+
+    public SearchQuery isNull(Object... objects) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        for (Object parameter : objects) {
+            // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
+            if (parameter instanceof String) {
+                operateQueue.add(IsNull((String) parameter));
+            }
+        }
+
+        return and(Operate.parse(LogicEnum.AND_EM, operateQueue));
+    }
+
+    public SearchQuery isNotNull(Object... objects) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        for (Object parameter : objects) {
+            // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
+            if (parameter instanceof String) {
+                operateQueue.add(IsNotNull((String) parameter));
+            }
+        }
+
+        return and(Operate.parse(LogicEnum.AND_EM, operateQueue));
+    }
+
+    public SearchQuery groupBy(String key) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(GroupBy(key));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery orderBy(String... kDescAsc) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(OrderBy(kDescAsc));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery orderByDesc(String key) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(OrderByDesc(key));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery exists(String sql) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(Exists(sql));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery notExists(String sql) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(NotExists(sql));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery page(PageReq<Object> pageReq) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(Page(pageReq));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery page(NeoPage neoPage) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(Page(neoPage));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery page(Integer pageNo, Integer pageSize) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(Page(pageNo, pageSize));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery betweenAnd(String key, Object leftValue, Object rightValue) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(BetweenAnd(key, leftValue, rightValue));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
+    public SearchQuery notBetweenAnd(String key, Object leftValue, Object rightValue) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        operateQueue.add(NotBetweenAnd(key, leftValue, rightValue));
+        return append(Operate.parse(LogicEnum.EMPTY, operateQueue));
+    }
+
     /**
      * 转化为带?的sql字段
      * @param needWhere 是否需要where
@@ -290,11 +436,47 @@ public class SearchQuery {
         return toSql(true);
     }
 
+    private SearchQuery doAppendKeyValue(BiFunction<String, Object, Operate> operateBiFunction, Object... objects) {
+        NeoQueue<Operate> operateQueue = NeoQueue.of();
+        List<Object> parameters = Arrays.asList(objects);
+
+        for (int index = 0; index < parameters.size(); index++) {
+            Object parameter = parameters.get(index);
+
+            // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
+            if (parameter instanceof String) {
+                String key = (String) parameter;
+                Object value = null;
+                if(++index < parameters.size()) {
+                    value = parameters.get(index);
+                }
+                operateQueue.add(operateBiFunction.apply(key, value));
+            }
+        }
+
+        return and(Operate.parse(LogicEnum.AND_EM, operateQueue));
+    }
+
     enum LogicEnum {
+        /**
+         * (xx and yy)
+         */
         AND,
+        /**
+         * xx and yy
+         */
         AND_EM,
+        /**
+         * (xx or yy)
+         */
         OR,
+        /**
+         * xx or yy
+         */
         OR_EM,
+        /**
+         * 空格
+         */
         EMPTY
     }
 }
