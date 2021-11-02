@@ -1,6 +1,6 @@
 package com.simonalong.neo.db;
 
-import com.isyscore.isc.mikilin.annotation.Matcher;
+import com.simonalong.mikilin.annotation.Matcher;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

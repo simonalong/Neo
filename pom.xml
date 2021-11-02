@@ -151,9 +151,9 @@
 
         <!--核查框架-->
         <dependency>
-            <groupId>com.github.isyscore</groupId>
-            <artifactId>isc-mikilin</artifactId>
-            <version>1.2.4-SNAPSHOT</version>
+            <groupId>com.github.simonalong</groupId>
+            <artifactId>mikilin</artifactId>
+            <version>1.6.2</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
