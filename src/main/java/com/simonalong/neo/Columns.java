@@ -30,6 +30,10 @@ public final class Columns {
     @Accessors(chain = true)
     private Neo neo;
     /**
+     * 是否包含distinct关键字
+     */
+    private boolean distinct = false;
+    /**
      * 全局默认采用小驼峰和数据库下划线方式
      */
     @Setter
@@ -167,6 +171,16 @@ public final class Columns {
         return table(DEFAULT_TABLE, cs);
     }
 
+    public Columns distinct(boolean distinct) {
+        this.distinct = distinct;
+        return this;
+    }
+
+    public Columns distinct() {
+        this.distinct = true;
+        return this;
+    }
+
     public boolean contains(String data) {
         return tableFieldsMap.entrySet().stream().anyMatch(e -> e.getValue().stream().anyMatch(c -> c.getMetaValue().equals(data)));
     }
@@ -214,13 +228,19 @@ public final class Columns {
         if(tableFieldsMap.isEmpty()) {
             return "*";
         }
-        return tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value -> {
+        String columns = tableFieldsMap.entrySet().stream().flatMap(e -> e.getValue().stream().map(value -> {
             if(null == e.getKey() || "".equals(e.getKey())) {
                 return value.getCurrentValue();
             } else {
                 return e.getKey() + "." + value.getCurrentValue();
             }
         })).collect(Collectors.joining(", "));
+
+        if (!distinct) {
+            return columns;
+        }
+
+        return "distinct " + columns;
     }
 
     @Override

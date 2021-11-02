@@ -59,6 +59,25 @@ public class ColumnsTest extends NeoBaseTest {
         Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).toSelectString());
     }
 
+    /**
+     * 输出
+     */
+    @Test
+    public void distinctTest1(){
+        String expect = "distinct `c1`, `c2`, `c3`";
+
+        Assert.assertEquals(expect, Columns.of("c1", "`c2`", "`c3`").distinct().toSelectString());
+    }
+
+    /**
+     * 输出
+     */
+    @Test
+    public void distinctTest2() {
+        String expect = "distinct neo_table1.`id` as neo_table1_dom_id, neo_table1.`name` as neo_table1_dom_name, neo_table1.`sl` as neo_table1_dom_sl, neo_table1.`desc` as neo_table1_dom_desc, neo_table1.`group` as neo_table1_dom_group, neo_table1.`desc1` as neo_table1_dom_desc1, neo_table1.`age` as neo_table1_dom_age, neo_table1.`user_name` as neo_table1_dom_user_name";
+        Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).distinct().toSelectString());
+    }
+
     @Test
     public void testFrom1() {
         // `data_base_name`, `group`, `user_name`, `name`, `id`
