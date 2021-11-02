@@ -7,9 +7,8 @@ import com.simonalong.neo.exception.UuidException;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
-import static com.simonalong.neo.uid.UuidConstant.DELAY_START_TIME;
-import static com.simonalong.neo.uid.UuidConstant.SEQ_LEFT_SHIFT;
-import static com.simonalong.neo.uid.UuidConstant.TIME_LEFT_SHIFT;
+import static com.simonalong.neo.uid.UuidConstant.*;
+
 
 /**
  * @author shizi
@@ -41,7 +40,7 @@ public class DefaultUuidSplicer implements UuidSplicer {
         long seq = bitAllocator.getSequenceValue();
         long time = bitAllocator.getTimeValue();
 
-        return (time << TIME_LEFT_SHIFT) | (seq << SEQ_LEFT_SHIFT) | workerId;
+        return (time << ((SEQ_HIGH_BITS + WORKER_BITS + SEQ_LOW_BITS)) | (((seq << WORKER_BITS) & SEQ_HIGH_MARK)) | ((workerId << SEQ_LOW_BITS) & WORKER_MARK) | (seq & SEQ_LOW_MARK));
     }
 
     /**

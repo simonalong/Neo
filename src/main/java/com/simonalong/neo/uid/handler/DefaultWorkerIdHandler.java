@@ -109,7 +109,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
         });
 
         // 延迟10秒上报，每5秒上报一次数据
-        scheduler.scheduleWithFixedDelay(this::refreshNodeInfo, 10, HEART_INTERVAL_TIME, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(this::refreshNodeInfo, 10, HEART_TIME, TimeUnit.SECONDS);
     }
 
     /**
@@ -187,7 +187,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
             if (null == maxWorkerId) {
                 uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, 0));
             } else {
-                if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
+                if (maxWorkerId + 1 < MAX_WORKER_SIZE) {
                     uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
                     log.error(LOG_PRE_NEO + "namespace {} have full worker, init fail", namespace);
@@ -212,7 +212,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * 将时间向未来延长固定的小时
      */
     private long afterHour() {
-        return System.currentTimeMillis() + KEEP_EXPIRE_TIME;
+        return System.currentTimeMillis() + KEEP_NODE_EXIST_TIME;
     }
 
     /**

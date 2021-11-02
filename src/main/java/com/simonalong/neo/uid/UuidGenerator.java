@@ -16,7 +16,7 @@ import com.simonalong.neo.uid.splicer.UuidSplicer;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.simonalong.neo.NeoConstant.BIT_NUM;
-import static com.simonalong.neo.uid.UuidConstant.NEO_UUID_TABLE;
+import static com.simonalong.neo.uid.UuidConstant.*;
 
 /**
  * 分布式全局id生成器
@@ -37,11 +37,11 @@ public final class UuidGenerator {
     /**
      * key为对应业务命名空间，value为uuid的序列构造器
      */
-    private Map<String, UuidSplicer> uUidBuilderMap = new HashMap<>();
+    private final Map<String, UuidSplicer> uUidBuilderMap = new HashMap<>();
     /**
      * 数字和字符的对应map
      */
-    private NeoMap charMap = NeoMap.of();
+    private final NeoMap charMap = NeoMap.of();
 
     private UuidGenerator() {
         initCharMap();
@@ -76,7 +76,7 @@ public final class UuidGenerator {
     }
 
     private void initCharMap() {
-        for (Integer i = 0; i < BIT_NUM; i++) {
+        for (int i = 0; i < BIT_NUM; i++) {
             String key = i + "";
             if (i < 10) {
                 charMap.put(key, i);
@@ -183,24 +183,16 @@ public final class UuidGenerator {
      * @param uid 全局id
      * @return 解析的数据
      */
-    @SuppressWarnings("all")
     public static NeoMap parseUUid(Long uid) {
-        long symbolMark = 1 << (UuidConstant.SYMBOL_LEFT_SHIFT);
-        long timeMark = (~(-1L << UuidConstant.TIME_BITS)) << UuidConstant.TIME_LEFT_SHIFT;
-        long seqMark = (~(-1L << UuidConstant.SEQ_BITS)) << UuidConstant.SEQ_LEFT_SHIFT;
-        long workerMark = ~(-1L << UuidConstant.WORKER_BITS);
-
         NeoMap resultMap = NeoMap.of();
-
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        StringBuilder result = new StringBuilder();
+
         resultMap.put("uuid", uid);
-        resultMap.put("symbol", (uid & symbolMark) >>> UuidConstant.SYMBOL_LEFT_SHIFT);
-        resultMap.put("time", (uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT);
-        resultMap.put("startTime", dateFormat.format(new Date(startTime)));
-        resultMap.put("abstractTime", dateFormat.format(new Date(((uid & timeMark) >> UuidConstant.TIME_LEFT_SHIFT) + UuidConstant.START_TIME)));
-        resultMap.put("sequence", (uid & seqMark) >> UuidConstant.SEQ_LEFT_SHIFT);
-        resultMap.put("workerId", uid & workerMark);
+        resultMap.put("symbol", (uid & SYMBOL_MARK));
+        resultMap.put("time", (uid & TIME_MARK) >> (SEQ_HIGH_BITS + WORKER_BITS + SEQ_LOW_BITS));
+        resultMap.put("abstractTime", dateFormat.format(new Date(((uid & TIME_MARK) >> (SEQ_HIGH_BITS + WORKER_BITS + SEQ_LOW_BITS)) + startTime)));
+        resultMap.put("sequence", ((uid & SEQ_HIGH_MARK) >> WORKER_BITS) | (uid & SEQ_LOW_MARK));
+        resultMap.put("workerId", (uid & WORKER_MARK) >> SEQ_LOW_BITS);
         return resultMap;
     }
 }

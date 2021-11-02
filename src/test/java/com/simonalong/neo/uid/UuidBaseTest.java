@@ -1,12 +1,9 @@
 package com.simonalong.neo.uid;
 
 import com.simonalong.neo.NeoBaseTest;
+import com.simonalong.neo.NeoMap;
+import org.junit.Assert;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static com.simonalong.neo.uid.UuidConstant.*;
 
@@ -16,32 +13,33 @@ import static com.simonalong.neo.uid.UuidConstant.*;
  */
 public class UuidBaseTest extends NeoBaseTest {
 
-    private long symbolMark = 1 << (SYMBOL_LEFT_SHIFT);
-    private long timeMark = (~(-1L << TIME_BITS)) << TIME_LEFT_SHIFT;
-    private long seqMark = (~(-1L << SEQ_BITS)) << SEQ_LEFT_SHIFT;
-    private long workerMark = ~(-1L << WORKER_BITS);
-
     public String parseUid(Long uid) {
-        StringBuilder result = new StringBuilder();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        result.append("uuid：" + uid + "; ");
-        result.append("符号位是：" + ((uid & symbolMark) >>> SYMBOL_LEFT_SHIFT) + "; ");
-        result.append("time是：" + ((uid & timeMark) >> TIME_LEFT_SHIFT) + "; ");
-        result.append("相对时间是：" + dateFormat.format(new Date(((uid & timeMark) >> TIME_LEFT_SHIFT) + START_TIME)) + "; ");
-        result.append("seq是：" + ((uid & seqMark) >> SEQ_LEFT_SHIFT) + "; ");
-        result.append("worker是：" + (uid & workerMark) + "; ");
-
-        return result.toString();
+        return UuidGenerator.parseUUid(uid).toString();
     }
 
     @Test
     public void test1() {
-        long symbol = 0;
-        long time = 310651626;
-        long seq = 328;
-        long workerId = 1;
-        long tem = (symbol << SYMBOL_LEFT_SHIFT | (time << TIME_LEFT_SHIFT) | (seq << SEQ_LEFT_SHIFT) | workerId);
-        System.out.println(tem);
-        System.out.println(parseUid(tem));
+        int workerId = 0;
+        long seq = 1;
+        long time = System.currentTimeMillis();
+
+        NeoMap valueMap1 = UuidGenerator.parseUUid(getData(time, seq, workerId));
+        Assert.assertEquals(valueMap1.getLong("sequence").longValue(), seq);
+
+        NeoMap valueMap2 = UuidGenerator.parseUUid(getData(time, seq + 1, workerId));
+        Assert.assertEquals(valueMap2.getLong("sequence").longValue(), seq + 1);
+
+        NeoMap valueMap3 = UuidGenerator.parseUUid(getData(time, seq + 2, workerId));
+        Assert.assertEquals(valueMap3.getLong("sequence").longValue(), seq + 2);
+
+        NeoMap valueMap4 = UuidGenerator.parseUUid(getData(time, seq + 3, workerId));
+        Assert.assertEquals(valueMap4.getLong("sequence").longValue(), seq + 3);
+
+        NeoMap valueMap5 = UuidGenerator.parseUUid(getData(time, seq + 4, workerId));
+        Assert.assertEquals(valueMap5.getLong("sequence").longValue(), seq + 4);
+    }
+
+    private long getData(long time, long seq, long workerId) {
+        return (time << ((SEQ_HIGH_BITS + WORKER_BITS + SEQ_LOW_BITS)) | (((seq << WORKER_BITS) & SEQ_HIGH_MARK)) | ((workerId << SEQ_LOW_BITS) & WORKER_MARK) | (seq & SEQ_LOW_MARK));
     }
 }
