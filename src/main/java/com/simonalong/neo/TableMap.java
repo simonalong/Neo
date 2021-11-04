@@ -9,7 +9,6 @@ import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

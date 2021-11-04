@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  * @author shizi
  * @since 2020/8/29 11:32 下午
  */
+@SuppressWarnings("unused")
 public abstract class BaseOperate implements Operate {
 
     /**
@@ -976,9 +977,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1009,9 +1007,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1095,9 +1090,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1158,9 +1150,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1224,9 +1213,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1257,9 +1243,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1289,9 +1272,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1316,9 +1296,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 
@@ -1334,9 +1311,6 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                if (!valueLegal()) {
-                    return NeoQueue.of();
-                }
                 return NeoQueue.of();
             }
 

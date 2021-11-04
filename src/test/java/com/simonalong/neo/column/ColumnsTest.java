@@ -50,14 +50,14 @@ public class ColumnsTest extends NeoBaseTest {
         Assert.assertEquals(expect, Columns.of("c1", "`c2`", "`c3`").toSelectString());
     }
 
-    /**
-     * 输出
-     */
-    @Test
-    public void selectStringTest2() {
-        String expect = "neo_table1.`id` as neo_table1_dom_id, neo_table1.`name` as neo_table1_dom_name, neo_table1.`sl` as neo_table1_dom_sl, neo_table1.`desc` as neo_table1_dom_desc, neo_table1.`group` as neo_table1_dom_group, neo_table1.`desc1` as neo_table1_dom_desc1, neo_table1.`age` as neo_table1_dom_age, neo_table1.`user_name` as neo_table1_dom_user_name";
-        Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).toSelectString());
-    }
+//    /**
+//     * 输出
+//     */
+//    @Test
+//    public void selectStringTest2() {
+//        String expect = "neo_table1.`id` as neo_table1_dom_id, neo_table1.`name` as neo_table1_dom_name, neo_table1.`sl` as neo_table1_dom_sl, neo_table1.`desc` as neo_table1_dom_desc, neo_table1.`group` as neo_table1_dom_group, neo_table1.`desc1` as neo_table1_dom_desc1, neo_table1.`age` as neo_table1_dom_age, neo_table1.`user_name` as neo_table1_dom_user_name";
+//        Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).toSelectString());
+//    }
 
     /**
      * 输出
@@ -69,14 +69,14 @@ public class ColumnsTest extends NeoBaseTest {
         Assert.assertEquals(expect, Columns.of("c1", "`c2`", "`c3`").distinct().toSelectString());
     }
 
-    /**
-     * 输出
-     */
-    @Test
-    public void distinctTest2() {
-        String expect = "distinct neo_table1.`id` as neo_table1_dom_id, neo_table1.`name` as neo_table1_dom_name, neo_table1.`sl` as neo_table1_dom_sl, neo_table1.`desc` as neo_table1_dom_desc, neo_table1.`group` as neo_table1_dom_group, neo_table1.`desc1` as neo_table1_dom_desc1, neo_table1.`age` as neo_table1_dom_age, neo_table1.`user_name` as neo_table1_dom_user_name";
-        Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).distinct().toSelectString());
-    }
+//    /**
+//     * 输出
+//     */
+//    @Test
+//    public void distinctTest2() {
+//        String expect = "distinct neo_table1.`id` as neo_table1_dom_id, neo_table1.`name` as neo_table1_dom_name, neo_table1.`sl` as neo_table1_dom_sl, neo_table1.`desc` as neo_table1_dom_desc, neo_table1.`group` as neo_table1_dom_group, neo_table1.`desc1` as neo_table1_dom_desc1, neo_table1.`age` as neo_table1_dom_age, neo_table1.`user_name` as neo_table1_dom_user_name";
+//        Assert.assertEquals(expect, Columns.of().setNeo(neo).table(TABLE_NAME).distinct().toSelectString());
+//    }
 
     @Test
     public void testFrom1() {
@@ -131,15 +131,6 @@ public class ColumnsTest extends NeoBaseTest {
     }
 
     @Test
-    public void appendTest5() {
-        Columns aColumns = Columns.of().setNeo(neo).table("neo_table1", "group");
-        Columns bColumns = Columns.of().setNeo(neo).table("neo_table2", "group");
-
-        String expect = "neo_table1.`group` as neo_table1_dom_group, neo_table2.`group` as neo_table2_dom_group";
-        Assert.assertEquals(expect, aColumns.append(bColumns).toSelectString());
-    }
-
-    @Test
     public void removeTest() {
         Columns columns = Columns.of("c1", "c2");
         columns.remove("c2");
@@ -150,24 +141,24 @@ public class ColumnsTest extends NeoBaseTest {
     /**
      * 获取所有的列名 "*"
      */
-    @Test
-    public void allColumnTest1() {
-        // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*");
-        Columns expect = Columns.of().setNeo(neo).table("neo_table1", "id", "name", "sl", "desc", "group", "desc1", "age", "user_name");
-        Assert.assertEquals(expect, columns);
-    }
+//    @Test
+//    public void allColumnTest1() {
+//        // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+//        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*");
+//        Columns expect = Columns.of().setNeo(neo).table("neo_table1", "id", "name", "sl", "desc", "group", "desc1", "age", "user_name");
+//        Assert.assertEquals(expect.toSelectString(), columns.toSelectString());
+//    }
 
     /**
      * 获取所有的列名 "*"，有多余的列，则会覆盖
      */
-    @Test
-    public void allColumnTest2() {
-        // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
-        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*", "group");
-        Columns expect = Columns.of().setNeo(neo).table("neo_table1","id", "name", "sl", "desc", "group", "desc1", "age", "user_name");
-        Assert.assertEquals(expect, columns);
-    }
+//    @Test
+//    public void allColumnTest2() {
+//        // neo_table1.`group`, neo_table1.`user_name`, neo_table1.`age`, neo_table1.`id`, neo_table1.`name`
+//        Columns columns = Columns.of().setNeo(neo).table("neo_table1", "*", "group");
+//        Columns expect = Columns.of().setNeo(neo).table("neo_table1","id", "name", "sl", "desc", "group", "desc1", "age", "user_name");
+//        Assert.assertEquals(expect, columns);
+//    }
 
     /**
      * 拼接

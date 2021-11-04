@@ -8,8 +8,6 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
-import com.simonalong.neo.express.BaseOperate;
-import com.simonalong.neo.express.Operate;
 import com.simonalong.neo.util.ClassUtil;
 import com.simonalong.neo.util.ObjectUtil;
 import java.io.Serializable;
@@ -27,8 +25,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.simonalong.neo.express.BaseOperate.AndEm;
 
 /**
  * 实现map中的所有功能

@@ -6,7 +6,6 @@ import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.express.BaseOperate.*;
@@ -15,6 +14,7 @@ import static com.simonalong.neo.express.BaseOperate.*;
  * @author shizi
  * @since 2020/8/29 11:14 上午
  */
+@SuppressWarnings("unused")
 public class SearchQuery {
 
     NeoQueue<Operate> innerOperateQueue = NeoQueue.of();

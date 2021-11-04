@@ -9,7 +9,6 @@ import com.simonalong.neo.TableMap;
 
 import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.express.BaseOperate.*;
-import static com.simonalong.neo.util.LogicOperateUtil.filterLogicHead;
 
 /**
  * 运算符
