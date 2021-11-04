@@ -19,7 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +28,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.simonalong.neo.util.LogicOperateUtil.*;
+import static com.simonalong.neo.express.BaseOperate.AndEm;
 
 /**
  * 实现map中的所有功能
@@ -49,13 +48,23 @@ import static com.simonalong.neo.util.LogicOperateUtil.*;
 @Slf4j
 @SuppressWarnings("unused")
 @NoArgsConstructor
-public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneable, Serializable {
+public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
 
     private static final Integer KV_NUM = 2;
     /**
      * key为对应的表，value：key为数据对应的key，value为属性对应的值
      */
-    private Map<String, Object> dataMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> dataMap = new ConcurrentHashMap<>();
+    /**
+     * 添加的数据是否是顺序的
+     */
+    private volatile Boolean sorted = false;
+    /**
+     * 将数据转换为有序
+     */
+    @Getter
+    @Setter
+    private NeoQueue<Pair<String, Object>> dataQueue = NeoQueue.of();
     @Getter
     private final Set<String> nullValueKeySet = new HashSet<>();
     /**
@@ -91,6 +100,29 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         }
 
         NeoMap neoMap = new NeoMap();
+        for (int i = 0; i < kvs.length; i += KV_NUM) {
+            if (null == kvs[i]) {
+                throw new ParameterNullException("NeoMap.of()中的参数不可为null");
+            }
+            neoMap.put((String) kvs[i], kvs[i + 1]);
+        }
+        return neoMap;
+    }
+
+    /**
+     * 通过key-value-key-value生成fifo的顺序数据
+     *
+     *
+     * @param kvs 参数是通过key-value-key-value等等这种
+     * @return 生成的map数据
+     */
+    public static NeoMap ofSort(Object... kvs) {
+        if (kvs.length % KV_NUM != 0) {
+            throw new NumberOfValueException("参数请使用：key,value,key,value...这种参数格式");
+        }
+
+        NeoMap neoMap = new NeoMap();
+        neoMap.openSorted();
         for (int i = 0; i < kvs.length; i += KV_NUM) {
             if (null == kvs[i]) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
@@ -496,21 +528,32 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
-     * 将NeoMap底层的ConcurrentHashMap类型结构转换为key有序的ConcurrentSkipListMap（有序的跳表结构）
+     * 设置有序
+     *
      * @return 设定key顺序后的map
      */
     public NeoMap openSorted() {
-        dataMap = new ConcurrentSkipListMap<>(dataMap);
+        sorted = true;
         return this;
     }
 
     /**
-     * 将NeoMap底层的ConcurrentSkipListMap（key有序的跳表结构）类型结构转换为有序的ConcurrentHashMap
+     * 设置无需
      * @return 设定key无顺序后的map
      */
     public NeoMap closeSorted() {
-        dataMap = new ConcurrentHashMap<>();
+        sorted = true;
+        dataQueue.clear();
         return this;
+    }
+
+    public NeoMap setSorted(boolean sorted) {
+        this.sorted = sorted;
+        return this;
+    }
+
+    public boolean isSorted() {
+        return sorted;
     }
 
     /**
@@ -1149,8 +1192,14 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     public Object put(String key, Object value, Boolean timeTypeToLong) {
         if (null != value) {
             if (timeTypeToLong) {
+                if (sorted) {
+                    dataQueue.add(new Pair<>(key, TimeDateConverter.entityTimeToLong(value)));
+                }
                 dataMap.put(key, TimeDateConverter.entityTimeToLong(value));
             } else {
+                if (sorted) {
+                    dataQueue.add(new Pair<>(key, value));
+                }
                 dataMap.put(key, value);
             }
         } else {
@@ -1167,6 +1216,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         if (supportValueNull) {
             nullValueKeySet.remove(key);
         }
+        dataQueue.removeIf(e -> e.getKey().equals((String) key));
         return dataMap.remove(key);
     }
 
@@ -1180,6 +1230,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
             NeoMap innerMap = (NeoMap) m;
             getDataMap().putAll(innerMap.getDataMap());
             getNullValueKeySet().addAll(innerMap.getNullValueKeySet());
+            getDataQueue().addAll(innerMap.getDataQueue());
         } else {
             m.forEach((key, value) -> {
                 if (null == value) {
@@ -1195,18 +1246,45 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     public void clear() {
         dataMap.clear();
         nullValueKeySet.clear();
+        dataQueue.clear();
     }
 
     @SuppressWarnings("all")
     @Override
     public Set<String> keySet() {
-        return entrySet().stream().map(Entry::getKey).collect(Collectors.toSet());
+        if (sorted) {
+            return dataQueue.stream().map(e -> e.getKey()).collect(Collectors.toSet());
+        } else {
+            return entrySet().stream().map(Entry::getKey).collect(Collectors.toSet());
+        }
+    }
+
+    /**
+     * 获取fifo对应的的key
+     *
+     * 只有配置sorted了，那么后续添加的数据才能进行有序
+     * @return key队列
+     */
+    public Queue<String> keyQueue() {
+        NeoQueue<String> keyQueue = NeoQueue.of();
+        dataQueue.forEach(e -> keyQueue.add(e.getKey()));
+        return keyQueue;
     }
 
     @SuppressWarnings("all")
     @Override
     public Collection<Object> values() {
-        return entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
+        if (sorted) {
+            return dataQueue.stream().map(e -> e.getValue()).collect(Collectors.toSet());
+        } else {
+            return entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
+        }
+    }
+
+    public Queue<Object> valueQueue() {
+        NeoQueue<Object> keyQueue = NeoQueue.of();
+        dataQueue.forEach(e -> keyQueue.add(e.getValue()));
+        return keyQueue;
     }
 
     /**
@@ -1220,6 +1298,10 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         entrySet.addAll(dataMap.entrySet().stream().map(e -> new NeoMap.Node(e.getKey(), e.getValue())).collect(Collectors.toSet()));
         entrySet.addAll(nullValueKeySet.stream().map(e -> new NeoMap.Node(e, null)).collect(Collectors.toSet()));
         return entrySet;
+    }
+
+    public Queue<Pair<String, Object>> entryQueue() {
+        return dataQueue;
     }
 
     @Override
@@ -1264,7 +1346,7 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
     }
 
     /**
-     * 这里采用深拷贝，浅拷贝存在集合并发修改问题
+     * 这里采用半深拷贝，浅拷贝存在集合并发修改问题
      */
     @SuppressWarnings("all")
     @Override
@@ -1274,55 +1356,12 @@ public class NeoMap extends BaseOperate implements Map<String, Object>, Cloneabl
         neoMap.setNamingChg(namingChg);
         neoMap.setSupportValueNull(supportValueNull);
         neoMap.getNullValueKeySet().addAll(nullValueKeySet);
+        if (sorted) {
+            neoMap.setSorted(sorted);
+            neoMap.setDataQueue(dataQueue);
+        }
+
         return neoMap;
-    }
-
-    @Override
-    public String generateOperate() {
-        NeoQueue<Operate> operateQueue = NeoQueue.of();
-        if (dataMap instanceof ConcurrentSkipListMap) {
-            dataMap.forEach((key, value) -> operateQueue.push(AndEm(key, value)));
-        } else {
-            dataMap.forEach((key, value) -> operateQueue.offer(AndEm(key, value)));
-        }
-
-        Operate operate;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((operate = operateQueue.poll()) != null) {
-            String operateStr = operate.generateOperate();
-            stringBuilder.append(" and ").append(filterLogicHead(operateStr));
-        }
-
-        return stringBuilder.toString();
-    }
-
-    /**
-     * 多个值中，只要有一个合法，则就合法，
-     * @return true：合法，false：不合法
-     */
-    @Override
-    public Boolean valueLegal() {
-        Set<Map.Entry<String, Object>> entrySet = dataMap.entrySet();
-        for (Entry<String, Object> stringObjectEntry : entrySet) {
-            if(!ObjectUtil.isEmpty(stringObjectEntry.getValue())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public NeoQueue<Object> getValueQueue() {
-        if (!valueLegal()) {
-            return NeoQueue.of();
-        }
-        NeoQueue<Object> operateQueue = NeoQueue.of();
-        if (dataMap instanceof ConcurrentSkipListMap) {
-            dataMap.forEach((key, value) -> operateQueue.push(value));
-        } else {
-            dataMap.forEach((key, value) -> operateQueue.offer(value));
-        }
-        return operateQueue;
     }
 
     public enum NamingChg {

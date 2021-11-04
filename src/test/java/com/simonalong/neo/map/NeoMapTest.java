@@ -4,11 +4,13 @@ import com.simonalong.neo.BaseTest;
 import com.simonalong.neo.Columns;
 import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.NeoMap.NamingChg;
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.entity.EnumEntity;
 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.simonalong.neo.exception.NeoMapChgException;
 import com.simonalong.neo.map.table.NeoMapEnum;
@@ -1008,10 +1010,8 @@ public class NeoMapTest extends BaseTest {
         dataSet.add(32);
         dataSet.add(43);
         dataSet.add(55);
-        dataSet.add(55);
 
-        Set<Integer> expectSet = new TreeSet<>();
-        expectSet.addAll(dataMap.getSetOfDeep(Integer.class, "key1", "key2", "key32", "key4"));
+        Set<Integer> expectSet = new TreeSet<>(dataMap.getSetOfDeep(Integer.class, "key1", "key2", "key32", "key4"));
         Assert.assertEquals(dataSet.toString(), expectSet.toString());
     }
 
@@ -1023,5 +1023,115 @@ public class NeoMapTest extends BaseTest {
 
         NeoMap expectMap = NeoMap.of("key4", 12);
         Assert.assertEquals(expectMap, dataMap.getNeoMapOfDeep("key1", "key2", "key32"));
+    }
+
+    @Test
+    public void neoSortedTest1() {
+        NeoMap dataMap = NeoMap.ofSort("name", 1, "c", 2, "group", 3, "nnn", 4);
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+
+        int index = 0;
+        for (String key : dataMap.keyQueue()) {
+            Assert.assertEquals(expectKeys[index++], key);
+        }
+
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+        index = 0;
+        for (Object value : dataMap.valueQueue()) {
+            Assert.assertEquals(expectValues[index++], value);
+        }
+    }
+
+    @Test
+    public void neoSortedTest2() {
+        NeoMap dataMap = NeoMap.of();
+        dataMap.openSorted();
+        dataMap.put("name", 1);
+        dataMap.put("c", 2);
+        dataMap.put("group", 3);
+        dataMap.put("nnn", 4);
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+
+        int index = 0;
+        for (String key : dataMap.keyQueue()) {
+            Assert.assertEquals(expectKeys[index++], key);
+        }
+
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+        index = 0;
+        for (Object value : dataMap.valueQueue()) {
+            Assert.assertEquals(expectValues[index++], value);
+        }
+    }
+
+    @Test
+    public void neoSortedTest3() {
+        NeoMap oldDataMap = NeoMap.ofSort("name", 1, "c", 2, "group", 3, "nnn", 4);
+        NeoMap dataMap = oldDataMap.clone();
+
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+
+        int index = 0;
+        for (String key : dataMap.keyQueue()) {
+            Assert.assertEquals(expectKeys[index++], key);
+        }
+
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+        index = 0;
+        for (Object value : dataMap.valueQueue()) {
+            Assert.assertEquals(expectValues[index++], value);
+        }
+    }
+
+    @Test
+    public void neoSortedTest4() {
+        NeoMap oldDataMap = NeoMap.ofSort("name", 1, "c", 2, "group", 3, "nnn", 4);
+        NeoMap dataMap = NeoMap.fromMap(oldDataMap);
+
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+
+        int index = 0;
+        for (String key : dataMap.keyQueue()) {
+            Assert.assertEquals(expectKeys[index++], key);
+        }
+
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+        index = 0;
+        for (Object value : dataMap.valueQueue()) {
+            Assert.assertEquals(expectValues[index++], value);
+        }
+    }
+
+    @Test
+    public void neoSortedTest6() {
+        NeoMap oldDataMap = NeoMap.ofSort("name", 1, "c", 2, "group", 3, "nnn", 4);
+        NeoMap dataMap = NeoMap.fromMap(oldDataMap);
+
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+
+        int index = 0;
+        for (String key : dataMap.keyQueue()) {
+            Assert.assertEquals(expectKeys[index++], key);
+        }
+
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+        index = 0;
+        for (Object value : dataMap.valueQueue()) {
+            Assert.assertEquals(expectValues[index++], value);
+        }
+    }
+
+    @Test
+    public void neoSortedTest7() {
+        NeoMap dataMap = NeoMap.ofSort("name", 1, "c", 2, "group", 3, "nnn", 4);
+
+        String[] expectKeys = new String[]{"name", "c", "group", "nnn"};
+        Object[] expectValues = new Object[]{1, 2, 3, 4};
+
+        int index = 0;
+        for (Pair<String, Object> pair : dataMap.entryQueue()) {
+            Assert.assertEquals(expectKeys[index], pair.getKey());
+            Assert.assertEquals(expectValues[index++], pair.getValue());
+        }
     }
 }

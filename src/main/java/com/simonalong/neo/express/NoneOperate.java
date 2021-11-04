@@ -3,6 +3,8 @@ package com.simonalong.neo.express;
 import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.CharSequenceUtil;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 /**
  * 无操作，只是部分sql拼接
  *
@@ -17,6 +19,11 @@ public class NoneOperate extends BaseOperate{
         super();
         super.setOperateSymbol(operateSymbol);
         this.partSql = partSql;
+    }
+
+    @Override
+    public String getTable() {
+        return DEFAULT_TABLE;
     }
 
     @Override

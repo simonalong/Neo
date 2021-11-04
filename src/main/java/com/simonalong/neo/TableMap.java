@@ -8,6 +8,8 @@ import com.simonalong.neo.exception.NeoException;
 import com.simonalong.neo.exception.NumberOfValueException;
 import com.simonalong.neo.exception.ParameterNullException;
 import com.simonalong.neo.util.ObjectUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -34,7 +36,10 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     /**
      * key：为表名，value：为表中对应的数据：key为列，value为列值
      */
+    @Getter
     private final Map<String, NeoMap> dataMap = new ConcurrentHashMap<>();
+    @Getter
+    private final NeoQueue<Pair<String, NeoMap>> dataQueue = NeoQueue.of();
 
     public static TableMap of(Object... kvs) {
         return TableMap.of(DEFAULT_TABLE, kvs);
@@ -46,7 +51,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         }
 
         TableMap tableMap = new TableMap();
-        NeoMap neoMap = new NeoMap();
+        NeoMap neoMap = NeoMap.ofSort();
         for (int i = 0; i < kvs.length; i += KV_NUM) {
             if (null == kvs[i]) {
                 throw new ParameterNullException("NeoMap.of()中的参数不可为null");
@@ -72,7 +77,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             Table table = object.getClass().getDeclaredAnnotation(Table.class);
             String tableName = table.value();
             TableMap tableMap = TableMap.of(tableName);
-            tableMap.put(tableName, NeoMap.from(object));
+            tableMap.put(tableName, NeoMap.from(object).openSorted());
             return tableMap;
         }
         return TableMap.of();
@@ -80,19 +85,19 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     public static TableMap from(String tableName, Object object) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.from(object));
+        tableMap.put(tableName, NeoMap.from(object).openSorted());
         return tableMap;
     }
 
     public static TableMap from(String tableName, Object object, NeoMap.NamingChg namingChg) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.from(object, namingChg));
+        tableMap.put(tableName, NeoMap.from(object, namingChg).openSorted());
         return tableMap;
     }
 
     public static TableMap from(String tableName, Object object, String... columnsNames) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.from(object, columnsNames));
+        tableMap.put(tableName, NeoMap.from(object, columnsNames).openSorted());
         return tableMap;
     }
 
@@ -111,7 +116,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
             return tableMap;
         }
 
-        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList, false);
+        NeoMap neoMap = NeoMap.from(object, namingChg, inFieldList, exFieldList, false).openSorted();
         tableMap.put(tableName, neoMap);
         return tableMap;
     }
@@ -126,7 +131,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static TableMap fromInclude(String tableName, Object object, String... fields) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.from(object, fields));
+        tableMap.put(tableName, NeoMap.from(object, fields).openSorted());
         return tableMap;
     }
 
@@ -141,7 +146,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static TableMap fromInclude(String tableName, Object object, NeoMap.NamingChg namingChg, String... fields) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.fromInclude(object, namingChg, fields));
+        tableMap.put(tableName, NeoMap.fromInclude(object, namingChg, fields).openSorted());
         return tableMap;
     }
 
@@ -155,7 +160,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static TableMap fromExclude(String tableName, Object object, String... fields) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.fromExclude(object, fields));
+        tableMap.put(tableName, NeoMap.fromExclude(object, fields).openSorted());
         return tableMap;
     }
 
@@ -170,7 +175,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      */
     public static TableMap fromExclude(String tableName, Object object, NeoMap.NamingChg namingChg, String... fields) {
         TableMap tableMap = TableMap.of(tableName);
-        tableMap.put(tableName, NeoMap.fromExclude(object, namingChg, fields));
+        tableMap.put(tableName, NeoMap.fromExclude(object, namingChg, fields).openSorted());
         return tableMap;
     }
 
@@ -178,7 +183,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         if (null == dataList || dataList.isEmpty()) {
             return Collections.emptyList();
         }
-        return NeoMap.fromArray(dataList).stream().map(map -> TableMap.of().append(tableName, map)).collect(Collectors.toList());
+        return NeoMap.fromArray(dataList).stream().map(map -> TableMap.of().append(tableName, map.openSorted())).collect(Collectors.toList());
     }
 
     /**
@@ -194,21 +199,21 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         if (null == dataList || dataList.isEmpty()) {
             return Collections.emptyList();
         }
-        return NeoMap.fromArray(dataList, columns).stream().map(map -> TableMap.of().append(tableName, map)).collect(Collectors.toList());
+        return NeoMap.fromArray(dataList, columns).stream().map(map -> TableMap.of().append(tableName, map.openSorted())).collect(Collectors.toList());
     }
 
     public static <T> List<TableMap> fromArray(String tableName, List<T> dataList, NeoMap.NamingChg namingChg, Columns columns) {
         if (null == dataList || dataList.isEmpty()) {
             return Collections.emptyList();
         }
-        return NeoMap.fromArray(dataList, namingChg, columns).stream().map(map -> TableMap.of().append(tableName, map)).collect(Collectors.toList());
+        return NeoMap.fromArray(dataList, namingChg, columns).stream().map(map -> TableMap.of().append(tableName, map.openSorted())).collect(Collectors.toList());
     }
 
     public static <T> List<TableMap> fromArray(String tableName, List<T> dataList, NeoMap.NamingChg namingChg) {
         if (null == dataList || dataList.isEmpty()) {
             return Collections.emptyList();
         }
-        return NeoMap.fromArray(dataList, namingChg).stream().map(map -> TableMap.of().append(tableName, map)).collect(Collectors.toList());
+        return NeoMap.fromArray(dataList, namingChg).stream().map(map -> TableMap.of().append(tableName, map.openSorted())).collect(Collectors.toList());
     }
 
     public static boolean isEmpty(TableMap neoMap) {
@@ -365,9 +370,11 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public Object put(String key, Object value) {
         if (value instanceof NeoMap) {
-            return dataMap.put(key, (NeoMap) value);
+            dataQueue.add(new Pair<>(key, ((NeoMap) value).openSorted()));
+            return dataMap.put(key, ((NeoMap) value).openSorted());
         } else {
-            return dataMap.put(key, NeoMap.from(value));
+            dataQueue.add(new Pair<>(key, NeoMap.from(value).openSorted()));
+            return dataMap.put(key, NeoMap.from(value).openSorted());
         }
     }
 
@@ -385,20 +392,26 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
      * @return value的值
      */
     public Object put(String tableName, String key, Object value, Boolean timeTypeToLong) {
-        return dataMap.compute(tableName, (k, v) -> {
-            if (v == null) {
-                NeoMap data = NeoMap.of();
-                data.put(key, value, timeTypeToLong);
-                return data;
-            } else {
-                v.put(key, value, timeTypeToLong);
-                return v;
-            }
-        });
+        NeoMap data1 = NeoMap.ofSort();
+        data1.put(key, value, timeTypeToLong);
+        dataQueue.add(new Pair<>(tableName, data1));
+
+        if (dataMap.containsKey(tableName)) {
+            NeoMap valueMap = dataMap.get(tableName);
+            valueMap.put(key, value, timeTypeToLong);
+            dataMap.put(tableName, valueMap);
+            return valueMap;
+        } else {
+            NeoMap data2 = NeoMap.ofSort();
+            data2.put(key, value, timeTypeToLong);
+            dataMap.put(tableName, data2);
+            return data2;
+        }
     }
 
     @Override
     public Object remove(Object key) {
+        dataQueue.removeIf(e->e.getKey().equals(key));
         return dataMap.remove(key);
     }
 
@@ -760,9 +773,12 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return this;
     }
 
-    public TableMap append(String tableName, Map<String, ?> neoMap) {
+    public TableMap append(String tableName, Map<String, ?> valueMap) {
         if (containsKey(tableName)) {
-            getNeoMap(tableName).append(neoMap);
+            getNeoMap(tableName).append(valueMap);
+            dataQueue.add(new Pair<>(tableName, NeoMap.fromMap(valueMap).openSorted()));
+        } else {
+            this.put(tableName, NeoMap.fromMap(valueMap).openSorted());
         }
         return this;
     }
@@ -770,16 +786,19 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     public TableMap append(String tableName, String key, Object value) {
         if (containsKey(tableName)) {
             getNeoMap(tableName).append(key, value);
+        } else {
+            this.put(tableName, key, value);
         }
-        this.put(tableName, key, value);
         return this;
     }
 
     public TableMap append(String tableName, NeoMap neoMap) {
         if (containsKey(tableName)) {
-            getNeoMap(tableName).append(neoMap);
+            getNeoMap(tableName).append(neoMap.openSorted());
+            dataQueue.add(new Pair<>(tableName, neoMap));
+        } else {
+            this.put(tableName, neoMap);
         }
-        this.put(tableName, neoMap);
         return this;
     }
 
@@ -798,6 +817,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     public Object delete(String tableName, String key) {
+        dataQueue.removeIf(e -> e.getKey().equals(tableName) && e.getValue().containsKey(key));
         getNeoMap(tableName).remove(key);
         return this;
     }
@@ -927,10 +947,6 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         return (null == result) ? defaultValue : result;
     }
 
-    public Map<String, NeoMap> getDataMap() {
-        return dataMap;
-    }
-
     /**
      * 包含所有的key
      *
@@ -942,7 +958,7 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     }
 
     /**
-     * 这里采用深拷贝，浅拷贝存在集合并发修改问题
+     * 这里采用半深拷贝，浅拷贝存在集合并发修改问题
      */
     @SuppressWarnings("all")
     @Override
@@ -954,6 +970,10 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
 
     @Override
     public String toString() {
+        return dataMap.toString();
+    }
+
+    public String toJSONString() {
         return JSON.toJSONString(dataMap);
     }
 }

@@ -6,9 +6,14 @@ import com.simonalong.neo.NeoMap;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import com.simonalong.neo.Pair;
 import com.simonalong.neo.db.DbType;
 import com.simonalong.neo.db.NeoContext;
+import com.simonalong.neo.util.CharSequenceUtil;
 import lombok.experimental.UtilityClass;
+
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 
 /**
  * @author zhouzhenyong
@@ -74,7 +79,11 @@ public class SqlBuilder {
      * @return 返回sql中的多个字段：{@code [`age` = ?, `group` =  ?]}
      */
     public List<String> buildConditionMeta(NeoMap searchMap) {
-        return searchMap.clone().entrySet().stream().map(SqlBuilder::valueFix).collect(Collectors.toList());
+        if (searchMap.isSorted()) {
+            return searchMap.clone().entryQueue().stream().map(SqlBuilder::valueFix).collect(Collectors.toList());
+        } else {
+            return searchMap.clone().entrySet().stream().map(SqlBuilder::valueFix).collect(Collectors.toList());
+        }
     }
 
     /**
@@ -91,10 +100,47 @@ public class SqlBuilder {
             }
         }
         String dom = "`";
-        if (column.startsWith(dom) || column.endsWith(dom)) {
+        if (column.contains(dom)) {
             return column;
         }
+
+        String point = ".";
+        if (column.contains(point)) {
+            return column;
+        }
+
         return "`" + column + "`";
+    }
+
+    public String toDbField(String tableName, String column) {
+        Neo neo = NeoContext.getNeo();
+        if (null != neo && null != neo.getDbType()) {
+            // pg不需要 ` 这种字段修饰符
+            if (neo.getDbType().equals(DbType.PGSQL)) {
+                if (CharSequenceUtil.isEmpty(tableName) || tableName.equals(DEFAULT_TABLE)) {
+                    return column;
+                } else {
+                    return tableName + "." + column;
+                }
+            }
+        }
+        String dom = "`";
+        if (column.contains(dom)) {
+            return column;
+        }
+
+        String point = ".";
+        if (column.contains(point)) {
+            return column;
+        }
+
+        if (tableName.equals(DEFAULT_TABLE)) {
+            return "`" + column + "`";
+        } else if (CharSequenceUtil.isEmpty(tableName)) {
+            return "`" + column + "`";
+        } else {
+            return tableName + "." + "`" + column + "`";
+        }
     }
 
     /**
@@ -117,7 +163,16 @@ public class SqlBuilder {
      * @param entry 不是order by这样的数据
      * @return 条件元数据：比如：a=? 或者 a is null
      */
-    private String valueFix(Entry<String, Object> entry) {
+    public String valueFix(Pair<String, Object> entry) {
+        Object value = entry.getValue();
+        String key = toDbField(entry.getKey());
+        if (null == value) {
+            return key + " is null";
+        }
+        return key + " = ?";
+    }
+
+    public String valueFix(Map.Entry<String, Object> entry) {
         Object value = entry.getValue();
         String key = toDbField(entry.getKey());
         if (null == value) {

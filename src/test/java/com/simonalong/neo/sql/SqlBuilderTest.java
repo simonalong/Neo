@@ -36,8 +36,21 @@ public class SqlBuilderTest extends NeoBaseTest {
 
     @Test
     public void buildWhereTest1() {
-        NeoMap searchMap = NeoMap.of("group", "group1", "name", "name1");
-        String sql = " where `name` = ? and `group` = ?";
+        NeoMap searchMap = NeoMap.ofSort("group", "group1", "name", "name1");
+        String sql = " where `group` = ? and `name` = ?";
+        String result = SqlBuilder.buildWhere(searchMap);
+
+        Assert.assertEquals(sql, result);
+    }
+
+    @Test
+    public void buildSortWhereTest2() {
+        NeoMap searchMap = NeoMap.of();
+        searchMap.openSorted();
+        searchMap.put("group", "group1");
+        searchMap.put("name", "name1");
+
+        String sql = " where `group` = ? and `name` = ?";
         String result = SqlBuilder.buildWhere(searchMap);
 
         Assert.assertEquals(sql, result);

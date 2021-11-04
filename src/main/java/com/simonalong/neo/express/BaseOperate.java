@@ -10,6 +10,7 @@ import com.simonalong.neo.util.LogicOperateUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 import static com.simonalong.neo.util.LogicOperateUtil.*;
 
 import java.util.*;
@@ -38,6 +39,11 @@ public abstract class BaseOperate implements Operate {
     }
 
     @Override
+    public String getTable() {
+        return DEFAULT_TABLE;
+    }
+
+    @Override
     public String getColumn() {
         return null;
     }
@@ -56,6 +62,17 @@ public abstract class BaseOperate implements Operate {
     public Object getValueFromColumnOfOperate(String columnName, String operateSymbol) {
         for (Operate operate : childOperateQueue) {
             Object value = operate.getValueFromColumnOfOperate(columnName, operateSymbol);
+            if (null != value) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object getValueFromColumnOfOperate(String tableName, String columnName, String operateSymbol) {
+        for (Operate operate : childOperateQueue) {
+            Object value = operate.getValueFromColumnOfOperate(tableName, columnName, operateSymbol);
             if (null != value) {
                 return value;
             }
@@ -116,7 +133,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate And(Object... objects) {
-        return And(Operate.parse(SearchQuery.LogicEnum.AND_EM, objects));
+        return AndTable(DEFAULT_TABLE, objects);
+    }
+
+    public static Operate AndTable(String tableName, Object... objects) {
+        return And(Operate.parse(SearchQuery.LogicEnum.AND_EM, tableName, objects));
     }
 
     /**
@@ -152,7 +173,11 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate And(String key, Object value) {
-        return new LogicOperate(NeoConstant.AND, Equal(key, value)) {
+        return AndTable(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate AndTable(String tableName, String key, Object value) {
+        return new LogicOperate(NeoConstant.AND, Equal(tableName, key, value)) {
 
             @Override
             public String generateOperate() {
@@ -191,7 +216,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate AndEm(Object... objects) {
-        return AndEm(Operate.parse(SearchQuery.LogicEnum.AND_EM, objects));
+        return AndEmTable(DEFAULT_TABLE, objects);
+    }
+
+    public static Operate AndEmTable(String tableName, Object... objects) {
+        return AndEm(Operate.parse(SearchQuery.LogicEnum.AND_EM, tableName, objects));
     }
 
     public static Operate AndEm(NeoQueue<Operate> operateQueue) {
@@ -221,7 +250,11 @@ public abstract class BaseOperate implements Operate {
     }
 
     public static Operate AndEm(String key, Object value) {
-        return new LogicOperate(NeoConstant.AND, Equal(key, value)) {
+        return AndEmTable(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate AndEmTable(String tableName, String key, Object value) {
+        return new LogicOperate(NeoConstant.AND, Equal(tableName, key, value)) {
 
             @Override
             public String generateOperate() {
@@ -260,7 +293,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Or(Object... objects) {
-        return Or(Operate.parse(SearchQuery.LogicEnum.OR_EM, objects));
+        return OrTable(DEFAULT_TABLE, objects);
+    }
+
+    public static Operate OrTable(String tableName, Object... objects) {
+        return Or(Operate.parse(SearchQuery.LogicEnum.OR_EM, tableName, objects));
     }
 
     public static Operate Or(NeoQueue<Operate> operateQueue) {
@@ -297,7 +334,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Or(String key, Object value) {
-        return new LogicOperate(NeoConstant.OR, Equal(key, value)) {
+        return OrTable(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate OrTable(String tableName, String key, Object value) {
+        return new LogicOperate(NeoConstant.OR, Equal(tableName, key, value)) {
 
             @Override
             public String generateOperate() {
@@ -342,7 +383,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate OrEm(Object... objects) {
-        return OrEm(Operate.parse(SearchQuery.LogicEnum.OR_EM, objects));
+        return OrEmTable(DEFAULT_TABLE, objects);
+    }
+
+    public static Operate OrEmTable(String tableName, Object... objects) {
+        return OrEm(Operate.parse(SearchQuery.LogicEnum.OR_EM, tableName, objects));
     }
 
     public static Operate OrEm(NeoQueue<Operate> operateQueue) {
@@ -379,7 +424,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate OrEm(String key, Object value) {
-        return new LogicOperate(NeoConstant.OR, Equal(key, value)) {
+        return OrEmTable(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate OrEmTable(String tableName, String key, Object value) {
+        return new LogicOperate(NeoConstant.OR, Equal(tableName, key, value)) {
 
             @Override
             public String generateOperate() {
@@ -424,10 +473,14 @@ public abstract class BaseOperate implements Operate {
      * @return 操作符
      */
     public static Operate Em(Object... objects) {
-        return OrEm(Operate.parse(SearchQuery.LogicEnum.EMPTY, objects));
+        return EmTable(DEFAULT_TABLE, objects);
     }
 
-    public static Operate Em(NeoQueue<Operate> operateQueue) {
+    public static Operate EmTable(String tableName, Object... objects) {
+        return OrEm(Operate.parse(SearchQuery.LogicEnum.EMPTY, tableName, objects));
+    }
+
+    public static Operate EmQueue(NeoQueue<Operate> operateQueue) {
         return new LogicOperate(NeoConstant.EMPTY, operateQueue) {
 
             @Override
@@ -481,7 +534,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作类
      */
     public static Operate Em(String key, Object value) {
-        return new LogicOperate(NeoConstant.EMPTY, Space(key, value)) {
+        return EmTable(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate EmTable(String tableName, String key, Object value) {
+        return new LogicOperate(NeoConstant.EMPTY, Space(tableName, key, value)) {
 
             @Override
             public Boolean doNeedWhere() {
@@ -498,7 +555,7 @@ public abstract class BaseOperate implements Operate {
         };
     }
 
-    public static Operate Em(String partSql) {
+    public static Operate EmSql(String partSql) {
         return new NoneOperate(NeoConstant.SPACE, partSql);
     }
 
@@ -529,14 +586,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate Equal(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.EQUAL, value) {
+        return Equal(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate Equal(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.EQUAL, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " = ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " = ?";
             }
         };
     }
@@ -549,7 +610,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作符
      */
     public static Operate Space(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.SPACE, value) {
+        return Space(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate Space(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.SPACE, value) {
 
             @Override
             public Boolean doNeedWhere() {
@@ -561,7 +626,7 @@ public abstract class BaseOperate implements Operate {
                 if (!valueLegal()) {
                     return "";
                 }
-                return key + NeoConstant.SPACE;
+                return SqlBuilder.toDbField(getTable(), getColumn()) + NeoConstant.SPACE;
             }
         };
     }
@@ -574,14 +639,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate NotEqual(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.NOT_EQUAL, value) {
+        return NotEqual(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate NotEqual(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.NOT_EQUAL, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " != ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " != ?";
             }
         };
     }
@@ -594,14 +663,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate GreaterThan(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.GREATER_THAN, value) {
+        return GreaterThan(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate GreaterThan(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.GREATER_THAN, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " > ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " > ?";
             }
         };
     }
@@ -614,14 +687,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate GreaterEqual(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.GREATER_EQUAL, value) {
+        return GreaterEqual(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate GreaterEqual(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.GREATER_EQUAL, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " >= ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " >= ?";
             }
         };
     }
@@ -634,14 +711,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate LessThan(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.LESS_THAN, value) {
+        return LessThan(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate LessThan(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.LESS_THAN, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " < ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " < ?";
             }
         };
     }
@@ -654,14 +735,18 @@ public abstract class BaseOperate implements Operate {
      * @return 等于操作
      */
     public static Operate LessEqual(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.LESS_EQUAL, value) {
+        return LessEqual(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate LessEqual(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.LESS_EQUAL, value) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " <= ?";
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " <= ?";
             }
         };
     }
@@ -675,7 +760,11 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate Like(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.LIKE, value) {
+        return Like(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate Like(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.LIKE, value) {
 
             @Override
             public Boolean valueLegal() {
@@ -721,7 +810,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " like '" + getValue() + "'";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " like '" + getValue() + "'";
             }
         };
     }
@@ -734,7 +823,11 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate NotLike(String key, Object value) {
-        return new RelationOperate(key, NeoConstant.NOT_LIKE, value) {
+        return NotLike(DEFAULT_TABLE, key, value);
+    }
+
+    public static Operate NotLike(String tableName, String key, Object value) {
+        return new RelationOperate(tableName, key, NeoConstant.NOT_LIKE, value) {
 
             @Override
             public Boolean valueLegal() {
@@ -780,7 +873,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " not like '" + getValue() + "'";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " not like '" + getValue() + "'";
             }
         };
     }
@@ -792,9 +885,13 @@ public abstract class BaseOperate implements Operate {
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate In(String key, Object collection) {
-        return new RelationOperate(key, NeoConstant.IN, collection) {
+        return In(DEFAULT_TABLE, key, collection);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Operate In(String tableName, String key, Object collection) {
+        return new RelationOperate(tableName, key, NeoConstant.IN, collection) {
 
             @Override
             public Boolean valueLegal() {
@@ -815,7 +912,7 @@ public abstract class BaseOperate implements Operate {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " in " + SqlBuilder.buildIn((Collection)getValue());
+                return SqlBuilder.toDbField(getTable(), super.getColumn()) + " in " + SqlBuilder.buildIn((Collection)getValue());
             }
         };
     }
@@ -827,9 +924,13 @@ public abstract class BaseOperate implements Operate {
      * @param collection 待匹配的集合
      * @return 模糊匹配的字符串
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Operate NotIn(String key, Object collection) {
-        return new RelationOperate(key, NeoConstant.ONT_IN, collection) {
+        return NotIn(DEFAULT_TABLE, key, collection);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Operate NotIn(String tableName, String key, Object collection) {
+        return new RelationOperate(tableName, key, NeoConstant.ONT_IN, collection) {
 
             @Override
             public Boolean valueLegal() {
@@ -850,7 +951,7 @@ public abstract class BaseOperate implements Operate {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " not in " + SqlBuilder.buildIn((Collection)getValue());
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " not in " + SqlBuilder.buildIn((Collection)getValue());
             }
         };
     }
@@ -862,11 +963,15 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate IsNull(String key) {
-        return new RelationOperate(key, NeoConstant.IS_NULL, null) {
+        return IsNull(DEFAULT_TABLE, key);
+    }
+
+    public static Operate IsNull(String tableName, String key) {
+        return new RelationOperate(tableName, key, NeoConstant.IS_NULL, null) {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty(super.getKey());
+                return CharSequenceUtil.isNotEmpty(super.getColumn());
             }
 
             @Override
@@ -879,7 +984,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " is null";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " is null";
             }
         };
     }
@@ -891,11 +996,15 @@ public abstract class BaseOperate implements Operate {
      * @return 模糊匹配的字符串
      */
     public static Operate IsNotNull(String key) {
-        return new RelationOperate(key, NeoConstant.IS_NOT_NULL, null) {
+        return IsNotNull(DEFAULT_TABLE, key);
+    }
+
+    public static Operate IsNotNull(String tableName, String key) {
+        return new RelationOperate(tableName, key, NeoConstant.IS_NOT_NULL, null) {
 
             @Override
             public Boolean valueLegal() {
-                return CharSequenceUtil.isNotEmpty(super.getKey());
+                return CharSequenceUtil.isNotEmpty(super.getColumn());
             }
 
             @Override
@@ -908,7 +1017,7 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(super.getKey()) + " is not null";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " is not null";
             }
         };
     }
@@ -920,7 +1029,11 @@ public abstract class BaseOperate implements Operate {
      * @return group by字符串
      */
     public static Operate GroupBy(String key) {
-        return new RelationOperate(key, NeoConstant.GROUP_BY, null) {
+        return GroupBy(DEFAULT_TABLE, key);
+    }
+
+    public static Operate GroupBy(String tableName, String key) {
+        return new RelationOperate(tableName, key, NeoConstant.GROUP_BY, null) {
 
             @Override
             public Boolean valueLegal() {
@@ -937,7 +1050,7 @@ public abstract class BaseOperate implements Operate {
                 if (!valueLegal()) {
                     return "";
                 }
-                return " group by " + SqlBuilder.toDbField(super.getKey());
+                return " group by " + SqlBuilder.toDbField(getTable(), getColumn());
             }
         };
     }
@@ -960,7 +1073,11 @@ public abstract class BaseOperate implements Operate {
      * @return order by的操作符
      */
     public static Operate OrderBy(String... kDescAsc) {
-        return new RelationOperate(null, NeoConstant.ORDER_BY, new LinkedList<>(Arrays.asList(kDescAsc))) {
+        return OrderByTable(DEFAULT_TABLE, kDescAsc);
+    }
+
+    public static Operate OrderByTable(String tableName, String... kDescAsc) {
+        return new RelationOperate(tableName, null, NeoConstant.ORDER_BY, new LinkedList<>(Arrays.asList(kDescAsc))) {
 
             @Override
             public Boolean doNeedWhere() {
@@ -1001,7 +1118,7 @@ public abstract class BaseOperate implements Operate {
                     }
                     value = value.trim();
                     if (!NeoConstant.ASC.equals(value) && !NeoConstant.DESC.equals(value)) {
-                        columnNameList.add(SqlBuilder.toDbField(value));
+                        columnNameList.add(SqlBuilder.toDbField(getTable(), value));
                     } else {
                         stringBuilder.append(String.join(", ", columnNameList)).append(" ").append(value);
                         outerList.add(stringBuilder.toString());
@@ -1024,7 +1141,11 @@ public abstract class BaseOperate implements Operate {
      * @return 操作符
      */
     public static Operate OrderByDesc(String key) {
-        return new RelationOperate(key, null) {
+        return OrderByDesc(DEFAULT_TABLE, key);
+    }
+
+    public static Operate OrderByDesc(String tableName, String key) {
+        return new RelationOperate(tableName, key, null, null) {
 
             /**
              * 不需要value
@@ -1050,33 +1171,41 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public String generateOperate() {
-                return " order by " + SqlBuilder.toDbField(super.getKey()) + " desc";
+                return " order by " + SqlBuilder.toDbField(getTable(), getColumn()) + " desc";
             }
         };
     }
 
     public static Operate BetweenAnd(String key, Object leftValue, Object rightValue) {
-        return new BiRelationOperate(key, leftValue, rightValue) {
+        return BetweenAnd(DEFAULT_TABLE, key, leftValue, rightValue);
+    }
+
+    public static Operate BetweenAnd(String tableName, String key, Object leftValue, Object rightValue) {
+        return new BiRelationOperate(tableName, key, leftValue, rightValue) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " between ? and ? ";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " between ? and ? ";
             }
         };
     }
 
     public static Operate NotBetweenAnd(String key, Object leftValue, Object rightValue) {
-        return new BiRelationOperate(key, leftValue, rightValue) {
+        return NotBetweenAnd(DEFAULT_TABLE, key, leftValue, rightValue);
+    }
+
+    public static Operate NotBetweenAnd(String tableName, String key, Object leftValue, Object rightValue) {
+        return new BiRelationOperate(tableName, key, leftValue, rightValue) {
 
             @Override
             public String generateOperate() {
                 if (!valueLegal()) {
                     return "";
                 }
-                return SqlBuilder.toDbField(super.getKey()) + " not between ? and ? ";
+                return SqlBuilder.toDbField(getTable(), getColumn()) + " not between ? and ? ";
             }
         };
     }

@@ -4,6 +4,8 @@ import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 /**
  * @author shizi
  * @since 2020/8/30 2:11 下午
@@ -16,7 +18,13 @@ public abstract class BiRelationOperate extends RelationOperate {
     private final Object rightValue;
 
     public BiRelationOperate(String key, Object leftValue, Object rightValue) {
-        super(key, null);
+        super(DEFAULT_TABLE, key, null, null);
+        this.leftValue = leftValue;
+        this.rightValue = rightValue;
+    }
+
+    public BiRelationOperate(String tableName, String key, Object leftValue, Object rightValue) {
+        super(tableName, key, null, null);
         this.leftValue = leftValue;
         this.rightValue = rightValue;
     }
