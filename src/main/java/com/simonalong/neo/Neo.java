@@ -1863,11 +1863,11 @@ public class Neo extends AbstractExecutorDb {
                     }
                     return result;
                 } catch (Throwable e) {
-                    log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters, e);
+                    log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters);
                     throw new NeoException(e);
                 }
             } catch (SQLException e) {
-                log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters, e);
+                log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters);
                 throw new NeoException(e);
             } finally {
                 if (openMonitor()) {
