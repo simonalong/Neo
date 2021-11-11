@@ -377,6 +377,14 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
         }
     }
 
+    public Object putWithOutSort(String key, Object value) {
+        if (value instanceof NeoMap) {
+            return dataMap.put(key, ((NeoMap) value).openSorted());
+        } else {
+            return dataMap.put(key, NeoMap.from(value).openSorted());
+        }
+    }
+
     public Object put(String tableName, String key, Object value) {
         return put(tableName, key, value, true);
     }
@@ -488,6 +496,14 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return dataMap.entrySet().stream().map(v -> new NeoMap.Node(v.getKey(), v.getValue())).collect(Collectors.toSet());
+    }
+
+    public Set<Entry<String, Object>> entrySetOfSort() {
+        Set<Entry<String, Object>> set = new LinkedHashSet<>();
+        for (Pair<String, NeoMap> pair : dataQueue) {
+            set.add(new NeoMap.Node(pair.getKey(), pair.getValue()));
+        }
+        return set;
     }
 
     public Set<Entry<String, Object>> entrySet(String tableName) {
@@ -963,7 +979,8 @@ public class TableMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public TableMap clone() {
         TableMap tableMap = TableMap.of();
-        dataMap.entrySet().stream().forEach(e -> tableMap.put(e.getKey(), e.getValue().clone()));
+        dataMap.entrySet().stream().forEach(e -> tableMap.putWithOutSort(e.getKey(), e.getValue().clone()));
+        dataQueue.stream().forEach(e -> tableMap.dataQueue.add(new Pair<>(e.getKey(), e.getValue().clone().openSorted())));
         return tableMap;
     }
 
