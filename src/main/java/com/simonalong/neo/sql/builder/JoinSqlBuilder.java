@@ -103,7 +103,7 @@ public class JoinSqlBuilder {
             return Collections.emptyList();
         }
 
-        return searchMap.clone().entrySet().stream().flatMap(e-> ((NeoMap) e.getValue()).valueStream()).collect(Collectors.toList());
+        return searchMap.clone().entrySetOfSort().stream().flatMap(e-> ((NeoMap) e.getValue()).valueQueue().stream()).collect(Collectors.toList());
     }
 
     public List<Object> buildValueList(SearchQuery searchQuery) {
