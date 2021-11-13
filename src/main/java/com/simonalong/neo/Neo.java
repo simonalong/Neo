@@ -567,11 +567,13 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public <T> T update(String tableName, T setEntity, Number id) {
+        checkDb(tableName);
         return update(tableName, setEntity, NeoMap.of(db.getPrimaryName(tableName), id));
     }
 
     @Override
     public NeoMap update(String tableName, NeoMap setMap, Number id) {
+        checkDb(tableName);
         return update(tableName, setMap, NeoMap.of(db.getPrimaryName(tableName), id));
     }
 
