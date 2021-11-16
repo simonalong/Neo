@@ -1777,6 +1777,18 @@ public class Neo extends AbstractExecutorDb {
     }
 
     /**
+     * 判断对应的表名是否存在
+     * <p>
+     *     实时判断
+     * </p>
+     * @param tableName 表名
+     * @return true：表存在，false：表不存在
+     */
+    public Boolean tableExistRealTime(String tableName) {
+        return tableName.equals(exeValue("SELECT table_name FROM information_schema.TABLES WHERE table_name =?", tableName));
+    }
+
+    /**
      * 关闭sql规范
      */
     public void closeStandard() {
