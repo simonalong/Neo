@@ -69,4 +69,21 @@ public interface NeoConstant {
     String LESS_THAN = "<";
     String GREATER_THAN = ">";
     String NOT_EQUAL = "!=";
+
+    /**
+     * 系统配置：预先检测sql
+     */
+    String CONFIG_EXPLAIN = "neo.explain";
+    /**
+     * 系统配置：耗时监控
+     */
+    String CONFIG_MONITOR = "neo.monitor";
+    /**
+     * 系统配置：日志打印
+     */
+    String CONFIG_LOG_PRINT = "neo.log.print";
+    /**
+     * 系统配置：规范约束
+     */
+    String CONFIG_STANDARD = "neo.standard";
 }

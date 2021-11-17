@@ -56,25 +56,21 @@ public class Neo extends AbstractExecutorDb {
     /**
      * sql解析开关
      */
-    @Setter
     @Getter
     private Boolean explainFlag = true;
     /**
      * sql监控开关
      */
-    @Setter
     @Getter
     private Boolean monitorFlag = true;
     /**
      * 日志打印开关
      */
-    @Setter
     @Getter
     private Boolean logPrint = false;
     /**
      * 规范校验开关
      */
-    @Setter
     @Getter
     private Boolean standardFlag = true;
     /**
@@ -233,6 +229,34 @@ public class Neo extends AbstractExecutorDb {
         } catch (SQLException e) {
             log.error(LOG_PRE_NEO + "get connect fail", e);
             return null;
+        }
+    }
+
+    public void setExplainFlag(Boolean explainFlag) {
+        this.explainFlag = explainFlag;
+        if ("true".equals(System.getProperty(CONFIG_EXPLAIN))) {
+            this.explainFlag = true;
+        }
+    }
+
+    public void setMonitorFlag(Boolean monitorFlag) {
+        this.monitorFlag = monitorFlag;
+        if ("true".equals(System.getProperty(CONFIG_MONITOR))) {
+            this.monitorFlag = true;
+        }
+    }
+
+    public void setLogPrint(Boolean logPrint) {
+        this.logPrint = logPrint;
+        if ("true".equals(System.getProperty(CONFIG_LOG_PRINT))) {
+            this.logPrint = true;
+        }
+    }
+
+    public void setStandardFlag(Boolean standardFlag) {
+        this.standardFlag = standardFlag;
+        if ("true".equals(System.getProperty(CONFIG_STANDARD))) {
+            this.standardFlag = true;
         }
     }
 
