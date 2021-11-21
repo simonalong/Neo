@@ -121,6 +121,7 @@ public interface Operate {
      * 解析数据为操作符队列
      *
      * @param logicOperate 逻辑操作符
+     * @param tableName    表名
      * @param objects      对象
      * @return 操作符队列
      */
