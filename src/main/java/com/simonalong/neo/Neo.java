@@ -1904,7 +1904,7 @@ public class Neo extends AbstractExecutorDb {
                         // sql规范化校验
                         standard.valid(sql);
                     }
-                    if (openMonitor() || openLogPrint()) {
+                    if (openMonitor() || openLogPrint() || log.isDebugEnabled()) {
                         // 添加对sql的监控
                         monitor.start(sql, parameters);
                     }
@@ -1920,7 +1920,7 @@ public class Neo extends AbstractExecutorDb {
                         monitor.calculate(result);
                     }
 
-                    if (openLogPrint()) {
+                    if (openLogPrint() || log.isDebugEnabled()) {
                         monitor.printLog(result);
                     }
                     return result;
