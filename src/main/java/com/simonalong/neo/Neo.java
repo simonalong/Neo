@@ -56,22 +56,18 @@ public class Neo extends AbstractExecutorDb {
     /**
      * sql解析开关
      */
-    @Getter
     private Boolean explainFlag = true;
     /**
      * sql监控开关
      */
-    @Getter
     private Boolean monitorFlag = true;
     /**
      * 日志打印开关
      */
-    @Getter
     private Boolean logPrint = false;
     /**
      * 规范校验开关
      */
-    @Getter
     private Boolean standardFlag = true;
     /**
      * 租户管理器
@@ -239,11 +235,25 @@ public class Neo extends AbstractExecutorDb {
         }
     }
 
+    public Boolean getExplainFlag() {
+        if ("true".equals(System.getProperty(CONFIG_EXPLAIN))) {
+            return true;
+        }
+        return explainFlag;
+    }
+
     public void setMonitorFlag(Boolean monitorFlag) {
         this.monitorFlag = monitorFlag;
         if ("true".equals(System.getProperty(CONFIG_MONITOR))) {
             this.monitorFlag = true;
         }
+    }
+
+    public Boolean getMonitorFlag() {
+        if ("true".equals(System.getProperty(CONFIG_MONITOR))) {
+            return true;
+        }
+        return monitorFlag;
     }
 
     public void setLogPrint(Boolean logPrint) {
@@ -253,11 +263,25 @@ public class Neo extends AbstractExecutorDb {
         }
     }
 
+    public Boolean getLogPrint() {
+        if ("true".equals(System.getProperty(CONFIG_LOG_PRINT))) {
+            return true;
+        }
+        return logPrint;
+    }
+
     public void setStandardFlag(Boolean standardFlag) {
         this.standardFlag = standardFlag;
         if ("true".equals(System.getProperty(CONFIG_STANDARD))) {
             this.standardFlag = true;
         }
+    }
+
+    public Boolean getStandardFlag() {
+        if ("true".equals(System.getProperty(CONFIG_STANDARD))) {
+            return true;
+        }
+        return standardFlag;
     }
 
     /**
@@ -1846,7 +1870,7 @@ public class Neo extends AbstractExecutorDb {
      */
     private void explain(Boolean multiLine, Pair<String, List<Object>> sqlAndParamsList) {
         if (multiLine) {
-            if (explainFlag) {
+            if (getExplainFlag()) {
                 explain.explain(this, sqlAndParamsList.getKey(), sqlAndParamsList.getValue());
             }
         }
@@ -1876,11 +1900,11 @@ public class Neo extends AbstractExecutorDb {
             explain(multiLine, sqlPair);
             try (Connection con = connectFactory.getConnect()) {
                 try (PreparedStatement state = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                    if (standardFlag) {
+                    if (getStandardFlag()) {
                         // sql规范化校验
                         standard.valid(sql);
                     }
-                    if (openMonitor() || openLogPrint()) {
+                    if (openMonitor() || openLogPrint() || log.isDebugEnabled()) {
                         // 添加对sql的监控
                         monitor.start(sql, parameters);
                     }
@@ -1896,7 +1920,7 @@ public class Neo extends AbstractExecutorDb {
                         monitor.calculate(result);
                     }
 
-                    if (openLogPrint()) {
+                    if (openLogPrint() || log.isDebugEnabled()) {
                         monitor.printLog(result);
                     }
                     return result;
@@ -1926,7 +1950,7 @@ public class Neo extends AbstractExecutorDb {
             return tx(() -> {
                 try (Connection con = connectFactory.getConnect()) {
                     try (PreparedStatement state = con.prepareStatement(sql)) {
-                        if (standardFlag) {
+                        if (getStandardFlag()) {
                             // sql规范化校验
                             standard.valid(sql);
                         }
@@ -1974,11 +1998,11 @@ public class Neo extends AbstractExecutorDb {
      * 是否开启sql监控：针对一次执行的情况，只有在非事务且监控开启情况下才对单独执行监控
      */
     private Boolean openMonitor() {
-        return !isTransaction() && monitorFlag;
+        return !isTransaction() && getMonitorFlag();
     }
 
     private Boolean openLogPrint() {
-        return logPrint;
+        return getLogPrint();
     }
 
     /**
