@@ -38,6 +38,7 @@ import static com.simonalong.neo.NeoConstant.*;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
+@SuppressWarnings("unused")
 @EqualsAndHashCode(of = {"name"}, callSuper = false)
 public class Neo extends AbstractExecutorDb {
 
@@ -55,25 +56,21 @@ public class Neo extends AbstractExecutorDb {
     /**
      * sql解析开关
      */
-    @Setter
     @Getter
     private Boolean explainFlag = true;
     /**
      * sql监控开关
      */
-    @Setter
     @Getter
     private Boolean monitorFlag = true;
     /**
      * 日志打印开关
      */
-    @Setter
     @Getter
     private Boolean logPrint = false;
     /**
      * 规范校验开关
      */
-    @Setter
     @Getter
     private Boolean standardFlag = true;
     /**
@@ -232,6 +229,34 @@ public class Neo extends AbstractExecutorDb {
         } catch (SQLException e) {
             log.error(LOG_PRE_NEO + "get connect fail", e);
             return null;
+        }
+    }
+
+    public void setExplainFlag(Boolean explainFlag) {
+        this.explainFlag = explainFlag;
+        if ("true".equals(System.getProperty(CONFIG_EXPLAIN))) {
+            this.explainFlag = true;
+        }
+    }
+
+    public void setMonitorFlag(Boolean monitorFlag) {
+        this.monitorFlag = monitorFlag;
+        if ("true".equals(System.getProperty(CONFIG_MONITOR))) {
+            this.monitorFlag = true;
+        }
+    }
+
+    public void setLogPrint(Boolean logPrint) {
+        this.logPrint = logPrint;
+        if ("true".equals(System.getProperty(CONFIG_LOG_PRINT))) {
+            this.logPrint = true;
+        }
+    }
+
+    public void setStandardFlag(Boolean standardFlag) {
+        this.standardFlag = standardFlag;
+        if ("true".equals(System.getProperty(CONFIG_STANDARD))) {
+            this.standardFlag = true;
         }
     }
 
@@ -566,11 +591,13 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public <T> T update(String tableName, T setEntity, Number id) {
+        checkDb(tableName);
         return update(tableName, setEntity, NeoMap.of(db.getPrimaryName(tableName), id));
     }
 
     @Override
     public NeoMap update(String tableName, NeoMap setMap, Number id) {
+        checkDb(tableName);
         return update(tableName, setMap, NeoMap.of(db.getPrimaryName(tableName), id));
     }
 
@@ -852,7 +879,7 @@ public class Neo extends AbstractExecutorDb {
     @Deprecated
     public <T> T value(String tableName, Class<T> tClass, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -891,7 +918,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> T value(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1055,7 +1082,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> values(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1142,7 +1169,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public <T> List<T> valuesOfDistinct(Class<T> tClass, String tableName, String field, NeoMap searchMap) {
         if (NeoMap.isEmpty(searchMap)) {
-            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
+//            log.warn("搜索条件为空，[{}.java:{}]", Thread.currentThread().getStackTrace()[3].getClassName(), Thread.currentThread().getStackTrace()[3].getLineNumber());
         }
         if (null != tClass) {
             NeoMap searchMapTem = searchMap.clone();
@@ -1255,7 +1282,7 @@ public class Neo extends AbstractExecutorDb {
 
     @Override
     public List<TableMap> exePage(String sql, PageReq<?> pageReq, Object... parameters) {
-        return exePage(sql, pageReq.getStartIndex(), pageReq.getPageSize(), parameters);
+        return exePage(sql, pageReq.getStartIndex(), pageReq.getSize(), parameters);
     }
 
     @Override
@@ -1347,7 +1374,7 @@ public class Neo extends AbstractExecutorDb {
     public List<NeoMap> page(String tableName, Columns columns, NeoMap searchMap, PageReq<?> pageReq) {
         checkDb(tableName);
         NeoMap searchMapTem = searchMap.clone();
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, pageReq.getStartIndex(), pageReq.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchMapTem, pageReq.getStartIndex(), pageReq.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }
@@ -1355,7 +1382,7 @@ public class Neo extends AbstractExecutorDb {
     @Override
     public List<NeoMap> page(String tableName, Columns columns, SearchQuery searchQuery, PageReq<?> pageReq) {
         checkDb(tableName);
-        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, pageReq.getStartIndex(), pageReq.getPageSize()), this::executeList);
+        List<TableMap> result = execute(true, () -> generatePageSqlPair(tableName, columns, searchQuery, pageReq.getStartIndex(), pageReq.getSize()), this::executeList);
 
         return result.stream().map(table -> table.getNeoMap(tableName)).collect(Collectors.toList());
     }
@@ -1727,7 +1754,7 @@ public class Neo extends AbstractExecutorDb {
             }
             return result;
         } catch (Throwable e) {
-            log.error(LOG_PRE_NEO + "[提交失败，事务回滚]");
+            log.error(LOG_PRE_NEO + "[提交失败，事务回滚], {}", e.getMessage());
             try {
                 connectFactory.rollback();
                 throw new NeoTxException(ExceptionUtil.unwrapException(e));
@@ -1760,7 +1787,7 @@ public class Neo extends AbstractExecutorDb {
      */
     public String getTableCreate(String tableName) {
         List<List<TableMap>> table = execute("show create table `" + tableName + "`");
-        return ((NeoMap) table.get(0).get(0).getFirst()).getString("Create Table");
+        return table.get(0).get(0).getFirst().getString("Create Table");
     }
 
     /**
@@ -1771,6 +1798,18 @@ public class Neo extends AbstractExecutorDb {
      */
     public Boolean tableExist(String tableName) {
         return null != getTable(tableName);
+    }
+
+    /**
+     * 判断对应的表名是否存在
+     * <p>
+     *     实时判断
+     * </p>
+     * @param tableName 表名
+     * @return true：表存在，false：表不存在
+     */
+    public Boolean tableExistRealTime(String tableName) {
+        return tableName.equals(exeValue("SELECT table_name FROM information_schema.TABLES WHERE table_name =?", tableName));
     }
 
     /**
@@ -1862,11 +1901,11 @@ public class Neo extends AbstractExecutorDb {
                     }
                     return result;
                 } catch (Throwable e) {
-                    log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters, e);
+                    log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}, error => {}", sql, parameters, e.getMessage());
                     throw new NeoException(e);
                 }
             } catch (SQLException e) {
-                log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}", sql, parameters, e);
+                log.error(LOG_PRE_NEO + "sql=> {}, parameters => {}, error => {}", sql, parameters, e.getMessage());
                 throw new NeoException(e);
             } finally {
                 if (openMonitor()) {

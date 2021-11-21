@@ -17,11 +17,10 @@ public class UuidGeneratorTest extends UuidBaseTest {
 
     public UuidGeneratorTest()  {}
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(1000, new ThreadFactory() {
-        private AtomicInteger count = new AtomicInteger(0);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1000, new ThreadFactory() {
+        private final AtomicInteger count = new AtomicInteger(0);
 
         @Override
-        @SuppressWarnings("all")
         public Thread newThread(Runnable r) {
             return new Thread(r, "test_" + count.getAndIncrement());
         }

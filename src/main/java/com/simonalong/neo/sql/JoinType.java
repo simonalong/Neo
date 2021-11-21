@@ -38,7 +38,7 @@ public enum JoinType {
      */
     OUTER_JOIN_EXCEPT_INNER("outer join");
 
-    private String sql;
+    private final String sql;
 
     JoinType(String sql){
         this.sql = sql;

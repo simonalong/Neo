@@ -1,6 +1,5 @@
 package com.simonalong.neo.util;
 
-
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -47,14 +46,11 @@ import java.util.regex.Pattern;
  *     <li>3.Long {@code ---->} LocalDate</li>
  *     <li>4.Long {@code ---->} String</li>
  * </ul>
- * <p>
- *     该类名太长，后续替换为类{@link TimeUtils}
- * </p>
+ *
  * @author shizi
- * @since 2020/9/9 8:58 下午
+ * @since 2021-08-05 21:53:12
  */
-@Deprecated
-public class LocalDateTimeUtil {
+public class TimeUtils {
 
     public static final String yMdHmsSSS = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final String yMdHmsS = "yyyy-MM-dd HH:mm:ss.S";

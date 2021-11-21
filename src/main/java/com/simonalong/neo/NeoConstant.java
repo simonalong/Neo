@@ -39,15 +39,6 @@ public interface NeoConstant {
     String DEFAULT_TABLE = "_default_";
 
     /**
-     * 函数：execute
-     */
-    String FUN_EXECUTE = "execute";
-    /**
-     * 函数：executeBatch
-     */
-    String FUN_EXECUTE_BATCH = "executeBatch";
-
-    /**
      * bit的个数
      */
     int BIT_NUM = 64;
@@ -78,4 +69,21 @@ public interface NeoConstant {
     String LESS_THAN = "<";
     String GREATER_THAN = ">";
     String NOT_EQUAL = "!=";
+
+    /**
+     * 系统配置：预先检测sql
+     */
+    String CONFIG_EXPLAIN = "neo.explain";
+    /**
+     * 系统配置：耗时监控
+     */
+    String CONFIG_MONITOR = "neo.monitor";
+    /**
+     * 系统配置：日志打印
+     */
+    String CONFIG_LOG_PRINT = "neo.log.print";
+    /**
+     * 系统配置：规范约束
+     */
+    String CONFIG_STANDARD = "neo.standard";
 }

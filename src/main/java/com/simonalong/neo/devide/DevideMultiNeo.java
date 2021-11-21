@@ -540,9 +540,9 @@ public class DevideMultiNeo extends AbstractBaseQuery {
      */
     @SuppressWarnings("unchecked")
     private List<NeoMap> executePage(Object searchObject, PageReq<?> pageReq, Function<PageReq<?>, List<NeoMap>> function) {
-        PageReq<?> extendPage = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getPageSize());
+        PageReq<?> extendPage = new PageReq<>(0, pageReq.getStartIndex() + pageReq.getSize());
         Integer startIndex = pageReq.getStartIndex();
-        Integer pageSize = pageReq.getPageSize();
+        Integer pageSize = pageReq.getSize();
         List<NeoMap> resultList = function.apply(extendPage);
         // 获取排序条件
         List<ColumnSortConfig> columnSortConfigList = getColumnAndSortList(searchObject);

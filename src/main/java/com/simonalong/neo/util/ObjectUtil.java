@@ -470,10 +470,6 @@ public class ObjectUtil {
         if (null == object) {
             return true;
         }
-        if (object instanceof String) {
-            String valueStr = (String) object;
-            return "".equals(valueStr);
-        }
         if (object instanceof Collection) {
             Collection collection = (Collection) object;
             return collection.isEmpty();

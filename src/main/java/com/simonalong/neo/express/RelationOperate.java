@@ -5,6 +5,8 @@ import com.simonalong.neo.util.ObjectUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 /**
  * 关系运算符
  * <p>{@code <、>、<>、!=、=、>=、<=}
@@ -14,26 +16,40 @@ import lombok.Setter;
  */
 public abstract class RelationOperate extends BaseOperate {
 
-    @Getter
-    private final String key;
+    private final String column;
+    private final String tableName;
     @Getter
     @Setter
     private Object value;
 
-    public RelationOperate(String key, Object value) {
-        this.key = key;
+    public RelationOperate(String column, Object value) {
+        this.tableName = DEFAULT_TABLE;
+        this.column = column;
         this.value = value;
     }
 
-    public RelationOperate(String key, String operateSymbol, Object value) {
+    public RelationOperate(String column, String operateSymbol, Object value) {
         this.setOperateSymbol(operateSymbol);
-        this.key = key;
+        this.tableName = DEFAULT_TABLE;
+        this.column = column;
+        this.value = value;
+    }
+
+    public RelationOperate(String tableName, String column, String operateSymbol, Object value) {
+        this.setOperateSymbol(operateSymbol);
+        this.tableName = tableName;
+        this.column = column;
         this.value = value;
     }
 
     @Override
+    public String getTable() {
+        return tableName;
+    }
+
+    @Override
     public String getColumn() {
-        return key;
+        return column;
     }
 
     @Override
@@ -44,7 +60,18 @@ public abstract class RelationOperate extends BaseOperate {
     @Override
     public Object getValueFromColumnOfOperate(String columnName, String operateSymbol) {
         if (null != getOperateSymbol()) {
-            if (getOperateSymbol().equals(operateSymbol) && getKey().equals(columnName)) {
+            if (getOperateSymbol().equals(operateSymbol) && getColumn().equals(columnName)) {
+                return getValue();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object getValueFromColumnOfOperate(String tableName, String columnName, String operateSymbol) {
+        if (null != getOperateSymbol()) {
+            if (getOperateSymbol().equals(operateSymbol) && getColumn().equals(columnName)) {
                 return getValue();
             }
         }

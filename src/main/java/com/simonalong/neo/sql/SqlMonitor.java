@@ -39,8 +39,8 @@ public final class SqlMonitor {
     /**
      * 本地时间设置
      */
-    private ThreadLocal<SqlCost> sqlTime = new ThreadLocal<>();
-    private static SqlMonitor instance = new SqlMonitor();
+    private final ThreadLocal<SqlCost> sqlTime = new ThreadLocal<>();
+    private static final SqlMonitor instance = new SqlMonitor();
 
     private SqlMonitor() {
     }

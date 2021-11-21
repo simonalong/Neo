@@ -268,4 +268,34 @@ public class NeoListTest extends NeoBaseTest {
 
         Assert.assertEquals(expectList.toString(), resultList.toString());
     }
+
+    /**
+     * 查询一行数据
+     * 返回指定的几个列
+     * 相当于：select `group`,`name` from neo_table1 where `group` = 'ok' limit 1
+     */
+    @Test
+    @SneakyThrows
+    public void testList1Distinct(){
+        List<NeoMap> dataList = Arrays.asList(
+            NeoMap.of("group", "group_list1", "name", "name_list"),
+            NeoMap.of("group", "group_list2", "name", "name_list"),
+            NeoMap.of("group", "group_list3", "name", "name_list"),
+            NeoMap.of("group", "group_list4", "name", "name_list"),
+            NeoMap.of("group", "group_list4", "name", "name_list"),
+            NeoMap.of("group", "group_list5", "name", "name_list")
+        );
+        neo.batchInsert(TABLE_NAME, dataList);
+
+        List<NeoMap> resultList = neo.list(TABLE_NAME, Columns.of("group", "name").distinct(), NeoMap.of("name", "name_list"));
+        List<NeoMap> expectList = Arrays.asList(
+            NeoMap.of("group", "group_list1", "name", "name_list"),
+            NeoMap.of("group", "group_list2", "name", "name_list"),
+            NeoMap.of("group", "group_list3", "name", "name_list"),
+            NeoMap.of("group", "group_list4", "name", "name_list"),
+            NeoMap.of("group", "group_list5", "name", "name_list")
+        );
+
+        Assert.assertEquals(expectList.toString(), resultList.toString());
+    }
 }

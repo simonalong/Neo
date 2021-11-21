@@ -6,8 +6,7 @@ import com.simonalong.neo.devide.TableDevideConfig;
 import java.util.List;
 import java.util.Map;
 
-import static com.simonalong.neo.uid.UuidConstant.SEQ_BITS;
-import static com.simonalong.neo.uid.UuidConstant.SEQ_LEFT_SHIFT;
+import static com.simonalong.neo.uid.UuidConstant.*;
 
 /**
  * 针对uuid生成器生成的id进行的哈希
@@ -24,7 +23,7 @@ public class UuidHashDevideStrategy implements DevideStrategy {
     /**
      * key：表名，value表的分表配置
      */
-    private Map<String, TableDevideConfig> tableDevideConfigMap;
+    private final Map<String, TableDevideConfig> tableDevideConfigMap;
 
     public UuidHashDevideStrategy(Integer dbSize, Map<String, TableDevideConfig> tableDevideConfigMap) {
         this.dbSize = dbSize;
@@ -44,10 +43,10 @@ public class UuidHashDevideStrategy implements DevideStrategy {
             Long seqNum = getSeqNum(Number.class.cast(value).intValue());
             if (null != neoList) {
                 if (null != markNum) {
-                    Integer index = seqNum.intValue() & markNum;
+                    int index = seqNum.intValue() & markNum;
                     return neoList.get(index);
                 } else {
-                    Integer index = seqNum.intValue() % dbSize;
+                    int index = seqNum.intValue() % dbSize;
                     return neoList.get(index);
                 }
             }
@@ -61,7 +60,7 @@ public class UuidHashDevideStrategy implements DevideStrategy {
             return logicTableName;
         }
         if (value instanceof Number) {
-            Long seqNum = getSeqNum(Number.class.cast(value).intValue());
+            Long seqNum = getSeqNum(((Number) value).intValue());
             if (tableDevideConfigMap.containsKey(logicTableName)) {
                 TableDevideConfig tableDevideConfig = tableDevideConfigMap.get(logicTableName);
                 return logicTableName + (tableDevideConfig.getMin() + (seqNum % tableDevideConfig.getSize()));
@@ -71,8 +70,6 @@ public class UuidHashDevideStrategy implements DevideStrategy {
     }
 
     private Long getSeqNum(Number number) {
-        // 获取其中的序列的值
-        Long seqMark = (~(-1L << SEQ_BITS)) << SEQ_LEFT_SHIFT;
-        return (number.longValue() & seqMark) >> SEQ_LEFT_SHIFT;
+        return ((number.longValue() & SEQ_HIGH_MARK) >> WORKER_BITS) | (number.longValue() & SEQ_LOW_MARK);
     }
 }

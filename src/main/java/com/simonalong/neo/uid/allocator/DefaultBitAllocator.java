@@ -18,13 +18,13 @@ import static com.simonalong.neo.uid.UuidConstant.SEQ_MARK;
  */
 public class DefaultBitAllocator implements BitAllocator {
 
-    private String namespace;
-    private PaddedLong currentTime;
-    private PaddedLong sequence;
+    private final String namespace;
+    private final PaddedLong currentTime;
+    private final PaddedLong sequence;
     /**
      * worker节点操作map
      */
-    private Map<String, WorkerIdHandler> workerIdHandlerMap = new HashMap<>(12);
+    private final Map<String, WorkerIdHandler> workerIdHandlerMap = new HashMap<>(12);
 
     public DefaultBitAllocator(String namespace, Neo neo) {
         super();

@@ -40,8 +40,8 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * worker_x 节点信息
      */
     private ScheduledThreadPoolExecutor scheduler;
-    private Neo neo;
-    private String namespace;
+    private final Neo neo;
+    private final String namespace;
     private UuidGeneratorDO uuidGeneratorDO;
 
     public DefaultWorkerIdHandler(String namespace, Neo neo) {
@@ -98,10 +98,9 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      */
     private void initHeartBeatReport() {
         scheduler = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-            private AtomicInteger threadNum = new AtomicInteger(0);
+            private final AtomicInteger threadNum = new AtomicInteger(0);
 
             @Override
-            @SuppressWarnings("all")
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r, "Neo-Heart-Thread-" + threadNum.getAndIncrement());
                 thread.setDaemon(true);
@@ -110,7 +109,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
         });
 
         // 延迟10秒上报，每5秒上报一次数据
-        scheduler.scheduleWithFixedDelay(this::refreshNodeInfo, 10, HEART_INTERVAL_TIME, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(this::refreshNodeInfo, 10, HEART_TIME, TimeUnit.SECONDS);
     }
 
     /**
@@ -155,7 +154,6 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      *
      * @return true：分配成功，false：分配失败
      */
-    @SuppressWarnings("all")
     private Boolean applyWorkerFromExistExpire() {
         Integer minId = neo.exeValue(Integer.class, "select min(id) from %s where namespace =? and last_expire_time < ?", NEO_UUID_TABLE, namespace, new Date());
         if (null == minId) {
@@ -182,23 +180,23 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * 如果数据达到最大，则阻止进程启动
      */
     private void insertWorker() {
-        Integer result = neo.tx(() -> {
-            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ? for update", NEO_UUID_TABLE, namespace);
+        try {
+            // 强制加表锁
+            neo.execute("lock tables %s write", NEO_UUID_TABLE);
+            Integer maxWorkerId = neo.exeValue(Integer.class, "select max(work_id) from %s where namespace = ?", NEO_UUID_TABLE, namespace);
             if (null == maxWorkerId) {
                 uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, 0));
             } else {
-                if (maxWorkerId + 1 < WORKER_MAX_SIZE) {
+                if (maxWorkerId + 1 < MAX_WORKER_SIZE) {
                     uuidGeneratorDO = neo.insert(NEO_UUID_TABLE, generateUuidGeneratorDo(null, maxWorkerId + 1));
                 } else {
-                    log.error(LOG_PRE_NEO + "namespace have full worker, init fail");
-                    return 0;
+                    log.error(LOG_PRE_NEO + "namespace {} have full worker, init fail", namespace);
+                    throw new WorkerIdFullException("namespace " + namespace + " have full worker, init fail");
                 }
             }
-            return 1;
-        });
-
-        if (0 == result) {
-            throw new WorkerIdFullException("namespace " + namespace + " have full worker, init fail");
+        } finally {
+            // 解锁
+            neo.execute("unlock tables");
         }
     }
 
@@ -214,7 +212,7 @@ public class DefaultWorkerIdHandler implements WorkerIdHandler {
      * 将时间向未来延长固定的小时
      */
     private long afterHour() {
-        return System.currentTimeMillis() + KEEP_EXPIRE_TIME;
+        return System.currentTimeMillis() + KEEP_NODE_EXIST_TIME;
     }
 
     /**

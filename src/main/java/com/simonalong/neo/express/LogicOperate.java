@@ -2,6 +2,8 @@ package com.simonalong.neo.express;
 
 import com.simonalong.neo.NeoQueue;
 
+import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
+
 /**
  * 逻辑运算符
  * <p>{@code and、or、not（但是在数据库中，not暂时不作为处理）}
@@ -21,6 +23,11 @@ public abstract class LogicOperate extends BaseOperate {
         super();
         super.setOperateSymbol(operateSymbol);
         super.setChildOperateQueue(operateQueue);
+    }
+
+    @Override
+    public String getTable() {
+        return DEFAULT_TABLE;
     }
 
     @Override

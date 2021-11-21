@@ -266,6 +266,20 @@ new SearchQuery().and(LessThan("name", "tt"));
 // ...等等所有表达式都支持...
 ```
 
+// 也可以使用简化后的用法
+```java
+new SearchQuery().betweenAnd("age", 1, 4);
+new SearchQuery().in("id", dataList);
+new SearchQuery().like("name", "%chou");
+new SearchQuery().isNull("name");
+new SearchQuery().and("name", 12).groupBy("group");
+new SearchQuery().orderBy("create_time");
+new SearchQuery().exists("select id from xxx");
+new SearchQuery().lessThan("name", "tt");
+
+// ...等等所有表达式都支持...
+```
+
 #### 提示
 SearchQuery也可以用来生成sql进行拼接使用，这个时候使用就需要做另外的方式进行处理，举个真实案例如下
 ```java
@@ -496,7 +510,7 @@ public void generateTest1() {
 }
 ```
 
-### 主从
+### 主从（有点问题，在改造中）
 `>=v0.5.2`
 主从功能支持（有些问题，后续版本修复中）：
 - 读写分离：支持多主多从，主库写，从库读取

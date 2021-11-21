@@ -1,15 +1,13 @@
 package com.simonalong.neo.map.table;
 
-import com.simonalong.neo.BaseTest;
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.NeoMap;
-import com.simonalong.neo.TableMap;
+import com.simonalong.neo.*;
 import com.simonalong.neo.exception.NeoMapChgException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.simonalong.neo.NeoConstant.DEFAULT_TABLE;
 
@@ -208,6 +206,35 @@ public class TableMapTest extends BaseTest {
         tableMap.put("table2", NeoMap.of("name", "nana", "age", 12));
 
         Assert.assertEquals(NeoMap.of("name", "nana", "age", 12), tableMap.getNeoMap("table1"));
+    }
+
+    /**
+     * 测试：getNeoMap
+     */
+    @Test
+    public void testValues() {
+        TableMap tableMap = TableMap.of("table1", "name", 4, "age", 0);
+        List<Integer> expectInts = new ArrayList<>();
+        expectInts.add(4);
+        expectInts.add(0);
+        List<Integer> actValues = tableMap.clone().entrySetOfSort().stream().flatMap(e-> ((NeoMap) e.getValue()).valueQueue().stream()).map(e->(Integer)e).collect(Collectors.toList());
+
+        Assert.assertEquals(expectInts, actValues);
+
+        tableMap.put("table0", "name", 5);
+        tableMap.put("table0", "age", 1);
+        tableMap.put("table2", "name", 6);
+        tableMap.put("table2", "age", 2);
+        List<Object> actValues2 = tableMap.clone().entrySetOfSort().stream().flatMap(e-> ((NeoMap) e.getValue()).valueQueue().stream()).collect(Collectors.toList());
+
+        List<Integer> expectInts2 = new ArrayList<>();
+        expectInts2.add(4);
+        expectInts2.add(0);
+        expectInts2.add(5);
+        expectInts2.add(1);
+        expectInts2.add(6);
+        expectInts2.add(2);
+        Assert.assertEquals(expectInts2, actValues2);
     }
 
     /**
@@ -486,6 +513,88 @@ public class TableMapTest extends BaseTest {
         NeoMap data = tableMap.assignExcept("table1", Columns.of("v1"));
 
         Assert.assertEquals(NeoMap.of("k1", "name"), data);
+    }
+
+    @Test
+    public void testDataQueue1() {
+        TableMap tableMap = TableMap.of("table1", "name", "n", "group", "group1", "c", 23, "4", "fds", "af", "jjj");
+        String tableName = "table1";
+        String[] keys = new String[]{"name", "group", "c", "4", "af"};
+        Object[] values = new Object[]{"n", "group1", 23, "fds", "jjj"};
+        int index=0;
+        for (Pair<String, NeoMap> pair : tableMap.getDataQueue()) {
+            for (Pair<String, Object> valuePair : pair.getValue().entryQueue()) {
+                Assert.assertEquals(tableName, pair.getKey());
+                Assert.assertEquals(keys[index], valuePair.getKey());
+                Assert.assertEquals(values[index++], valuePair.getValue());
+            }
+        }
+    }
+
+    @Test
+    public void testDataQueue2() {
+        TableMap tableMap = TableMap.of();
+        tableMap.put("table1", "name", "n");
+        tableMap.put("table1", "group", "group1");
+        tableMap.put("table1", "c", 23);
+        tableMap.put("table1", "4", "fds");
+        tableMap.put("table1", "af", "jjj");
+
+        String tableName = "table1";
+        String[] keys = new String[]{"name", "group", "c", "4", "af"};
+        Object[] values = new Object[]{"n", "group1", 23, "fds", "jjj"};
+        int index=0;
+        for (Pair<String, NeoMap> pair : tableMap.getDataQueue()) {
+            Assert.assertEquals(tableName, pair.getKey());
+            for (Pair<String, Object> valuePair : pair.getValue().entryQueue()) {
+                Assert.assertEquals(keys[index], valuePair.getKey());
+                Assert.assertEquals(values[index++], valuePair.getValue());
+            }
+        }
+    }
+
+    @Test
+    public void testDataQueue3() {
+        TableMap tableMap = TableMap.of();
+        tableMap.put("table1", "name", "n");
+        tableMap.put("table2", "group", "group1");
+        tableMap.put("table1", "c", 23);
+        tableMap.put("table3", "4", "fds");
+        tableMap.put("table1", "af", "jjj");
+
+        String[] tables = new String[]{"table1", "table2", "table1", "table3", "table1"};
+        String[] keys = new String[]{"name", "group", "c", "4", "af"};
+        Object[] values = new Object[]{"n", "group1", 23, "fds", "jjj"};
+        int index=0;
+        for (Pair<String, NeoMap> pair : tableMap.getDataQueue()) {
+            Assert.assertEquals(tables[index], pair.getKey());
+            for (Pair<String, Object> valuePair : pair.getValue().entryQueue()) {
+                Assert.assertEquals(keys[index], valuePair.getKey());
+                Assert.assertEquals(values[index++], valuePair.getValue());
+            }
+        }
+    }
+
+    @Test
+    public void testDataQueue4() {
+        TableMap tableMap = TableMap.of();
+        tableMap.put("table1", "name", "n");
+        tableMap.put("table2", "group", "group1");
+        tableMap.put("table1", "c", 23);
+        tableMap.put("table3", "4", "fds");
+        tableMap.put("table1", "af", "jjj");
+
+        String[] tables = new String[]{"table1", "table2", "table1", "table3", "table1"};
+        String[] keys = new String[]{"name", "group", "c", "4", "af"};
+        Object[] values = new Object[]{"n", "group1", 23, "fds", "jjj"};
+        final int[] index = {0};
+        tableMap.getDataQueue().forEach(pair->{
+            Assert.assertEquals(tables[index[0]], pair.getKey());
+            for (Pair<String, Object> valuePair : pair.getValue().entryQueue()) {
+                Assert.assertEquals(keys[index[0]], valuePair.getKey());
+                Assert.assertEquals(values[index[0]++], valuePair.getValue());
+            }
+        });
     }
 }
 
