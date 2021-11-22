@@ -14,7 +14,6 @@ import static com.simonalong.neo.express.BaseOperate.*;
  * @author shizi
  * @since 2020/8/29 11:14 上午
  */
-@SuppressWarnings("unused")
 public class SearchQuery {
 
     NeoQueue<Operate> innerOperateQueue = NeoQueue.of();
