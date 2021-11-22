@@ -3,6 +3,7 @@ package com.simonalong.neo.neo.join;
 import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.TableJoinOn;
+import com.simonalong.neo.express.SearchQuery;
 import com.simonalong.neo.sql.builder.JoinSqlBuilder;
 import org.junit.Test;
 
@@ -367,5 +368,71 @@ public class NeoJoinTest extends NeoBaseTest {
         show(neoJoiner.count(tableJoinOn, searchMap));
 
         show(JoinSqlBuilder.build(columns, tableJoinOn, searchMap));
+    }
+
+    @Test
+    public void testJoinNew1() {
+        // 配置的列
+        Columns columns = Columns.of();
+        columns.table("neo_table1", "age");
+        columns.table("neo_table2", "name");
+        columns.table("neo_table2", "group");
+
+        // 配置查询条件
+        TableMap searchMap = TableMap.of();
+        searchMap.put("neo_table1", "name", "join_name");
+        searchMap.put("neo_table2", "group", "value_group1");
+
+        // select
+        // neo_table1.`age` as neo_table1_dom_age,
+        // neo_table2.`group` as neo_table2_dom_group,
+        // neo_table2.`name` as neo_table2_dom_name
+        //
+        // from
+        // neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+        // left join neo_table3 on neo_table2.`n_id`=neo_table3.`n_id`
+        //
+        // where neo_table2.`group` =  ? and neo_table1.`name` =  ?
+
+        // [ok, nihao]
+        show(neo.leftJoin("neo_table1", "neo_table2").on("id", "id")
+            .leftJoin("neo_table2", "neo_table3").on("id", "id")
+            .one(columns, searchMap));
+    }
+
+    /**
+     * like模糊查询
+     */
+    @Test
+    public void testJoinNew2() {
+
+        // 配置的列
+        Columns columns = Columns.of().setNeo(neo);
+        columns.table("neo_table1", "group");
+        columns.table("neo_table2", "name");
+
+
+        // 配置查询条件
+        TableMap searchMap = TableMap.of();
+        searchMap.put("neo_table1", "name", "nihao");
+        searchMap.put("neo_table2", "group", "like #x#");
+
+        // select
+        // neo_table1.`group` as neo_table1_dom_group,
+        // neo_table2.`name` as neo_table2_dom_name
+        //
+        // from
+        // neo_table1 left join neo_table2 on neo_table1.`id`=neo_table2.`n_id`
+        // left join neo_table3 on neo_table2.`n_id`=neo_table3.`n_id`
+        //
+        // where
+        // neo_table2.`group` like '%x%' and
+        // neo_table1.`name` =  ?
+
+        NeoJoiner joiner = neo.leftJoin("neo_table1", "neo_table2").on("id", "id")
+            .leftJoin("neo_table2", "neo_table3").on("id", "id");
+//        show(joiner.one(columns, searchMap));
+
+        show(JoinSqlBuilder.build(columns, joiner.getTableJoinOn(), searchMap));
     }
 }

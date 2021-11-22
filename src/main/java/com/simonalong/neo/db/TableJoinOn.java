@@ -6,6 +6,8 @@ import com.simonalong.neo.sql.builder.SqlBuilder;
 import lombok.Getter;
 
 /**
+ * 该类新版本修改仅为内部使用，不再对外使用
+ *
  * @author zhouzhenyong
  * @since 2019/4/20 下午9:46
  */
@@ -141,28 +143,28 @@ public final class TableJoinOn {
 
 
     @Getter
-    class TableJoiner{
+    static class TableJoiner{
 
         /**
          * 左表名字
          */
-        private String leftTableName;
+        private final String leftTableName;
         /**
          * 左表别名
          */
-        private String leftTableNameAlias;
+        private final String leftTableNameAlias;
         /**
          * 右表名字
          */
-        private String rightTableName;
+        private final String rightTableName;
         /**
          * 右表别名
          */
-        private String rightTableNameAlias;
+        private final String rightTableNameAlias;
         /**
          * join的类型
          */
-        private JoinType joinType;
+        private final JoinType joinType;
 
         TableJoiner(String leftTableName, String rightTableName, JoinType joinType){
             this.leftTableName = leftTableName;

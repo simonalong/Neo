@@ -17,7 +17,6 @@ import com.simonalong.neo.util.ExceptionUtil;
 import com.simonalong.neo.util.ObjectUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
@@ -38,7 +37,6 @@ import static com.simonalong.neo.NeoConstant.*;
  * @since 2019/3/3 下午2:53
  */
 @Slf4j
-@SuppressWarnings("unused")
 @EqualsAndHashCode(of = {"name"}, callSuper = false)
 public class Neo extends AbstractExecutorDb {
 
@@ -340,9 +338,47 @@ public class Neo extends AbstractExecutorDb {
         this.tenantHandler = tenantHandler;
     }
 
+    /**
+     * 不再对外使用，请使用join、leftJoin、rightJoin等等api
+     * @return join处理器
+     */
+    @Deprecated
     public NeoJoiner joiner() {
         return new NeoJoiner(this);
     }
+
+    public NeoJoiner join(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).join(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner leftJoin(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).leftJoin(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner rightJoin(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).rightJoin(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner innerJoin(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).innerJoin(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner outerJoin(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).outerJoin(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner leftJoinExceptInner(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).leftJoinExceptInner(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner rightJoinExceptInner(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).rightJoinExceptInner(leftTableName, rightTableName);
+    }
+
+    public NeoJoiner outerJoinExceptInner(String leftTableName, String rightTableName) {
+        return new NeoJoiner(this, leftTableName).outerJoinExceptInner(leftTableName, rightTableName);
+    }
+
 
     /**
      * 数据插入
