@@ -305,52 +305,52 @@ public class SearchQuery {
         return valueQueue.toList();
     }
 
-    public SearchQuery equal(Object... objects) {
-        return doAppendKeyValue(BaseOperate::Equal, objects);
+    public SearchQuery equal(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::Equal, kvs);
     }
 
-    public SearchQuery notEqual(Object... objects) {
-        return doAppendKeyValue(BaseOperate::NotEqual, objects);
+    public SearchQuery notEqual(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::NotEqual, kvs);
     }
 
-    public SearchQuery greaterThan(Object... objects) {
-        return doAppendKeyValue(BaseOperate::GreaterThan, objects);
+    public SearchQuery greaterThan(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::GreaterThan, kvs);
     }
 
-    public SearchQuery greaterEqual(Object... objects) {
-        return doAppendKeyValue(BaseOperate::GreaterEqual, objects);
+    public SearchQuery greaterEqual(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::GreaterEqual, kvs);
     }
 
-    public SearchQuery lessThan(Object... objects) {
-        return doAppendKeyValue(BaseOperate::LessThan, objects);
+    public SearchQuery lessThan(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::LessThan, kvs);
     }
 
-    public SearchQuery lessEqual(Object... objects) {
-        return doAppendKeyValue(BaseOperate::LessEqual, objects);
+    public SearchQuery lessEqual(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::LessEqual, kvs);
     }
 
-    public SearchQuery like(Object... objects) {
-        return doAppendKeyValue(BaseOperate::Like, objects);
+    public SearchQuery like(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::Like, kvs);
     }
 
-    public SearchQuery notLike(Object... objects) {
-        return doAppendKeyValue(BaseOperate::NotLike, objects);
+    public SearchQuery notLike(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::NotLike, kvs);
     }
 
-    public SearchQuery in(Object... objects) {
-        return doAppendKeyValue(BaseOperate::In, objects);
+    public SearchQuery in(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::In, kvs);
     }
 
-    public SearchQuery notIn(Object... objects) {
-        return doAppendKeyValue(BaseOperate::NotIn, objects);
+    public SearchQuery notIn(Object... kvs) {
+        return doAppendKeyValue(BaseOperate::NotIn, kvs);
     }
 
-    public SearchQuery isNull(Object... objects) {
-        if (null == objects || objects.length == 0) {
+    public SearchQuery isNull(Object... kvs) {
+        if (null == kvs || kvs.length == 0) {
             return this;
         }
         NeoQueue<Operate> operateQueue = NeoQueue.of();
-        for (Object parameter : objects) {
+        for (Object parameter : kvs) {
             // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
             if (parameter instanceof String) {
                 operateQueue.add(IsNull(tableNameLocal.get(), (String) parameter));
@@ -360,13 +360,13 @@ public class SearchQuery {
         return and(Operate.parse(LogicEnum.AND_EM, tableNameLocal.get(), operateQueue));
     }
 
-    public SearchQuery isNotNull(Object... objects) {
-        if (null == objects || objects.length == 0) {
+    public SearchQuery isNotNull(Object... kvs) {
+        if (null == kvs || kvs.length == 0) {
             return this;
         }
 
         NeoQueue<Operate> operateQueue = NeoQueue.of();
-        for (Object parameter : objects) {
+        for (Object parameter : kvs) {
             // key-value处理：key必须为String类型，key后面必须为对应的value，kv形式默认转为无括号的and
             if (parameter instanceof String) {
                 operateQueue.add(IsNotNull(tableNameLocal.get(), (String) parameter));
@@ -476,12 +476,12 @@ public class SearchQuery {
         return toSql(true);
     }
 
-    private SearchQuery doAppendKeyValue(MultiFunction<String, String, Object, Operate> operateBiFunction, Object... objects) {
-        if (null == objects || objects.length == 0) {
+    private SearchQuery doAppendKeyValue(MultiFunction<String, String, Object, Operate> operateBiFunction, Object... kvs) {
+        if (null == kvs || kvs.length == 0) {
             return this;
         }
         NeoQueue<Operate> operateQueue = NeoQueue.of();
-        List<Object> parameters = Arrays.asList(objects);
+        List<Object> parameters = Arrays.asList(kvs);
 
         for (int index = 0; index < parameters.size(); index++) {
             Object parameter = parameters.get(index);
