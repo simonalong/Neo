@@ -6,7 +6,7 @@
 
     <groupId>com.github.simonalong</groupId>
     <artifactId>Neo</artifactId>
-    <version>0.7.3</version>
+    <version>0.7.2</version>
 
     <name>Neo</name>
     <url>https://github.com/SimonAlong/Neo</url>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.46</version>
+            <version>1.2.78</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
