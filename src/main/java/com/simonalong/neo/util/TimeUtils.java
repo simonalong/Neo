@@ -1,5 +1,7 @@
 package com.simonalong.neo.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -50,6 +52,7 @@ import java.util.regex.Pattern;
  * @author shizi
  * @since 2021-08-05 21:53:12
  */
+@Slf4j
 public class TimeUtils {
 
     public static final String yMdHmsSSS = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -60,6 +63,7 @@ public class TimeUtils {
     public static final String yMd = "yyyy-MM-dd";
     public static final String yM = "yyyy-MM";
     public static final String y = "yyyy";
+    public static final String yyyyMMdd = "yyyyMMdd";
 
     public static final String HmsSSSMore = "HH:mm:ss.SSSSSSSSS";
     public static final String HmsSSS = "HH:mm:ss.SSS";
@@ -87,6 +91,7 @@ public class TimeUtils {
         simpleDateFormat.put(yMd, new SimpleDateFormat(yMd));
         simpleDateFormat.put(yM, new SimpleDateFormat(yM));
         simpleDateFormat.put(y, new SimpleDateFormat(y));
+        simpleDateFormat.put(yyyyMMdd, new SimpleDateFormat(yyyyMMdd));
 
         localDateTimeFormat.put(yMdHmsSSS, DateTimeFormatter.ofPattern(yMdHmsSSS));
         localDateTimeFormat.put(yMdHms, DateTimeFormatter.ofPattern(yMdHms));
@@ -95,6 +100,7 @@ public class TimeUtils {
         localDateTimeFormat.put(yMd, DateTimeFormatter.ofPattern(yMd));
         localDateTimeFormat.put(yM, DateTimeFormatter.ofPattern(yM));
         localDateTimeFormat.put(y, DateTimeFormatter.ofPattern(y));
+        localDateTimeFormat.put(yyyyMMdd, DateTimeFormatter.ofPattern(yyyyMMdd));
     }
 
     /**
@@ -155,6 +161,10 @@ public class TimeUtils {
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, String dateTimeFormat) {
         if (null == localDateTime) {
+            return null;
+        }
+        if (!localDateTimeFormat.containsKey(dateTimeFormat)) {
+            log.warn("dateTimeFormat is invalidate");
             return null;
         }
         return localDateTime.format(localDateTimeFormat.get(dateTimeFormat));
@@ -303,6 +313,10 @@ public class TimeUtils {
         if (null == date || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
             return null;
         }
+        if (!simpleDateFormat.containsKey(simpleDateFormatStr)) {
+            log.warn("simpleDateFormatStr is invalidate");
+            return null;
+        }
         return simpleDateFormat.get(simpleDateFormatStr).format(date);
     }
 
@@ -382,6 +396,10 @@ public class TimeUtils {
      */
     public static String timestampToString(Timestamp timestamp, String simpleDateFormatStr) {
         if (null == timestamp || null == simpleDateFormatStr || "".equals(simpleDateFormatStr)) {
+            return null;
+        }
+        if (!simpleDateFormat.containsKey(simpleDateFormatStr)) {
+            log.warn("simpleDateFormatStr is invalidate");
             return null;
         }
         return simpleDateFormat.get(simpleDateFormatStr).format(timestamp);
@@ -529,11 +547,11 @@ public class TimeUtils {
      * @param time long类型的时间
      * @return 日期
      */
-    public static java.sql.Time longToTime(Long time) {
+    public static Time longToTime(Long time) {
         if (null == time) {
             return null;
         }
-        return new java.sql.Time(time);
+        return new Time(time);
     }
 
     /**
@@ -546,7 +564,7 @@ public class TimeUtils {
         if (null == time) {
             return null;
         }
-        return new java.sql.Timestamp(time);
+        return new Timestamp(time);
     }
 
     /**
@@ -597,6 +615,10 @@ public class TimeUtils {
      */
     public static String longToString(Long time, String formatKey) {
         if (null == time || null == formatKey || "".equals(formatKey)) {
+            return null;
+        }
+        if (!simpleDateFormat.containsKey(formatKey)) {
+            log.warn("simpleDateFormatStr is invalidate");
             return null;
         }
         return simpleDateFormat.get(formatKey).format(new Date(time));
