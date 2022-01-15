@@ -552,7 +552,7 @@ public class Neo extends AbstractExecutorDb {
             if (searchMap.containsKey(db.getPrimaryName(tableName))) {
                 valueSearchMap = searchMap.assign(db.getPrimaryName(tableName));
             } else {
-                valueSearchMap.append(searchMapTem).append(dataMapTem);
+                valueSearchMap.append(searchMapTem);
             }
             NeoMap result = one(tableName, valueSearchMap);
             setStandardFlag(oldStandard);

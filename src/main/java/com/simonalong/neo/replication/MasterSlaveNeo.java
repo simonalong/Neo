@@ -22,19 +22,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MasterSlaveNeo extends AbstractMasterSlaveDb {
 
-    private Map<String, InnerActiveDb> masterDbMap = new ConcurrentHashMap<>();
-    private Map<String, InnerActiveDb> slaveDbMap = new ConcurrentHashMap<>();
+    private final Map<String, InnerActiveDb> masterDbMap = new ConcurrentHashMap<>();
+    private final Map<String, InnerActiveDb> slaveDbMap = new ConcurrentHashMap<>();
     /**
      * 临时从库，用于在从库都不可用情况下的添加的主库
      */
-    private Map<String, InnerActiveDb> slaveDbMapTem = new ConcurrentHashMap<>();
+    private final Map<String, InnerActiveDb> slaveDbMapTem = new ConcurrentHashMap<>();
     private InnerActiveDb currentMasterDb;
-    private AtomicInteger slaveIndex = new AtomicInteger(0);
-    private List<String> slaveKeys = new ArrayList<>();
+    private final AtomicInteger slaveIndex = new AtomicInteger(0);
+    private final List<String> slaveKeys = new ArrayList<>();
     /**
      * 库断开后重连任务
      */
-    private Executor restoreTask = new ThreadPoolExecutor(0, 1, 1, TimeUnit.MINUTES, new ArrayBlockingQueue<>(1), r -> {
+    private final Executor restoreTask = new ThreadPoolExecutor(0, 1, 1, TimeUnit.MINUTES, new ArrayBlockingQueue<>(1), r -> {
         Thread thread = new Thread(r, "Neo-Restore-Db");
         thread.setDaemon(true);
         return thread;

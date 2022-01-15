@@ -22,7 +22,7 @@ public final class ConnectFactory {
     private final Neo neo;
     @Getter
     private DataSource dataSource;
-    private ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
+    private final ThreadLocal<ReusableConnection> connectLocal = new ThreadLocal<>();
 
     public ConnectFactory(Neo neo, DataSource dataSource) {
         this.neo = neo;

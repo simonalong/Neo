@@ -29,9 +29,9 @@ public final class SqlExplain {
     /**
      * sql的explain的类型
      */
-    private Map<String, Explain> explainMap = new ConcurrentHashMap<>(64, 0.9f);
+    private final Map<String, Explain> explainMap = new ConcurrentHashMap<>(64, 0.9f);
 
-    private static SqlExplain instance = new SqlExplain();
+    private static final SqlExplain instance = new SqlExplain();
     private SqlExplain(){}
 
     public static SqlExplain getInstance(){
