@@ -6,6 +6,7 @@ import com.simonalong.neo.NeoMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.simonalong.neo.NeoQueue;
 import com.simonalong.neo.Pair;
 import com.simonalong.neo.db.DbType;
 import com.simonalong.neo.db.NeoContext;
@@ -52,7 +53,13 @@ public class SqlBuilder {
     }
 
     public List<Object> buildValueList(NeoMap searchMap) {
-        return new ArrayList<>(searchMap.values());
+        NeoQueue<Object> valueQueue = NeoQueue.of();
+        if (searchMap.isSorted()) {
+            searchMap.getDataQueue().forEach(e -> valueQueue.add(e.getValue()));
+        } else {
+            searchMap.forEach((key, value) -> valueQueue.add(value));
+        }
+        return valueQueue.toList();
     }
 
     /**
@@ -91,6 +98,9 @@ public class SqlBuilder {
      * @return 转换后的列名，比如name 到 `name`
      */
     public String toDbField(String column) {
+        if (null == column) {
+            return null;
+        }
         Neo neo = NeoContext.getNeo();
         if (null != neo && null != neo.getDbType()) {
             // pg不需要 ` 这种字段修饰符

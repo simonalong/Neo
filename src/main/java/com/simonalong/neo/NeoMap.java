@@ -1271,7 +1271,7 @@ public class NeoMap implements Map<String, Object>, Cloneable, Serializable {
     @Override
     public Collection<Object> values() {
         if (sorted) {
-            return dataQueue.stream().map(e -> e.getValue()).collect(Collectors.toSet());
+            return dataQueue.stream().map(e -> e.getValue()).collect(Collectors.toList());
         } else {
             return entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
         }

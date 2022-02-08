@@ -54,10 +54,10 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
      * ) b using(`id`)
      * set a.`name`=b.`name`;
      * }
-     * @param tenantHandler 租户管理器
-     * @param tableName 表名
+     *
+     * @param tableName            表名
      * @param updateDataColumnList 待更新的列的数据值
-     * @param conditionColumns 待更新数据作为where后面的条件对应的列
+     * @param conditionColumns     待更新数据作为where后面的条件对应的列
      * @return update 批量更新语句
      * @since 0.5.2
      */
@@ -83,7 +83,8 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
             }
         });
 
-        return "update " + tableName + " a join(" + getUnionSql(updateDataColumnList) + ") b using(" + getSearchColumns(conditionColumns) + ") set " + getUpdateKey(updateDataColumnList, conditionColumns);
+        return "update " + tableName + " a join(" + getUnionSql(updateDataColumnList) + ") b using(" + getSearchColumns(conditionColumns) + ") set " + getUpdateKey(
+            updateDataColumnList, conditionColumns);
     }
 
     /**
@@ -94,6 +95,7 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
      * union
      * select ? as `id`, ? as `name`
      * }
+     *
      * @param updateDataColumnList 数据
      * @return sql
      */
@@ -103,13 +105,14 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
             return "";
         }
 
-        return updateDataColumnList.stream().map(e->{
-            return " select " + e.entrySet().stream().map(m-> "? as " + SqlBuilder.toDbField(m.getKey())).collect(Collectors.joining(", "));
+        return updateDataColumnList.stream().map(e -> {
+            return " select " + e.entrySet().stream().map(m -> "? as " + SqlBuilder.toDbField(m.getKey())).collect(Collectors.joining(", "));
         }).collect(Collectors.joining(" union "));
     }
 
     /**
      * 返回{@code `id`, `name`, `group`}
+     *
      * @param columns 列
      * @return sql
      */
@@ -122,7 +125,7 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
      * 返回{@code a.`name`=b.`name`, a.`group`=b.`group`}
      *
      * @param updateDataColumnList 更新的列的集合
-     * @param columns 列的集合
+     * @param columns              列的集合
      * @return sql
      */
     private String getUpdateKey(List<NeoMap> updateDataColumnList, Columns columns) {
@@ -132,12 +135,10 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
 
         return updateDataColumnList.stream()
             // 排除掉搜索的列
-            .map(e->e.assignExcept(columns))
+            .map(e -> e.assignExcept(columns))
             // 获取所有的列
             .flatMap(NeoMap::keyStream)
             // 去重
-            .distinct()
-            .map(e-> "a." + SqlBuilder.toDbField(e) + "=" + "b." + SqlBuilder.toDbField(e))
-            .collect(Collectors.joining(", "));
+            .distinct().map(e -> "a." + SqlBuilder.toDbField(e) + "=" + "b." + SqlBuilder.toDbField(e)).collect(Collectors.joining(", "));
     }
 }

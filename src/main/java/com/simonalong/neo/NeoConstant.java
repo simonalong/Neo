@@ -86,4 +86,8 @@ public interface NeoConstant {
      * 系统配置：规范约束
      */
     String CONFIG_STANDARD = "neo.standard";
+    /**
+     * 租户code对应的列名key
+     */
+    String TENANT_COLUMN_NAME = "tenant_column_name";
 }

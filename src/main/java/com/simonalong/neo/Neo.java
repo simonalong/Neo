@@ -431,7 +431,7 @@ public class Neo extends AbstractExecutorDb {
                 searchQuery.and(dataMap);
             }
 
-            searchQuery.append(" for update");
+            searchQuery.appendTail(" for update");
             Integer count = count(tableName, searchQuery);
 
             if (0 == count) {
@@ -471,7 +471,7 @@ public class Neo extends AbstractExecutorDb {
                 searchQuery.and(dataMap);
             }
 
-            searchQuery.append(" for update");
+            searchQuery.appendTail(" for update");
             Integer count = count(tableName, searchQuery);
 
             if (0 == count) {
@@ -569,7 +569,7 @@ public class Neo extends AbstractExecutorDb {
      */
     private NeoMap oneWithXMode(String tableName, NeoMap params) {
         String sql = SelectSqlBuilder.buildOne(this, tableName, null, params) + " for update";
-        List<Object> parameters = new ArrayList<>(params.values());
+        List<Object> parameters = SqlBuilder.buildValueList(params);
         return execute(false, () -> generateExeSqlPair(sql, parameters), this::executeOne).getNeoMap(tableName);
     }
 

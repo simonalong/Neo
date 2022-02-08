@@ -1,10 +1,9 @@
 package com.simonalong.neo.tenant;
 
-import com.simonalong.neo.Columns;
-import com.simonalong.neo.NeoBaseTest;
-import com.simonalong.neo.NeoMap;
+import com.simonalong.neo.*;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageRsp;
+import com.simonalong.neo.express.SearchQuery;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -380,5 +379,121 @@ public class TenantTest extends NeoBaseTest {
 
         Assert.assertEquals("tenant_1", neo.value(tableName1, "tenant_id", NeoMap.of("groupo", "test")));
         Assert.assertEquals("tenantOne", neo.value(tableName2, "tenant_id", NeoMap.of("groupo", "test")));
+    }
+
+    @Test
+    public void oneMultiTenantNeoMapTest() {
+        // curd还有join
+
+        // 设置租户信息
+        TenantHandler tenantHandler = new TenantHandler();
+        tenantHandler.setIncludeTables("*");
+        tenantHandler.setColumnName("tenant_id");
+        neo.setTenantHandler(tenantHandler);
+        neo.closeStandard();
+
+        // 模拟租户1添加数据
+        TenantContextHolder.setTenantId("tenant_1");
+        neo.insert(tableName, NeoMap.of("name", "nihao"));
+        neo.value(tableName, "name", NeoMap.of("name", "nihao"));
+        neo.update(tableName, NeoMap.of("name", "nihaochange"), NeoMap.of("name", "nihao"));
+    }
+
+    @Test
+    public void oneMultiTenantQueryTest() {
+        // curd还有join
+
+        // 设置租户信息
+        TenantHandler tenantHandler = new TenantHandler();
+        tenantHandler.setIncludeTables("*");
+        tenantHandler.setColumnName("tenant_id");
+        neo.setTenantHandler(tenantHandler);
+        neo.closeStandard();
+
+        // 模拟租户1添加数据
+        TenantContextHolder.setTenantId("tenant_1");
+        neo.insert(tableName, NeoMap.of("name", "nihao"));
+
+        SearchQuery query = new SearchQuery();
+        query.and("name", "nihao");
+        neo.value(tableName, "name", query);
+
+        neo.update(tableName, NeoMap.of("name", "nihaochange"), query);
+    }
+
+    @Test
+    public void buildJoinWithTenantForNeoMapTest() {
+        String createTableSql1 = "create table if not exists `join_test_table1`(" +
+            "`id` bigint unsigned not null auto_increment, " +
+            "`group` varchar(12) default '' comment '测试', " +
+            "`name` varchar(12) default '' comment '测试', " +
+            "`tenant_id` varchar(32) NOT NULL DEFAULT 'tenantOne' COMMENT '租户id'," +
+            "primary key (`id`)) engine=innodb character set= utf8mb4";
+
+        neo.execute(createTableSql1);
+
+        String createTableSql2 = "create table if not exists `join_test_table2`(" +
+            "`id` bigint unsigned not null auto_increment, " +
+            "`group` varchar(12) default '' comment '测试', " +
+            "`name` varchar(12) default '' comment '测试', " +
+            "`tenant_id` varchar(32) NOT NULL DEFAULT 'tenantOne' COMMENT '租户id'," +
+            "primary key (`id`)) engine=innodb character set= utf8mb4";
+
+        neo.execute(createTableSql2);
+
+        // 设置租户信息
+        TenantHandler tenantHandler = new TenantHandler();
+        tenantHandler.setIncludeTables("*");
+        tenantHandler.setColumnName("tenant_id");
+        neo.setTenantHandler(tenantHandler);
+        neo.closeStandard();
+
+        TenantContextHolder.setTenantId("tenant_3");
+
+        NeoJoiner neoJoiner = neo.leftJoin("join_test_table1", "join_test_table2").on("name", "name");
+        TableMap searchMap = TableMap.of("join_test_table2", "group", "ff");
+        searchMap.put("join_test_table1", "group", "ee");
+        neoJoiner.list(Columns.of().table("join_test_table1", "name"), searchMap);
+    }
+
+    @Test
+    public void buildJoinWithTenantForQueryTest() {
+        String createTableSql1 = "create table if not exists `join_test_table1`(" +
+            "`id` bigint unsigned not null auto_increment, " +
+            "`group` varchar(12) default '' comment '测试', " +
+            "`name` varchar(12) default '' comment '测试', " +
+            "`tenant_id` varchar(32) NOT NULL DEFAULT 'tenantOne' COMMENT '租户id'," +
+            "primary key (`id`)) engine=innodb character set= utf8mb4";
+
+        neo.execute(createTableSql1);
+
+        String createTableSql2 = "create table if not exists `join_test_table2`(" +
+            "`id` bigint unsigned not null auto_increment, " +
+            "`group` varchar(12) default '' comment '测试', " +
+            "`name` varchar(12) default '' comment '测试', " +
+            "`tenant_id` varchar(32) NOT NULL DEFAULT 'tenantOne' COMMENT '租户id'," +
+            "primary key (`id`)) engine=innodb character set= utf8mb4";
+
+        neo.execute(createTableSql2);
+
+        // 设置租户信息
+        TenantHandler tenantHandler = new TenantHandler();
+        tenantHandler.setIncludeTables("*");
+        tenantHandler.setColumnName("tenant_id");
+        neo.setTenantHandler(tenantHandler);
+        neo.closeStandard();
+
+        TenantContextHolder.setTenantId("tenant_3");
+
+        NeoJoiner neoJoiner = neo.leftJoin("join_test_table1", "join_test_table2").on("name", "name");
+        TableMap searchMap = TableMap.of("join_test_table2", "group", "ff");
+        searchMap.put("join_test_table1", "group", "ee");
+
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.andTable("join_test_table2", "group", "ff");
+        searchQuery.andTable("join_test_table1", "group", "ee");
+        neoJoiner.list(Columns.of().table("join_test_table1", "name"), searchQuery);
+
+        neoJoiner.list(Columns.of().table("join_test_table1", "name"), searchMap);
     }
 }

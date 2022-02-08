@@ -5,10 +5,13 @@ import com.simonalong.neo.NeoMap;
 import com.simonalong.neo.TableMap;
 import com.simonalong.neo.db.TableJoinOn;
 import com.simonalong.neo.express.SearchQuery;
+import com.simonalong.neo.tenant.TenantHandler;
 import lombok.experimental.UtilityClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.simonalong.neo.sql.builder.BaseSqlBuilder.stuffTenantId;
 
 /**
  * @author shizi
@@ -17,12 +20,17 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class JoinSqlBuilder {
 
-
     public String build(Columns columns, TableJoinOn joiner, TableMap searchMap) {
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String build(Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+    public String build(TenantHandler tenantHandler, Columns columns, TableJoinOn joiner, TableMap searchMap) {
+        stuffTenantId(tenantHandler, searchMap);
+        return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
+    }
+
+    public String build(TenantHandler tenantHandler, Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, searchQuery);
         return "select " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
@@ -30,7 +38,13 @@ public class JoinSqlBuilder {
         return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildDistinct(Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+    public String buildDistinct(TenantHandler tenantHandler, Columns columns, TableJoinOn joiner, TableMap searchMap) {
+        stuffTenantId(tenantHandler, searchMap);
+        return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
+    }
+
+    public String buildDistinct(TenantHandler tenantHandler, Columns columns, TableJoinOn joiner, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, searchQuery);
         return "select distinct " + buildColumns(columns) + " from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
@@ -38,7 +52,13 @@ public class JoinSqlBuilder {
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
     }
 
-    public String buildCount(TableJoinOn joiner, SearchQuery searchQuery) {
+    public String buildCount(TenantHandler tenantHandler, TableJoinOn joiner, TableMap searchMap) {
+        stuffTenantId(tenantHandler, searchMap);
+        return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchMap);
+    }
+
+    public String buildCount(TenantHandler tenantHandler, TableJoinOn joiner, SearchQuery searchQuery) {
+        stuffTenantId(tenantHandler, searchQuery);
         return "select count(1) from " + buildJoinOn(joiner) + buildConditionWithWhere(searchQuery);
     }
 
@@ -91,10 +111,16 @@ public class JoinSqlBuilder {
     }
 
     public List<String> buildConditionMeta(TableMap searchMap) {
-        return searchMap.clone().entrySet().stream().flatMap(e->{
+        return searchMap.clone().entrySet().stream().flatMap(e -> {
             String tableName = e.getKey();
             NeoMap valueMap = (NeoMap) e.getValue();
-            return SqlBuilder.buildConditionMeta(valueMap).stream().map(v->tableName + "." + v);
+            return SqlBuilder.buildConditionMeta(valueMap).stream().map(v->{
+                if (v.trim().startsWith("(") || v.trim().startsWith(tableName)) {
+                    return v;
+                } else {
+                    return tableName + "." + v;
+                }
+            });
         }).collect(Collectors.toList());
     }
 
@@ -103,10 +129,13 @@ public class JoinSqlBuilder {
             return Collections.emptyList();
         }
 
-        return searchMap.clone().entrySetOfSort().stream().flatMap(e-> ((NeoMap) e.getValue()).valueQueue().stream()).collect(Collectors.toList());
+        List<Object> valueList = new ArrayList<>();
+        searchMap.clone().forEach((table, value) -> valueList.addAll(SqlBuilder.buildValueList((NeoMap) value)));
+        return valueList;
     }
 
     public List<Object> buildValueList(SearchQuery searchQuery) {
         return searchQuery.toValue();
     }
 }
+

@@ -203,6 +203,32 @@ public abstract class BaseOperate implements Operate {
         return " and (" + filterLogicHead(String.join(" and ", operateList)) + ")";
     }
 
+    public static String emGenerateAndOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
+        return filterLogicHead(String.join(" and ", operateList)) + ")";
+    }
+
+    public static String generateAndOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
+        return " (" + filterLogicHead(String.join(" and ", operateList)) + ")";
+    }
+
     /**
      * 无括号的and
      * <p>
@@ -458,6 +484,19 @@ public abstract class BaseOperate implements Operate {
             return "";
         }
         return " or " + filterLogicHead(String.join(" or ", operateList));
+    }
+
+    public static String generateOrOperate(NeoQueue<Operate> queue) {
+        NeoQueue<String> sqlPartQueue = doGenerateSqlPart(queue);
+        if (sqlPartQueue.isEmpty()) {
+            return "";
+        }
+
+        List<String> operateList = sqlPartQueue.stream().map(LogicOperateUtil::filterLogicHead).filter(Objects::nonNull).collect(Collectors.toList());
+        if (operateList.isEmpty()) {
+            return "";
+        }
+        return " (" + filterLogicHead(String.join(" or ", operateList)) + ")";
     }
 
     /**

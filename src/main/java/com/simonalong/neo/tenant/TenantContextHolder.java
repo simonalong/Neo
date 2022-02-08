@@ -19,4 +19,8 @@ public class TenantContextHolder {
     public String getTenantId() {
         return context.get();
     }
+
+    public void clean() {
+        context.remove();
+    }
 }

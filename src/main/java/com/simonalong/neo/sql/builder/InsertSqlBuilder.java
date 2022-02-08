@@ -18,8 +18,8 @@ public class InsertSqlBuilder extends BaseSqlBuilder {
      * 返回insert的拼接sql
      *
      * @param tenantHandler 租户管理器
-     * @param tableName 表名
-     * @param valueMap 数据实体
+     * @param tableName     表名
+     * @param valueMap      数据实体
      * @return 拼接的sql，比如：insert into table1 (`age`, `name`) values (?, ?)
      */
     public String build(TenantHandler tenantHandler, String tableName, NeoMap valueMap) {
@@ -29,6 +29,7 @@ public class InsertSqlBuilder extends BaseSqlBuilder {
 
     /**
      * `name`, `group`
+     *
      * @param keys keys
      * @return tableName后面括号中的sql
      */
@@ -38,10 +39,11 @@ public class InsertSqlBuilder extends BaseSqlBuilder {
 
     /**
      * 返回占位符
+     *
      * @param valueMap 条件
      * @return 占位符拼接：?, ?, ?, ?
      */
-    public String buildInsertValues(NeoMap valueMap) {
-        return valueMap.keySet().stream().map(f->"?").collect(Collectors.joining(", "));
+    private String buildInsertValues(NeoMap valueMap) {
+        return valueMap.keySet().stream().map(f -> "?").collect(Collectors.joining(", "));
     }
 }

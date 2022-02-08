@@ -299,183 +299,185 @@ public class NeoJoiner extends AbstractBaseJoinner {
     @Override
     @Deprecated
     public TableMap one(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeOne(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeOne(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public TableMap one(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeOne(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeOne(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeOne(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeOne(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> T one(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeOne(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeOne(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeList(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeList(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public List<TableMap> list(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeList(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeList(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeList(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeList(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> list(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeList(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeList(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public String value(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValue(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValue(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public String value(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValue(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValue(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValue(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValue(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> T value(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValue(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValue(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public List<String> values(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValues(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValues(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public List<String> values(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValues(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValues(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValues(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValues(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> values(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValues(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValues(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> valuesOfDistinct(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValues(tClass, JoinSqlBuilder.buildDistinct(neo.getTenantHandler(), columns, tableJoinOn, searchQuery),
+            JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeValues(JoinSqlBuilder.buildDistinct(neo.getTenantHandler(), columns, tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public List<String> valuesOfDistinct(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeValues(JoinSqlBuilder.buildDistinct(columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeValues(JoinSqlBuilder.buildDistinct(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
-
 
     @Override
     @Deprecated
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
-        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exePage(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
-        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exePage(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, NeoPage neoPage) {
-        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exePage(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), neoPage, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, NeoPage neoPage) {
-        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), neoPage, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exePage(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), neoPage,
+            JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
 
     @Override
     @Deprecated
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, PageReq<?> pageReq) {
-        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchMap), pageReq, JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exePage(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), pageReq, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public List<TableMap> page(Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, PageReq<?> pageReq) {
-        return neo.exePage(JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), pageReq, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exePage(JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), pageReq, JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, TableMap searchMap, PageReq<?> pageReq) {
-        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchMap), pageReq, JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exePage(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchMap), pageReq, JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public <T> List<T> page(Class<T> tClass, Columns columns, TableJoinOn tableJoinOn, SearchQuery searchQuery, PageReq<?> pageReq) {
-        return neo.exePage(tClass, JoinSqlBuilder.build(columns, tableJoinOn, searchQuery), pageReq, JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exePage(tClass, JoinSqlBuilder.build(neo.getTenantHandler(), columns, tableJoinOn, searchQuery), pageReq,
+            JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 
 
     @Override
     @Deprecated
     public Integer count(TableJoinOn tableJoinOn, TableMap searchMap) {
-        return neo.exeCount(JoinSqlBuilder.buildCount(tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
+        return neo.exeCount(JoinSqlBuilder.buildCount(neo.getTenantHandler(), tableJoinOn, searchMap), JoinSqlBuilder.buildValueList(searchMap).toArray());
     }
 
     @Override
     @Deprecated
     public Integer count(TableJoinOn tableJoinOn, SearchQuery searchQuery) {
-        return neo.exeCount(JoinSqlBuilder.buildCount(tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
+        return neo.exeCount(JoinSqlBuilder.buildCount(neo.getTenantHandler(), tableJoinOn, searchQuery), JoinSqlBuilder.buildValueList(searchQuery).toArray());
     }
 }

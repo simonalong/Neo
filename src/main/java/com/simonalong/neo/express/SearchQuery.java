@@ -14,9 +14,11 @@ import static com.simonalong.neo.express.BaseOperate.*;
  * @author shizi
  * @since 2020/8/29 11:14 上午
  */
+@SuppressWarnings("unused")
 public class SearchQuery {
 
-    NeoQueue<Operate> innerOperateQueue = NeoQueue.of();
+    private final NeoQueue<Operate> innerOperateQueue = NeoQueue.of();
+    private final NeoQueue<Operate> tailOperateQueue = NeoQueue.of();
     ThreadLocal<String> tableNameLocal = ThreadLocal.withInitial(() -> DEFAULT_TABLE);
 
     public SearchQuery() {
@@ -42,13 +44,63 @@ public class SearchQuery {
         innerOperateQueue.offer(BaseOperate.AndEm(queue));
     }
 
-    public Boolean containKey(String key) {
-        for (Operate operate : innerOperateQueue) {
-            if (null != operate.getColumn() && key.equals(operate.getColumn())) {
-                return true;
+    public Set<String> getTablaNameSet() {
+        return doGetTableNameSet(innerOperateQueue);
+    }
+
+    private Set<String> doGetTableNameSet(NeoQueue<Operate> operateQueue) {
+        Set<String> tableSet = new HashSet<>();
+        for (Operate operate : operateQueue) {
+            if (!operate.getTable().equals(DEFAULT_TABLE)) {
+                tableSet.add(operate.getTable());
+            } else {
+                if (operate instanceof BaseOperate) {
+                    tableSet.addAll(doGetTableNameSet(((BaseOperate) operate).childOperateQueue));
+                }
             }
         }
+        return tableSet;
+    }
 
+    public Boolean containKey(String key) {
+        return doContainKey(innerOperateQueue, key);
+    }
+
+    public Boolean containKey(String tableName, String key) {
+        return doContainKey(tableName, innerOperateQueue, key);
+    }
+
+    private Boolean doContainKey(NeoQueue<Operate> operateQueue, String key) {
+        if (null == operateQueue) {
+            return false;
+        }
+        for (Operate operate : operateQueue) {
+            if (null != operate.getColumn() && key.equals(operate.getColumn())) {
+                return true;
+            } else if (operate instanceof BaseOperate){
+                BaseOperate baseOperate = (BaseOperate)operate;
+                if (doContainKey(baseOperate.childOperateQueue, key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Boolean doContainKey(String tableName, NeoQueue<Operate> operateQueue, String key) {
+        if (null == operateQueue) {
+            return false;
+        }
+        for (Operate operate : operateQueue) {
+            if (null != operate.getColumn() && operate.getTable().equals(tableName) && key.equals(operate.getColumn())) {
+                return true;
+            } else if (operate instanceof BaseOperate){
+                BaseOperate baseOperate = (BaseOperate)operate;
+                if (doContainKey(baseOperate.getTable(), baseOperate.childOperateQueue, key)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -112,6 +164,14 @@ public class SearchQuery {
         return this;
     }
 
+    public SearchQuery andTable(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        and(Operate.parse(LogicEnum.AND_EM, tableName, objects));
+        return this;
+    }
+
     /**
      * and操作
      *
@@ -141,6 +201,14 @@ public class SearchQuery {
             return this;
         }
         andEm(Operate.parse(LogicEnum.AND_EM, tableNameLocal.get(), objects));
+        return this;
+    }
+
+    public SearchQuery andEmTable(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        andEm(Operate.parse(LogicEnum.AND_EM, tableName, objects));
         return this;
     }
 
@@ -176,6 +244,14 @@ public class SearchQuery {
         return this;
     }
 
+    public SearchQuery orTable(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        or(Operate.parse(LogicEnum.OR_EM, tableName, objects));
+        return this;
+    }
+
     /**
      * or操作
      *
@@ -205,6 +281,14 @@ public class SearchQuery {
             return this;
         }
         orEm(Operate.parse(LogicEnum.OR_EM, tableNameLocal.get(), objects));
+        return this;
+    }
+
+    public SearchQuery orEmTable(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        orEm(Operate.parse(LogicEnum.OR_EM, tableName, objects));
         return this;
     }
 
@@ -240,6 +324,30 @@ public class SearchQuery {
         return this;
     }
 
+    public SearchQuery appendTail(Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        appendTail(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), objects));
+        return this;
+    }
+
+    public SearchQuery appendTable(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        append(Operate.parse(LogicEnum.EMPTY, tableName, objects));
+        return this;
+    }
+
+    public SearchQuery appendTableTail(String tableName, Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        appendTail(Operate.parse(LogicEnum.EMPTY, tableName, objects));
+        return this;
+    }
+
     /**
      * 空操作
      * <p>
@@ -260,6 +368,13 @@ public class SearchQuery {
         return append(objects);
     }
 
+    public SearchQuery emTail(Object... objects) {
+        if (null == objects || objects.length == 0) {
+            return this;
+        }
+        return appendTail(objects);
+    }
+
     /**
      * empty操作
      *
@@ -268,6 +383,11 @@ public class SearchQuery {
      */
     public SearchQuery append(NeoQueue<Operate> queue) {
         innerOperateQueue.offer(BaseOperate.EmQueue(queue));
+        return this;
+    }
+
+    public SearchQuery appendTail(NeoQueue<Operate> queue) {
+        tailOperateQueue.offer(BaseOperate.EmQueue(queue));
         return this;
     }
 
@@ -379,49 +499,49 @@ public class SearchQuery {
     public SearchQuery groupBy(String key) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(GroupBy(tableNameLocal.get(), key));
-        return append(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
     }
 
     public SearchQuery orderBy(String... kDescAsc) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(OrderByTable(tableNameLocal.get(), kDescAsc));
-        return append(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
     }
 
     public SearchQuery orderByDesc(String key) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(OrderByDesc(tableNameLocal.get(), key));
-        return append(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
     }
 
     public SearchQuery exists(String sql) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(Exists(sql));
-        return append(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery notExists(String sql) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(NotExists(sql));
-        return append(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery page(PageReq<Object> pageReq) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(Page(pageReq));
-        return append(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery page(NeoPage neoPage) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(Page(neoPage));
-        return append(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery page(Integer pageNo, Integer pageSize) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(Page(pageNo, pageSize));
-        return append(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery betweenAnd(String key, Object leftValue, Object rightValue) {
@@ -451,6 +571,11 @@ public class SearchQuery {
             if (operate.needWhere()) {
                 innerNeedWhere = true;
             }
+            stringBuilder.append(operate.generateOperate());
+        }
+
+        queueCopy = tailOperateQueue.clone();
+        while ((operate = queueCopy.poll()) != null) {
             stringBuilder.append(operate.generateOperate());
         }
 
@@ -523,3 +648,4 @@ public class SearchQuery {
         EMPTY
     }
 }
+
