@@ -1040,7 +1040,7 @@ public class SearchQueryTest extends BaseTest {
 
         searchQuery = new SearchQuery().orderBy("create_time", "id", "desc", "group", "asc");
         sql = " order by `create_time`, `id` desc, `group` asc";
-        Assert.assertEquals(sql, searchQuery.getFirstOperateStr(NeoConstant.ORDER_BY));
+        Assert.assertEquals(sql, searchQuery.toSql());
 
         sql = "[{\"columnName\":\"`create_time`\",\"sort\":0},{\"columnName\":\"`id`\",\"sort\":0},{\"columnName\":\"`group`\",\"sort\":1}]";
         Assert.assertEquals(sql, JSON.toJSONString(DevideMultiNeo.getColumnAndSortList(searchQuery)));
@@ -1125,12 +1125,12 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where exists (select id from xxx)";
+        sql = " where (exists (select id from xxx))";
         searchQuery = new SearchQuery().table("demo1").exists("select id from xxx");
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());
 
-        sql = " where not exists (select id from xxx)";
+        sql = " where (not exists (select id from xxx))";
         searchQuery = new SearchQuery().notExists("select id from xxx");
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());
@@ -1144,12 +1144,12 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where exists (select id from xxx)";
+        sql = " where (exists (select id from xxx))";
         searchQuery = new SearchQuery().exists("select id from xxx");
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());
 
-        sql = " where not exists (select id from xxx)";
+        sql = " where (not exists (select id from xxx))";
         searchQuery = new SearchQuery().notExists("select id from xxx");
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());
@@ -1263,13 +1263,13 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where demo1.`age` between ? and ?";
+        sql = " where (demo1.`age` between ? and ?)";
         searchQuery = new SearchQuery().table("demo1").betweenAnd("age", 12, 60);
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), searchQuery.toValue());
 
 
-        sql = " where demo1.`age` not between ? and ?";
+        sql = " where (demo1.`age` not between ? and ?)";
         searchQuery = new SearchQuery().table("demo1").notBetweenAnd("age", 12, 60);
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), searchQuery.toValue());
@@ -1283,7 +1283,7 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where `age` between ? and ?";
+        sql = " where (`age` between ? and ?)";
         searchQuery = new SearchQuery().betweenAnd("age", 12, 60);
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), searchQuery.toValue());
@@ -1298,7 +1298,7 @@ public class SearchQueryTest extends BaseTest {
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.emptyList(), searchQuery.toValue());
 
-        sql = " where `age` not between ? and ?";
+        sql = " where (`age` not between ? and ?)";
         searchQuery = new SearchQuery().notBetweenAnd("age", 12, 60);
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Arrays.asList(12, 60), searchQuery.toValue());
@@ -1389,5 +1389,15 @@ public class SearchQueryTest extends BaseTest {
         searchQuery = new SearchQuery().table("demo1").and(dataMap.assign("a", "b")).append(" for update");
         Assert.assertEquals(sql, searchQuery.toSql());
         dataMap.clear();
+    }
+
+    @Test
+    public void appendTableTest2() {
+        SearchQuery searchQuery;
+        String sql;
+
+        sql = " where (table1.`name` = ?) and (table2.`age` between ? and ?) for update";
+        searchQuery = new SearchQuery().table("table1").equal("name", "12").table("table2").betweenAnd("age", 12, 30).append(" for update");
+        Assert.assertEquals(sql, searchQuery.toSql());
     }
 }

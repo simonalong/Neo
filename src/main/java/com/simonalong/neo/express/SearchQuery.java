@@ -119,6 +119,13 @@ public class SearchQuery {
                 return value;
             }
         }
+
+        for (Operate operate : tailOperateQueue) {
+            String value = operate.getFirstOperateStr(operateSymbol);
+            if (null != value) {
+                return value;
+            }
+        }
         return null;
     }
 
@@ -133,6 +140,10 @@ public class SearchQuery {
     public List<String> getAllOperateStr(String operateSymbol) {
         List<String> operateStrList = new ArrayList<>();
         for (Operate operate : innerOperateQueue) {
+            operateStrList.addAll(operate.getAllOperateStr(operateSymbol));
+        }
+
+        for (Operate operate : tailOperateQueue) {
             operateStrList.addAll(operate.getAllOperateStr(operateSymbol));
         }
         return operateStrList;
@@ -517,13 +528,13 @@ public class SearchQuery {
     public SearchQuery exists(String sql) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(Exists(sql));
-        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return and(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery notExists(String sql) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(NotExists(sql));
-        return appendTail(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
+        return and(Operate.parse(LogicEnum.EMPTY, DEFAULT_TABLE, operateQueue));
     }
 
     public SearchQuery page(PageReq<Object> pageReq) {
@@ -547,13 +558,13 @@ public class SearchQuery {
     public SearchQuery betweenAnd(String key, Object leftValue, Object rightValue) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(BetweenAnd(tableNameLocal.get(), key, leftValue, rightValue));
-        return append(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
+        return and(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
     }
 
     public SearchQuery notBetweenAnd(String key, Object leftValue, Object rightValue) {
         NeoQueue<Operate> operateQueue = NeoQueue.of();
         operateQueue.add(NotBetweenAnd(tableNameLocal.get(), key, leftValue, rightValue));
-        return append(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
+        return and(Operate.parse(LogicEnum.EMPTY, tableNameLocal.get(), operateQueue));
     }
 
     /**
