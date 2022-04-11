@@ -125,17 +125,18 @@ public class NeoTest extends NeoBaseTest {
     @Test
     @SneakyThrows
     public void testInsertOfUnExist() {
-        NeoMap dataMap = NeoMap.of("group", "group_insert", "name", "name_insert");
+        NeoMap dataMap = NeoMap.of("group", "group_insert_ofUnExist", "name", "name_insert_ofUnExist");
+        // 不存在，则插入
         neo.insertOfUnExist(TABLE_NAME, dataMap);
 
-        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert"));
+        NeoMap resultMap = neo.one(TABLE_NAME, NeoMap.of("group", "group_insert_ofUnExist"));
 
         Assert.assertEquals(1L, resultMap.getLong("id").longValue());
 
-        // 再次插入
+        // 存在，则返回
         resultMap = neo.insertOfUnExist(TABLE_NAME, dataMap, "group", "name");
 
-        Assert.assertNull(resultMap.getLong("id"));
+        Assert.assertEquals(1L, resultMap.getLong("id").longValue());
     }
 
     /******************************删除******************************/
@@ -546,14 +547,14 @@ public class NeoTest extends NeoBaseTest {
     @Test
     public void getColumnNameListTest() {
         Set<String> columnSet = new HashSet<>();
-        columnSet.add("desc1");
+//        columnSet.add("desc1");
         columnSet.add("user_name");
         columnSet.add("name");
-        columnSet.add("sl");
+//        columnSet.add("sl");
         columnSet.add("id");
+        columnSet.add("sort");
         columnSet.add("age");
         columnSet.add("group");
-        columnSet.add("desc");
 
         Set<String> resultSet = neo.getColumnNameList(TABLE_NAME);
         Assert.assertEquals(columnSet, resultSet);
@@ -562,8 +563,8 @@ public class NeoTest extends NeoBaseTest {
     @Test
     public void getIndexNameListTest() {
         List<String> keyList = new ArrayList<>();
-        keyList.add("fk_desc");
-        keyList.add("k_group");
+//        keyList.add("fk_desc");
+//        keyList.add("k_group");
         keyList.add("PRIMARY");
         keyList.add("group_index");
 
@@ -631,7 +632,7 @@ public class NeoTest extends NeoBaseTest {
     public void getTableCreateTest2() {
         DbType dbType = neo.getDbType();
         if (DbType.MYSQL.equals(dbType)) {
-            String createSqlOfMysql = "CREATE TABLE `neo_table1` (\n" + "  `id` int unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `sl` bigint DEFAULT NULL,\n" + "  `desc` mediumtext COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  `desc1` text COLLATE utf8_unicode_ci COMMENT '描述',\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`),\n" + "  KEY `k_group` (`group`),\n" + "  FULLTEXT KEY `fk_desc` (`desc`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+            String createSqlOfMysql = "CREATE TABLE `neo_table1` (\n" + "  `id` int unsigned NOT NULL AUTO_INCREMENT,\n" + "  `group` char(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '数据来源组，外键关联lk_config_group',\n" + "  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '任务name',\n" + "  `user_name` varchar(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '修改人名字',\n" + "  `age` int DEFAULT NULL,\n" + "  `sort` int DEFAULT NULL,\n" + "  PRIMARY KEY (`id`),\n" + "  KEY `group_index` (`group`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             Assert.assertEquals(createSqlOfMysql, neo.getTableCreate(TABLE_NAME));
         } else if (DbType.MARIADB.equals(dbType)) {
@@ -641,7 +642,7 @@ public class NeoTest extends NeoBaseTest {
         }
     }
 
-    /****************************** save ******************************/
+    //****************************** save ******************************/
     /**
      * 不存在数据，则插入
      */

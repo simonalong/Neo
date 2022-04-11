@@ -38,7 +38,7 @@ public interface CommandSync extends Sync {
      * @param tableName       表名
      * @param dataMap         新增的实体
      * @param searchColumnKey 作为搜索条件的搜索的key
-     * @return 插入后的数据
+     * @return 插入成功则返回插入后数据，否则当前最新数据
      */
     NeoMap insertOfUnExist(String tableName, NeoMap dataMap, String... searchColumnKey);
 

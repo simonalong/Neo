@@ -631,13 +631,23 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where (`name` like '%chou' and `age` = ?)";
+        sql = " where (`name` like concat('%', ?) and `age` = ?)";
         searchQuery = new SearchQuery().and(Like("name", "%chou"), "age", 3);
         Assert.assertEquals(sql, searchQuery.toSql());
-        Assert.assertEquals(Collections.singletonList(3), searchQuery.toValue());
+        Assert.assertEquals(Arrays.asList("%chou", 3), searchQuery.toValue());
 
-        sql = " where (`name` not like '%chou' and `age` = ?)";
+        sql = " where (`name` like concat(?, '%') and `age` = ?)";
+        searchQuery = new SearchQuery().and(Like("name", "chou%"), "age", 3);
+        Assert.assertEquals(sql, searchQuery.toSql());
+        Assert.assertEquals(Arrays.asList("chou%", 3), searchQuery.toValue());
+
+        sql = " where (`name` not like concat('%', ?) and `age` = ?)";
         searchQuery = new SearchQuery().and(NotLike("name", "%chou"), "age", 3);
+        Assert.assertEquals(sql, searchQuery.toSql());
+        Assert.assertEquals(Arrays.asList("%chou", 3), searchQuery.toValue());
+
+        sql = " where (`name` not like 'chou' and `age` = ?)";
+        searchQuery = new SearchQuery().and(NotLike("name", "chou"), "age", 3);
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Collections.singletonList(3), searchQuery.toValue());
 
@@ -662,10 +672,10 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where (demo1.`name` like '%chou') and (demo1.`age` = ?)";
+        sql = " where (demo1.`name` like concat('%', ?)) and (demo1.`age` = ?)";
         searchQuery = new SearchQuery().table("demo1").like("name", "%chou").and("age", 3);
         Assert.assertEquals(sql, searchQuery.toSql());
-        Assert.assertEquals(Collections.singletonList(3), searchQuery.toValue());
+        Assert.assertEquals(Arrays.asList("%chou", 3), searchQuery.toValue());
     }
 
     /**
@@ -677,15 +687,15 @@ public class SearchQueryTest extends BaseTest {
         SearchQuery searchQuery;
         String sql;
 
-        sql = " where (`name` like '%chou') and (`age` = ?)";
+        sql = " where (`name` like concat('%', ?)) and (`age` = ?)";
         searchQuery = new SearchQuery().like("name", "%chou").equal("age", 3);
         Assert.assertEquals(sql, searchQuery.toSql());
-        Assert.assertEquals(Collections.singletonList(3), searchQuery.toValue());
+        Assert.assertEquals(Arrays.asList("%chou", 3), searchQuery.toValue());
 
-        sql = " where (`name` not like '%chou') and (`age` = ?)";
+        sql = " where (`name` not like concat('%', ?)) and (`age` = ?)";
         searchQuery = new SearchQuery().notLike("name", "%chou").equal("age", 3);
         Assert.assertEquals(sql, searchQuery.toSql());
-        Assert.assertEquals(Collections.singletonList(3), searchQuery.toValue());
+        Assert.assertEquals(Arrays.asList("%chou", 3), searchQuery.toValue());
 
         sql = " where (`age` = ?)";
         searchQuery = new SearchQuery().like("name", "%").equal("age", 3);

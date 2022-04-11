@@ -38,6 +38,42 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
         return "update " + tableName + buildSetValues(dataMap) + searchQuery.toSql();
     }
 
+    /**
+     * 返回数据存在时候更新的 update 的拼接sql
+     *
+     * @param tenantHandler 租户管理
+     * @param tableName     表名
+     * @param dataMap       数据map
+     * @param searchQuery   查询条件
+     * @return update tableName set `name` = ?, `group` = ? where exists (select * from (select * from tableName where `name` = ?) as tableName_tem)
+     */
+    public String buildUpdateOfExist(TenantHandler tenantHandler, String tableName, NeoMap dataMap, SearchQuery searchQuery) {
+        if (NeoMap.isEmpty(dataMap)) {
+            log.warn("待更新数据为空");
+            return null;
+        }
+        stuffTenantId(tenantHandler, tableName, searchQuery);
+        return "update " + tableName + buildSetValues(dataMap) + " where exists (select * from (select * from " + tableName + " " + searchQuery.toSql() + ") as " + tableName + "_tem)";
+    }
+
+    /**
+     * 返回数据存在时候更新的 update 的拼接sql
+     *
+     * @param tenantHandler 租户管理
+     * @param tableName     表名
+     * @param dataMap       数据map
+     * @param searchMap     查询条件
+     * @return update tableName set `name` = ?, `group` = ? where exists (select * from (select * from tableName where `name` = ?) as tableName_tem)
+     */
+    public String buildUpdateOfExist(TenantHandler tenantHandler, String tableName, NeoMap dataMap, NeoMap searchMap) {
+        if (NeoMap.isEmpty(dataMap)) {
+            log.warn("待更新数据为空");
+            return null;
+        }
+        stuffTenantId(tenantHandler, tableName, searchMap);
+        return "update " + tableName + buildSetValues(dataMap) + " where exists (select * from (select * from " + tableName + " " + SqlBuilder.buildWhere(searchMap) + ") as " + tableName + "_tem)";
+    }
+
     private String buildSetValues(NeoMap dataMap) {
         return " set " + dataMap.keySet().stream().map(f -> SqlBuilder.toDbField(f) + " = ?").collect(Collectors.joining(", "));
     }

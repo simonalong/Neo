@@ -419,10 +419,31 @@ public class Neo extends AbstractExecutorDb {
      * @param tableName       表名
      * @param dataMap         新增的实体
      * @param searchColumnKey 作为搜索条件的搜索的key
-     * @return 插入成功则返回插入后数据，否则返回原数据
+     * @return 插入成功则返回插入后数据，否则当前最新数据
      */
     @Override
     public NeoMap insertOfUnExist(String tableName, NeoMap dataMap, String... searchColumnKey) {
+        if (NeoMap.isEmpty(dataMap)) {
+            return null;
+        }
+        checkDb(tableName);
+
+        if (dbType.equals(DbType.MYSQL) || dbType.equals(DbType.MARIADB)) {
+            NeoMap dataMapTem = dataMap.clone();
+            NeoMap searchMapTem = dataMap.assign(searchColumnKey);
+
+            return tx(() -> {
+                execute(false, () -> generateInsertOfUnExistSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
+
+                Boolean oldStandard = getStandardFlag();
+                closeStandard();
+
+                NeoMap result = one(tableName, dataMap);
+                setStandardFlag(oldStandard);
+                return result;
+            });
+        }
+
         return tx(() -> {
             SearchQuery searchQuery = new SearchQuery();
             if (searchColumnKey.length != 0) {
@@ -463,6 +484,38 @@ public class Neo extends AbstractExecutorDb {
                 throw new NeoException("不包含key: " + Arrays.asList(searchColumnKey));
             }
         }
+
+        if (dbType.equals(DbType.MYSQL) || dbType.equals(DbType.MARIADB)) {
+            NeoMap dataMapTem = dataMap.clone();
+            NeoMap searchMapTem = dataMap.assign(searchColumnKey);
+
+            return tx(() -> {
+                AtomicInteger resultData = new AtomicInteger();
+                Function<PreparedStatement, Integer> insertOfUnExist = preparedStatement -> {
+                    try {
+                        int rlt = preparedStatement.executeUpdate();
+                        resultData.set(rlt);
+                        return rlt;
+                    } catch (SQLException e) {
+                        throw new NeoException(e);
+                    }
+                };
+
+                execute(false, () -> generateInsertOfUnExistSqlPair(tableName, dataMapTem, searchMapTem), insertOfUnExist);
+
+                if (0 == resultData.get()) {
+                    execute(false, () -> generateUpdateOfExistSqlPair(tableName, dataMapTem, searchMapTem), this::executeUpdate);
+                }
+
+                Boolean oldStandard = getStandardFlag();
+                closeStandard();
+
+                NeoMap result = one(tableName, dataMap);
+                setStandardFlag(oldStandard);
+                return result;
+            });
+        }
+
         return tx(() -> {
             SearchQuery searchQuery = new SearchQuery();
             if (searchColumnKey.length != 0) {
@@ -2050,6 +2103,8 @@ public class Neo extends AbstractExecutorDb {
 
     /**
      * sql 是select 语句
+     * @param sql sql语句
+     * @return 是否以 select 开头
      */
     private Boolean startWithSelect(String sql) {
         return null != sql && sql.startsWith(SELECT);
@@ -2057,6 +2112,10 @@ public class Neo extends AbstractExecutorDb {
 
     /**
      * 生成插入的sql和参数 key: insert xxx value: 对应的参数
+     *
+     * @param tableName 表名
+     * @param valueMap  值map
+     * @return sql和value
      */
     private Pair<String, List<Object>> generateInsertSqlPair(String tableName, NeoMap valueMap) {
         valueMap = filterColumn(tableName, valueMap);
@@ -2065,6 +2124,10 @@ public class Neo extends AbstractExecutorDb {
 
     /**
      * 生成删除的sql和参数 key: delete xxx value: 对应的参数
+     *
+     * @param tableName 表名
+     * @param searchMap 搜索map
+     * @return sql和values
      */
     private Pair<String, List<Object>> generateDeleteSqlPair(String tableName, NeoMap searchMap) {
         searchMap = filterColumn(tableName, searchMap);
@@ -2077,6 +2140,11 @@ public class Neo extends AbstractExecutorDb {
 
     /**
      * 生成插入的sql和参数 key: update xxx value: 对应的参数
+     *
+     * @param tableName 表名
+     * @param dataMap   数据map
+     * @param searchMap 搜索map
+     * @return sql和values
      */
     private Pair<String, List<Object>> generateUpdateSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
         NeoMap searchMapTem = filterColumn(tableName, searchMap);
@@ -2091,6 +2159,48 @@ public class Neo extends AbstractExecutorDb {
 
         List<Object> valueList = new ArrayList<>();
         valueList.addAll(generateValueList(updateMap));
+        valueList.addAll(generateValueList(searchMapTem));
+        return new Pair<>(sql, valueList);
+    }
+
+    /**
+     * 生成对应的sql：insert into tableName1(`name`, `group`) select ?, ? where not exists (select * from demo1 where `name` = ?)
+     *
+     * @param tableName 表名
+     * @param dataMap   数据map
+     * @param searchMap 搜索条件
+     * @return sql和values
+     */
+    private Pair<String, List<Object>> generateInsertOfUnExistSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
+        NeoMap searchMapTem = filterColumn(tableName, searchMap);
+        NeoMap valueMap = filterColumn(tableName, dataMap);
+
+        // 该行数据要在valueList初始化之前执行
+        String sql = InsertSqlBuilder.buildInsertOfUnExist(tenantHandler, tableName, valueMap, searchMapTem);
+        if (null == sql) {
+            log.warn(LOG_PRE_NEO + "sql为空");
+            return new Pair<>(null, new ArrayList<>());
+        }
+
+        List<Object> valueList = new ArrayList<>();
+        valueList.addAll(generateValueList(valueMap));
+        valueList.addAll(generateValueList(searchMapTem));
+        return new Pair<>(sql, valueList);
+    }
+
+    private Pair<String, List<Object>> generateUpdateOfExistSqlPair(String tableName, NeoMap dataMap, NeoMap searchMap) {
+        NeoMap searchMapTem = filterColumn(tableName, searchMap);
+        NeoMap valueMap = filterColumn(tableName, dataMap);
+
+        // 该行数据要在valueList初始化之前执行
+        String sql = UpdateSqlBuilder.buildUpdateOfExist(tenantHandler, tableName, valueMap, searchMapTem);
+        if (null == sql) {
+            log.warn(LOG_PRE_NEO + "sql为空");
+            return new Pair<>(null, new ArrayList<>());
+        }
+
+        List<Object> valueList = new ArrayList<>();
+        valueList.addAll(generateValueList(valueMap));
         valueList.addAll(generateValueList(searchMapTem));
         return new Pair<>(sql, valueList);
     }

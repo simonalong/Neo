@@ -28,6 +28,22 @@ public class InsertSqlBuilder extends BaseSqlBuilder {
     }
 
     /**
+     * 返回数据不存在时候的 insert 的拼接sql
+     *
+     * @param tenantHandler 租户管理器
+     * @param tableName     表名
+     * @param valueMap      数据实体
+     * @return 拼接的sql，比如：insert into demo1(`name`, `group`) select ?, ? where not exists (select * from demo1 where `name` = ?);
+     */
+    public String buildInsertOfUnExist(TenantHandler tenantHandler, String tableName, NeoMap valueMap, NeoMap searchMap) {
+        if (NeoMap.isEmpty(valueMap)) {
+            return null;
+        }
+        stuffTenantId(tenantHandler, tableName, valueMap);
+        return "insert into " + tableName + " (" + buildInsertTable(valueMap.keySet()) + ") select " + buildInsertValues(valueMap) + " where not exists (select * from " + tableName + SqlBuilder.buildWhere(searchMap) + ")";
+    }
+
+    /**
      * `name`, `group`
      *
      * @param keys keys

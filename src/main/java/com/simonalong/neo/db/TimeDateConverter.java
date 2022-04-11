@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.simonalong.neo.exception.NeoNotSupport;
-import com.simonalong.neo.util.LocalDateTimeUtil;
+import com.simonalong.neo.util.TimeUtils;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -43,11 +43,11 @@ public class TimeDateConverter {
                 return new java.util.Date(dataLong);
             }
         } else if (java.sql.Date.class.isAssignableFrom(tClass)) {
-            return LocalDateTimeUtil.longToDate(dataLong);
+            return TimeUtils.longToDate(dataLong);
         } else if (java.sql.Time.class.isAssignableFrom(tClass)) {
-            return LocalDateTimeUtil.longToTime(dataLong);
+            return TimeUtils.longToTime(dataLong);
         } else if (java.sql.Timestamp.class.isAssignableFrom(tClass)) {
-            return LocalDateTimeUtil.longToTimestamp(dataLong);
+            return TimeUtils.longToTimestamp(dataLong);
         }
         return data;
     }
@@ -121,19 +121,19 @@ public class TimeDateConverter {
      */
     public <T> T stringToEntityTime(Class<T> tClass, String timeStr) {
         if (java.sql.Date.class.isAssignableFrom(tClass)) {
-            return tClass.cast(LocalDateTimeUtil.stringToDate(timeStr));
+            return tClass.cast(TimeUtils.stringToDate(timeStr));
         } else if(java.sql.Time.class.isAssignableFrom(tClass)) {
-            return tClass.cast(LocalDateTimeUtil.stringToTime((timeStr)));
+            return tClass.cast(TimeUtils.stringToTime((timeStr)));
         } else if(java.sql.Timestamp.class.isAssignableFrom(tClass)) {
-            return tClass.cast(LocalDateTimeUtil.stringToTimestamp((timeStr)));
+            return tClass.cast(TimeUtils.stringToTimestamp((timeStr)));
         } else if(Date.class.isAssignableFrom(tClass)) {
-            return tClass.cast(LocalDateTimeUtil.stringToDate((timeStr)));
+            return tClass.cast(TimeUtils.stringToDate((timeStr)));
         } else if(java.time.LocalDate.class.isAssignableFrom(tClass)){
-            return tClass.cast(LocalDateTimeUtil.stringToLocalDate((timeStr)));
+            return tClass.cast(TimeUtils.stringToLocalDate((timeStr)));
         } else if(java.time.LocalDateTime.class.isAssignableFrom(tClass)){
-            return tClass.cast(LocalDateTimeUtil.stringToLocalDateTime((timeStr)));
+            return tClass.cast(TimeUtils.stringToLocalDateTime((timeStr)));
         } else if (java.time.LocalTime.class.isAssignableFrom(tClass)) {
-            return tClass.cast(LocalDateTimeUtil.stringToLocalTime(timeStr));
+            return tClass.cast(TimeUtils.stringToLocalTime(timeStr));
         }
         return tClass.cast(timeStr);
     }
@@ -156,7 +156,7 @@ public class TimeDateConverter {
         } else if(fieldTime instanceof java.sql.Time){
             return ((java.sql.Time) fieldTime).getTime();
         } else if(fieldTime instanceof java.sql.Timestamp){
-            return LocalDateTimeUtil.timestampToString((java.sql.Timestamp) fieldTime);
+            return TimeUtils.timestampToString((java.sql.Timestamp) fieldTime);
         } else if(fieldTime instanceof Date){
             return ((Date) fieldTime).getTime();
         } else if(fieldTime instanceof java.time.LocalDate){

@@ -1,7 +1,10 @@
 package com.simonalong.neo.express;
 
+import com.simonalong.neo.Neo;
 import com.simonalong.neo.NeoConstant;
 import com.simonalong.neo.NeoQueue;
+import com.simonalong.neo.db.DbType;
+import com.simonalong.neo.db.NeoContext;
 import com.simonalong.neo.db.NeoPage;
 import com.simonalong.neo.db.PageReq;
 import com.simonalong.neo.sql.builder.SqlBuilder;
@@ -806,10 +809,19 @@ public abstract class BaseOperate implements Operate {
     public static Operate Like(String tableName, String key, Object value) {
         return new RelationOperate(tableName, key, NeoConstant.LIKE, value) {
 
+            private boolean leftFix = false;
+            private boolean rightFix = false;
+            private DbType dbType;
+
             @Override
             public Boolean valueLegal() {
-                boolean leftFix = false;
-                boolean rightFix = false;
+                Neo db = NeoContext.getNeo();
+                if (null == db) {
+                    dbType = DbType.MYSQL;
+                } else {
+                    dbType = db.getDbType();
+                }
+
                 Object valueObj = getValue();
                 if (!(valueObj instanceof String)) {
                     return false;
@@ -845,12 +857,53 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                return NeoQueue.of();
+                if (dbType == DbType.MYSQL || dbType == DbType.MARIADB || dbType == DbType.ORACLE) {
+                    if (!leftFix && !rightFix) {
+                        return NeoQueue.of();
+                    }
+                    return super.getValueQueue();
+                } else {
+                    return NeoQueue.of();
+                }
             }
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(getTable(), getColumn()) + " like '" + getValue() + "'";
+                Object valueObj = getValue();
+                String value;
+
+                Neo db = NeoContext.getNeo();
+                DbType dbType;
+                if (null == db) {
+                    dbType = DbType.MYSQL;
+                } else {
+                    dbType = db.getDbType();
+                }
+                if (dbType == DbType.MYSQL || dbType == DbType.MARIADB) {
+                    if (leftFix && rightFix) {
+                        value = "concat('%', ?, '%')";
+                    } else if (leftFix) {
+                        value = "concat('%', ?)";
+                    } else if (rightFix) {
+                        value = "concat(?, '%')";
+                    } else {
+                        value = "'" + valueObj + "'";
+                    }
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " like " + value;
+                } else if (dbType == DbType.ORACLE) {
+                    if (leftFix && rightFix) {
+                        value = "'%' || ? || '%'";
+                    } else if (leftFix) {
+                        value = "'%' || ?";
+                    } else if (rightFix) {
+                        value = "? || '%'";
+                    } else {
+                        value = "'" + valueObj + "'";
+                    }
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " like " + value;
+                } else {
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " like '" + getValue() + "'";
+                }
             }
         };
     }
@@ -869,10 +922,19 @@ public abstract class BaseOperate implements Operate {
     public static Operate NotLike(String tableName, String key, Object value) {
         return new RelationOperate(tableName, key, NeoConstant.NOT_LIKE, value) {
 
+            private boolean leftFix = false;
+            private boolean rightFix = false;
+            private DbType dbType;
+
             @Override
             public Boolean valueLegal() {
-                boolean leftFix = false;
-                boolean rightFix = false;
+                Neo db = NeoContext.getNeo();
+                if (null == db) {
+                    dbType = DbType.MYSQL;
+                } else {
+                    dbType = db.getDbType();
+                }
+
                 Object valueObj = getValue();
                 if (!(valueObj instanceof String)) {
                     return false;
@@ -908,12 +970,53 @@ public abstract class BaseOperate implements Operate {
 
             @Override
             public NeoQueue<Object> getValueQueue() {
-                return NeoQueue.of();
+                if (dbType == DbType.MYSQL || dbType == DbType.MARIADB || dbType == DbType.ORACLE) {
+                    if (!leftFix && !rightFix) {
+                        return NeoQueue.of();
+                    }
+                    return super.getValueQueue();
+                } else {
+                    return NeoQueue.of();
+                }
             }
 
             @Override
             public String generateOperate() {
-                return SqlBuilder.toDbField(getTable(), getColumn()) + " not like '" + getValue() + "'";
+                Object valueObj = getValue();
+                String value;
+
+                Neo db = NeoContext.getNeo();
+                DbType dbType;
+                if (null == db) {
+                    dbType = DbType.MYSQL;
+                } else {
+                    dbType = db.getDbType();
+                }
+                if (dbType == DbType.MYSQL || dbType == DbType.MARIADB) {
+                    if (leftFix && rightFix) {
+                        value = "concat('%', ?, '%')";
+                    } else if (leftFix) {
+                        value = "concat('%', ?)";
+                    } else if (rightFix) {
+                        value = "concat(?, '%')";
+                    } else {
+                        value = "'" + valueObj + "'";
+                    }
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " not like " + value;
+                } else if (dbType == DbType.ORACLE) {
+                    if (leftFix && rightFix) {
+                        value = "'%' || ? || '%'";
+                    } else if (leftFix) {
+                        value = "'%' || ?";
+                    } else if (rightFix) {
+                        value = "? || '%'";
+                    } else {
+                        value = "'" + valueObj + "'";
+                    }
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " not like " + value;
+                } else {
+                    return SqlBuilder.toDbField(getTable(), getColumn()) + " not like '" + getValue() + "'";
+                }
             }
         };
     }
