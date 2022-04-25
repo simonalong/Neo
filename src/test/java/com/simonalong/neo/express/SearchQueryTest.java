@@ -472,6 +472,12 @@ public class SearchQueryTest extends BaseTest {
         Assert.assertEquals(sql, searchQuery.toSql());
         Assert.assertEquals(Arrays.asList("tt", 3), searchQuery.toValue());
 
+        // 不等于
+        sql = " where (`name` != ? and `age` = ?)";
+        searchQuery = new SearchQuery().and(NotEqual("name", ""), Equal("age", 3));
+        Assert.assertEquals(sql, searchQuery.toSql());
+        Assert.assertEquals(Arrays.asList("", 3), searchQuery.toValue());
+
         // 大于
         sql = " where (`name` > ? and `age` = ?)";
         searchQuery = new SearchQuery().and(GreaterThan("name", "tt"), Equal("age", 3));
