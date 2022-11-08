@@ -91,6 +91,7 @@ public class UpdateSqlBuilder extends BaseSqlBuilder {
      * set a.`name`=b.`name`;
      * }
      *
+     * @param tenantHandler        多租户处理器
      * @param tableName            表名
      * @param updateDataColumnList 待更新的列的数据值
      * @param conditionColumns     待更新数据作为where后面的条件对应的列

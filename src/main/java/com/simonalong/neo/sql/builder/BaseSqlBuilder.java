@@ -20,6 +20,7 @@ public class BaseSqlBuilder {
     /**
      * 给表对应的搜索值添加搜索字段
      *
+     * @param tenantHandler           多租户处理器
      * @param tableName               表名
      * @param valueMap                新增的值
      */

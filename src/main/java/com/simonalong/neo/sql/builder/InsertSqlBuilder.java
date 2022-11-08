@@ -33,6 +33,7 @@ public class InsertSqlBuilder extends BaseSqlBuilder {
      * @param tenantHandler 租户管理器
      * @param tableName     表名
      * @param valueMap      数据实体
+     * @param searchMap     搜索条件
      * @return 拼接的sql，比如：insert into demo1(`name`, `group`) select ?, ? where not exists (select * from demo1 where `name` = ?);
      */
     public String buildInsertOfUnExist(TenantHandler tenantHandler, String tableName, NeoMap valueMap, NeoMap searchMap) {
