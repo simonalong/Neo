@@ -1208,7 +1208,7 @@ public class Neo extends AbstractExecutorDb {
             }).collect(Collectors.toList());
 
             if (!NeoMap.isEmpty(resultList)) {
-                return resultList.stream().map(r -> r.get(tClass, field)).filter(Objects::nonNull).collect(Collectors.toList());
+                return resultList.stream().filter(Objects::nonNull).map(r -> r.get(tClass, field)).collect(Collectors.toList());
             }
         }
         return new ArrayList<>();
@@ -1225,7 +1225,7 @@ public class Neo extends AbstractExecutorDb {
         }).collect(Collectors.toList());
 
         if (!NeoMap.isEmpty(resultList)) {
-            return resultList.stream().map(r -> r.get(tClass, field)).filter(Objects::nonNull).collect(Collectors.toList());
+            return resultList.stream().filter(Objects::nonNull).map(r -> r.get(tClass, field)).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -2063,6 +2063,10 @@ public class Neo extends AbstractExecutorDb {
                         if (openMonitor()) {
                             // 统计sql信息
                             monitor.calculate(results);
+                        }
+
+                        if (openLogPrint() || log.isDebugEnabled()) {
+                            monitor.printLog(results);
                         }
                         return batchCount;
                     } catch (Throwable e) {
