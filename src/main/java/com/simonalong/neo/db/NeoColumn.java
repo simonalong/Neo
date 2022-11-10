@@ -2,13 +2,10 @@ package com.simonalong.neo.db;
 
 import static com.simonalong.neo.NeoConstant.LOG_PRE_NEO;
 
-import java.sql.JDBCType;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.math.BigDecimal;
+import java.sql.*;
 
-import com.mysql.cj.MysqlType;
 import com.simonalong.neo.Neo;
-import com.simonalong.neo.exception.NeoException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -75,11 +72,7 @@ public final class NeoColumn {
         neoColumn.columnJDBCType = innerColumn.getColumnJDBCType();
         neoColumn.columnTypeName = innerColumn.getColumnName();
         neoColumn.isAutoIncrement = "YES".equals(innerColumn.getIsAutoIncrement());
-        try {
-            neoColumn.javaClass = Class.forName(MysqlType.getByJdbcType(innerColumn.getDataType()).getClassName());
-        } catch (ClassNotFoundException e) {
-            throw new NeoException(e);
-        }
+        neoColumn.javaClass = classFromJavaType(innerColumn.getDataType());
         return neoColumn;
     }
 
@@ -285,5 +278,79 @@ public final class NeoColumn {
             return columnName.equals(NeoColumn.class.cast(obj).getColumnName());
         }
         return false;
+    }
+
+    public static Class<?> classFromJavaType(int type) {
+        switch (type) {
+            case Types.BOOLEAN:
+            case Types.BIT:
+                return Boolean.class;
+
+            case Types.TINYINT:
+                return Byte.class;
+
+            case Types.SMALLINT:
+                return Short.class;
+
+            case Types.INTEGER:
+                return Integer.class;
+
+            case Types.BIGINT:
+                return Long.class;
+
+            case Types.DOUBLE:
+            case Types.FLOAT:
+                return Double.class;
+
+            case Types.REAL:
+                return Float.class;
+
+            case Types.TIMESTAMP:
+                return Timestamp.class;
+
+            case Types.DATE:
+                return Date.class;
+
+            case Types.VARCHAR:
+            case Types.NVARCHAR:
+            case Types.CHAR:
+            case Types.NCHAR:
+            case Types.LONGVARCHAR:
+            case Types.LONGNVARCHAR:
+            case Types.CLOB:
+            case Types.NCLOB:
+                return String.class;
+
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+                return BigDecimal.class;
+
+            case Types.VARBINARY:
+            case Types.BINARY:
+            case Types.LONGVARBINARY:
+            case Types.BLOB:
+            case Types.JAVA_OBJECT:
+                return byte[].class;
+
+            case Types.NULL:
+                return null;
+
+            case Types.TIME:
+                return Time.class;
+
+            default:
+                // DISTINCT
+                // STRUCT
+                // ARRAY
+                // REF
+                // DATALINK
+                // ROWID
+                // SQLXML
+                // REF_CURSOR
+                // TIME_WITH_TIMEZONE
+                // TIMESTAMP_WITH_TIMEZONE
+                break;
+        }
+        return null;
     }
 }
